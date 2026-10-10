@@ -22,8 +22,8 @@ If Step 0 recon shows the target package is already registered (`Constants.COMPA
 4. Continue with Step 4 (device + traffic) and Step 5 (atomic `fix(<app>)` commits only for applied gaps, `audit-stack` over the pending range).
 Report `no gaps found` with gate evidence when the suite already covers the surface.
 
-### Step 1 — Registration (one AGY worker, `accept-edits`)
-New `agy` conversation: add `Constants` entry inside `object Constants` + `TargetApp` entry + README row (matching repository column schema) + `docs/apps/<app_id>.md` skeleton (with mandatory Behavioral Hazards Warning) per `AGENTS.md` section 2. Folding documentation skeleton here avoids Worker A/B collision on docs. Uncommitted; orchestrator commits with the first patch.
+### Step 1 — Registration (one AGY worker, `accept-edits`, low tier)
+New `agy` conversation (`gemini-3.8-flash-low --effort low`: benchmarked sufficient — 71 s vs 168 s high at equal schema quality): add `Constants` entry inside `object Constants` + `TargetApp` entry + README row (matching repository column schema) + `docs/apps/<app_id>.md` skeleton (with mandatory Behavioral Hazards Warning) per `AGENTS.md` section 2, and NOTHING else (no companion-mapping edits unless explicitly requested). Folding documentation skeleton here avoids Worker A/B collision on docs. Uncommitted; orchestrator commits with the first patch.
 
 ### Step 2 — Parallel implementation (TWO AGY workers, exclusive paths)
 Launch both in the same turn (background), max two, never the same files:
@@ -38,6 +38,7 @@ Run in-situ gates sending output to `build/` (gitignored):
    - First pass (defaults): `./gradlew runPatchTest -Papp=<app_id> -Papk=<apk> -Pout=build/test-<app_id>.apk`
    - Second pass (all options forced on): `./gradlew runPatchTest -Papp=<app_id> -Papk=<apk> -PallOptions=true -Pout=build/test-<app_id>.apk`
    (100% success, 0 failed patches, 0 fingerprint mismatches, 0 smali compile errors).
+   Benchmarked cost (defaults pass): xiaomi_earbuds 32 s / nokoprint 8 s / hevy 8 s; harness 1 s; check 8 s. Both passes stay mandatory — no exemption for small apps (second pass costs ~as much as the first and covers opt-in toggles).
 2. RE harness unit tests: `./venv/bin/python -m unittest discover harness/tests`.
 3. Project checks: `./gradlew check`.
 Injection proof via output-APK manifest dump (`build/test-<app_id>.apk`), never counters alone.
