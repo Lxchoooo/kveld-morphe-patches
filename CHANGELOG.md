@@ -1,3 +1,13 @@
+## [2.7.0-experimental.4](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.3...v2.7.0-experimental.4) (2026-10-10)
+
+### Bug Fixes
+
+* **tiktok:** prune zombie hooks from telemetry silencer ([44aaf84](https://github.com/kveld9/kveld-morphe-patches/commit/44aaf84592508f1f89fa9471eb6874c604e0239f))
+
+### New Features
+
+* **tiktok:** add telemetry manifest purge patch ([109fd11](https://github.com/kveld9/kveld-morphe-patches/commit/109fd11b670cbf68d2499d5c80080dfbb91f5538))
+
 ## [2.7.0-experimental.3](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.2...v2.7.0-experimental.3) (2026-10-10)
 
 ### Bug Fixes
