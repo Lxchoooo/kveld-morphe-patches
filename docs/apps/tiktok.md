@@ -84,6 +84,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Privacy** | **Disable Watch History Recording** | `bytecodePatch` | Prevents viewed videos from being recorded in account watch history, playback duration stores, and local history caches. |
 | **Privacy** | **Update Prompt Suppressor** | `bytecodePatch` | Neutralizes background update polling tasks and version enforcement dialogs. |
 | **Privacy** | **[TikTok Privacy Permissions Stripper](#12-tiktok-privacy-permissions-stripper)** | `resourcePatch` | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via 15 granular opt-in boolean toggles. |
+| **Privacy** | **[Telemetry Manifest Purge](#29-telemetry-manifest-purge)** | `resourcePatch` | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase discovery registrars, and injects analytics opt-out metadata (Firebase, AppsFlyer, Meta AppEvents) into AndroidManifest.xml. |
 | **Performance** | **[Display Refresh Rate Governor](#3-display-refresh-rate-governor)** | `bytecodePatch` | Locks window to peak hardware refresh rate (120Hz/90Hz) and neutralizes playback downclocking. |
 | **Performance** | **[Disable HDR Video Playback](#26-disable-hdr-video-playback-disablehdrvideopatch)** | `bytecodePatch` | Forces the video playback engine to select standard SDR bitrates instead of HDR (HDR10/PQ/HLG). |
 | **Performance** | **Instant Launch & Splash Blocker** | `bytecodePatch` | Eliminates cold startup delays, real-time splash advertisements, and background TopView ad preloading. |
@@ -648,3 +649,21 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - `commercialVideoInfo` (commercial video payload marker).
   - `promoteModel` and `promoteIconText` (native in-feed promotion triggers).
   - Multi-locale description, caption, banner, and anchor fallback pattern matching (`#paidpartnership`, `#brandedcontent`, `#contenidopromocional`, `[Contenido Promocional]`, `[Paid partnership]`, `[Contenu sponsorisé]`, `[Colaboración pagada]`, `[Parceria paga]`, etc.).
+
+### 29. Telemetry Manifest Purge (`telemetryManifestPurgePatch`)
+- **Manifest DOM Transformation**:
+  - Implemented as a clean `resourcePatch` executing directly against `AndroidManifest.xml`.
+  - Uses shared helpers from `app.morphe.patches.shared` (`stripPermissionsWhere`, `disableComponentsWhere`, `removeComponentDiscoveryRegistrarsWhere`, `setApplicationMetaData`) for consistent DOM manipulation.
+- **Advertising & Tracking Permissions Stripping**:
+  - Completely strips `com.google.android.gms.permission.AD_ID`, Privacy Sandbox AdServices attribution and ad-id permissions (`android.permission.ACCESS_ADSERVICES_ATTRIBUTION`, `android.permission.ACCESS_ADSERVICES_AD_ID`, `android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE`, `android.permission.ACCESS_ADSERVICES_TOPICS`), and Google Play Install Referrer (`com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE`).
+  - Preserves critical system permissions (`android.permission.INTERNET`, `com.android.vending.BILLING`, push notification permissions).
+- **Telemetry Component Neutralization**:
+  - Disables tracking broadcast receivers: `HotsoonReceiver`, `MultipleInstallBroadcastReceiver`, `SingleInstallBroadcastReceiver`, `Collector`, `AppMeasurementReceiver`, and `AlarmManagerSchedulerBroadcastReceiver` (`android:enabled="false"`, `android:exported="false"`).
+  - Disables background telemetry services: `AppMeasurementService`, `AppMeasurementJobService`, `TransportBackendDiscovery`, and `JobInfoSchedulerService`.
+  - Disables install provider authority entries: `com.appsflyer.referrer.INSTALL_PROVIDER`.
+- **Firebase Discovery Registrar Pruning & Declarative SDK Opt-Out Injection**:
+  - Prunes pure telemetry discovery registrars (`AnalyticsConnectorRegistrar`, `TransportRegistrar`) from `ComponentDiscoveryService`, preventing runtime instantiation while preserving `FirebaseMessagingRegistrar` and `FirebaseInstallationsRegistrar` for push notifications.
+  - Preserves `MlKitComponentDiscoveryService` for on-device machine learning.
+  - Injects Firebase & Google Analytics opt-out `<meta-data>` entries (`firebase_analytics_collection_enabled = false`, `firebase_analytics_collection_deactivated = true`, `google_analytics_default_allow_analytics_storage = false`, `google_analytics_default_allow_ad_storage = false`, `google_analytics_default_allow_ad_user_data = false`, `google_analytics_default_allow_ad_personalization_signals = false`, `google_analytics_adid_collection_enabled = false`).
+  - Injects AppsFlyer collection opt-out `<meta-data>` (`appsflyer_data_collection_enabled = false`).
+  - Injects Meta / Facebook SDK auto-init and AppEvents tracking opt-out `<meta-data>` (`com.facebook.sdk.AutoInitEnabled = false`, `com.facebook.sdk.AutoLogAppEventsEnabled = false`, `com.facebook.sdk.AdvertiserIDCollectionEnabled = false`) to silence `graph.facebook.com` telemetry pings and AppEvents loggers, while preserving `com.facebook.FacebookContentProvider` for login and share flows.
