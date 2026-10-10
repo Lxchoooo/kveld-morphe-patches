@@ -62,11 +62,15 @@ jobs:
       # GITHUB_TOKEN authenticates the GitHub Packages plugin repository.
       # buildAndroid compiles the patches and the extension DEX without
       # running unit tests, so test failures never block the security scan.
+      # --no-build-cache is mandatory: the setup-java Gradle cache restores
+      # build-cache entries, and any compile task served FROM-CACHE spawns no
+      # compiler process, leaving the CodeQL tracer with an empty database
+      # ("this run didn't build any of it", finalize exit 32).
       - name: Build
         if: matrix.language == 'java-kotlin'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid --no-daemon
+        run: ./gradlew :patches:buildAndroid --no-daemon --no-build-cache
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
