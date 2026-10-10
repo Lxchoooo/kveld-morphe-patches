@@ -72,7 +72,7 @@
 </details>
 
 <details>
-<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>72 patches</b></summary>
+<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>73 patches</b></summary>
 <br>
 
 **Supported versions:**
@@ -148,6 +148,7 @@
 | **Stop Video Looping** | Stops videos at the end instead of replaying them in an infinite loop. |  |
 | **Studio & Creation De-bloat** | Strips heavy video creation plugins, CapCut NLE editor SDKs, effect plugins, camera dynamic features, upload video encoders, on-device AI runtimes (LiteRT), and AR camera face models to significantly reduce APK size. |  |
 | **System Font** | Forces TikTok to use the Android system font instead of bundled proprietary TikTokSans fonts. |  |
+| **Telemetry Manifest Purge** | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase analytics/transport registrars, and injects opt-out metadata (Firebase, AppsFlyer, Meta). |  |
 | **TikTok Privacy Permissions Stripper** | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via configurable boolean toggles. | • Strip Notification Permission<br>• Strip Camera Permission<br>• Strip Microphone Permissions<br>• Strip Storage & Media Permissions<br>• Strip Bluetooth Permissions<br>• Strip NFC Permission<br>• Strip Biometric Permissions<br>• Strip Foreground Service Permissions<br>• Strip System Alert Window Permission<br>• Strip Wake Lock Permission<br>• Strip Screenshot & Recording Detection Permissions<br>• Strip Miscellaneous Hardware & System Permissions<br>• Strip OEM Diagnostic & Background Signals<br>• Strip Push Delivery Permissions<br>• Strip In-App Billing Permission |
 | **Unified Telemetry & Tracker Silencer** | Neutralizes ByteDance AppLog user tracking, APM/Npth/Heimdallr crash monitors, AppsFlyer attribution, and Firebase analytics. |  |
 | **Update Prompt Suppressor** | Neutralizes background update polling tasks and device ID check routines to prevent forced update popups. |  |
