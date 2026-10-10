@@ -1,0 +1,56 @@
+name: CodeQL
+
+# Advanced setup: the Default Setup autobuild runs `gradlew clean` without
+# GITHUB_TOKEN, so the `app.morphe.patches` plugin cannot be resolved from
+# GitHub Packages (settings.gradle.kts authenticates with GITHUB_ACTOR /
+# GITHUB_TOKEN) and the java-kotlin analysis always fails. This workflow
+# builds manually with the token exported, mirroring ci.yml / release.yml.
+# After merging, disable Default Setup under Settings > Code security >
+# Code scanning so both setups do not run in parallel.
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  schedule:
+    - cron: '30 1 * * 1'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze (java-kotlin)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6.0.1
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
+      # GITHUB_TOKEN authenticates the GitHub Packages plugin repository.
+      # buildAndroid compiles the patches and the extension DEX without
+      # running unit tests, so test failures never block the security scan.
+      - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :patches:buildAndroid --no-daemon
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:java-kotlin'
