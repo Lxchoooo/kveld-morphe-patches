@@ -1,3 +1,22 @@
+## [2.7.0-experimental.3](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.2...v2.7.0-experimental.3) (2026-10-10)
+
+### Bug Fixes
+
+* **tiktok:** scope feed content filter to FYP feed only ([00bda8a](https://github.com/kveld9/kveld-morphe-patches/commit/00bda8a7dbb05534fc3395e0b30bbd2fb56b7a5a))
+* **universal:** cap per-host log lines in hosts blocker ([c3ceb78](https://github.com/kveld9/kveld-morphe-patches/commit/c3ceb782eff7a0010239591675ba0e6050cf86fc))
+* **universal:** count only added opt-out flags in telemetry neutralizer ([9dc24a5](https://github.com/kveld9/kveld-morphe-patches/commit/9dc24a5006cbe9cbe72c185386bf61bdfc3b1e3c))
+* **universal:** default form-factor stripping off in DPI slimmer ([886e335](https://github.com/kveld9/kveld-morphe-patches/commit/886e33572b9bdb8fd3fafbe2d843c52af3ffb580))
+* **universal:** disclose raw-only assets-only scope in PNG optimizer ([f984574](https://github.com/kveld9/kveld-morphe-patches/commit/f984574d85fca012ecbbc031879f23dd7874f693))
+* **universal:** disclose raw-only assets-only scope in WebP optimizer ([58884d5](https://github.com/kveld9/kveld-morphe-patches/commit/58884d53eb62cec77b8e6295d83480ba27b978dc))
+* **universal:** gate Crashlytics registrar pruning behind opt-in toggle ([28254ca](https://github.com/kveld9/kveld-morphe-patches/commit/28254ca6b2cccaa2c89b133a68d17e896c2d0aea))
+* **universal:** harden screen-capture callback neutralization in screenshot bypass ([342a0a0](https://github.com/kveld9/kveld-morphe-patches/commit/342a0a051a4aa538ba76803799ef483e328aea60))
+* **universal:** keep WorkManager foreground service enabled in sync purge ([5be038b](https://github.com/kveld9/kveld-morphe-patches/commit/5be038bfcfe82392cd48c18016d940e1d0b9b949))
+* **universal:** narrow default registrar predicate in telemetry neutralizer ([a88469e](https://github.com/kveld9/kveld-morphe-patches/commit/a88469e54698b0e217e473be4c55be3d419a8922))
+* **universal:** report skipped high-register sites in screen timeout enforcer ([099177e](https://github.com/kveld9/kveld-morphe-patches/commit/099177e9624af0d9d393cec5f7e9eedb828e3e2e))
+* **universal:** skip missing methods instead of aborting sdk blocker ([500eadb](https://github.com/kveld9/kveld-morphe-patches/commit/500eadb2f3b74b73848e9cb26916248418be6a13))
+* **universal:** warn on eager loadLibrary pairing in native binary trimmer ([59f5c80](https://github.com/kveld9/kveld-morphe-patches/commit/59f5c80def52e675911415fa11cac21d659b5f4b))
+* **xiaomi_earbuds:** block DataTransport upload schedulers in telemetry purge ([f63ed99](https://github.com/kveld9/kveld-morphe-patches/commit/f63ed996f24474fb03f8f9823caa48f45727d1a8))
+
 ## [2.7.0-experimental.2](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.1...v2.7.0-experimental.2) (2026-10-10)
 
 ### Bug Fixes
