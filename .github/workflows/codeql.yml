@@ -1,12 +1,15 @@
 name: CodeQL
 
-# Advanced setup: the Default Setup autobuild runs `gradlew clean` without
-# GITHUB_TOKEN, so the `app.morphe.patches` plugin cannot be resolved from
-# GitHub Packages (settings.gradle.kts authenticates with GITHUB_ACTOR /
-# GITHUB_TOKEN) and the java-kotlin analysis always fails. This workflow
-# builds manually with the token exported, mirroring ci.yml / release.yml.
-# After merging, disable Default Setup under Settings > Code security >
-# Code scanning so both setups do not run in parallel.
+# Advanced setup for ALL CodeQL languages (Default Setup must stay disabled):
+# - java-kotlin needs a manual Gradle build because the Default Setup autobuild
+#   runs `gradlew clean` without GITHUB_TOKEN, so the `app.morphe.patches`
+#   plugin cannot be resolved from GitHub Packages (settings.gradle.kts
+#   authenticates with GITHUB_ACTOR / GITHUB_TOKEN).
+# - javascript-typescript, python and actions need no build (build-mode: none).
+# Default Setup must stay DISABLED under Settings > Code security > Code
+# scanning: GitHub rejects advanced-setup uploads while it is enabled
+# ("CodeQL analyses from advanced configurations cannot be processed when
+# the default setup is enabled").
 
 on:
   push:
@@ -18,18 +21,32 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (java-kotlin)
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       packages: read
       security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [java-kotlin, javascript-typescript, python, actions]
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+          - language: python
+            build-mode: none
+          - language: actions
+            build-mode: none
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Setup Java
+        if: matrix.language == 'java-kotlin'
         uses: actions/setup-java@v6.0.1
         with:
           distribution: 'temurin'
@@ -39,13 +56,14 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: java-kotlin
-          build-mode: manual
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
       # GITHUB_TOKEN authenticates the GitHub Packages plugin repository.
       # buildAndroid compiles the patches and the extension DEX without
       # running unit tests, so test failures never block the security scan.
       - name: Build
+        if: matrix.language == 'java-kotlin'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:buildAndroid --no-daemon
@@ -53,4 +71,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: '/language:java-kotlin'
+          category: '/language:${{ matrix.language }}'
