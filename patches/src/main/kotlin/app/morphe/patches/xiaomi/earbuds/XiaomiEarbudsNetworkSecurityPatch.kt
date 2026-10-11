@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsNetworkSecurityConfigResourcePatch = resourcePatch(
-    name = "Network Security Config",
-    description = "Configures network_security_config.xml to disable cleartext traffic and trust user-installed CA certificates.",
+    name = "Safer Connections (Setup)",
+    description = "Blocks unencrypted traffic, trusts your certificates.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -63,8 +63,8 @@ private val xiaomiEarbudsNetworkSecurityConfigResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val xiaomiEarbudsNetworkSecurityPatch = bytecodePatch(
-    name = "Network Security & TLS Inspection",
-    description = "Disables cleartext traffic, trusts user-installed certificates, and bypasses OkHttp certificate pinning.",
+    name = "Safer Connections",
+    description = "Blocks unencrypted traffic and allows inspection.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
