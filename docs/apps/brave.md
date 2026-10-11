@@ -26,21 +26,21 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
 | Patch Name | Type | Category | Default | Primary Mechanism |
 | :--- | :--- | :--- | :---: | :--- |
 | **Brave Origin** | `bytecodePatch` + `resourcePatch` + `rawResourcePatch` | Feature Unlock & UI | ✅ Yes | Unlocks Brave Origin preference screens, injects toggle switches for Origin policy gates, and encapsulates native library extraction and ARM64 BTI neutralization across all bundled native binaries. |
-| **Block Brave Telemetry** | `bytecodePatch` + `resourcePatch` + `rawResourcePatch` | Privacy & Telemetry | ✅ Yes | Intercepts `PrefService.e` (P3A, stats, WDP), aborts variations seed HTTP connection, redirects 12 native host endpoints to `0.0.0.0` in `libchrome.so`, and encapsulates native library extraction and ARM64 BTI neutralization. |
-| **Clean New Tab Page** | `bytecodePatch` + `resourcePatch` | Debloat & UX | ✅ Yes | Neutralizes sponsored wallpaper loading via `PrefService.b` and `PrefService.e`, suppresses the Brave Shields stats card, and offers an opt-in toggle to hide top sites shortcuts. |
-| **Suppress In-App Promos & Surveys** | `bytecodePatch` | Debloat & UX | ✅ Yes | Forces `RateEligibilityGate.d -> false`, neutralizes rating survey bottom sheets (`BraveRateDialogFragment`), drops promotional dialogs (YouTube, ad-free callouts), and disables Brave Ads onboarding. |
-| **Brave In-Product & Commercial Notification Optimizer** | `bytecodePatch` | Debloat & Battery | ✅ Yes | Eliminates background wakeups and notifications from Chromium tips scheduler (Job ID 105), Brave Rewards onboarding promo, and retention marketing campaigns. |
-| **Clean Share URL** | `bytecodePatch` | Privacy & Anti-Tracking | ✅ Yes | Hooks Android share intent builder (`Lcch.a`) and clipboard copy (`Clipboard.setText`) to purge tracking parameters (`utm_*`, `fbclid`, `gclid`, etc.). |
-| **Disable Background Sync & Periodic Sync** | `bytecodePatch` | Battery & Performance | ✅ Yes | Eliminates background wakeups, radio modem activity, and battery drain by forcing `GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true` and neutralizing sync tasks. |
-| **Disable Battery Status API & OS Listener** | `bytecodePatch` | Privacy & Anti-Fingerprinting | ✅ Yes | Neutralizes the Battery Status API (`navigator.getBattery`) to prevent cross-site device fingerprinting and drops OS `BATTERY_CHANGED` broadcast events. |
-| **Brave Startup Performance Optimization** | `bytecodePatch` + `resourcePatch` + `rawResourcePatch` | Performance & Startup | ✅ Yes | Optimizes startup time and eliminates background CPU/disk overhead by disabling unused OEM carrier partner customizations (`PartnerBrowserCustomizations`). |
-| **Native Bloat Slimmer** | `rawResourcePatch` | Storage Reclamation | ❌ No | Strips 6 unused native companion binaries (Impress Vision AI, WireGuard VPN, and Android XR / ARCore) to reclaim **~22.35 MB** of APK space. |
-| **Locale PAK Slimmer** | `rawResourcePatch` | Storage Reclamation | ❌ No | Strips unselected language PAKs from `assets/locales/` (~9.64 MB saved) using zero-crash binary fallback substitution. |
-| **Sensor Privacy Guard** | `bytecodePatch` | Privacy & Anti-Fingerprinting | ✅ Yes | Forces `PlatformSensorProvider.hasSensorType -> false` and `PlatformSensor.create -> null`. Neutralizes W3C Generic Sensor APIs. |
-| **Disable Tab Auto-Minimization** | `bytecodePatch` | Debloat & UX | ✅ Yes | Forces `ChromeTabbedActivity.k6 ()Z -> false`, preventing Brave from minimizing active tabs to the background and opening a New Tab Page on resume. |
-| **Disable Content Capture** | `bytecodePatch` | Privacy & Anti-Tracking | ✅ Yes | Forces `OnscreenContentProvider.shouldCapture -> false`. Stops page text/URL streaming to the Android ContentCapture service. |
-| **Skip First Run** | `bytecodePatch` | Usability & UX | ✅ Yes | Skips the welcome screen, search engine selection, and onboarding First Run Experience (FRE) on clean installs. |
-| **Tab Group Close Selection** | `bytecodePatch` | Usability & UX | ✅ Yes | When closing the selected tab in a tab group, selects the previous tab in the same group instead of jumping to a tab outside the group. |
+| **Block Tracking** | `bytecodePatch` + `resourcePatch` + `rawResourcePatch` | Privacy & Telemetry | ✅ Yes | Intercepts `PrefService.e` (P3A, stats, WDP), aborts variations seed HTTP connection, redirects 12 native host endpoints to `0.0.0.0` in `libchrome.so`, and encapsulates native library extraction and ARM64 BTI neutralization. |
+| **Clean Start Page** | `bytecodePatch` + `resourcePatch` | Debloat & UX | ✅ Yes | Neutralizes sponsored wallpaper loading via `PrefService.b` and `PrefService.e`, suppresses the Brave Shields stats card, and offers an opt-in toggle to hide top sites shortcuts. |
+| **Block Popups & Rating Requests** | `bytecodePatch` | Debloat & UX | ✅ Yes | Forces `RateEligibilityGate.d -> false`, neutralizes rating survey bottom sheets (`BraveRateDialogFragment`), drops promotional dialogs (YouTube, ad-free callouts), and disables Brave Ads onboarding. |
+| **Silence Promo Notifications** | `bytecodePatch` | Debloat & Battery | ✅ Yes | Eliminates background wakeups and notifications from Chromium tips scheduler (Job ID 105), Brave Rewards onboarding promo, and retention marketing campaigns. |
+| **Clean Shared Links** | `bytecodePatch` | Privacy & Anti-Tracking | ✅ Yes | Hooks Android share intent builder (`Lcch.a`) and clipboard copy (`Clipboard.setText`) to purge tracking parameters (`utm_*`, `fbclid`, `gclid`, etc.). |
+| **Stop Background Sync** | `bytecodePatch` | Battery & Performance | ✅ Yes | Eliminates background wakeups, radio modem activity, and battery drain by forcing `GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true` and neutralizing sync tasks. |
+| **Hide Battery Status** | `bytecodePatch` | Privacy & Anti-Fingerprinting | ✅ Yes | Neutralizes the Battery Status API (`navigator.getBattery`) to prevent cross-site device fingerprinting and drops OS `BATTERY_CHANGED` broadcast events. |
+| **Faster Startup** | `bytecodePatch` + `resourcePatch` + `rawResourcePatch` | Performance & Startup | ✅ Yes | Optimizes startup time and eliminates background CPU/disk overhead by disabling unused OEM carrier partner customizations (`PartnerBrowserCustomizations`). |
+| **Remove Unused Parts** | `rawResourcePatch` | Storage Reclamation | ❌ No | Strips 6 unused native companion binaries (Impress Vision AI, WireGuard VPN, and Android XR / ARCore) to reclaim **~22.35 MB** of APK space. |
+| **Remove Extra Languages** | `rawResourcePatch` | Storage Reclamation | ❌ No | Strips unselected language PAKs from `assets/locales/` (~9.64 MB saved) using zero-crash binary fallback substitution. |
+| **Block Motion Sensors** | `bytecodePatch` | Privacy & Anti-Fingerprinting | ✅ Yes | Forces `PlatformSensorProvider.hasSensorType -> false` and `PlatformSensor.create -> null`. Neutralizes W3C Generic Sensor APIs. |
+| **Keep Tabs Open** | `bytecodePatch` | Debloat & UX | ✅ Yes | Forces `ChromeTabbedActivity.k6 ()Z -> false`, preventing Brave from minimizing active tabs to the background and opening a New Tab Page on resume. |
+| **Stop Text Sharing with System** | `bytecodePatch` | Privacy & Anti-Tracking | ✅ Yes | Forces `OnscreenContentProvider.shouldCapture -> false`. Stops page text/URL streaming to the Android ContentCapture service. |
+| **Skip Welcome Screens** | `bytecodePatch` | Usability & UX | ✅ Yes | Skips the welcome screen, search engine selection, and onboarding First Run Experience (FRE) on clean installs. |
+| **Better Tab Closing** | `bytecodePatch` | Usability & UX | ✅ Yes | When closing the selected tab in a tab group, selects the previous tab in the same group instead of jumping to a tab outside the group. |
 | **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal slimmers or privacy patches on maintained apps. Only the curated Universal Hosts Blocker may be applied. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
@@ -55,7 +55,7 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
   - Stubs subscription check methods (`getIsSubscriptionActive`, `requestCredentialSummary`) to return active credentials.
   - Neutralizes the ARM64 BTI flag across bundled native binaries (`libchrome.so`, `libcrashpad_handler_trampoline.so`) and patches illegal instruction traps in `libchrome.so` to ensure seamless execution on ARMv8.0 and Android 16 devices.
 
-### 2. Block Brave Telemetry (`braveBlockTelemetryPatch`)
+### 2. Block Tracking (`braveBlockTelemetryPatch`)
 - **Objective**: Halt outbound telemetry pings, usage metrics, and variations seed fetching.
 - **Mechanisms**:
   - **Bytecode Neutralization**: Intercepts `PrefService.e` queries for P3A (*Privacy-Preserving Product Analytics*), Brave Stats, and WDP (*Web Discovery Project*).
@@ -66,7 +66,7 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
 - **Options**:
   - `blockOffersHost` (boolean, default: `true`): Rewrites DEX `const-string` literals containing `offers.brave.com` to `0.0.0.0`. Enabled by default; disable to keep commercial offers endpoint.
 
-### 3. Clean New Tab Page (`braveCleanNewTabPagePatch`)
+### 3. Clean Start Page (`braveCleanNewTabPagePatch`)
 - **Objective**: Completely eliminate sponsored advertising wallpapers, background campaign asset downloads, Brave News/Today promotional cards, and Brave Shields stats cards.
 - **Mechanisms**:
   - **Preference Defaults**: Overrides NTP preference keys in XML (`show_background_images`, `show_sponsored_images`, `brave_news_switch`, `show_brave_stats`, etc.) to ensure marketing features are disabled out-of-the-box.
@@ -75,7 +75,7 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
   - **Top Sites / Shortcuts Opt-In**: Offers the configurable `hideTopSites` option to remove most visited tiles and shortcuts for a completely blank home screen.
 - **Impact**: Saves ~15–30 MB/month of cellular background wallpaper downloads and produces an instant, pristine New Tab Page.
 
-### 4. Suppress In-App Promos & Surveys (`braveSuppressInAppPromosPatch`)
+### 4. Block Popups & Rating Requests (`braveSuppressInAppPromosPatch`)
 - **Objective**: Eliminate intrusive in-app rating survey bottom sheets, Play Store review prompts, and unsolicited marketing promo popups while browsing.
 - **Mechanisms**:
   - **Rating Eligibility Neutralization**: Forces `RateEligibilityGate.d(Context) -> false`, halting rating dialog triggers in `ChromeTabbedActivity` startup.
@@ -83,13 +83,13 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
   - **Promotional Dialog Interceptor**: Intercepts `BraveDialogFragment` to suppress `OpenYtInBraveDialogFragment` and `BraveAdFreeCalloutDialogFragment` popups.
   - **Brave Ads Onboarding Neutralization**: Stubs `BraveAdsSignupDialog` builders and dialog launchers.
 
-### 5. Brave In-Product & Commercial Notification Optimizer (`braveNotificationOptimizerPatch`)
+### 5. Silence Promo Notifications (`braveNotificationOptimizerPatch`)
 - **Objective**: Neutralize background notification scheduling tasks and promotional onboarding pushes.
 - **Mechanisms**:
   - Stubs `NotificationSchedulerTask` and `TipsAgent` to halt Chromium tips scheduler alarms (Job ID 105).
   - Neutralizes `BraveOnboardingNotification` and `RetentionNotificationPublisher` tasks.
 
-### 6. Clean Share URL (`cleanShareUrlPatch`)
+### 6. Clean Shared Links (`cleanShareUrlPatch`)
 - **Objective**: Strip invasive analytics and tracking tokens when copying or sharing links from the browser.
 - **Mechanisms**:
   - Intercepts link sharing via `Lcch.a` and clipboard copy via `Clipboard.setText` and `ClipboardImpl.setPrimaryClip`.
@@ -97,25 +97,25 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
   - Strips query parameters: `utm_*`, `fbclid`, `gclid`, `igshid`, `si`, `msclkid`, `mc_eid`, `vero_id`, etc.
   - Preserves legitimate functional parameters (`id`, `v`, `q`, `t`, `list`).
 
-### 7. Disable Background Sync & Periodic Sync (`disableBackgroundSyncPatch`)
+### 7. Stop Background Sync (`disableBackgroundSyncPatch`)
 - **Objective**: Prevent background radio wakeups, polling cycles, and network traffic when the browser is backgrounded.
 - **Mechanisms**:
   - Forces `GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true`.
   - Stubs background sync task triggers in `Lcee.d()` and `Lyfc.d()`.
 
-### 8. Disable Battery Status API & OS Listener (`disableBatteryApiPatch`)
+### 8. Hide Battery Status (`disableBatteryApiPatch`)
 - **Objective**: Prevent cross-site battery level tracking and eliminate battery change broadcast receiver wakeups.
 - **Mechanisms**:
   - Hooks `onReceive` in `Lwi1` to drop `ACTION_BATTERY_CHANGED` broadcast intents.
   - Prevents fingerprinters from querying battery charging status and remaining percentage.
 
-### 9. Brave Startup Performance Optimization (`bravePerformanceOptimizationPatch`)
+### 9. Faster Startup (`bravePerformanceOptimizationPatch`)
 - **Objective**: Accelerate cold launch times and reduce memory allocation on startup.
 - **Mechanisms**:
   - Neutralizes asynchronous partner carrier initialization in `PartnerBrowserCustomizations`.
   - Encapsulates ARM64 BTI neutralization and trap patching packaging invariants to ensure BTI and ARMv8.0 compatibility on modern Android versions (Android 15/16).
 
-### 10. Native Bloat Slimmer (`nativeBloatSlimmerPatch`)
+### 10. Remove Unused Parts (`nativeBloatSlimmerPatch`)
 - **Objective**: Strip unneeded bundled native libraries to reduce application size on disk and in memory.
 - **Mechanisms**:
   - Zeroes out 6 non-essential native libraries:
@@ -127,7 +127,7 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
     - `lib/arm64-v8a/libarcore_sdk_jni.so`
   - Reclaims **~22.35 MB** of storage without impacting standard web browsing.
 
-### 11. Locale PAK Slimmer (`localePakSlimmerPatch`)
+### 11. Remove Extra Languages (`localePakSlimmerPatch`)
 - **Objective**: Strip unselected language binary PAK archives from `assets/locales/` to reclaim **~9.64 MB** of APK space.
 - **Mechanisms**: Replaces stripped `.pak` files with the binary resource table of `en-US.pak` to satisfy Chromium's native C++ `ui::ResourceBundle` loader without triggering fatal assertion aborts.
 
@@ -169,32 +169,32 @@ ur, uz, vi, zh-CN, zh-HK, zh-TW, zu
 
 </details>
 
-### 12. Sensor Privacy Guard (`sensorPrivacyPatch`)
+### 12. Block Motion Sensors (`sensorPrivacyPatch`)
 - **Objective**: Prevent side-channel hardware fingerprinting, battery drain, and acoustic keystroke sniffing via web sensor APIs.
 - **Mechanisms**:
   - Forces `PlatformSensorProvider.hasSensorType(int)` to return `false`.
   - Forces `PlatformSensor.create(...)` to return `null`.
   - Conforms to W3C specifications so web applications receive standard "unsupported" states gracefully rather than crashing.
 
-### 13. Skip First Run (`skipFirstRunPatch`)
+### 13. Skip Welcome Screens (`skipFirstRunPatch`)
 - **Objective**: Bypass the first-run experience wizard, search engine selector, and onboarding prompts on fresh installations.
 - **Mechanisms**:
   - Forces completion in `Lem7` and bypasses onboarding sequencer in `Lam7`.
 
-### 14. Disable Tab Auto-Minimization (`braveDisableTabMinimizationPatch`)
+### 14. Keep Tabs Open (`braveDisableTabMinimizationPatch`)
 - **Objective**: Prevent Brave from automatically minimizing open tabs to the background and opening a New Tab Page when returning to the browser after inactivity or backgrounding.
 - **Mechanisms**:
   - Stubs `ChromeTabbedActivity.k6 ()Z` with `const/4 v0, 0x0; return v0`.
   - Bypasses opening screen checks, inactivity timer evaluations, and session-end triggers.
   - Ensures the user's active foreground tab remains immediately active and displayed whenever the browser is launched or resumed.
 
-### 15. Disable Content Capture (`disableContentCapturePatch`)
+### 15. Stop Text Sharing with System (`disableContentCapturePatch`)
 - **Objective**: Prevent Chromium from streaming visible web page text, titles, favicons and URLs to the Android ContentCapture system service (Android System Intelligence on Pixel and other devices that ship a capture service).
 - **Mechanisms**:
   - Forces `OnscreenContentProvider.shouldCapture(String)` to return `false`. The method is JNI-only and gates native capture, so no content is extracted or dispatched while `CompositorViewHolder` keeps a valid provider instance.
   - No effect on devices without a ContentCapture service (`adb shell dumpsys content_capture` reports `Can't find service`).
 
-### 16. Tab Group Close Selection (`braveTabGroupCloseSelectionPatch`)
+### 16. Better Tab Closing (`braveTabGroupCloseSelectionPatch`)
 - **Objective**: Prevent Brave from kicking the user out of an active tab group when closing the selected tab, ensuring the predecessor tab within the same group is selected instead of jumping to a tab outside the group (GitHub issue #76).
 - **Mechanisms**:
   - Hooks `TabCollectionTabModelImpl.Z(List, Tab, int, boolean, int, int)V` via companion helper `BraveExtension.preselectPreviousTabInGroup`.
@@ -207,12 +207,12 @@ ur, uz, vi, zh-CN, zh-HK, zh-TW, zu
 
 ## ⚙️ Configurable Options in Morphe Manager
 
-### 1. Clean New Tab Page: Hide Top Sites & Shortcuts
+### 1. Clean Start Page: Hide shortcut tiles
 - **Option Key**: `hideTopSites`
 - **Default**: `false`
 - **Description**: When enabled (opt-in), removes top sites shortcuts, most visited tiles, and the add shortcut button (`+`) from the New Tab Page, rendering a completely blank, distraction-free home screen.
 
-### 2. Locale PAK Slimmer: Locales to Keep
+### 2. Remove Extra Languages: Languages to keep
 - **Option Key**: `locales`
 - **Default**: `en-US`
 - **Accepted Format**: Comma-separated list of locale codes (e.g. `es, es-419, pt-BR, fr, de`).

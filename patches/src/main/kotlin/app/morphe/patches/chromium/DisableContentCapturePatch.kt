@@ -7,8 +7,8 @@ import app.morphe.patches.shared.replaceWithReturnBoolean
 
 @Suppress("unused")
 val disableContentCapturePatch = bytecodePatch(
-    name = "Disable Content Capture",
-    description = "Stops Chromium from streaming on-screen page text and URLs to the Android ContentCapture system service (Android System Intelligence).",
+    name = "Stop Text Sharing with System",
+    description = "Stops sending page text to the Android capture service.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
