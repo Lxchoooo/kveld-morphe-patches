@@ -10,8 +10,8 @@ private val EMPTY_BYTES = byteArrayOf()
 
 @Suppress("unused")
 val nokoPrintAssetDebloatPatch = rawResourcePatch(
-    name = "Asset Debloat",
-    description = "Strips embedded ad DEX, tracking scripts, web templates, and ad drawables to reduce APK size.",
+    name = "Remove Ad Files",
+    description = "Deletes hidden ad files and trackers to shrink the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
