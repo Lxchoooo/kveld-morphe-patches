@@ -185,18 +185,10 @@ public final class TikTokFeedAdFilter {
     private static Field brandContentAccountsField;
     private static Method getStarAtlasOrderIdMethod;
     private static Field starAtlasOrderIdField;
-    private static Method getPromoteIconTextMethod;
-    private static Field promoteIconTextField;
     private static Method getPromoteModelMethod;
     private static Field promoteModelField;
     private static Method isPromoteAdLabelMethod;
     private static Field isPromoteAdLabelField;
-    private static Method getLabelTextMethod;
-    private static Field labelTextField;
-    private static Method getBottomBarButtonTextMethod;
-    private static Field bottomBarButtonTextField;
-    private static Method getHasBottomBarButtonMethod;
-    private static Field hasBottomBarButtonField;
 
     private static Method getBCHashtagMethod;
     private static Field bcHashtagField;
@@ -212,10 +204,6 @@ public final class TikTokFeedAdFilter {
 
     private static final java.util.regex.Pattern AI_TAG_PATTERN = java.util.regex.Pattern.compile(
         "(?i)(?:#(?:aigenerated|ai_generated|aigc|generadoporia|generado_por_ia|generadoconia|aiart|aivideo|iaart|iavideo|midjourney|sora|stable_diffusion|stablediffusion|dalle|chatgpt|runwayml|klingai|lumaai)\\b|\\[(?:ai[-_ ]?generated|generado por ia|aigc)\\]|\\b(?:ai[-_ ]generated|generado por ia|generado con ia)\\b)"
-    );
-
-    private static final java.util.regex.Pattern PROMOTIONAL_TAG_PATTERN = java.util.regex.Pattern.compile(
-        "(?i)(?:#(?:paidpartnership|paid_partnership|brandedcontent|branded_content|contenidopromocional|contenido_promocional|promocional|colaboracionpagada|colaboracion_pagada|parceriapaga|parceria_paga|ad|publicidad|werbung|gesponsert|publi)\\b|\\[(?:paid partnership|branded content|contenido promocional|contenu sponsorisé|contenu sponsorise|colaboración pagada|colaboracion pagada|parceria paga|werbung|gesponsert)\\]|\\b(?:paid partnership|branded content|contenido promocional|contenu sponsorisé|contenu sponsorise|colaboración pagada|colaboracion pagada|parceria paga)\\b)"
     );
 
     private static final String SHOP_PROMO_MARKER = "placeholder_product_id";
@@ -580,8 +568,6 @@ public final class TikTokFeedAdFilter {
             try { brandContentAccountsField = awemeClass.getDeclaredField("brandContentAccounts"); brandContentAccountsField.setAccessible(true); } catch (Throwable ignored) {}
             try { getStarAtlasOrderIdMethod = awemeClass.getMethod("getStarAtlasOrderId"); getStarAtlasOrderIdMethod.setAccessible(true); } catch (Throwable ignored) {}
             try { starAtlasOrderIdField = awemeClass.getDeclaredField("starAtlasOrderId"); starAtlasOrderIdField.setAccessible(true); } catch (Throwable ignored) {}
-            try { getPromoteIconTextMethod = awemeClass.getMethod("getPromoteIconText"); getPromoteIconTextMethod.setAccessible(true); } catch (Throwable ignored) {}
-            try { promoteIconTextField = awemeClass.getDeclaredField("promoteIconText"); promoteIconTextField.setAccessible(true); } catch (Throwable ignored) {}
             try { getPromoteModelMethod = awemeClass.getMethod("getPromoteModel"); getPromoteModelMethod.setAccessible(true); } catch (Throwable ignored) {}
             try { promoteModelField = awemeClass.getDeclaredField("promoteModel"); promoteModelField.setAccessible(true); } catch (Throwable ignored) {}
 
@@ -598,12 +584,6 @@ public final class TikTokFeedAdFilter {
                 if (promoteModelClass != null) {
                     try { isPromoteAdLabelMethod = promoteModelClass.getMethod("isPromoteAdLabel"); isPromoteAdLabelMethod.setAccessible(true); } catch (Throwable ignored) {}
                     try { isPromoteAdLabelField = promoteModelClass.getDeclaredField("isPromoteAdLabel"); isPromoteAdLabelField.setAccessible(true); } catch (Throwable ignored) {}
-                    try { getLabelTextMethod = promoteModelClass.getMethod("getLabelText"); getLabelTextMethod.setAccessible(true); } catch (Throwable ignored) {}
-                    try { labelTextField = promoteModelClass.getDeclaredField("labelText"); labelTextField.setAccessible(true); } catch (Throwable ignored) {}
-                    try { getBottomBarButtonTextMethod = promoteModelClass.getMethod("getBottomBarButtonText"); getBottomBarButtonTextMethod.setAccessible(true); } catch (Throwable ignored) {}
-                    try { bottomBarButtonTextField = promoteModelClass.getDeclaredField("bottomBarButtonText"); bottomBarButtonTextField.setAccessible(true); } catch (Throwable ignored) {}
-                    try { getHasBottomBarButtonMethod = promoteModelClass.getMethod("getHasBottomBarButton"); getHasBottomBarButtonMethod.setAccessible(true); } catch (Throwable ignored) {}
-                    try { hasBottomBarButtonField = promoteModelClass.getDeclaredField("hasBottomBarButton"); hasBottomBarButtonField.setAccessible(true); } catch (Throwable ignored) {}
                 }
             } catch (Throwable ignored) {}
 
@@ -2330,15 +2310,6 @@ public final class TikTokFeedAdFilter {
     // =========================================================================
     // 6. HIDE / FILTER PROMOTIONAL CONTENT (Independent Patch)
     // =========================================================================
-
-    public static boolean isPromotionalDescription(String text) {
-        if (text == null || text.isEmpty()) return false;
-        try {
-            return PROMOTIONAL_TAG_PATTERN.matcher(text).find();
-        } catch (Throwable t) {
-            return false;
-        }
-    }
 
     private static boolean isPromoteModelPromotional(Object pm) {
         if (pm == null) return false;
