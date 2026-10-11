@@ -3,18 +3,19 @@ name: new-telemetry-app
 description: End-to-end workflow for onboarding a new target app and authoring telemetry-blocking patches: reconnaissance, registration, patch authoring, verification gates, device smoke test, and network traffic auditing.
 ---
 
-<!-- Canonical shared copy: byte-identical file in kveld-extra-morphe-patches and brave-origin-patches (.agents/skills, hardlinked to .claude/skills inside each repo). Keep copies byte-identical; propagate edits with scripts/sync_shared_skills.sh. Repo-specific deltas live in section 0 below, never in forked copies. -->
+<!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. Repo-specific deltas live in section 0 below. -->
 
 # New Target App Onboarding & Telemetry Hardening
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is canonical and byte-identical in both sibling repos. Edits propagate automatically via the `scripts/hooks/post-commit` hook (enabled per clone with `git config core.hooksPath scripts/hooks`); `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks.
+- **Sync invariant**: this file is byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches. `scripts/hooks/post-commit` (enabled per clone with `git config core.hooksPath scripts/hooks`; the hook file must be executable) copies the newest copy, by mtime, into the sibling working tree; `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks; repo-specific deltas belong in this section.
 - **README**: update only the hand-maintained Supported Targets table above `PATCHES_START`/`PATCHES_END`. Never edit the generated Patch Catalog block, `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md`; the release pipeline regenerates them. Verify catalog registration from a temporary directory outside the checkout; never run `generatePatchesList` in the checkout.
 - **Registry**: register the app in `util/PatchExecutionTest.kt` (`id`, `packageName` from `Constants.kt`, `candidateFilenames`, `filePattern`, `patchDirectoryPart`). Known divergence: id `xiaomi_earbuds` uses `patchDirectoryPart` `xiaomi` and guide `docs/apps/xiaomi-earbuds.md`.
-- **Extension wiring**: in kveld-extra link companion runtime via `dependsOn(sharedExtensionPatch)` (direct `extendWith` calls cost redundant `ClassMerger` passes); in brave-origin declare `extendWith("extensions/extension.mpe")` per its `AGENTS.md`. Follow the local repo convention.
+- **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 - **Universal boundary**: dedicated telemetry suites are a precision superset; never stack a generic telemetry neutralizer on maintained apps. Generic debloat universals (locale/dpi) are unaffected.
-- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. brave-origin develops on `dev` (`main` is the release line) and requires a green `audit-stack` over `origin/dev..HEAD` before any push.
+- **Skill availability**: `app-debloat` and `compat-bypass` (Section 5.B and 5.C) exist only in kveld-extra-morphe-patches. In kveld-morphe-patches use `native-binary-patching` for companion `.so` trimming, the universal patches in `app.morphe.patches.universal` (`docs/universal-patches.md`) for debloat axes, and `docs/out-of-scope.md` for compatibility-bypass boundaries.
+- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. kveld-morphe-patches develops on `dev` (`main` is the release line) and requires a green `audit-stack` over `origin/dev..HEAD` before any push; kveld-extra-morphe-patches follows its own `AGENTS.md`.
 
 ## 1. Scope & Non-Goals
 
@@ -189,7 +190,7 @@ When signatures shift or cannot be identified via simple grep:
 - **`jadx-gui` (Static Triage)**: Open APK in jadx, follow Xrefs from string constants or log messages, and identify the shifted method signature.
 - **`frida` / `jnitrace` (Dynamic Lab Triage)**: Attach to the target process on the lab device to confirm whether candidate methods execute during user interactions before writing hooks.
 
-Always store intermediate recon dumps in `scratch/` (ensuring `mkdir -p scratch` first) or `<appDataDir>/brain/<conversation-id>/scratch/`. Never commit raw scan outputs.
+Always store intermediate recon dumps in `scratch/` (ensuring `mkdir -p scratch` first). Never commit raw scan outputs.
 
 ### I. Compatibility Blocker Reconnaissance
 After analyzing telemetry, investigate client-side post-patch compatibility blockers and functioning gates that prevent the modified application from installing, launching, or operating properly:
@@ -269,7 +270,7 @@ File: `patches/src/main/kotlin/util/PatchExecutionTest.kt`
 Every target app establishes a 1:1:1:1 mapping:
 - `TargetApp.id`: CLI/runner identifier (e.g. `instagram`, `xiaomi_earbuds`)
 - `TargetApp.patchDirectoryPart`: Subdirectory under `patches/src/main/kotlin/app/morphe/patches/` (usually matches `id`, but can diverge, e.g. `xiaomi_earbuds` id pointing to `xiaomi` directory)
-- Guide filename: `docs/apps/<id>.md`
+- Guide filename: `docs/apps/<id>.md`, with underscores in the id written as hyphens (e.g. `xiaomi_earbuds` -> `docs/apps/xiaomi-earbuds.md`)
 - README table row: Target entry matching the target repo's table columns
 
 Add the target to `enum class TargetApp`:
@@ -594,6 +595,6 @@ Every completed unit of work must be committed immediately as an isolated, indep
 ### D. Mandatory Post-Close Adversarial Audit (audit-stack)
 After all commits in A are landed, automatically run the `audit-stack` skill against the onboarding changeset before closing the task (auditing the pending range, e.g. `origin/<base>..HEAD`). Never run per-commit auto-audits.
 1. **Scope**: Strictly the onboarding scope -- `patches/.../<app_id>/`, `docs/apps/<app_id>.md`, and the app's hunks in `Constants.kt` / `PatchExecutionTest.kt` / `README.md`. Explicitly exclude `FOREIGN_IN_PROGRESS_WORK` (uncommitted files and directories outside the app scope); never stage, modify, or report foreign work as part of this audit.
-2. **Remediation precedence**: `audit-stack`'s autonomous fix loop runs through the AGY delegation in force -- fixes are applied by the same AGY worker conversations (steered with concrete findings), gates are executed by the orchestrator. Never fix project files directly from the orchestrator; never use another harness's subagents for implementation.
+2. **Remediation precedence**: `audit-stack` applies fixes through whatever implementation workflow is configured for the local harness (for example a delegated worker); this skill does not define who edits files.
 3. **Fix commits**: Each confirmed fix lands as its own `fix(<app_id>): ...` commit after re-running the Section 6 gates. Loop until the audit reports zero blocking findings.
 4. No push / no PR (per C).

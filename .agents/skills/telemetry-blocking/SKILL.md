@@ -3,15 +3,15 @@ name: telemetry-blocking
 description: Technical methodology and implementation patterns for telemetry, tracking, analytics, and crash-reporting blocking in Morphe patches.
 ---
 
-<!-- Canonical shared copy: byte-identical file in kveld-extra-morphe-patches and brave-origin-patches (.agents/skills, hardlinked to .claude/skills inside each repo). Keep copies byte-identical; propagate edits with scripts/sync_shared_skills.sh. -->
+<!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. -->
 
 # Telemetry Blocking Implementation Guidelines
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is canonical and byte-identical in both sibling repos. Edits propagate automatically via the `scripts/hooks/post-commit` hook (enabled per clone with `git config core.hooksPath scripts/hooks`); `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks.
-- **Helpers**: manifestening helpers live in `app.morphe.patches.shared` (`ManifestXml.kt`, `BytecodeUtils.kt`) in both repos with the same API (`stripPermissionsWhere`, `disableComponentsByName`, `setApplicationMetaData`, `replaceWithReturnVoid`, `clearTryBlocks`).
-- **Extension wiring**: companion runtime filters (e.g. preference-gate filters) follow the local repo convention: `dependsOn(sharedExtensionPatch)` in kveld-extra, `extendWith("extensions/extension.mpe")` in brave-origin.
+- **Sync invariant**: this file is byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches. `scripts/hooks/post-commit` (enabled per clone with `git config core.hooksPath scripts/hooks`; the hook file must be executable) copies the newest copy, by mtime, into the sibling working tree; `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks; repo-specific deltas belong in this section.
+- **Helpers**: manifest and bytecode helpers live in `app.morphe.patches.shared` (`ManifestXml.kt`, `BytecodeUtils.kt`) in both repos with the same API (`stripPermissionsWhere`, `disableComponentsWhere`, `disableComponentsByName`, `setApplicationMetaData`, `replaceWithReturnVoid`, `replaceWithReturnBoolean`, `clearTryBlocks`).
+- **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 
 ## 1. Analysis Methodology (Hybrid Discovery Model)
 
