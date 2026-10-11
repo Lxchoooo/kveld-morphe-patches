@@ -13,8 +13,8 @@ import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 
 @Suppress("unused")
 val universalScreenBrightnessGovernorPatch = bytecodePatch(
-    name = "Universal Screen Brightness Governor",
-    description = "Prevents applications from overriding display brightness (such as in-app brightness sliders, barcode/QR full-screen brightness, or window-level overrides) by neutralizing all direct writes to WindowManager.LayoutParams.screenBrightness.",
+    name = "Lock Screen Brightness",
+    description = "Stops apps from changing brightness by themselves.",
     default = false,
 ) {
     execute {
