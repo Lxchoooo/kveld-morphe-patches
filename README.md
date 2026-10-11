@@ -335,6 +335,10 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 
 <!-- PATCHES_END -->
 
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>
+
 ---
 
 <a name="documentation"></a>
@@ -367,6 +371,10 @@ Technical references, setup manuals, and architecture notes are organized by foc
 | **[Building & Development](docs/building.md)** | Toolchain prerequisites, Gradle build tasks, test execution, and catalog synchronization. |
 | **[Reverse Engineering & Update Harness](harness/README.md)** | Automated Python pipeline for multi-DEX indexing, obfuscated symbol resolution, and APK audits. |
 | **[Physical & Runtime ADB Test Suite](validation/physical_harness/README.md)** | Automated on-device validation for battery consumption, ServiceWorker sync, and runtime telemetry. |
+
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>
 
 ---
 
