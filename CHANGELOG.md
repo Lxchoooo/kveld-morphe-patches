@@ -1,3 +1,9 @@
+## [2.7.0-experimental.5](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.4...v2.7.0-experimental.5) (2026-10-11)
+
+### New Features
+
+* **tiktok:** add hideSuggestedOnly toggle to inbox story tray patch ([9480252](https://github.com/kveld9/kveld-morphe-patches/commit/94802528e572b83c4eac17b485a0b4a3f707fc5b))
+
 ## [2.7.0-experimental.4](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.3...v2.7.0-experimental.4) (2026-10-10)
 
 ### Bug Fixes
