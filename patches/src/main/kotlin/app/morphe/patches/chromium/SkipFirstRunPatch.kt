@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val skipFirstRunPatch = bytecodePatch(
-    name = "Skip First Run",
-    description = "Skips the welcome screen, search engine selection, and onboarding First Run Experience (FRE) on clean installs.",
+    name = "Skip Welcome Screens",
+    description = "Skips welcome, search choice and onboarding on fresh installs.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

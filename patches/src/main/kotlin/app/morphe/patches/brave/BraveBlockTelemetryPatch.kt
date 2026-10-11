@@ -26,8 +26,8 @@ import java.io.RandomAccessFile
 
 // ── Resource Patch: Sets defaultValue="false" on telemetry switches in XML ─────
 private val braveTelemetryResourcePatch = resourcePatch(
-    name = "Brave Telemetry Resource Defaults",
-    description = "Sets default values of P3A, Stats, and WDP switches to false in XML preferences.",
+    name = "Privacy Defaults (Setup)",
+    description = "Turns off analytics switches by default.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -77,8 +77,8 @@ private val braveTelemetryResourcePatch = resourcePatch(
 
 // ── Hosts Blocker Patch: Redirects all 12 telemetry domain endpoints to 0.0.0.0 in libchrome.so ─────
 private val braveHostsBlockerPatch = rawResourcePatch(
-    name = "Brave Hosts Blocker Layer",
-    description = "Redirects telemetry and diagnostic domain strings to 0.0.0.0 in libchrome.so as a second layer of defense.",
+    name = "Block Tracking Servers",
+    description = "Redirects tracking servers to nowhere.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -161,8 +161,8 @@ private val braveHostsBlockerPatch = rawResourcePatch(
 // ── Bytecode Patch: Blocks Crash uploads, Variations seed, and forces telemetry gates to false
 @Suppress("unused")
 val braveBlockTelemetryPatch = bytecodePatch(
-    name = "Block Brave Telemetry",
-    description = "Blocks P3A product analytics, Brave Stats usage pings, crash dump uploads, WDP, Chromium UMA metrics, and Variations seed fetching.",
+    name = "Block Tracking",
+    description = "Blocks usage analytics, crash uploads and experiment downloads.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -178,8 +178,8 @@ val braveBlockTelemetryPatch = bytecodePatch(
     val blockOffersHost by booleanOption(
         key = "blockOffersHost",
         default = true,
-        title = "Block Offers host",
-        description = "Rewrites DEX const-string literals containing offers.brave.com to 0.0.0.0. Enabled by default; disable to keep commercial offers endpoint.",
+        title = "Block offers server",
+        description = "Also blocks the shopping offers server. Turn off to keep it.",
         required = false,
     )
 
