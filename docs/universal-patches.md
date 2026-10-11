@@ -26,6 +26,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
 | **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
 | **[Silence System Logs](#18-silence-system-logs-universalsilencesystemlogspatch)** | `bytecodePatch` | Dalvik Bytecode Call Sites | Neutralizes log output invocations to prevent diagnostic log leakage | Stops application telemetry and sensitive strings leaking to logcat |
+| **[Disable Browser File Associations](#19-disable-browser-file-associations-universalbrowserassociationpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Removes HTTP/HTTPS `data` entries from `VIEW` + `BROWSABLE` intent filters; drops filters left dataless | App no longer appears in the browser chooser for online files; local file handling untouched |
 
 ---
 
@@ -71,6 +72,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
 | **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e/wtf` and `println`) with configurable level filtering. |
+| **Disable Browser File Associations** | ✅ Yes | Only touches `VIEW` + `BROWSABLE` intent filters carrying `http`/`https` data. Local file handlers (`file`/`content` schemes), launcher entries (`MAIN`) and non-browser actions are never modified. Do not apply to apps that must open web links (browsers, readers). |
 
 ---
 
@@ -543,7 +545,25 @@ The **`Silence System Logs`** patch neutralizes diagnostic logging invocations t
 
 - **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, wtf, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
 
+---
 
+## 19. Disable Browser File Associations (`universalBrowserAssociationPatch`)
 
+The **`Disable Browser File Associations`** patch stops an application from appearing in the Android browser app chooser for online files by pruning web-link intent filters in `AndroidManifest.xml`. It pairs with `Universal Offline Mode` for apps that should neither reach the network nor be reachable from it.
 
+### 🛡️ Surgical Filter Pruning
+
+For every `activity`, `activity-alias`, `service` and `receiver`, each `intent-filter` combining `android.intent.action.VIEW` + `android.intent.category.BROWSABLE` with `http`/`https` `<data>` entries is rewritten:
+
+1. **Web Scheme Stripping**: `http`/`https` `<data>` nodes are removed (scheme match is case-insensitive). Entries with local schemes (`file`, `content`) or other matchers are strictly preserved.
+2. **Emptied Filter Removal**: A filter left with no `<data>` nodes whose only action is `VIEW` existed purely for web links and is dropped entirely. Leaving a dataless `VIEW` + `BROWSABLE` filter would match every `VIEW` intent, so removal is the safe default.
+3. **Untouched by Design**: Launcher entries (`MAIN`), non-`BROWSABLE` filters, and filters without web schemes are never modified.
+
+### Configuration in Morphe Manager
+
+- **Strip HTTP/HTTPS Web Schemes (`stripWebSchemes`)**: Remove `http`/`https` data entries from `VIEW` + `BROWSABLE` intent filters (Toggle, default: `true`). Disable to run a no-op pass.
+- **Remove Emptied Filters (`removeEmptiedFilters`)**: Drop filters left dataless with only `VIEW` actions (Toggle, default: `true`). Disable to keep the emptied filter skeleton.
+
+> [!WARNING]
+> Do not apply to applications that must open web links themselves (web browsers such as Brave, readers, link aggregators): stripping their `BROWSABLE` filters breaks opening links from other apps.
 
