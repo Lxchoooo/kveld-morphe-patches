@@ -25,6 +25,7 @@
 <a name="table-of-contents"></a>
 ![Table of Contents](images/header-table-of-contents.svg)
 
+- [Quick Start](#quick-start)
 - [Key Advantages](#key-advantages)
 - [Supported Targets & Downloads](#supported-targets)
 - [Patch Catalog](#patch-catalog)
@@ -34,6 +35,17 @@
 - [Credits & Contributors](#credits)
 - [Legal Disclaimer](#legal)
 - [License](#license)
+
+---
+
+<a name="quick-start"></a>
+
+## Quick Start
+
+1. Install **Morphe Manager** on your Android device.
+2. Download the target app using the **exact version and variant** listed in [Supported Targets & Downloads](#supported-targets) (a version mismatch makes every fingerprint fail).
+3. Add this repository as a patch source with the button above, or add `https://github.com/kveld9/kveld-morphe-patches` manually.
+4. Select the patches, keep a copy of the original APK, run the patcher, and install the rebuilt APK.
 
 ---
 
