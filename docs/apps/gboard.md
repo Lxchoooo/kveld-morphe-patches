@@ -54,17 +54,17 @@ If you perform a clean install of Gboard Lite with background sync debloat patch
 
 | Patch Name | Type | Category | Default | Primary Mechanism |
 | :--- | :--- | :--- | :---: | :--- |
-| **Gboard Enhancements** | `resourcePatch` + `bytecodePatch` | Customization & Suite | ✅ Yes | Master customization suite bundling in-app toggleable features (Pure AMOLED Theme, Zero Bottom Inset, Independent Keyboard Vibration, Force Incognito, Voice Typing in Incognito, Clipboard Enhancements, Toolbar Item Count, Feature Flags, Onboarding status, and Core Integrity) managed directly from *Settings > Morphe Patches*. |
-| **Block Telemetry** | `bytecodePatch` | Privacy & Security | ✅ Yes | Disables background metrics dispatch, event logging, daily pings, Google Primes profiling, crash reporting, AppDoctor diagnostics, and Tenor share tracking. Provides an option to rewrite AdWords and Reporting Widget telemetry host literals to 0.0.0.0. |
-| **Clone Gboard** | `bytecodePatch` + `resourcePatch` | Utility & Modding | ✅ Yes | Appends a custom suffix to the package name and optionally customizes the application display label to allow installing Gboard alongside the original application. |
-| **Disable Background Sync** | `bytecodePatch` | Battery & Debloat | ❌ No | Neutralizes AndroidX WorkManager schedulers, MDD (Mobile Data Download) periodic sync, and Superpacks eager asset synchronization (opt-in to preserve initial dictionary downloads). |
-| **Disable Cloud Backup** | `resourcePatch` | Privacy & Security | ✅ Yes | Disables Android backup for Gboard (allowBackup=false and backup agent removed) so keyboard settings, learned words, and personal dictionary data are never uploaded to Google Drive backups or copied by device-to-device transfer. Trade-off: Gboard data no longer migrates to a new device through Android backup or restore. |
-| **Disable Remote Configuration** | `bytecodePatch` | Privacy & Stability | ✅ Yes | Disables periodic remote experiment flag synchronization and background updates. |
-| **Disable Play Services Integration** | `bytecodePatch` | Privacy & Battery | ❌ No | Makes Gboard's Google Play services availability check always report SERVICE_DISABLED, so GMS-backed code paths (Clearcut logging, Phenotype, account sync, Google Help feedback) are skipped at the source instead of being attempted. SERVICE_DISABLED is used instead of SERVICE_MISSING because GoogleApiAvailability remaps SERVICE_MISSING to SERVICE_UPDATING when the GMS package is installed, which makes GoogleApiManager retry every few seconds. Trade-off: Disables Gboard's inline Google Translate tool, which routes network requests through Play Services' dynamic Cronet provider (`PlayServicesCronetProvider`). If you need inline translation, leave this patch unselected. |
-| **Hardened Intent Security** | `bytecodePatch` + `resourcePatch` | Security & Integrity | ✅ Yes | Enables Gboard internal external intent protection against unauthorized intent hijacking, removes the exported, permissionless web debug bridge content provider, and purges federated learning (Brella) training services, receivers, package queries, and metadata from the manifest. Also applies declarative Cronet telemetry opt-out, disables multiprocess metrics services, and removes diagnostic initializers and non-ML-Kit component discovery registrars. |
+| **Keyboard Settings** | `resourcePatch` + `bytecodePatch` | Customization & Suite | ✅ Yes | Master customization suite bundling in-app toggleable features (Pure AMOLED Theme, Zero Bottom Inset, Independent Keyboard Vibration, Force Incognito, Voice Typing in Incognito, Clipboard Enhancements, Toolbar Item Count, Feature Flags, Onboarding status, and Core Integrity) managed directly from *Settings > Morphe Patches*. |
+| **Block Trackers** | `bytecodePatch` | Privacy & Security | ✅ Yes | Disables background metrics dispatch, event logging, daily pings, Google Primes profiling, crash reporting, AppDoctor diagnostics, and Tenor share tracking. Provides an option to rewrite AdWords and Reporting Widget telemetry host literals to 0.0.0.0. |
+| **Install a Copy** | `bytecodePatch` + `resourcePatch` | Utility & Modding | ✅ Yes | Appends a custom suffix to the package name and optionally customizes the application display label to allow installing Gboard alongside the original application. |
+| **Stop Background Sync** | `bytecodePatch` | Battery & Debloat | ❌ No | Neutralizes AndroidX WorkManager schedulers, MDD (Mobile Data Download) periodic sync, and Superpacks eager asset synchronization (opt-in to preserve initial dictionary downloads). |
+| **No Cloud Backup** | `resourcePatch` | Privacy & Security | ✅ Yes | Disables Android backup for Gboard (allowBackup=false and backup agent removed) so keyboard settings, learned words, and personal dictionary data are never uploaded to Google Drive backups or copied by device-to-device transfer. Trade-off: Gboard data no longer migrates to a new device through Android backup or restore. |
+| **Stop Remote Updates** | `bytecodePatch` | Privacy & Stability | ✅ Yes | Disables periodic remote experiment flag synchronization and background updates. |
+| **No Play Services** | `bytecodePatch` | Privacy & Battery | ❌ No | Makes Gboard's Google Play services availability check always report SERVICE_DISABLED, so GMS-backed code paths (Clearcut logging, Phenotype, account sync, Google Help feedback) are skipped at the source instead of being attempted. SERVICE_DISABLED is used instead of SERVICE_MISSING because GoogleApiAvailability remaps SERVICE_MISSING to SERVICE_UPDATING when the GMS package is installed, which makes GoogleApiManager retry every few seconds. Trade-off: Disables Gboard's inline Google Translate tool, which routes network requests through Play Services' dynamic Cronet provider (`PlayServicesCronetProvider`). If you need inline translation, leave this patch unselected. |
+| **Block App Hijacking** | `bytecodePatch` + `resourcePatch` | Security & Integrity | ✅ Yes | Enables Gboard internal external intent protection against unauthorized intent hijacking, removes the exported, permissionless web debug bridge content provider, and purges federated learning (Brella) training services, receivers, package queries, and metadata from the manifest. Also applies declarative Cronet telemetry opt-out, disables multiprocess metrics services, and removes diagnostic initializers and non-ML-Kit component discovery registrars. |
 | **Offline Only** | `bytecodePatch` + `resourcePatch` | Privacy & Security | ❌ No | Completely isolates Gboard from network access by purging manifest permissions, disabling foreground sync services, neutralizing HTTP clients (Cronet, OkHttp, Superpacks), and spoofing offline status. |
-| **Resource Slimmer** | `resourcePatch` | Optimization | ✅ Yes | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |
-| **Strip Permissions** | `resourcePatch` | Privacy & Security | ❌ No | Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml. |
+| **Remove Extra Files** | `resourcePatch` | Optimization | ✅ Yes | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |
+| **Remove Permissions** | `resourcePatch` | Privacy & Security | ❌ No | Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml. |
 | **Universal Slimmers** | `resourcePatch` + `rawResourcePatch` | Optimization | ✅ Yes | `Locale Resource Slimmer`, `DPI Resource Slimmer`, `PNG Asset Optimizer`, and `APK Junk Cleaner`. |
 
 ---
@@ -149,11 +149,11 @@ The **`Strip Permissions`** patch provides granular control over sensitive hardw
 
 | Option | Key | Type | Default | Description |
 | :--- | :--- | :--- | :---: | :--- |
-| **Strip Contacts Permission** | `stripContacts` | Boolean | `false` | Revokes `android.permission.READ_CONTACTS` from `AndroidManifest.xml` (disables contact name suggestions). |
-| **Strip Microphone Permission** | `stripAudio` | Boolean | `false` | Revokes `android.permission.RECORD_AUDIO` from `AndroidManifest.xml` (disables voice dictation). |
-| **Strip Media & Storage Permissions** | `stripMedia` | Boolean | `false` | Revokes `READ_MEDIA_IMAGES`, `READ_MEDIA_VISUAL_USER_SELECTED`, and `READ_EXTERNAL_STORAGE` from `AndroidManifest.xml` (disables custom image background themes). |
-| **Strip System Dictionary Permissions** | `stripUserDictionary` | Boolean | `false` | Revokes `READ_USER_DICTIONARY` and `WRITE_USER_DICTIONARY` from `AndroidManifest.xml`. |
-| **Strip Cross-Profile Permission** | `stripCrossProfile` | Boolean | `false` | Revokes `INTERACT_ACROSS_PROFILES` from `AndroidManifest.xml` to isolate work and personal profiles. |
+| **Contacts** | `stripContacts` | Boolean | `false` | Revokes `android.permission.READ_CONTACTS` from `AndroidManifest.xml` (disables contact name suggestions). |
+| **Microphone** | `stripAudio` | Boolean | `false` | Revokes `android.permission.RECORD_AUDIO` from `AndroidManifest.xml` (disables voice dictation). |
+| **Photos & files** | `stripMedia` | Boolean | `false` | Revokes `READ_MEDIA_IMAGES`, `READ_MEDIA_VISUAL_USER_SELECTED`, and `READ_EXTERNAL_STORAGE` from `AndroidManifest.xml` (disables custom image background themes). |
+| **Dictionary sync** | `stripUserDictionary` | Boolean | `false` | Revokes `READ_USER_DICTIONARY` and `WRITE_USER_DICTIONARY` from `AndroidManifest.xml`. |
+| **Work profile link** | `stripCrossProfile` | Boolean | `false` | Revokes `INTERACT_ACROSS_PROFILES` from `AndroidManifest.xml` to isolate work and personal profiles. |
 
 ---
 
@@ -163,8 +163,8 @@ The **`Clone Gboard`** patch allows running a patched build alongside stock Gboa
 
 | Option | Key | Type | Default | Description |
 | :--- | :--- | :--- | :---: | :--- |
-| **Package Suffix** | `packageSuffix` | String | `clone` | Suffix appended after the original package name (e.g., `clone` -> `com.google.android.inputmethod.latin.clone`). |
-| **App Label** | `appLabel` | String | _(empty)_ | Replaces the launcher and keyboard-list name (`<application android:label>`) so the clone is visually distinguishable from stock Gboard. Leave blank to keep the original label. |
+| **Copy name ending** | `packageSuffix` | String | `clone` | Suffix appended after the original package name (e.g., `clone` -> `com.google.android.inputmethod.latin.clone`). |
+| **Copy display name** | `appLabel` | String | _(empty)_ | Replaces the launcher and keyboard-list name (`<application android:label>`) so the clone is visually distinguishable from stock Gboard. Leave blank to keep the original label. |
 
 ## 🛡️ Configurable Options: Block Telemetry
 
@@ -172,5 +172,5 @@ The **`Block Telemetry`** patch disables background metrics, event logging, ping
 
 | Option | Key | Type | Default | Description |
 | :--- | :--- | :---: | :--- | :--- |
-| **Block Adwords Host** | `blockAdwordsHost` | Boolean | `true` | Rewrites DEX `const-string` literals containing `adwords.google.com` and `reportingwidget.google.com` to `0.0.0.0`. Enabled by default; disable to keep the ad reporting endpoints. |
+| **Block ad servers** | `blockAdwordsHost` | Boolean | `true` | Rewrites DEX `const-string` literals containing `adwords.google.com` and `reportingwidget.google.com` to `0.0.0.0`. Enabled by default; disable to keep the ad reporting endpoints. |
 
