@@ -12,59 +12,73 @@ description: ARM64 ELF and binary asset patching guidelines covering libchrome.s
 Any binary modification executed inside `rawResourcePatch` targeting ELF libraries (such as `lib/arm64-v8a/libchrome.so`) must adhere to strict bounds and fingerprint verification protocols.
 
 ### Production Pattern (`BraveBlockTelemetryPatch.kt`)
-Redirection overwrites domain strings in-place with `0.0.0.0` followed by null bytes (`0x00`). The replacement length must exactly match the original string length to preserve ELF string table boundaries and segment offsets:
+Redirection overwrites domain strings in-place with `0.0.0.0` followed by null bytes (`0x00`). The replacement length must exactly match the original string length to preserve ELF string table boundaries and segment offsets. Each supported ABI carries its own offset because the string tables differ per build:
 
 ```kotlin
-val soFile = get("lib/arm64-v8a/libchrome.so")
-if (!soFile.exists()) {
-    return@execute
-}
-
 data class HostEntry(
-    val offset: Long,
+    val arm64Offset: Long,
+    val arm32Offset: Long,
     val hostName: String,
 )
 
-// EXAMPLE offsets: version-specific illustration values. Always resolve offsets for the
-// target APK version via pre-patch fingerprint assertion; never copy these literally.
+// EXAMPLE offsets: version-specific illustration values. Always resolve both ARM64 and ARM32
+// offsets for the target APK version via pre-patch fingerprint assertion; never copy these literally.
 val hostEntries = listOf(
-    HostEntry(0x001f9329L, "star-randsrv.bsg.brave.com"),
-    HostEntry(0x001f935aL, "collector.bsg.brave.com"),
-    HostEntry(0x001f9391L, "usage-ping.brave.com"),
+    HostEntry(0x0020d657L, 0x005a14b4L, "star-randsrv.bsg.brave.com"),
+    HostEntry(0x0020d688L, 0x005a14e5L, "collector.bsg.brave.com"),
+    HostEntry(0x0020d6bfL, 0x005a151cL, "usage-ping.brave.com"),
 )
 
-val redirectionIp = "0.0.0.0".toByteArray(Charsets.US_ASCII)
-var writtenHosts = 0
+val targets = listOf(
+    "lib/arm64-v8a/libchrome.so" to { entry: HostEntry -> entry.arm64Offset },
+    "lib/armeabi-v7a/libchrome.so" to { entry: HostEntry -> entry.arm32Offset },
+)
 
-RandomAccessFile(soFile, "rw").use { raf ->
-    for (entry in hostEntries) {
-        val expectedBytes = entry.hostName.toByteArray(Charsets.US_ASCII)
-        val len = expectedBytes.size
-        if (entry.offset + len > raf.length()) {
-            throw PatchException("Host offset 0x${entry.offset.toString(16)} out of bounds in libchrome.so")
-        }
-        val buf = ByteArray(len)
-        raf.seek(entry.offset)
-        raf.readFully(buf)
-        if (!buf.contentEquals(expectedBytes)) {
-            throw PatchException(
-                "Host fingerprint mismatch at 0x${entry.offset.toString(16)}. " +
-                    "Expected: ${entry.hostName}, Found: ${String(buf, Charsets.US_ASCII)}",
-            )
-        }
+val existingTargets = targets
+    .map { (path, offsetSelector) -> Triple(path, get(path), offsetSelector) }
+    .filter { (_, file, _) -> file.exists() && file.isFile }
 
-        // Construct replacement: "0.0.0.0" + null byte + zero padding to original length
-        val replacement = ByteArray(len)
-        System.arraycopy(redirectionIp, 0, replacement, 0, redirectionIp.size)
-        // Remaining bytes default to 0x00 (null padded)
-
-        raf.seek(entry.offset)
-        raf.write(replacement)
-        writtenHosts++
-    }
+if (existingTargets.isEmpty()) {
+    println("[Block Telemetry] Skipped: no arm64-v8a or armeabi-v7a libchrome.so found.")
+    return@execute
 }
 
-println("[Block Telemetry] Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
+val redirectionIp = "0.0.0.0".toByteArray(Charsets.US_ASCII)
+
+for ((relPath, soFile, offsetSelector) in existingTargets) {
+    var writtenHosts = 0
+
+    RandomAccessFile(soFile, "rw").use { raf ->
+        for (entry in hostEntries) {
+            val offset = offsetSelector(entry)
+            val expectedBytes = entry.hostName.toByteArray(Charsets.US_ASCII)
+            val len = expectedBytes.size
+            if (offset + len > raf.length()) {
+                throw PatchException("Host offset 0x${offset.toString(16)} out of bounds in $relPath")
+            }
+            val buf = ByteArray(len)
+            raf.seek(offset)
+            raf.readFully(buf)
+            if (!buf.contentEquals(expectedBytes)) {
+                throw PatchException(
+                    "Host fingerprint mismatch at 0x${offset.toString(16)} in $relPath. " +
+                        "Expected: ${entry.hostName}, Found: ${String(buf, Charsets.US_ASCII)}",
+                )
+            }
+
+            // Construct replacement: "0.0.0.0" + null byte + zero padding to original length
+            val replacement = ByteArray(len)
+            System.arraycopy(redirectionIp, 0, replacement, 0, redirectionIp.size)
+            // Remaining bytes default to 0x00 (null padded)
+
+            raf.seek(offset)
+            raf.write(replacement)
+            writtenHosts++
+        }
+    }
+
+    println("[Block Telemetry] $relPath: Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
+}
 ```
 
 ---
@@ -144,8 +158,14 @@ For React Native Android applications utilizing the Hermes JavaScript engine, th
 2. **Table Parsing**: Compute 4-byte aligned offsets for function headers, string table, overflow string table, and string storage.
 3. **Target Function / Getter Identification**: Locate function index by matching string identifier table entries (e.g. `"isPro"`, `"isPaying"`).
 4. **Bytecode Opcode Injection**: Overwrite the target function prologue with forced return instructions:
-   - Hermes bytecode opcodes: `LoadConstTrue r0` (`0x78 0x00`) followed by `Ret r0` (`0x5C 0x00`).
+   - Hermes bytecode opcodes: `LoadConstTrue r0` (`0x78 0x00`) followed by `Ret r0` (`0x5C 0x00`). Getters which must report false use `LoadConstFalse r0` (`0x79 0x00`) followed by `Ret r0`.
    ```kotlin
    private val FORCE_TRUE_PROLOGUE = byteArrayOf(0x78.toByte(), 0x00, 0x5C.toByte(), 0x00)
+   private val FORCE_FALSE_PROLOGUE = byteArrayOf(0x79.toByte(), 0x00, 0x5C.toByte(), 0x00)
    ```
-5. **Write Back**: Write modified byte array back to `bundleFile.writeBytes(bundleBytes)`.
+5. **Footer Hash Recalculation**: HBC96 bundles end with a 20-byte SHA-1 footer computed over all preceding bytes. After mutating any function, recompute it and write it into the last 20 bytes; skipping this leaves a stale hash in the bundle.
+   ```kotlin
+   val hash = MessageDigest.getInstance("SHA-1").digest(bundleBytes.copyOfRange(0, bundleBytes.size - 20))
+   System.arraycopy(hash, 0, bundleBytes, bundleBytes.size - 20, 20)
+   ```
+6. **Write Back**: Write modified byte array back to `bundleFile.writeBytes(bundleBytes)`. Write only when at least one function was patched.
