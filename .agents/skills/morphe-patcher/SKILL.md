@@ -150,7 +150,7 @@ Fingerprints locate target methods across obfuscated versions without hardcoding
    val targetReg = fp.method.getInstruction<OneRegisterInstruction>(matchIndex + 1).registerA
    ```
 
-   > **Runtime safety (device-proven):** never `remove`+`replace` a lone invoke and never grow the register frame. Both cause device-only `VerifyError` boot crashes that a green `runPatchTest` does not catch. Insert-only after `move-result`, reusing existing registers. See `agy-orchestrator` `references/observations.md:40-41`.
+   > **Runtime safety (device-proven):** hook insert-only after `move-result`, reusing existing registers. Removing and re-adding a lone invoke, or growing the register frame while original instructions remain, passes `runPatchTest` and crashes on device with `VerifyError`; whole-body replacement through the `replaceWith*` helpers is safe. Details: `smali-bytecode-hooks` skill, Section 6.
 
 ---
 
