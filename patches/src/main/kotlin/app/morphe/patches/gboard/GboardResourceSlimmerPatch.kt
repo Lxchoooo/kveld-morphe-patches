@@ -28,8 +28,8 @@ private val DUMMY_LICENSE_TEXT by lazy {
 private val LICENSE_METADATA_REGEX = Regex("""\d+:\d+\s+[A-Za-z]""")
 
 val gboardResourceSlimmerPatch = resourcePatch(
-    name = "Resource Slimmer",
-    description = "Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files.",
+    name = "Remove Extra Files",
+    description = "Deletes licenses, tutorial animations and junk.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
