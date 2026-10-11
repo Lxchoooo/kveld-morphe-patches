@@ -291,6 +291,13 @@ for entry in by_app.values():
                 readme,
                 count=1,
             )
+        elif any("earphone" in p for p in pkgs):
+            readme = re.sub(
+                r"(\|\s*\*\*Xiaomi Earbuds\*\*\s*\|\s*`com\.mi\.earphone`\s*\|\s*`)[^`]+(`\s*\|)",
+                rf"\g<1>{target_ver}\g<2>",
+                readme,
+                count=1,
+            )
 
 new_readme = re.sub(
     rf"{START_PATTERN}.*?{re.escape(END_MARKER)}",
