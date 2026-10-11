@@ -1,6 +1,6 @@
 ---
 name: new-telemetry-app
-description: End-to-end workflow for onboarding a new target app and authoring telemetry-blocking patches: reconnaissance, registration, patch authoring, verification gates, device smoke test, and network traffic auditing.
+description: End-to-end workflow for onboarding a new target app with telemetry-blocking patches (recon, Constants and runner registration, docs, gates, device smoke test, traffic audit). Use when adding a new app or package to the repository.
 ---
 
 <!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. Repo-specific deltas live in section 0 below. -->

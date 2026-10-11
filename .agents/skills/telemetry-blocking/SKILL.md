@@ -1,6 +1,6 @@
 ---
 name: telemetry-blocking
-description: Technical methodology and implementation patterns for telemetry, tracking, analytics, and crash-reporting blocking in Morphe patches.
+description: Methodology and patterns for blocking telemetry, tracking, analytics, ads and crash reporting in Morphe patches (manifest purge, SDK dispatcher stubs, preservation rules, method exclusions, aapt2 verification). Use when implementing or reviewing a telemetry-blocking patch.
 ---
 
 <!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. -->

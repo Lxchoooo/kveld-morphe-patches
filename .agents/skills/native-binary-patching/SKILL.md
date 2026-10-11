@@ -1,6 +1,6 @@
 ---
 name: native-binary-patching
-description: ARM64 ELF and binary asset patching guidelines covering libchrome.so host redirection, multi-candidate offset resolution, companion .so trimming, and Hermes bytecode patching.
+description: Byte-level patching of native and binary assets (libchrome.so host redirection per ABI, multi-candidate offsets, companion .so trimming, Hermes HBC prologue patching with SHA-1 footer). Use when writing or updating a rawResourcePatch that edits .so files or bundle assets.
 ---
 
 <!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->

@@ -1,6 +1,6 @@
 ---
 name: release-conventions
-description: Semantic release and CI/CD lifecycle, conventional commit standards, release pipeline chain (release.yml and .releaserc.js), and git branching strategy.
+description: Release pipeline and commit conventions (semantic-release types, release-suppressed scopes, release.yml and .releaserc.js chain, dev and main branching). Use when choosing a commit type or scope, or when reasoning about releases, CHANGELOG or generated catalog files.
 ---
 
 <!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
