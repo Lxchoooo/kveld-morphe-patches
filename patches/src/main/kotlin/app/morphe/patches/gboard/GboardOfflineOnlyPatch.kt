@@ -69,8 +69,8 @@ private fun blockCleartextTraffic(doc: Document) {
 }
 
 private val gboardOfflineManifestResourcePatch = resourcePatch(
-    name = "Gboard Offline Manifest Purge",
-    description = "Removes network, account syncing, background scheduling, and diagnostic permissions from AndroidManifest.xml.",
+    name = "Go Offline (Setup)",
+    description = "Removes network permissions.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -97,7 +97,7 @@ private val gboardOfflineManifestResourcePatch = resourcePatch(
 
 val gboardOfflineOnlyPatch: BytecodePatch = bytecodePatch(
     name = "Offline Only",
-    description = "Completely isolates Gboard from the network by revoking network permissions, neutralizing HTTP clients (Cronet, OkHttp, Superpacks), and spoofing offline status.",
+    description = "Fully disconnects Gboard. Download dictionaries first.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
