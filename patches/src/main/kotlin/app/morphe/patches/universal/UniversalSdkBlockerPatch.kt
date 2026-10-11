@@ -443,15 +443,15 @@ private val PUSH_RULES = listOf(
 
 @Suppress("unused")
 val universalSdkBlockerPatch = bytecodePatch(
-    name = "Universal SDK Blocker",
-    description = "Neutralizes third-party APM, crash reporting, analytics, attribution, session replay, location tracking, and push engagement SDK init and event methods at DEX level via early return-void; companion runtime layer to Universal Telemetry Neutralizer (manifest layer).",
+    name = "Block Tracking SDKs",
+    description = "Disables analytics, crash and ad SDKs inside the app.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val blockApm by booleanOption(
         key = "blockApm",
         default = true,
-        title = "Block APM & Performance Monitoring SDKs",
+        title = "Performance monitors",
         description = "Neutralize New Relic, Datadog, and Dynatrace monitoring, metric reporting, and HTTP transaction tracing methods.",
         required = false,
     )
@@ -459,7 +459,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockCrashReporters by booleanOption(
         key = "blockCrashReporters",
         default = true,
-        title = "Block Crash Reporting SDKs",
+        title = "Crash reporters",
         description = "Neutralize Raygun, Shake, Embrace, Splunk Mint, App Center, OpenTelemetry, ACRA, Sentry, Bugsnag, Crashlytics (legacy and Firebase), Fabric, Instabug, Countly, and HockeyApp crash reporters.",
         required = false,
     )
@@ -467,7 +467,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockAnalytics by booleanOption(
         key = "blockAnalytics",
         default = true,
-        title = "Block Analytics SDKs",
+        title = "Analytics",
         description = "Neutralize Firebase Analytics, Matomo, Leanplum, Localytics, WebEngage, PostHog, MoEngage, Snowplow, mParticle, Treasure Data, Huawei Analytics, Yandex Metrica, Facebook AppEvents, and Sensors Analytics event tracking, capture, and session logging methods.",
         required = false,
     )
@@ -475,7 +475,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockAttribution by booleanOption(
         key = "blockAttribution",
         default = true,
-        title = "Block Attribution & Engagement SDKs",
+        title = "Ad attribution",
         description = "Neutralize AppsFlyer, Adjust, Amplitude, Mixpanel, CleverTap, Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics, Flurry, and GameAnalytics conversion, tracking, and attribution SDKs.",
         required = false,
     )
@@ -483,7 +483,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockLegacyAnalytics by booleanOption(
         key = "blockLegacyAnalytics",
         default = true,
-        title = "Block Legacy Google Analytics",
+        title = "Old Google Analytics",
         description = "Neutralize pre-Firebase Google Analytics tracking, hit dispatching, and activity reporting methods (com.google.analytics and com.google.android.gms.analytics).",
         required = false,
     )
@@ -491,7 +491,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockPushEngagement by booleanOption(
         key = "blockPushEngagement",
         default = false,
-        title = "Block Push Engagement SDKs (WARNING: Breaks Push)",
+        title = "Push SDKs (breaks push!)",
         description = "Neutralize OneSignal, Airship, and Braze push engagement and tagging SDKs. WARNING: this breaks push notification delivery; enable only to fully silence push engagement SDK runtimes.",
         required = false,
     )
@@ -499,7 +499,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockSessionReplay by booleanOption(
         key = "blockSessionReplay",
         default = true,
-        title = "Block Session Replay SDKs",
+        title = "Screen recorders",
         description = "Neutralize UXCam, Smartlook, FullStory, Contentsquare, and Bugsee screen and session recording SDK methods.",
         required = false,
     )
@@ -507,7 +507,7 @@ val universalSdkBlockerPatch = bytecodePatch(
     val blockLocationTrackers by booleanOption(
         key = "blockLocationTrackers",
         default = true,
-        title = "Block Location & Beacon Tracking SDKs",
+        title = "Location trackers",
         description = "Neutralize Radar, Gimbal, and Estimote beacon and location tracking SDKs; note OS location permission controls remain the primary gate.",
         required = false,
     )
