@@ -257,8 +257,8 @@ internal val braveNativeExtractionPatch = resourcePatch {
 
 @Suppress("unused")
 val bravePerformanceOptimizationPatch = bytecodePatch(
-    name = "Brave Startup Performance Optimization",
-    description = "Optimizes startup time and eliminates background CPU/disk overhead by disabling unused OEM carrier partner customizations.",
+    name = "Faster Startup",
+    description = "Speeds up launch by disabling carrier customizations.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
