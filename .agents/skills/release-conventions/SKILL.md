@@ -1,6 +1,6 @@
 ---
 name: release-conventions
-description: Semantic release and CI/CD lifecycle, conventional commit standards, release pipeline chain (release.yml and .releaserc), and git branching strategy.
+description: Semantic release and CI/CD lifecycle, conventional commit standards, release pipeline chain (release.yml and .releaserc.js), and git branching strategy.
 ---
 
 <!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
@@ -9,7 +9,7 @@ description: Semantic release and CI/CD lifecycle, conventional commit standards
 
 ## 1. Conventional Commits Standard
 
-Automated semantic releases depend on commit messages adhering strictly to the conventional commits specification configured in `.releaserc`:
+Automated semantic releases depend on commit messages adhering strictly to the conventional commits specification configured in `.releaserc.js`:
 
 | Prefix | Semver Impact | Release Notes Section | Trigger Automated Release? |
 | :--- | :--- | :--- | :--- |
@@ -18,9 +18,13 @@ Automated semantic releases depend on commit messages adhering strictly to the c
 | `perf:` | **Patch** (`x.x.Z`) | Improvements | **Yes** |
 | `bump:` | **Patch** (`x.x.Z`) | Updated App Support | **Yes** |
 | `build(Needs bump):` | **Patch** (`x.x.Z`) | Hidden | **Yes** |
-| `refactor:` | None | Code Refactoring | **No** (Documented in notes) |
+| `refactor:` | None | Hidden | **No** |
 | `chore:` | None | Hidden | **No** (Skipped) |
 | `docs:` | None | Hidden | **No** (Skipped) |
+
+### Release-Suppressed Scopes
+
+`.releaserc.js` maps these scopes to `release: false` regardless of commit type and strips them from release notes: `harness`, `ci`, `test`, `tooling`, `scripts`, `docs`, `governance`, `agents`, `readme`, `github`, `release`, `repo`, `security`, `hygiene`, `git`, `changelog` (matched lowercase, Capitalized or UPPERCASE). `fix(harness): ...` or `feat(scripts): ...` therefore never publish a release. Use an app or `patches`/`shared` scope when a change must reach users; use a suppressed scope for tooling and documentation work that must not.
 
 ### Mandatory Atomic Commits Policy
 
@@ -28,7 +32,7 @@ Commit granularity (1 patch / 1 option / 1 fix = 1 commit, code and docs togethe
 
 ---
 
-## 2. Release Pipeline Chain (`release.yml` & `.releaserc`)
+## 2. Release Pipeline Chain (`release.yml` & `.releaserc.js`)
 
 When commits are pushed to `main` (stable release) or `dev` (experimental prerelease `vX.Y.Z-experimental.N`), the automated release pipeline executes:
 
@@ -40,11 +44,12 @@ When commits are pushed to `main` (stable release) or `dev` (experimental prerel
    - `./gradlew generatePatchesList`
    - Patches `patches-list.json` with next release version (`jq '.version="${nextRelease.version}"' patches-list.json`)
    - Generates updated README (`python3 .github/scripts/generate_patches_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json README.md`)
-6. **Git Commit**: `@semantic-release/git` commits updated release assets (`CHANGELOG.md`, `gradle.properties`, `patches-bundle.json`, `patches-list.json`, `README.md`) with message `chore: Release v${nextRelease.version} [skip ci]`.
+   - Syncs contributors (`python3 .github/scripts/sync_contributors.py --repo $GITHUB_REPOSITORY`)
+6. **Git Commit**: `@semantic-release/git` commits updated release assets (`.github/contributors.json`, `CHANGELOG.md`, `gradle.properties`, `patches-bundle.json`, `patches-list.json`, `README.md`) with message `chore: Release v${nextRelease.version} [skip ci]`.
 7. **GitHub Release & Asset Publishing**: Attaches compiled standalone Morphe Patch Package (`patches/build/libs/patches-*.mpp`) to the GitHub Release (`@semantic-release/github`).
 8. **Build Provenance Attestation**: Attests build provenance for `patches/build/libs/patches-*.mpp` via `actions/attest-build-provenance`.
 9. **Telegram Broadcast**: Dispatches release tag, version, and notes via `python3 .github/scripts/notify_telegram.py`.
-10. **Compilation Verification Fallback**: When semantic-release does not publish a new release (e.g. for `refactor`, `chore`, `docs`), CI executes `./gradlew :patches:buildAndroid clean --no-daemon` to ensure compilation integrity.
+10. **Compilation Verification Fallback**: When semantic-release does not publish a new release (e.g. for `refactor`, `chore`, `docs`), CI executes `./gradlew :patches:buildAndroid --no-daemon` to ensure compilation integrity.
 
 > **CRITICAL REMINDER**: Never manually edit or commit `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md`. These are generated, formatted, and committed strictly by CI during the automated release pipeline.
 
