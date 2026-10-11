@@ -75,7 +75,7 @@ The **`Gboard Enhancements`** patch injects a top-level **Morphe Patches** categ
 
 ### 🌐 Multi-Language Support & Community Contributions
 The settings UI automatically detects the active device system language (`LocaleList` on Android 7+ and legacy `locale`) and routes strings to the corresponding language pack:
-- **Currently Supported**: English (`en`, base fallback) and Spanish (`es`).
+- **Currently Supported**: English (`en`, base fallback), Spanish (`es`) and French (`fr`).
 - **Granular Fallback**: If a key is omitted in a regional language pack, it falls back to the English string without breaking or showing empty/null values.
 - **Contributing Translations**: The localization engine is modular and designed for easy community contributions. Anyone can submit a new language pack via a single Pull Request. For step-by-step instructions and a template, refer to the [Gboard i18n Contribution Guide](../../extensions/extension/src/main/java/com/kveld9/morphe/extension/gboard/i18n/README.md).
 
