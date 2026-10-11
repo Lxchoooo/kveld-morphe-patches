@@ -3280,6 +3280,96 @@ public final class TikTokFeedAdFilter {
         } catch (Throwable ignored) {}
     }
 
+    // =========================================================================
+    // Inbox Skylight Tray Suggested Story Filtering (Block Non-Followed / Suggested)
+    // =========================================================================
+
+    public static boolean isSuggestedStory(Object item, String currentUserId) {
+        if (item == null) return false;
+
+        Object aweme = null;
+        if (awemeClass != null && awemeClass.isInstance(item)) {
+            aweme = item;
+        } else {
+            try {
+                Method isMeMethod = item.getClass().getMethod("isMe");
+                Object isMe = isMeMethod.invoke(item);
+                if (Boolean.TRUE.equals(isMe)) {
+                    return false;
+                }
+            } catch (Throwable ignored) {}
+
+            try {
+                Method isUnfollowMethod = item.getClass().getMethod("isUnfollow");
+                Object isUnfollow = isUnfollowMethod.invoke(item);
+                if (Boolean.TRUE.equals(isUnfollow)) {
+                    return true;
+                }
+            } catch (Throwable ignored) {}
+
+            try {
+                Method getStoryCollectionMethod = item.getClass().getMethod("getStoryCollection");
+                aweme = getStoryCollectionMethod.invoke(item);
+            } catch (Throwable ignored) {}
+        }
+
+        if (aweme == null) return false;
+
+        Object author = getAuthorFromAweme(aweme);
+        if (author == null) return false;
+
+        String authorUid = getUidFromUser(author);
+        if (currentUserId != null && currentUserId.equals(authorUid)) {
+            return false;
+        }
+
+        if (isSuggestedAccountUser(author)) {
+            return true;
+        }
+        if (hasAwemeRelationSuggestion(aweme)) {
+            return true;
+        }
+
+        int followStatus = getFollowStatusFromUser(author);
+        return followStatus == 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void filterSuggestedStoriesInList(Object listObj) {
+        if (!(listObj instanceof List)) return;
+        List<Object> items = (List<Object>) listObj;
+        if (items.isEmpty()) return;
+
+        synchronized (items) {
+            try {
+                if (!initialized) {
+                    for (Object item : items) {
+                        if (item != null) {
+                            ensureInitialized(item.getClass().getClassLoader());
+                            break;
+                        }
+                    }
+                }
+
+                ClassLoader loader = items.get(0) != null ? items.get(0).getClass().getClassLoader() : null;
+                String currentUserId = getCurrentUserId(loader);
+
+                int removed = 0;
+                Iterator<Object> iterator = items.iterator();
+                while (iterator.hasNext()) {
+                    Object item = iterator.next();
+                    if (isSuggestedStory(item, currentUserId)) {
+                        iterator.remove();
+                        removed++;
+                    }
+                }
+                if (removed > 0) {
+                    Log.i(TAG, "[Hide Inbox Story & Status Tray] Pruned " + removed + " suggested story circle(s) from inbox tray.");
+                }
+            } catch (Throwable ignored) {}
+        }
+    }
+
     public static void filterAwemeList(Object listObj) {
         filterAdsInList(listObj);
     }

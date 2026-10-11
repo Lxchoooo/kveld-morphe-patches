@@ -53,7 +53,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Usability** | **Remember Clear Display** | `bytecodePatch` | Remembers TikTok's clear-display state between videos and re-applies it when new videos start. |
 | **Usability** | **Stop Video Looping** | `bytecodePatch` | Prevents videos from looping continuously on playback completion. |
 | **Usability** | **[Hide Inbox Promos & Alerts](#9-hide-inbox-promos--alerts)** | `bytecodePatch` | Hides promotional banners, streak mascot cards, contact sync suggestions, friend recommendations, and migration guide tooltips in the inbox and direct messages. |
-| **Usability** | **Hide Inbox Story & Status Tray** | `bytecodePatch` | Removes the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. |
+| **Usability** | **[Hide Inbox Story & Status Tray](#20-hide-inbox-story--status-tray-hideinboxstorytraypatch)** | `bytecodePatch` | Removes the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox, with an option to hide only suggested/non-followed stories while keeping followed accounts visible (`hideSuggestedOnly`). |
 | **Usability** | **[Direct Message Declutter](#10-direct-message-declutter)** | `bytecodePatch` | Cleans direct message conversations and chat list items via individual toggles for chat list camera icons, header voice/video call buttons, message forward buttons, streak mascot and reaction bars, input camera buttons, right-side input action buttons (gallery, emoji, mic), try effect buttons on shared videos, and automatic sticker reply suggestions. |
 | **Usability** | **[Disable Feed Long-Press Actions](#7-disable-feed-long-press-actions)** | `bytecodePatch` | Disables long-press action gestures on feed buttons, including Like to repost, Share to quick DMs, and Comment to quick emojis, with optional video-body long-press modes (`longPressVideo`). |
 | **Usability** | **Enable Profile Banner** | `bytecodePatch` | Unlocks custom profile banner header cover feature and banner editing tools in Edit Profile. |
@@ -561,10 +561,14 @@ Certain permissions are intentionally excluded from this manifest stripper becau
 - **Bottom Sheet Presentation Neutralization**: Stubs the popup display launcher in `DownloadAndShareFragment` (fingerprinted by `definingClass = DownloadAndShareFragment` and string `"after_video_saved_share_to_nscreen"`) with `return-void` at instruction offset 0, preventing the creation and display of the `TuxSheet` bottom sheet dialog while preserving download completion toasts and saved file integrity.
 
 ### 20. Hide Inbox Story & Status Tray (`hideInboxStoryTrayPatch`)
-- Removes the horizontal story carousel, status notes, and creation bubbles (Skylight) displayed at the top of the direct messages inbox.
-- **Skylight Widget Injector Suppression**: Hooks `InboxSkylightWidgetV2Injector.enable()Z` -> returns `false`, preventing the Skylight container from registering or injecting into the inbox multi-pod recycler.
-- **Combine Pod Provider Neutralization**: Stubs `InboxSkylightWidgetV2.Sq()Ljava/util/List;` -> returns `emptyList()`, neutralizing story and thought combine pod creation.
-- **Eligibility Gate Neutralization**: Hooks `InboxSkylightWidgetV2.er(List)Z` -> returns `false`, ensuring display eligibility checks evaluate to empty.
+- Removes the horizontal story carousel, status notes, and creation bubbles (Skylight) displayed at the top of the direct messages inbox, or selectively prunes non-followed and suggested accounts.
+
+| Option | Key | Type | Default | Description |
+| :--- | :--- | :---: | :---: | :--- |
+| **Hide Suggested Stories Only** | `hideSuggestedOnly` | Boolean | `true` | When enabled, hides only suggested and non-followed story circles in the inbox tray while preserving followed accounts and preventing viewer autoplay continuation into suggested users. When disabled, hides the entire horizontal Skylight tray. |
+
+- **Granular Suggested Filtering Mode** (`hideSuggestedOnly = true`): Injects a runtime filter call at `StoryGetFeedByPageResponse.<init>` via `TikTokFeedAdFilter.filterSuggestedStoriesInList(Object)`, pruning non-followed and recommended accounts (`followStatus == 0`) from the story feed payload before they are mapped to `StoryInboxItem` pods. Followed stories and user creation bubbles remain visible, and the story viewer's playlist is constrained exclusively to followed accounts, preventing autoplay continuation into suggested users.
+- **Full Tray Suppression Mode** (`hideSuggestedOnly = false`): Stubs `InboxSkylightWidgetV2Injector.enable()Z` -> `return false`, `InboxSkylightWidgetV2.Sq()Ljava/util/List;` -> `return emptyList()`, and `InboxSkylightWidgetV2.er(List)Z` -> `return false`, completely eliminating the Skylight widget container and its multi-pod recycler.
 
 ### 21. Disable Feed Long-Press Actions (`disableFeedLongPressActionsPatch`)
 - Disables long-press action gestures on feed buttons, eliminating unwanted menu popups while preserving standard single-tap actions.
