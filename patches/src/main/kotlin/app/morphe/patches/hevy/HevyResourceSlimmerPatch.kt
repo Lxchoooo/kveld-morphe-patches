@@ -24,8 +24,8 @@ private val EMPTY_MP4_HEADER by lazy {
 
 @Suppress("unused")
 val hevyResourceSlimmerPatch = resourcePatch(
-    name = "Resource Slimmer",
-    description = "Strips embedded onboarding MP4 tutorial video, heavy IMG.LY photo editor stickers/textures, and compiler junk metadata.",
+    name = "Remove Extra Files",
+    description = "Deletes tutorial videos, editor stickers and junk to shrink the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
