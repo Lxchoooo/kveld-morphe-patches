@@ -5,8 +5,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val nokoPrintNetworkSecurityHardeningPatch = resourcePatch(
-    name = "Network Security Hardening",
-    description = "Enforces user trust anchors while preserving HTTP cleartext traffic for driver downloads and LAN printers.",
+    name = "Safer Connections",
+    description = "Uses trusted certificates while keeping printer downloads working.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
