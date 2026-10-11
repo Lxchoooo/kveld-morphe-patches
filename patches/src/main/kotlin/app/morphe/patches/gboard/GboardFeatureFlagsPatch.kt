@@ -31,48 +31,48 @@ val gboardFeatureFlagsPatch = bytecodePatch(
     val enableAccessPointsRedesign by booleanOption(
         key = "enableAccessPointsRedesign",
         default = true,
-        title = "Access Points Menu Redesign",
-        description = "Enables the redesigned access points menu bar and customization panel (Panel V2).",
+        title = "New toolbar menu",
+        description = "New access points menu and panel.",
         required = false,
     )
 
     val enableKeyShapeSelection by booleanOption(
         key = "enableKeyShapeSelection",
         default = true,
-        title = "Key Shape Selection",
-        description = "Enables the key border shape selection UI (Default, Semi-rounded, Round) in theme customization.",
+        title = "Key shapes",
+        description = "Round and borderless key styles.",
         required = false,
     )
 
     val enableCursorTrackpad by booleanOption(
         key = "enableCursorTrackpad",
         default = true,
-        title = "Cursor Trackpad",
-        description = "Enables 2D trackpad cursor navigation and cursor lock mode by holding the spacebar (experimental).",
+        title = "Cursor trackpad",
+        description = "Move cursor by sliding on spacebar.",
         required = false,
     )
 
     val enableDismissSuggestionsButton by booleanOption(
         key = "enableDismissSuggestionsButton",
         default = true,
-        title = "Dismiss Suggestions Button",
-        description = "Adds a close button (X) to dismiss proactive suggestions on the suggestion bar.",
+        title = "Close button on suggestions",
+        description = "Adds an X to dismiss suggestions.",
         required = false,
     )
 
     val enableGrammarChecker by booleanOption(
         key = "enableGrammarChecker",
         default = true,
-        title = "Grammar Checker & Smart Compose",
-        description = "Unlocks client-side grammar correction and Smart Compose inline predictions.",
+        title = "Grammar check",
+        description = "Grammar correction and smart predictions.",
         required = false,
     )
 
     val enableBluetoothMicrophone by booleanOption(
         key = "enableBluetoothMicrophone",
         default = true,
-        title = "Bluetooth Microphone",
-        description = "Unlocks the 'Use Bluetooth microphone' setting under Voice typing preferences.",
+        title = "Bluetooth mic",
+        description = "Use Bluetooth microphone for dictation.",
         required = false,
     )
 
