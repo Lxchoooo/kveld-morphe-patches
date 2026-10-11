@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val hevyTelemetryResourcePatch = resourcePatch(
-    name = "Hevy Telemetry Manifest Purge",
-    description = "Strips tracking/advertising permissions and disables Sentry providers and WearOS background sync in AndroidManifest.xml.",
+    name = "Remove Trackers (Setup)",
+    description = "Removes tracking permissions and turns off crash-reporting providers.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -107,8 +107,8 @@ private val hevyTelemetryResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val hevyBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Sentry crash reporting, Adjust attribution, Facebook AppEvents, Branch referral tracking, and WearOS background sync.",
+    name = "Block Trackers",
+    description = "Blocks crash reporting, ad attribution and referral tracking.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
