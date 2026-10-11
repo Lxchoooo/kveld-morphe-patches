@@ -203,15 +203,15 @@ private val OPT_OUT_METADATA = listOf(
 
 @Suppress("unused")
 val universalTelemetryNeutralizerPatch = resourcePatch(
-    name = "Universal Telemetry Neutralizer",
-    description = "Strips advertising and Privacy Sandbox permissions, disables analytics ContentProviders and telemetry background services (Firebase, Sentry, Adjust, AppsFlyer, DataTransport), prunes ComponentDiscovery registrars, and injects telemetry opt-out metadata. Includes an optional toggle to disable push notification services.",
+    name = "Remove Trackers",
+    description = "Removes ad IDs, disables tracking components and adds opt-outs.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val revokePermissions by booleanOption(
         key = "revokePermissions",
         default = true,
-        title = "Revoke Advertising & Tracking Permissions",
+        title = "Ad permissions",
         description = "Remove AD_ID, Privacy Sandbox attribution/topics/audiences, and Play Install Referrer permissions from AndroidManifest.xml.",
         required = false,
     )
@@ -219,7 +219,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableProviders by booleanOption(
         key = "disableProviders",
         default = true,
-        title = "Disable Telemetry ContentProviders",
+        title = "Tracking providers",
         description = "Disable analytics ContentProviders (Google Measurement, Sentry, Facebook, Flurry, Branch, AppsFlyer).",
         required = false,
     )
@@ -227,7 +227,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableServices by booleanOption(
         key = "disableServices",
         default = true,
-        title = "Disable Telemetry Background Services",
+        title = "Tracking services",
         description = "Disable Google Measurement, Google DataTransport, Firebase Sessions, and AppsFlyer background job services.",
         required = false,
     )
@@ -235,7 +235,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableReceivers by booleanOption(
         key = "disableReceivers",
         default = true,
-        title = "Disable Telemetry Receivers",
+        title = "Tracking receivers",
         description = "Disable install referrer and analytics measurement broadcast receivers (Adjust, AppsFlyer, Google Measurement).",
         required = false,
     )
@@ -243,7 +243,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val injectOptOutFlags by booleanOption(
         key = "injectOptOutFlags",
         default = true,
-        title = "Inject Telemetry Opt-Out Flags & Prune Registrars",
+        title = "Opt-out flags",
         description = "Inject meta-data opt-out entries into application tag (Firebase Analytics, Crashlytics, Performance, AppsFlyer, Sentry, Facebook SDK) and prune Firebase discovery registrars.",
         required = false,
     )
@@ -251,7 +251,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableFirebaseInit by booleanOption(
         key = "disableFirebaseInit",
         default = false,
-        title = "Disable Firebase Init Provider",
+        title = "Firebase init (may break apps)",
         description = "Disable com.google.firebase.provider.FirebaseInitProvider. Default is false to prevent issues in apps that depend on Firebase Auth or push notifications.",
         required = false,
     )
@@ -259,7 +259,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disablePushServices by booleanOption(
         key = "disablePushServices",
         default = false,
-        title = "Disable Push Notification Services",
+        title = "Push services (breaks push!)",
         description = "Disable Meta Fbns, PushLite, and Firebase Cloud Messaging services plus push receivers (Firebase IID, Braze). WARNING: this breaks push notifications; enable only to fully silence background push delivery.",
         required = false,
     )
@@ -267,7 +267,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableGoogleAnalytics by booleanOption(
         key = "disableGoogleAnalytics",
         default = true,
-        title = "Disable Google Analytics Services",
+        title = "Google Analytics",
         description = "Disable legacy Google Analytics background services and receivers (distinct from Firebase AppMeasurement, which is covered by the telemetry toggles above).",
         required = false,
     )
@@ -275,7 +275,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableMetaAnalytics by booleanOption(
         key = "disableMetaAnalytics",
         default = true,
-        title = "Disable Meta Analytics Upload Pipeline",
+        title = "Meta analytics",
         description = "Disable Meta Analytics2/OneFabric upload services, Instagram upload scheduler receiver, and deferred analytics worker components.",
         required = false,
     )
@@ -283,7 +283,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableCrashDetectors by booleanOption(
         key = "disableCrashDetectors",
         default = true,
-        title = "Disable Crash Detectors & Dump Upload",
+        title = "Crash uploaders",
         description = "Disable Lacrima lock-screen/shutdown crash detectors, crash-loop state trackers, and background crash-dump upload services. User-initiated bug reports are untouched.",
         required = false,
     )
@@ -291,7 +291,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableDeviceIdProviders by booleanOption(
         key = "disableDeviceIdProviders",
         default = false,
-        title = "Disable Device-ID & Cross-App Identity Providers",
+        title = "Device ID (may break login!)",
         description = "Disable attribution, FDID/PhoneId/USDiD, and FamilyApps cross-app identity providers plus referrer and cross-signing components. WARNING: may break login, account switching, and deferred deep links; enable only to fully silence device-identity collection.",
         required = false,
     )
@@ -299,7 +299,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableMlKit by booleanOption(
         key = "disableMlKit",
         default = false,
-        title = "Disable ML Kit On-Device Vision",
+        title = "ML Kit vision (breaks scanner!)",
         description = "Disable Google ML Kit InitProvider, ComponentDiscoveryService, and prune related registrars. WARNING: Breaks on-device barcode scanning, face detection, and text recognition.",
         required = false,
     )
@@ -307,7 +307,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableRemoteConfig by booleanOption(
         key = "disableRemoteConfig",
         default = false,
-        title = "Disable Firebase Remote Config",
+        title = "Remote config (may break app!)",
         description = "Prune Firebase RemoteConfig, DynamicLoading, and AB testing (Abt) discovery registrars. WARNING: May break dynamic backend configuration and remote feature flags.",
         required = false,
     )
@@ -315,7 +315,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableCrashlyticsRegistrars by booleanOption(
         key = "disableCrashlyticsRegistrars",
         default = false,
-        title = "Disable Firebase Crashlytics Registrars",
+        title = "Crashlytics (may break app!)",
         description = "Prune Firebase Crashlytics discovery registrars. WARNING: Pruning breaks apps hard-requiring the Crashlytics component at startup.",
         required = false,
     )
@@ -323,7 +323,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
     val disableAdStartupInitializers by booleanOption(
         key = "disableAdStartupInitializers",
         default = false,
-        title = "Disable Ad SDK Startup Initializers",
+        title = "Ad auto-start",
         description = "Remove ad SDK auto-init entries (e.g. Unity Ads) from the androidx.startup InitializationProvider. WARNING: may break rewarded ads and ad-gated features; enable only to block SDK auto-initialization.",
         required = false,
     )
