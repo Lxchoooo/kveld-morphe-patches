@@ -63,7 +63,7 @@ If you perform a clean install of Gboard Lite with background sync debloat patch
 | **Disable Play Services Integration** | `bytecodePatch` | Privacy & Battery | ❌ No | Makes Gboard's Google Play services availability check always report SERVICE_DISABLED, so GMS-backed code paths (Clearcut logging, Phenotype, account sync, Google Help feedback) are skipped at the source instead of being attempted. SERVICE_DISABLED is used instead of SERVICE_MISSING because GoogleApiAvailability remaps SERVICE_MISSING to SERVICE_UPDATING when the GMS package is installed, which makes GoogleApiManager retry every few seconds. Trade-off: Disables Gboard's inline Google Translate tool, which routes network requests through Play Services' dynamic Cronet provider (`PlayServicesCronetProvider`). If you need inline translation, leave this patch unselected. |
 | **Hardened Intent Security** | `bytecodePatch` + `resourcePatch` | Security & Integrity | ✅ Yes | Enables Gboard internal external intent protection against unauthorized intent hijacking, removes the exported, permissionless web debug bridge content provider, and purges federated learning (Brella) training services, receivers, package queries, and metadata from the manifest. Also applies declarative Cronet telemetry opt-out, disables multiprocess metrics services, and removes diagnostic initializers and non-ML-Kit component discovery registrars. |
 | **Offline Only** | `bytecodePatch` + `resourcePatch` | Privacy & Security | ❌ No | Completely isolates Gboard from network access by purging manifest permissions, disabling foreground sync services, neutralizing HTTP clients (Cronet, OkHttp, Superpacks), and spoofing offline status. |
-| **Resource Slimmer** | `bytecodePatch` | Optimization | ✅ Yes | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |
+| **Resource Slimmer** | `resourcePatch` | Optimization | ✅ Yes | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |
 | **Strip Permissions** | `resourcePatch` | Privacy & Security | ❌ No | Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml. |
 | **Universal Slimmers** | `resourcePatch` + `rawResourcePatch` | Optimization | ✅ Yes | `Locale Resource Slimmer`, `DPI Resource Slimmer`, `PNG Asset Optimizer`, and `APK Junk Cleaner`. |
 
@@ -165,4 +165,12 @@ The **`Clone Gboard`** patch allows running a patched build alongside stock Gboa
 | :--- | :--- | :--- | :---: | :--- |
 | **Package Suffix** | `packageSuffix` | String | `clone` | Suffix appended after the original package name (e.g., `clone` -> `com.google.android.inputmethod.latin.clone`). |
 | **App Label** | `appLabel` | String | _(empty)_ | Replaces the launcher and keyboard-list name (`<application android:label>`) so the clone is visually distinguishable from stock Gboard. Leave blank to keep the original label. |
+
+## 🛡️ Configurable Options: Block Telemetry
+
+The **`Block Telemetry`** patch disables background metrics, event logging, pings, profiling and crash reporting. It also offers an opt-out host rewrite:
+
+| Option | Key | Type | Default | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **Block Adwords Host** | `blockAdwordsHost` | Boolean | `true` | Rewrites DEX `const-string` literals containing `adwords.google.com` and `reportingwidget.google.com` to `0.0.0.0`. Enabled by default; disable to keep the ad reporting endpoints. |
 
