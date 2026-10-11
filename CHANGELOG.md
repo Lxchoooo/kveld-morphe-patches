@@ -1,3 +1,9 @@
+## [2.7.0-experimental.8](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.7...v2.7.0-experimental.8) (2026-10-11)
+
+### Bug Fixes
+
+* **tiktok:** harden Hide Promotional Content to native commerce signals only ([3a048b6](https://github.com/kveld9/kveld-morphe-patches/commit/3a048b66e2bcf9ecc8464e8ef9c9f2f220d2cbaf)), closes [#84](https://github.com/kveld9/kveld-morphe-patches/issues/84)
+
 ## [2.7.0-experimental.7](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.6...v2.7.0-experimental.7) (2026-10-11)
 
 ### Bug Fixes
