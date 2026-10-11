@@ -11,7 +11,7 @@ Each application has an authoritative, all-in-one guide covering prerequisites, 
 | Application | Supported Version | Architectures | Target Format | Complete Documentation |
 | :--- | :--- | :--- | :--- | :--- |
 | **Brave Browser** | `1.97.56` | `arm64-v8a`, `armeabi-v7a` | Standalone APK (`Bravemonoarm64.apk` / `BraveMonoarm.apk`) | [Brave Guide](apps/brave.md) |
-| **Gboard Lite** | `18.4.1.985164140` | `arm64-v8a`, `armeabi-v7a` | Standalone nodpi APK | [Gboard Lite Guide](apps/gboard.md) |
+| **Gboard Lite** | `18.4.1.985164140-lite_beta` | `arm64-v8a`, `armeabi-v7a` | Standalone nodpi APK | [Gboard Lite Guide](apps/gboard.md) |
 | **Hevy** | `3.1.14` | `arm64-v8a` (64-bit only) | Split APK Bundle (`.apkm`) | [Hevy Guide](apps/hevy.md) |
 | **NokoPrint** | `5.28.6` | `arm64-v8a`, `armeabi-v7a`, `universal` | Standalone nodpi APK / Bundle | [NokoPrint Guide](apps/nokoprint.md) |
 | **TikTok** | `47.1.4` | `arm64-v8a` | Standalone nodpi APK | [TikTok Guide](apps/tiktok.md) |
