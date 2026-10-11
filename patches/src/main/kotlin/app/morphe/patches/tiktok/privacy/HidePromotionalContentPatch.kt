@@ -36,7 +36,7 @@ val hidePromotionalContentPatch = bytecodePatch(
             feedApiMethod.addInstructionsAtControlFlowLabel(
                 returnIndex,
                 """
-                    invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInFeedItemList(Ljava/lang/Object;)V
+                    invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInFeedItemList(Ljava/lang/Object;)V
                 """.trimIndent(),
             )
         }
@@ -61,7 +61,7 @@ val hidePromotionalContentPatch = bytecodePatch(
             feedItemListMethod.addInstructionsAtControlFlowLabel(
                 returnIndex,
                 """
-                    invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInList(Ljava/lang/Object;)V
+                    invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInList(Ljava/lang/Object;)V
                 """.trimIndent(),
             )
         }
@@ -86,7 +86,7 @@ val hidePromotionalContentPatch = bytecodePatch(
             followFeedListMethod.addInstructionsAtControlFlowLabel(
                 returnIndex,
                 """
-                    invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInFollowFeedList(Ljava/lang/Object;)V
+                    invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterPromotionalInFollowFeedList(Ljava/lang/Object;)V
                 """.trimIndent(),
             )
         }
