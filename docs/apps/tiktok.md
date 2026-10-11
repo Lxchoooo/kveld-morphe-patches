@@ -642,7 +642,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - Emits concise ASCII telemetry (`[TikTok Privacy Permissions Stripper] Stripped N permission(s) from AndroidManifest.xml: ...`) with clean short names.
 
 ### 28. Hide Promotional Content (`hidePromotionalContentPatch`)
-- Filters and skips videos disclosing branded or paid-promotional content ("Contenido Promocional" / paid partnership disclosure tags) across the For You, Following, and Friends feeds.
+- Filters and skips videos with native commercial signals (branded-content metadata, Star Atlas orders, `isPromoteAdLabel`) across the For You, Following, and Friends feeds. Weak text/regex heuristics were removed: description, banner and anchor pattern matching pruned regular profile videos (issue #84), so the promote-model verdict now requires `isPromoteAdLabel=true`.
 - **Feed API Response Interception**: Hooks `FeedApiService.fetchFeedList` to filter incoming items at the network response boundary before model mapping.
 - **Feed Item Model Interception**: Hooks `FeedItemList.getItems()` and `FollowFeedList.getItems()` to sanitize feed collections in-situ.
 - **Friends Feed Network Interception**: Hooks `FriendsV3FeedNetworkSource.LJ` (V3 response handler) and the friend feed request `LX/06CX;->LIZLLL` (`/tiktok/v1/friend/friend_feed`, V2) return points to filter `friendsV3Feeds` / `friendFeedData` after deserialization.
@@ -651,8 +651,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - `brandContentAccounts` (tagged sponsor accounts list).
   - `starAtlasOrderId` (ByteDance Star Atlas commercial order ID).
   - `commercialVideoInfo` (commercial video payload marker).
-  - `promoteModel` and `promoteIconText` (native in-feed promotion triggers).
-  - Multi-locale description, caption, banner, and anchor fallback pattern matching (`#paidpartnership`, `#brandedcontent`, `#contenidopromocional`, `[Contenido Promocional]`, `[Paid partnership]`, `[Contenu sponsorisé]`, `[Colaboración pagada]`, `[Parceria paga]`, etc.).
+  - `promoteModel.isPromoteAdLabel` (strict native promotion verdict; label/bottom-bar text and description regex heuristics removed).
 
 ### 29. Telemetry Manifest Purge (`telemetryManifestPurgePatch`)
 - **Manifest DOM Transformation**:
