@@ -1,3 +1,9 @@
+## [2.7.0-experimental.9](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.8...v2.7.0-experimental.9) (2026-10-11)
+
+### Bug Fixes
+
+* **tiktok:** remove Hide Promotional Content patch and its exclusive filter code ([f28df82](https://github.com/kveld9/kveld-morphe-patches/commit/f28df82dff02124d85b279817198da7df0174f84)), closes [#84](https://github.com/kveld9/kveld-morphe-patches/issues/84)
+
 ## [2.7.0-experimental.8](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.7...v2.7.0-experimental.8) (2026-10-11)
 
 ### Bug Fixes
