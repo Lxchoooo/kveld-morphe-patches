@@ -1,3 +1,9 @@
+## [2.7.0-experimental.7](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.6...v2.7.0-experimental.7) (2026-10-11)
+
+### Bug Fixes
+
+* **contributors:** text role labels and avatar alt text ([266695d](https://github.com/kveld9/kveld-morphe-patches/commit/266695d3058ef50640b8d31d86a8f87a4a4586ae))
+
 ## [2.7.0-experimental.6](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.5...v2.7.0-experimental.6) (2026-10-11)
 
 ### Bug Fixes
