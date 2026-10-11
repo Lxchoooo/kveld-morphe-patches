@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val xiaomiEarbudsModelCatalogUnlockPatch = bytecodePatch(
-    name = "Model Catalog Unlock",
-    description = "Forces DeviceInfoListCache.isShowProduct to return true, bypassing version-gating and distribution restrictions so that all device models are always displayed and discoverable.",
+    name = "Show All Models",
+    description = "Shows every earbud model for pairing.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)

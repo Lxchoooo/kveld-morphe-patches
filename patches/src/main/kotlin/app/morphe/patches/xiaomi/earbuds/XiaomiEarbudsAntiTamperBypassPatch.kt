@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val xiaomiEarbudsAntiTamperBypassPatch = bytecodePatch(
-    name = "Anti-Tamper Bypass",
-    description = "Bypasses Xposed and hook detection, neutralizes VPN and ADB security checks, bypasses root and emulator detection, and hardens WebView JavaScript bridges.",
+    name = "Run on Rooted Devices",
+    description = "Lets the app run on rooted phones and network tools without crashing.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
