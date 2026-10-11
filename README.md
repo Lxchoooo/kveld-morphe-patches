@@ -1,3 +1,4 @@
+<a name="top"></a>
 <p align="center">
   <a href="https://github.com/kveld9/kveld-morphe-patches/releases/latest"><img src="https://img.shields.io/github/v/release/kveld9/kveld-morphe-patches?color=7928CA&label=Release&logo=github&style=flat-square" alt="Latest Release" /></a>
   <a href="https://github.com/kveld9/kveld-morphe-patches/releases"><img src="https://img.shields.io/github/downloads/kveld9/kveld-morphe-patches/total?style=flat-square&logo=github" alt="Total Downloads" /></a>
@@ -5,7 +6,7 @@
   <img src="https://img.shields.io/badge/License-GPLv3-blue?style=flat-square" alt="License" />
 </p>
 
-<h1 align="center">🔮 Morphe Patches</h1>
+<h1 align="center">Morphe Patches</h1>
 
 <p align="center">
   Modular bytecode, resource, and native patch suite for <b>Brave Browser</b>, <b>Gboard Lite</b>, <b>Hevy</b>, <b>TikTok</b>, <b>NokoPrint</b>, and <b>Xiaomi Earbuds</b> on Android using the <b><a href="https://morphe.software">Morphe</a></b> patcher framework.
@@ -21,7 +22,23 @@
 
 ---
 
-## ⚡ Key Advantages
+<a name="table-of-contents"></a>
+![Table of Contents](images/header-table-of-contents.svg)
+
+- [Key Advantages](#key-advantages)
+- [Supported Targets & Downloads](#supported-targets)
+- [Patch Catalog](#patch-catalog)
+- [Documentation & Guides](#documentation)
+- [Contributing & Feature Requests](#contributing)
+- [Community & Support](#community)
+- [Credits & Contributors](#credits)
+- [Legal Disclaimer](#legal)
+- [License](#license)
+
+---
+
+<a name="key-advantages"></a>
+![Key Advantages](images/header-key-advantages.svg)
 
 - **Zero Runtime Overhead**: Direct compile-time Dalvik bytecode manipulation, XML transformation, and native ELF patching without resident background daemons, proxy servers, or Xposed frameworks.
 - **Deep Telemetry Neutralization**: Neutralizes tracking, diagnostic pings, crash reporting, and analytics at method call sites (Google Primes, Chromium UMA, P3A, ByteDance AppLog, Adjust, Firebase, Sentry) instead of fragile network-level blackholing.
@@ -31,7 +48,8 @@
 
 ---
 
-## 🎯 Supported Targets & Downloads
+<a name="supported-targets"></a>
+![Supported Targets & Downloads](images/header-supported-targets.svg)
 
 > [!TIP]
 > For CPU architecture guidelines (ARM64 vs 32-bit ARMv7a) and variant selection rationales, consult the [Compatibility Guide](docs/compatibility.md).
@@ -47,7 +65,8 @@
 
 ---
 
-## 💊 Patch Catalog
+<a name="patch-catalog"></a>
+![Patch Catalog](images/header-patch-catalog.svg)
 
 <!-- PATCHES_START -->
 <details>
@@ -284,11 +303,12 @@
 
 ---
 
-## 📚 Documentation & Guides
+<a name="documentation"></a>
+![Documentation & Guides](images/header-documentation.svg)
 
 Technical references, setup manuals, and architecture notes are organized by focus area:
 
-### 📱 Dedicated Application Guides
+### Dedicated Application Guides
 | Application | Guide | Description |
 | :--- | :--- | :--- |
 | **Brave Browser** | **[Brave Guide](docs/apps/brave.md)** | Zero-configuration debloat, telemetry neutralization, sponsored NTP removal, and PAK slimmer. |
@@ -298,7 +318,7 @@ Technical references, setup manuals, and architecture notes are organized by foc
 | **TikTok** | **[TikTok Guide](docs/apps/tiktok.md)** | SIM region spoofing, decoupled quality governor, 120Hz refresh lock, watermark-free downloader, and ad filters. |
 | **Xiaomi Earbuds** | **[Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md)** | Initial pairing workflow, anti-tamper bypass, spatial audio / aptX 96kHz unlocks, and offline isolation. |
 
-### 🌐 Universal & Architecture Reference
+### Universal & Architecture Reference
 | Guide | Description |
 | :--- | :--- |
 | **[Universal Patches & Options](docs/universal-patches.md)** | Universal debloat & privacy suite: Screen Brightness Governor, Screenshot Protection Bypass, Privacy Permissions Stripper, Telemetry Neutralizer, Native Binary Trimmer, WebP Optimizer, Universal Hosts Blocker, Universal SDK Blocker, Screen Timeout Enforcer, Background Sync Purge, Offline Mode, DPI/Locale Slimmers, and Asset Cleaners. |
@@ -306,7 +326,7 @@ Technical references, setup manuals, and architecture notes are organized by foc
 | **[Project Scope & Out of Scope](docs/out-of-scope.md)** | Non-negotiable design philosophy, compile-time invariants, and rejected feature categories. |
 | **[Architecture & Security Notes](docs/architecture-security.md)** | Static analysis scanner false positives (ML Kit, Play Billing) and native ELF telemetry neutralization. |
 
-### 🛠️ Developer & Tooling
+### Developer & Tooling
 | Guide | Description |
 | :--- | :--- |
 | **[Building & Development](docs/building.md)** | Toolchain prerequisites, Gradle build tasks, test execution, and catalog synchronization. |
@@ -315,11 +335,13 @@ Technical references, setup manuals, and architecture notes are organized by foc
 
 ---
 
-## 🎯 Contributing & Feature Requests
+<a name="contributing"></a>
+![Contributing & Feature Requests](images/header-contributing.svg)
 
 Before proposing new features or submitting modifications, please review our **[Project Scope & Out-of-Scope Philosophy](docs/out-of-scope.md)**.
 
-We prioritize **surgical, lightweight, zero-overhead compile-time transformations** and rapid upstream synchronization with the latest app versions. Dynamic in-app settings panels, legacy multi-version support, server-side exploits, or heavy feature bloat are explicitly out of scope.
+> [!NOTE]
+> We prioritize **surgical, lightweight, zero-overhead compile-time transformations** and rapid upstream synchronization with the latest app versions. Dynamic in-app settings panels, legacy multi-version support, server-side exploits, or heavy feature bloat are explicitly out of scope.
 
 ### Mandatory Verification Gates
 Every patch modification or contribution must pass the official Morphe Patcher in-situ verification gate with 100% success (0 failed patches, 0 fingerprint mismatches):
@@ -335,15 +357,18 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 
 ---
 
-## 💬 Community & Support
+<a name="community"></a>
+![Community & Support](images/header-community.svg)
 
-Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
-
-- 💬 **Telegram Support Group**: [t.me/kveldmorphe](https://t.me/kveldmorphe)
+> [!NOTE]
+> Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
+>
+> - **Telegram Support Group**: [t.me/kveldmorphe](https://t.me/kveldmorphe)
 
 ---
 
-## 🤝 Credits & Contributors
+<a name="credits"></a>
+![Credits & Contributors](images/header-credits.svg)
 
 <!-- CONTRIBUTORS_START -->
 | Contributor | Role & Contributions |
@@ -363,7 +388,8 @@ Need assistance, have questions regarding patch configurations, or want to follo
 
 ---
 
-## ⚖️ Legal Disclaimer
+<a name="legal"></a>
+![Legal Disclaimer](images/header-legal.svg)
 
 **Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, Hevy App, ByteDance Ltd., NokoPrint LLC, Xiaomi Inc., or any of their subsidiaries or affiliates.
 
@@ -371,6 +397,13 @@ All product names, logos, brands, and registered trademarks mentioned in this re
 
 ---
 
-## 📜 License
+<a name="license"></a>
+![License](images/header-license.svg)
 
 Morphe Patches is open-source software licensed under the [GNU General Public License v3.0](LICENSE).
+
+---
+
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>
