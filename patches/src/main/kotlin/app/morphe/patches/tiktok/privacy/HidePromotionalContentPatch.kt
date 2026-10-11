@@ -10,8 +10,8 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val hidePromotionalContentPatch = bytecodePatch(
-    name = "Hide Promotional Content",
-    description = "Filters videos disclosing branded/paid-promotional content (Contenido Promocional tag) from For You, Following and Friends feeds.",
+    name = "Hide Ads in Feed",
+    description = "Skips paid promotion videos.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
