@@ -65,7 +65,7 @@
 - **Strict Upstream Parity**: Enforces a strict single-version invariant targeting latest stable upstream releases with exact AST and fingerprint assertions.
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Selected APK] --> B[Morphe Patcher<br/>+ this source]
     B --> C[DEX, XML<br/>and native work]
     C --> D[Patched APK<br/>no root, no hooks]
