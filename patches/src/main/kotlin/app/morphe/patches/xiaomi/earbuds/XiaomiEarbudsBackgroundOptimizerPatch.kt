@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsBackgroundResourcePatch = resourcePatch(
-    name = "Xiaomi Earbuds Background Services Manifest Purge",
-    description = "Disables persistent foreground, nearby discovery, and companion device keepalive services in AndroidManifest.xml.",
+    name = "Battery Saver (Setup)",
+    description = "Turns off always-on services.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -79,8 +79,8 @@ private val xiaomiEarbudsBackgroundResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val xiaomiEarbudsBackgroundOptimizerPatch = bytecodePatch(
-    name = "Background Optimizer",
-    description = "Neutralizes KeepAliveForegroundService, background BLE observation, companion device manager, and MIUI Nearby discovery to eliminate persistent notifications, wakelocks, and background battery drain.",
+    name = "Stop Background Activity",
+    description = "Removes persistent notifications and background battery drain.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
