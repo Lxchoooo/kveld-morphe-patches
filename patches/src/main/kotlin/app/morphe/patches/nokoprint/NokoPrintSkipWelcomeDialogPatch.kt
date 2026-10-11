@@ -17,8 +17,8 @@ private const val PRIVACY_ACCEPTED_KEY = "privacy_accepted"
 
 @Suppress("unused")
 val nokoPrintSkipWelcomeDialogPatch = bytecodePatch(
-    name = "Skip Welcome Dialog",
-    description = "Suppresses the first-launch About/privacy dialog by applying the app's own accept action silently. The About entry in the menu keeps working.",
+    name = "Skip Welcome Screen",
+    description = "Skips the first-launch popup (the About menu still works).",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
