@@ -421,6 +421,8 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 > - **Security vulnerabilities**: see [SECURITY.md](SECURITY.md) (do not open public issues)
 > - **Release notes**: [CHANGELOG.md](CHANGELOG.md)
 
+**Related project**: [kveld-extra-morphe-patches](https://github.com/kveld9/kveld-extra-morphe-patches) is my personal patch collection. It shares this repo's goals but has no per-app completion target — its patches are for personal use, and suggestions for apps to maintain are welcome there.
+
 ---
 
 <a name="credits"></a>
