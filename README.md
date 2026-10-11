@@ -66,9 +66,9 @@
 
 ```mermaid
 flowchart LR
-    A[Selected APK] --> B[Morphe Patcher + this source]
-    B --> C[DEX, XML and native ELF transforms at patch time]
-    C --> D[Patched APK: no runtime hooks, no root]
+    A[Selected APK] --> B[Morphe Patcher<br/>+ this source]
+    B --> C[DEX, XML<br/>and native work]
+    C --> D[Patched APK<br/>no root, no hooks]
 ```
 
 ---
