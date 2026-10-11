@@ -57,8 +57,8 @@ private fun pruneEmptyDirectories(root: File) {
 
 @Suppress("unused")
 val apkJunkCleanerPatch = rawResourcePatch(
-    name = "APK Junk Cleaner",
-    description = "Strips non-functional build metadata, compiler properties, Kotlin coroutines debug tables, and duplicate license texts from META-INF and APK root while preserving kotlin/*.kotlin_builtins runtime descriptors.",
+    name = "Clean App Packaging",
+    description = "Removes build leftovers and duplicate files.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
