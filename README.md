@@ -64,6 +64,13 @@
 - **Rootless & Standalone**: Operates directly on userland APKs and APKM split bundles; no Magisk, KernelSU, or root privileges required.
 - **Strict Upstream Parity**: Enforces a strict single-version invariant targeting latest stable upstream releases with exact AST and fingerprint assertions.
 
+```mermaid
+flowchart LR
+    A[Selected APK] --> B[Morphe Patcher + this source]
+    B --> C[DEX, XML and native ELF transforms at patch time]
+    C --> D[Patched APK: no runtime hooks, no root]
+```
+
 ---
 
 <a name="supported-targets"></a>
