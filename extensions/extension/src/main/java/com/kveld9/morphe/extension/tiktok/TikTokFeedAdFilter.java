@@ -2353,40 +2353,6 @@ public final class TikTokFeedAdFilter {
                     if (isPromoteAdLabelField.getBoolean(pm)) return true;
                 } catch (Throwable ignored) {}
             }
-            if (getLabelTextMethod != null) {
-                try {
-                    Object txt = getLabelTextMethod.invoke(pm);
-                    if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-                } catch (Throwable ignored) {}
-            }
-            if (labelTextField != null) {
-                try {
-                    Object txt = labelTextField.get(pm);
-                    if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-                } catch (Throwable ignored) {}
-            }
-            if (getBottomBarButtonTextMethod != null) {
-                try {
-                    Object txt = getBottomBarButtonTextMethod.invoke(pm);
-                    if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-                } catch (Throwable ignored) {}
-            }
-            if (bottomBarButtonTextField != null) {
-                try {
-                    Object txt = bottomBarButtonTextField.get(pm);
-                    if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-                } catch (Throwable ignored) {}
-            }
-            if (getHasBottomBarButtonMethod != null) {
-                try {
-                    if (Boolean.TRUE.equals(getHasBottomBarButtonMethod.invoke(pm))) return true;
-                } catch (Throwable ignored) {}
-            }
-            if (hasBottomBarButtonField != null) {
-                try {
-                    if (Boolean.TRUE.equals(hasBottomBarButtonField.get(pm))) return true;
-                } catch (Throwable ignored) {}
-            }
 
             Class<?> clazz = pm.getClass();
             try {
@@ -2397,37 +2363,6 @@ public final class TikTokFeedAdFilter {
                 Field f = clazz.getDeclaredField("isPromoteAdLabel");
                 f.setAccessible(true);
                 if (f.getBoolean(pm)) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Method m = clazz.getMethod("getLabelText");
-                Object txt = m.invoke(pm);
-                if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Field f = clazz.getDeclaredField("labelText");
-                f.setAccessible(true);
-                Object txt = f.get(pm);
-                if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Method m = clazz.getMethod("getBottomBarButtonText");
-                Object txt = m.invoke(pm);
-                if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Field f = clazz.getDeclaredField("bottomBarButtonText");
-                f.setAccessible(true);
-                Object txt = f.get(pm);
-                if (txt instanceof String && !((String) txt).trim().isEmpty()) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Method m = clazz.getMethod("getHasBottomBarButton");
-                if (Boolean.TRUE.equals(m.invoke(pm))) return true;
-            } catch (Throwable ignored) {}
-            try {
-                Field f = clazz.getDeclaredField("hasBottomBarButton");
-                f.setAccessible(true);
-                if (Boolean.TRUE.equals(f.get(pm))) return true;
             } catch (Throwable ignored) {}
         } catch (Throwable ignored) {}
         return false;
@@ -2633,25 +2568,7 @@ public final class TikTokFeedAdFilter {
                 } catch (Throwable ignored) {}
             }
 
-            // 5. Promote Model / Icon
-            if (getPromoteIconTextMethod != null) {
-                try {
-                    Object pit = getPromoteIconTextMethod.invoke(aweme);
-                    if (pit instanceof String && !((String) pit).trim().isEmpty()) {
-                        Log.i(TAG, "[Hide Promotional Content] Match [promoteIconText=" + pit + "] on aid=" + aid);
-                        return true;
-                    }
-                } catch (Throwable ignored) {}
-            }
-            if (promoteIconTextField != null) {
-                try {
-                    Object pit = promoteIconTextField.get(aweme);
-                    if (pit instanceof String && !((String) pit).trim().isEmpty()) {
-                        Log.i(TAG, "[Hide Promotional Content] Match [promoteIconTextField=" + pit + "] on aid=" + aid);
-                        return true;
-                    }
-                } catch (Throwable ignored) {}
-            }
+            // 5. Promote Model (strictly hardened to isPromoteAdLabel=true)
             if (getPromoteModelMethod != null) {
                 try {
                     Object pm = getPromoteModelMethod.invoke(aweme);
@@ -2669,70 +2586,6 @@ public final class TikTokFeedAdFilter {
                         return true;
                     }
                 } catch (Throwable ignored) {}
-            }
-
-            // 6. Fallback: Secondary multi-locale description & content description pattern matching
-            Object descObj = null;
-            if (getDescMethod != null) {
-                try { descObj = getDescMethod.invoke(aweme); } catch (Throwable ignored) {}
-            }
-            if (descObj == null && descField != null) {
-                try { descObj = descField.get(aweme); } catch (Throwable ignored) {}
-            }
-            if (descObj instanceof String && isPromotionalDescription((String) descObj)) {
-                Log.i(TAG, "[Hide Promotional Content] Match [Desc=" + descObj + "] on aid=" + aid);
-                return true;
-            }
-
-            Object contentDescObj = null;
-            if (getContentDescMethod != null) {
-                try { contentDescObj = getContentDescMethod.invoke(aweme); } catch (Throwable ignored) {}
-            }
-            if (contentDescObj == null && contentDescField != null) {
-                try { contentDescObj = contentDescField.get(aweme); } catch (Throwable ignored) {}
-            }
-            if (contentDescObj instanceof String && isPromotionalDescription((String) contentDescObj)) {
-                Log.i(TAG, "[Hide Promotional Content] Match [ContentDesc=" + contentDescObj + "] on aid=" + aid);
-                return true;
-            }
-
-            // 7. Fallback: Banners and Anchors
-            Object banners = null;
-            if (getBannersMethod != null) {
-                try { banners = getBannersMethod.invoke(aweme); } catch (Throwable ignored) {}
-            }
-            if (banners == null && bannersField != null) {
-                try { banners = bannersField.get(aweme); } catch (Throwable ignored) {}
-            }
-            if (banners instanceof List) {
-                for (Object b : (List<?>) banners) {
-                    if (b != null) {
-                        String bText = extractStringContent(b);
-                        if (bText != null && isPromotionalDescription(bText)) {
-                            Log.i(TAG, "[Hide Promotional Content] Match [Banner=" + bText + "] on aid=" + aid);
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            Object anchors = null;
-            if (getAnchorsMethod != null) {
-                try { anchors = getAnchorsMethod.invoke(aweme); } catch (Throwable ignored) {}
-            }
-            if (anchors == null && anchorsField != null) {
-                try { anchors = anchorsField.get(aweme); } catch (Throwable ignored) {}
-            }
-            if (anchors instanceof List) {
-                for (Object a : (List<?>) anchors) {
-                    if (a != null) {
-                        String aText = extractStringContent(a);
-                        if (aText != null && isPromotionalDescription(aText)) {
-                            Log.i(TAG, "[Hide Promotional Content] Match [Anchor=" + aText + "] on aid=" + aid);
-                            return true;
-                        }
-                    }
-                }
             }
         } catch (Throwable ignored) {}
         return false;
