@@ -86,6 +86,16 @@
 
 Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Morphe merges; `Monolithic` = single APK.
 
+<details>
+<summary><b>Troubleshooting</b></summary>
+
+- **App not installed / signature conflict**: the patched APK is re-signed; uninstall the original app first (for Gboard, **Clone Gboard** installs in parallel).
+- **Google login broken (TikTok)**: enable **Fix Google Login**.
+- **Patcher applies nothing / fingerprint errors**: use the exact version and variant from the table above.
+- **Crash after patching**: disable the last patch you enabled and retry.
+
+</details>
+
 ---
 
 <a name="patch-catalog"></a>
