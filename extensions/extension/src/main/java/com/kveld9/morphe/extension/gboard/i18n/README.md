@@ -45,10 +45,18 @@ To contribute a new language translation (e.g. French `fr`, German `de`, Portugu
            return "Redémarrez Gboard pour appliquer les modifications";
        }
 
-       @Override
-       public String getRestartingToast() {
-           return "Redémarrage de Gboard...";
-       }
+        @Override
+        public String getRestartingToast() {
+            return "Redémarrage de Gboard...";
+        }
+
+        @Override
+        public String getRestartTitle(boolean pending) {
+            if (pending) {
+                return "Redémarrer Gboard (redémarrage en attente)";
+            }
+            return "Redémarrer le processus Gboard";
+        }
 
        @Override
        public String getRestartSummary(boolean pending) {
