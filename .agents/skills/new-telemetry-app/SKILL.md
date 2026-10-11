@@ -113,33 +113,10 @@ mkdir -p scratch
 ```
 
 ### D. Telemetry Component Inventory
-Grep the manifest tree for tracking, advertising, and diagnostic entries:
-
-1. **Permissions (`uses-permission`)**:
-   - Advertising ID: `com.google.android.gms.permission.AD_ID`
-   - Privacy Sandbox / AdServices:
-     - `android.permission.ACCESS_ADSERVICES_ATTRIBUTION`
-     - `android.permission.ACCESS_ADSERVICES_AD_ID`
-     - `android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE`
-     - `android.permission.ACCESS_ADSERVICES_TOPICS`
-   - Install Referrer: `com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE`
-   - AppHub / Partner services: `com.applovin.array.apphub.permission.BIND_APPHUB_SERVICE`
-
-2. **Components (`service`, `receiver`, `provider`, `activity`)**:
-   - Facebook Analytics: `com.facebook.analytics2.*` (upload services, alarm receivers)
-   - Google Measurement / Firebase: `com.google.android.gms.measurement.*`, `com.google.android.gms.analytics.*`
-   - Google DataTransport: `com.google.android.datatransport.runtime.*`
-   - Device & Install Identifiers: `*FDIDLiteProvider`, `*PhoneIdProvider`, `*InstallReferrerProvider`
-   - Firebase Component Discovery: `com.google.firebase.components.ComponentDiscoveryService`
-   - MLKit Discovery: `com.google.mlkit.common.internal.MlKitComponentDiscoveryService`
-
-3. **Startup Initializers (`androidx.startup.InitializationProvider`)**:
-   - Ad SDK initializers: `com.unity3d.services.core.configuration.AdsSdkInitializer`, `com.google.android.gms.ads.MobileAdsInitProvider`
+Grep `scratch/manifest_tree.txt` for the six entrypoint categories catalogued in `telemetry-blocking` Section 1.A (permissions, providers, services, receivers/activities, component discovery registrars, startup initializers) and record every match with its exact component name. Apply the preservation rules in `telemetry-blocking` Section 1.C before marking any match for removal.
 
 ### E. ML Kit Analysis & Scanner False-Positive Rule
-Component scanners (App Manager, Exodus Privacy) frequently flag Google ML Kit components (`MlKitInitProvider`, `MlKitComponentDiscoveryService`) as "trackers" because ML Kit uses the Firebase dependency injection framework (`CommonComponentRegistrar`).
-- **Empirical Reality**: ML Kit models (OCR, barcode scanning, Autofill vision) execute strictly locally on-device and send zero telemetry.
-- **Rule**: Never strip ML Kit components in default telemetry patches. Disabling ML Kit breaks in-app barcode and QR scanning. If an ML Kit slimmer is desired, author it as a separate opt-in patch with `default = false` and an explicit description warning.
+Scanners flag `MlKitInitProvider` and `MlKitComponentDiscoveryService` as trackers, but ML Kit runs on-device and default telemetry patches must keep it. Follow `telemetry-blocking` Section 2.B (an ML Kit slimmer is only allowed as a separate opt-in patch with a breakage warning).
 
 ### F. Native Binary Reconnaissance (`lib/<abi>/*.so`)
 When the target application bundles native libraries:
@@ -365,17 +342,7 @@ Telemetry blocking and asset debloating implementations are partitioned into ded
 
 ### A. Telemetry Blocking Implementation (`telemetry-blocking`)
 - **When to Invoke**: Invoke when implementing the primary telemetry suppression suite for a target application, including manifest-level permission stripping, component disabling, opt-out metadata injection, and Dalvik bytecode dispatcher stubs.
-- **What It Delivers**:
-  - Manifest purge implementation using shared helpers in `app.morphe.patches.shared.ManifestXml.kt`: `stripPermissionsWhere`, `disableComponentsWhere`, `disableComponentsByName`, and `setApplicationMetaData`.
-  - Bytecode stubbing via `app.morphe.patches.shared.BytecodeUtils.kt`: `replaceWithReturnVoid()`, `replaceWithReturnBoolean(value)`, and `clearTryBlocks()` to eliminate dangling exception blocks that trigger Dalvik/ART `VerifyError`.
-  - Direction-inversion trap awareness: gatekeeper methods named `isTrackingDisabled`, `isLimitAdTrackingEnabled`, or `areNotificationsOptedOut` must return `true` (0x1) to disable tracking, whereas methods like `isAnalyticsEnabled` must return `false` (0x0).
-  - Bytecode return type validation: assert `returnType != "V"` before attempting return-value injections, and verify method signature return types.
-  - Component discovery registrar pruning patterns and the ML Kit scanner false-positive caveat.
-  - Reverse traversal multi-return hook insertion and register stability invariants.
-  - The zero-zombie fingerprint contract and `[Patch Name]` diagnostic telemetry logging standard.
-  - Verification assertions against the compiled APK manifest tree via `aapt2`.
-  - Reference: `.agents/skills/telemetry-blocking/SKILL.md`.
-  - DEX hosts-rewrite follows the telemetry-blocking hosts-rewrite pattern, and all stub selections must pass its mandatory exclusion list.
+- **What It Delivers**: manifest purge with the `ManifestXml.kt` helpers, bytecode stubs with the `BytecodeUtils.kt` helpers, direction-inversion and return-type traps, registrar pruning and the ML Kit caveat, multi-return reverse traversal, the DEX hosts-rewrite pattern, the mandatory SDK method exclusion list, the zero-zombie and diagnostic telemetry contracts, and `aapt2` manifest assertions. Reference: `.agents/skills/telemetry-blocking/SKILL.md`.
 
 ### B. Application Debloating & Asset Slimming (`app-debloat`)
 - **When to Invoke**: Invoke when analyzing or stripping companion native libraries, non-essential asset bundles, multi-language string tables, high-density screen graphics, onboarding videos, editor assets, or background sync schedulers.
@@ -581,20 +548,12 @@ Every completed unit of work must be committed immediately as an isolated, indep
    - Scope: Standalone fix for a shifted fingerprint or broken component.
    - Format: `fix(<app_id>): update uploader fingerprint for <version>`
 
-### B. Conventional Commits Standards
-- Written strictly in English.
-- Imperative mood, concise summary line.
-- Plain ASCII only: no emojis, unicode pictographs, or non-ASCII symbols.
-- Zero AI attribution, zero `Co-Authored-By` lines.
+### B. Commit Message & Push Rules
+Commit format, language, attribution, direct-commit and push/PR rules are defined in `AGENTS.md` (rules 14 and 15) and the `release-conventions` skill; follow them exactly.
 
-### C. Direct Commit & No-Push Invariant
-- **Direct Commit**: Commit completed units autonomously upon satisfying verification gates.
-- **Strict No-Push**: NEVER execute `git push` autonomously. Pushing is reserved strictly for explicit user instructions.
-- **Strict No-PR**: Never generate PR titles, PR descriptions, or suggest opening PRs.
-
-### D. Mandatory Post-Close Adversarial Audit (audit-stack)
+### C. Mandatory Post-Close Adversarial Audit (audit-stack)
 After all commits in A are landed, automatically run the `audit-stack` skill against the onboarding changeset before closing the task (auditing the pending range, e.g. `origin/<base>..HEAD`). Never run per-commit auto-audits.
 1. **Scope**: Strictly the onboarding scope -- `patches/.../<app_id>/`, `docs/apps/<app_id>.md`, and the app's hunks in `Constants.kt` / `PatchExecutionTest.kt` / `README.md`. Explicitly exclude `FOREIGN_IN_PROGRESS_WORK` (uncommitted files and directories outside the app scope); never stage, modify, or report foreign work as part of this audit.
 2. **Remediation precedence**: `audit-stack` applies fixes through whatever implementation workflow is configured for the local harness (for example a delegated worker); this skill does not define who edits files.
 3. **Fix commits**: Each confirmed fix lands as its own `fix(<app_id>): ...` commit after re-running the Section 6 gates. Loop until the audit reports zero blocking findings.
-4. No push / no PR (per C).
+4. No push / no PR (per B).
