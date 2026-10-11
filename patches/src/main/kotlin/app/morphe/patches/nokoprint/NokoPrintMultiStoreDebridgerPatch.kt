@@ -6,8 +6,8 @@ import org.w3c.dom.Element
 
 @Suppress("unused")
 val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
-    name = "Multi-Store Debridger",
-    description = "Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei, Xiaomi, Samsung).",
+    name = "Remove Extra Stores",
+    description = "Disables payment components for other app stores you do not use.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
