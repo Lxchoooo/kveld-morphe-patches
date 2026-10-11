@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintTelemetryResourcePatch = resourcePatch(
-    name = "Telemetry Manifest Purge",
-    description = "Strips advertising and install referrer permissions, and disables Google Firebase/Measurement components in AndroidManifest.xml.",
+    name = "Remove Trackers (Setup)",
+    description = "Removes ad permissions and disables tracking components.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -80,8 +80,8 @@ private val nokoPrintTelemetryResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val nokoPrintBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Firebase Analytics, Google Measurement, TikTok Business SDK, and crashlytics tracking.",
+    name = "Block Trackers",
+    description = "Blocks analytics and ad tracking.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
