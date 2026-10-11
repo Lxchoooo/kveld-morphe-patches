@@ -1,6 +1,6 @@
 ---
 name: morphe-patcher
-description: Architecture, patch typology (bytecodePatch, resourcePatch, rawResourcePatch), universal patches, stringOption DSL, fingerprint resolution, compatibility contracts (Constants.kt), and diagnostic telemetry invariants.
+description: Architecture, patch typology (bytecodePatch, resourcePatch, rawResourcePatch), universal patches, patch option DSL (booleanOption, stringOption), fingerprint resolution, compatibility contracts (Constants.kt), and diagnostic telemetry invariants.
 ---
 
 <!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
@@ -94,9 +94,21 @@ Compatibility is configured via `compatibleWith(...)`:
 
 ---
 
-## 3. User Configurable Options (`stringOption` DSL)
+## 3. User Configurable Options (`booleanOption` / `stringOption` DSL)
 
-Patches can expose configurable settings to users in Morphe Manager or CLI using the `stringOption` property delegate:
+Patches expose patch-time settings in Morphe Manager or CLI through option property delegates. Use `booleanOption` for toggles and `stringOption` for free-form values:
+
+```kotlin
+import app.morphe.patcher.patch.booleanOption
+
+val blockOffersHost by booleanOption(
+    key = "blockOffersHost",
+    default = true,
+    title = "Block offers server",
+    description = "Also blocks the shopping offers server. Turn off to keep it.",
+    required = false,
+)
+```
 
 ```kotlin
 import app.morphe.patcher.patch.stringOption
@@ -110,6 +122,8 @@ val targetLocales by stringOption(
 )
 ```
 
+Code behind a disabled-by-default option is only exercised by `runPatchTest -PallOptions=true`; run it whenever such code changes.
+
 ### Metadata Synchronization Rule
 When patch options, descriptions, titles, or defaults are added or modified in Kotlin code, verify catalog registration by running the patch list generator against the built `.mpp` from a temporary working directory outside the repository, and confirm the expected entries appear. Do NOT run `./gradlew generatePatchesList` in the repository checkout: it rewrites the tracked `patches-list.json`, which the release pipeline regenerates (see `AGENTS.md`, rule 11).
 
@@ -118,6 +132,8 @@ When patch options, descriptions, titles, or defaults are added or modified in K
 ## 4. Fingerprint Resolution Strategies
 
 Fingerprints locate target methods across obfuscated versions without hardcoding method names:
+
+> **Scan cost:** a fingerprint without `strings` or an exact `definingClass` walks every method of the APK. Follow the measured rules in `AGENTS.md` Section 2, item 5 (one candidate scan per target family, cheap checks first, iterate only the member kind needed, scope `matchAll()` with `classDefBy(TYPE)`, prefer indexed filters, prove performance-only changes with `-PdexDigest`).
 
 1. **String Literals**: Most resilient anchor. Locate methods referencing unique log strings or preference keys.
    ```kotlin
