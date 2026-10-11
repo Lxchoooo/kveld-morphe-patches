@@ -401,6 +401,10 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 > Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
 >
 > - **Telegram Support Group**: [t.me/kveldmorphe](https://t.me/kveldmorphe)
+>
+> - **Bug reports & feature requests**: [GitHub Issues](https://github.com/kveld9/kveld-morphe-patches/issues/new/choose)
+> - **Security vulnerabilities**: see [SECURITY.md](SECURITY.md) (do not open public issues)
+> - **Release notes**: [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
