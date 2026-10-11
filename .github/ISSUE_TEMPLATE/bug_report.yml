@@ -34,7 +34,7 @@ body:
       label: Bug description
       description: |
         - Describe your bug or unexpected behavior in detail.
-        - Exact APK filename and architecture (e.g. `Bravemonoarm64.apk`, `Gboard_v18.0.3_arm64-v8a.apk`).
+        - Exact APK filename and architecture (e.g. `Bravemonoarm64.apk`, `gboard-18.4.1.985164140-lite_beta-arm64-v8a.apk`).
         - Steps to reproduce the issue (Step 1. ... Step 2. ...).
     validations:
       required: true
