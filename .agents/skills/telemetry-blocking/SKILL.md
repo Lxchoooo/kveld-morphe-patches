@@ -3,13 +3,13 @@ name: telemetry-blocking
 description: Methodology and patterns for blocking telemetry, tracking, analytics, ads and crash reporting in Morphe patches (manifest purge, SDK dispatcher stubs, preservation rules, method exclusions, aapt2 verification). Use when implementing or reviewing a telemetry-blocking patch.
 ---
 
-<!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Telemetry Blocking Implementation Guidelines
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches. `scripts/hooks/post-commit` (enabled per clone with `git config core.hooksPath scripts/hooks`; the hook file must be executable) copies the newest copy, by mtime, into the sibling working tree; `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks; repo-specific deltas belong in this section.
+- **Sync invariant**: the canonical copy lives in kveld-morphe-patches; edit this file only there. After each commit or merge in the kveld-morphe-patches main checkout (linked worktrees are skipped), `scripts/hooks/post-commit` and `scripts/hooks/post-merge` copy the committed version into kveld-extra-morphe-patches and commit it there when that checkout is safe to write; the sibling `pre-commit` hook rejects direct edits. `scripts/sync_shared_skills.sh --check` verifies. Repo-specific deltas belong in this section.
 - **Helpers**: manifest and bytecode helpers live in `app.morphe.patches.shared` (`ManifestXml.kt`, `BytecodeUtils.kt`) in both repos with the same API (`stripPermissionsWhere`, `disableComponentsWhere`, `disableComponentsByName`, `setApplicationMetaData`, `replaceWithReturnVoid`, `replaceWithReturnBoolean`, `clearTryBlocks`).
 - **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 

@@ -3,13 +3,13 @@ name: new-telemetry-app
 description: End-to-end workflow for onboarding a new target app with telemetry-blocking patches (recon, Constants and runner registration, docs, gates, device smoke test, traffic audit). Use when adding a new app or package to the repository.
 ---
 
-<!-- Canonical shared copy: byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches (.agents/skills; .claude/skills is a symlink to it in each repo). Propagate edits with scripts/sync_shared_skills.sh; never fork per repo. Repo-specific deltas live in section 0 below. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. Repo-specific deltas live in section 0 below. -->
 
 # New Target App Onboarding & Telemetry Hardening
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is byte-identical in kveld-morphe-patches and kveld-extra-morphe-patches. `scripts/hooks/post-commit` (enabled per clone with `git config core.hooksPath scripts/hooks`; the hook file must be executable) copies the newest copy, by mtime, into the sibling working tree; `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks; repo-specific deltas belong in this section.
+- **Sync invariant**: the canonical copy lives in kveld-morphe-patches; edit this file only there. After each commit or merge in the kveld-morphe-patches main checkout (linked worktrees are skipped), `scripts/hooks/post-commit` and `scripts/hooks/post-merge` copy the committed version into kveld-extra-morphe-patches and commit it there when that checkout is safe to write; the sibling `pre-commit` hook rejects direct edits. `scripts/sync_shared_skills.sh --check` verifies. Repo-specific deltas belong in this section.
 - **README**: update only the hand-maintained Supported Targets table above `PATCHES_START`/`PATCHES_END`. Never edit the generated Patch Catalog block, `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md`; the release pipeline regenerates them. Verify catalog registration from a temporary directory outside the checkout; never run `generatePatchesList` in the checkout.
 - **Registry**: register the app in `util/PatchExecutionTest.kt` (`id`, `packageName` from `Constants.kt`, `candidateFilenames`, `filePattern`, `patchDirectoryPart`). Known divergence: id `xiaomi_earbuds` uses `patchDirectoryPart` `xiaomi` and guide `docs/apps/xiaomi-earbuds.md`.
 - **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.

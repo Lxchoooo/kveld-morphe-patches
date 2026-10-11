@@ -3,7 +3,7 @@ name: native-binary-patching
 description: Byte-level patching of native and binary assets (libchrome.so host redirection per ABI, multi-candidate offsets, companion .so trimming, Hermes HBC prologue patching with SHA-1 footer). Use when writing or updating a rawResourcePatch that edits .so files or bundle assets.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Native & Binary Asset Patching Guidelines
 
@@ -11,7 +11,7 @@ description: Byte-level patching of native and binary assets (libchrome.so host 
 
 Any binary modification executed inside `rawResourcePatch` targeting ELF libraries (such as `lib/arm64-v8a/libchrome.so`) must adhere to strict bounds and fingerprint verification protocols.
 
-### Production Pattern (`BraveBlockTelemetryPatch.kt`)
+### Production Pattern (`BraveBlockTelemetryPatch.kt`, kveld-morphe-patches)
 Redirection overwrites domain strings in-place with `0.0.0.0` followed by null bytes (`0x00`). The replacement length must exactly match the original string length to preserve ELF string table boundaries and segment offsets. Each supported ABI carries its own offset because the string tables differ per build:
 
 ```kotlin
@@ -120,7 +120,7 @@ RandomAccessFile(soFile, "rw").use { raf ->
 
 When applications package unused third-party native binaries (e.g. AI models, XR runtime, or bundled VPN binaries), zeroing them out via `writeBytes(byteArrayOf())` preserves file entries in the ZIP header while drastically reducing APK footprint.
 
-### Production Pattern (`BraveNativeBloatSlimmerPatch.kt`)
+### Production Pattern (`BraveNativeBloatSlimmerPatch.kt`, kveld-morphe-patches)
 ```kotlin
 private val EMPTY_STUB_BYTES = byteArrayOf()
 
@@ -153,7 +153,7 @@ if (libDir.exists() && libDir.isDirectory) {
 
 For React Native Android applications utilizing the Hermes JavaScript engine, the precompiled bundle is stored as a binary asset (`assets/index.android.bundle`). `rawResourcePatch` can parse and mutate Hermes Bytecode (HBC) directly.
 
-### Production Pattern (`HevyUnlockProPatch.kt`)
+### Production Pattern (`HevyUnlockProPatch.kt`, kveld-morphe-patches)
 1. **Magic & Version Verification**: Assert Hermes magic number (`0x1f1903c103bc1fc6L`) and target HBC version (e.g. HBC96 = `96`).
 2. **Table Parsing**: Compute 4-byte aligned offsets for function headers, string table, overflow string table, and string storage.
 3. **Target Function / Getter Identification**: Locate function index by matching string identifier table entries (e.g. `"isPro"`, `"isPaying"`).

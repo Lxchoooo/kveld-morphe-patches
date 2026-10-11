@@ -3,7 +3,7 @@ name: morphe-patcher
 description: Morphe patch architecture and DSL reference (bytecodePatch, resourcePatch, rawResourcePatch, universal patches, booleanOption and stringOption, fingerprints, Constants.kt compatibility, diagnostic telemetry). Use when creating or modifying any patch, fingerprint, patch option or compatibility target.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Morphe Patcher Architectural Guidelines
 
@@ -90,7 +90,7 @@ Compatibility is configured via `compatibleWith(...)`:
   compatibleWith(targetA, targetB)
   ```
 - **Universal Patches**:
-  **Omitting `compatibleWith(...)`** entirely produces a universal patch (e.g. `LocaleResourceSlimmerPatch`, `DpiResourceSlimmerPatch`). Universal patches are offered across all target applications in Morphe Manager and the CLI patcher. Universal patch sources live in `app.morphe.patches.universal`; `app.morphe.patches.shared` holds only contracts and helpers.
+  **Omitting `compatibleWith(...)`** entirely produces a universal patch (e.g. `LocaleResourceSlimmerPatch`, `DpiResourceSlimmerPatch`). Universal patches are offered across all target applications in Morphe Manager and the CLI patcher. In kveld-morphe-patches, universal patch sources live in `app.morphe.patches.universal`; `app.morphe.patches.shared` holds only contracts and helpers in both repositories.
 
 ---
 
@@ -174,13 +174,7 @@ Fingerprints locate target methods across obfuscated versions without hardcoding
 
 Every patch must reference the shared compatibility object defined centrally in `Constants.kt`. Never inline `Compatibility(...)` objects.
 
-Active targets defined in `Constants.kt`:
-1. **Brave**: `Constants.COMPATIBILITY_BRAVE` (`com.brave.browser`)
-2. **Gboard Lite**: `Constants.COMPATIBILITY_GBOARD` (`com.google.android.inputmethod.latin`)
-3. **Hevy**: `Constants.COMPATIBILITY_HEVY` (`com.hevy`)
-4. **TikTok**: `Constants.COMPATIBILITY_TIKTOK` (`com.zhiliaoapp.musically`)
-5. **NokoPrint**: `Constants.COMPATIBILITY_NOKOPRINT` (`com.nokoprint`)
-6. **Xiaomi Earbuds**: `Constants.COMPATIBILITY_XIAOMI_EARBUDS` (`com.mi.earphone`)
+Active targets are defined in each repository's `Constants.kt` as `COMPATIBILITY_<APP>`; add new ones there. Code examples in this skill come from kveld-morphe-patches and use its Brave target for illustration.
 
 **Single Target Version Invariant**: Every target app maintains strictly ONE active version (the latest supported release) in `targets = listOf(AppTarget(...))`. Never retain older versions or multi-version entries in `targets`.
 
@@ -217,4 +211,4 @@ Every patch execution must emit concise, high-signal diagnostic telemetry captur
 
 ## 7. Mandatory Verification Gate
 
-Static checks are never enough. Run the in-situ patching gate defined in `AGENTS.md` (Section 3, Step 4): `./gradlew runPatchTest -Papp=<targetApp>` (targets: `gboard`, `tiktok`, `brave`, `hevy`, `nokoprint`, `xiaomi_earbuds`), adding `-PallOptions=true` when the change sits behind an option.
+Static checks are never enough. Run the in-situ patching gate defined in `AGENTS.md` (Section 3, Step 4): `./gradlew runPatchTest -Papp=<targetApp>` (`<targetApp>` is a `TargetApp` id registered in `PatchExecutionTest.kt`), adding `-PallOptions=true` when the change sits behind an option.

@@ -3,7 +3,7 @@ name: smali-bytecode-hooks
 description: Smali and Dalvik hooking rules (register conventions, whole-body replacement helpers, multi-return reverse traversal, register extraction, branch polarity, reflection bridges, device-only VerifyError traps). Use when writing or reviewing inline smali, addInstructions calls or register-level hooks.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Smali & Dalvik Bytecode Hooking Guidelines
 
