@@ -23,7 +23,8 @@
 ---
 
 <a name="table-of-contents"></a>
-![Table of Contents](images/header-table-of-contents.svg)
+## Table of Contents
+![](images/divider-purple.svg)
 
 - [Quick Start](#quick-start)
 - [Key Advantages](#key-advantages)
@@ -39,8 +40,8 @@
 ---
 
 <a name="quick-start"></a>
-
 ## Quick Start
+![](images/divider-purple.svg)
 
 1. Install **Morphe Manager** on your Android device.
 2. Download the target app using the **exact version and variant** listed in [Supported Targets & Downloads](#supported-targets) (a version mismatch makes every fingerprint fail).
@@ -53,7 +54,8 @@
 ---
 
 <a name="key-advantages"></a>
-![Key Advantages](images/header-key-advantages.svg)
+## Key Advantages
+![](images/divider-purple.svg)
 
 - **Zero Runtime Overhead**: Direct compile-time Dalvik bytecode manipulation, XML transformation, and native ELF patching without resident background daemons, proxy servers, or Xposed frameworks.
 - **Deep Telemetry Neutralization**: Neutralizes tracking, diagnostic pings, crash reporting, and analytics at method call sites (Google Primes, Chromium UMA, P3A, ByteDance AppLog, Adjust, Firebase, Sentry) instead of fragile network-level blackholing.
@@ -64,7 +66,8 @@
 ---
 
 <a name="supported-targets"></a>
-![Supported Targets & Downloads](images/header-supported-targets.svg)
+## Supported Targets & Downloads
+![](images/divider-purple.svg)
 
 > [!TIP]
 > For CPU architecture guidelines (ARM64 vs 32-bit ARMv7a) and variant selection rationales, consult the [Compatibility Guide](docs/compatibility.md).
@@ -83,7 +86,8 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 ---
 
 <a name="patch-catalog"></a>
-![Patch Catalog](images/header-patch-catalog.svg)
+## Patch Catalog
+![](images/divider-purple.svg)
 
 <!-- PATCHES_START -->
 <details>
@@ -321,7 +325,8 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 ---
 
 <a name="documentation"></a>
-![Documentation & Guides](images/header-documentation.svg)
+## Documentation & Guides
+![](images/divider-purple.svg)
 
 Technical references, setup manuals, and architecture notes are organized by focus area:
 
@@ -353,7 +358,8 @@ Technical references, setup manuals, and architecture notes are organized by foc
 ---
 
 <a name="contributing"></a>
-![Contributing & Feature Requests](images/header-contributing.svg)
+## Contributing & Feature Requests
+![](images/divider-purple.svg)
 
 Before proposing new features or submitting modifications, please review our **[Project Scope & Out-of-Scope Philosophy](docs/out-of-scope.md)**.
 
@@ -375,7 +381,8 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ---
 
 <a name="community"></a>
-![Community & Support](images/header-community.svg)
+## Community & Support
+![](images/divider-purple.svg)
 
 > [!NOTE]
 > Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
@@ -385,7 +392,8 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ---
 
 <a name="credits"></a>
-![Credits & Contributors](images/header-credits.svg)
+## Credits & Contributors
+![](images/divider-purple.svg)
 
 <!-- CONTRIBUTORS_START -->
 | Contributor | Role & Contributions |
@@ -406,7 +414,8 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ---
 
 <a name="legal"></a>
-![Legal Disclaimer](images/header-legal.svg)
+## Legal Disclaimer
+![](images/divider-purple.svg)
 
 **Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, Hevy App, ByteDance Ltd., NokoPrint LLC, Xiaomi Inc., or any of their subsidiaries or affiliates.
 
@@ -415,7 +424,8 @@ All product names, logos, brands, and registered trademarks mentioned in this re
 ---
 
 <a name="license"></a>
-![License](images/header-license.svg)
+## License
+![](images/divider-purple.svg)
 
 Morphe Patches is open-source software licensed under the [GNU General Public License v3.0](LICENSE).
 
