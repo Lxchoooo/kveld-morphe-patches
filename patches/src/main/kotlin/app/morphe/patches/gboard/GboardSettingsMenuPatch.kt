@@ -78,8 +78,8 @@ private val gboardSeekBarEnhancementsPatch = bytecodePatch(
 }
 
 val gboardSettingsMenuPatch = resourcePatch(
-    name = "Gboard Enhancements",
-    description = "Master customization suite bundling in-app toggleable features (AMOLED Pure Black theme, zero bottom inset, independent keyboard vibration, force incognito, voice typing in incognito, clipboard in incognito, clipboard retention, top toolbar icons count, cursor trackpad, and smart flags) managed directly from a top-level Morphe Patches category in Gboard Settings.",
+    name = "Keyboard Settings",
+    description = "Adds a settings screen inside Gboard: theme, vibration, clipboard and more.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
