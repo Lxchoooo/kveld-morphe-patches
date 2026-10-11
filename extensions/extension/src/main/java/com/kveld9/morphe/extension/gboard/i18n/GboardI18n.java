@@ -18,6 +18,7 @@ public final class GboardI18n {
     static {
         register(DEFAULT_PACK);
         register(new EsLanguagePack());
+        register(new FrLanguagePack());
     }
 
     private GboardI18n() {}
