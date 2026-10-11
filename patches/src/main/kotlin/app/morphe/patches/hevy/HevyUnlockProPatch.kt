@@ -280,7 +280,7 @@ private fun resolvePropertyTargets(
 @Suppress("unused")
 val hevyUnlockProPatch = rawResourcePatch(
     name = "Unlock Pro",
-    description = "Unlocks local Hevy Pro capabilities (unlimited workout routines, routine folders, advanced graphs, and local analytics) by dynamically enabling Pro getters and suppressing grace period payment warnings in Hermes Bytecode (HBC96).",
+    description = "Unlocks Pro features stored on the device (routines, folders, charts). Server-limited items may still need a subscription.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
