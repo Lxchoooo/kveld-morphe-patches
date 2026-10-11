@@ -208,6 +208,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
 
         val optimizedCount = AtomicInteger(0)
         val alreadyOptimalCount = AtomicInteger(0)
+        val skippedCount = AtomicInteger(0)
         val savedBytes = AtomicLong(0L)
 
         webpFiles.parallelStream().forEach { file ->
@@ -228,6 +229,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
                 }
             } catch (_: Exception) {
                 // Keep original file intact on any I/O or parsing exception
+                skippedCount.incrementAndGet()
             }
         }
 
@@ -237,6 +239,6 @@ val universalWebpOptimizerPatch = rawResourcePatch(
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
         val scopeLabel = if (resNotDecoded) "assets/ WebPs" else "WebP assets"
-        println("[Universal WebP Asset Optimizer] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal) -> Saved $savedFormatted")
+        println("[Universal WebP Asset Optimizer] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }
