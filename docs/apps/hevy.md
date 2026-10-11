@@ -52,9 +52,9 @@ Hevy's native backend API (`api.hevyapp.com`) authenticates email and password c
 
 | Patch Name | Type | Category | Default | Primary Mechanism |
 | :--- | :--- | :--- | :---: | :--- |
-| **Battery & Background Sync Optimizer** | `bytecodePatch` + `resourcePatch` | Battery & Performance | ✅ Yes | Neutralizes background WorkManager alarms, periodic job schedulers, Google Play Billing IPC (~89 MB RAM), and removes largeHeap to force aggressive Garbage Collection. |
-| **Block Telemetry & Trackers** | `bytecodePatch` + `resourcePatch` | Privacy & Telemetry | ✅ Yes | Disables Sentry native SDK crash reporting, Adjust attribution, Facebook AppEvents, Branch referral links, and WearOS background sync. |
-| **Resource Slimmer** | `rawResourcePatch` | Storage Reclamation | ✅ Yes | Strips embedded onboarding MP4 tutorial video and heavy photo editor textures, reducing APK size by ~12 MB. |
+| **Stop Background Sync** | `bytecodePatch` + `resourcePatch` | Battery & Performance | ✅ Yes | Neutralizes background WorkManager alarms, periodic job schedulers, Google Play Billing IPC (~89 MB RAM), and removes largeHeap to force aggressive Garbage Collection. |
+| **Block Trackers** | `bytecodePatch` + `resourcePatch` | Privacy & Telemetry | ✅ Yes | Disables Sentry native SDK crash reporting, Adjust attribution, Facebook AppEvents, Branch referral links, and WearOS background sync. |
+| **Remove Extra Files** | `rawResourcePatch` | Storage Reclamation | ✅ Yes | Strips embedded onboarding MP4 tutorial video and heavy photo editor textures, reducing APK size by ~12 MB. |
 | **Unlock Pro** | `rawResourcePatch` | Feature Unlock | ❌ *Optional* | Unlocks local Hevy Pro capabilities via Hermes Bytecode (HBC96) Pro getter overrides. |
 | **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Universal Hosts Blocker only. See [Universal Patch Reference](../universal-patches.md). |
 
