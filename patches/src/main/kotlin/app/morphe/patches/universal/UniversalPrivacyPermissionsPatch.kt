@@ -126,8 +126,8 @@ private fun stripPermissionsFromManifest(
 
 @Suppress("unused")
 val universalPrivacyPermissionsPatch = resourcePatch(
-    name = "Universal Privacy Permissions Stripper",
-    description = "Selectively strips sensitive privacy, sensor, and hardware permissions from AndroidManifest.xml via configurable boolean toggles.",
+    name = "Remove Permissions",
+    description = "Removes permissions you pick below.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
@@ -135,7 +135,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripNotifications by booleanOption(
         key = "stripNotifications",
         default = false,
-        title = "Strip Notification Permission",
+        title = "Notifications",
         description = "Remove POST_NOTIFICATIONS permission (Android 13+) from AndroidManifest.xml.",
         required = false,
     )
@@ -143,7 +143,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripCamera by booleanOption(
         key = "stripCamera",
         default = false,
-        title = "Strip Camera Permission",
+        title = "Camera",
         description = "Remove CAMERA permission from AndroidManifest.xml.",
         required = false,
     )
@@ -151,7 +151,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripMicrophone by booleanOption(
         key = "stripMicrophone",
         default = false,
-        title = "Strip Microphone Permissions",
+        title = "Microphone",
         description = "Remove RECORD_AUDIO and audio capture permissions from AndroidManifest.xml.",
         required = false,
     )
@@ -159,7 +159,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripMediaAndStorage by booleanOption(
         key = "stripMediaAndStorage",
         default = false,
-        title = "Strip Storage & Media Permissions",
+        title = "Photos & files",
         description = "Remove external storage (READ/WRITE/MANAGE_EXTERNAL_STORAGE) and media permissions (READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, ACCESS_MEDIA_LOCATION) from AndroidManifest.xml.",
         required = false,
     )
@@ -167,7 +167,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripLocation by booleanOption(
         key = "stripLocation",
         default = false,
-        title = "Strip Location Permissions",
+        title = "Location",
         description = "Remove ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, and ACCESS_BACKGROUND_LOCATION permissions from AndroidManifest.xml.",
         required = false,
     )
@@ -175,7 +175,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripContacts by booleanOption(
         key = "stripContacts",
         default = false,
-        title = "Strip Contacts & Accounts Permissions",
+        title = "Contacts",
         description = "Remove READ_CONTACTS, WRITE_CONTACTS, and GET_ACCOUNTS permissions from AndroidManifest.xml.",
         required = false,
     )
@@ -183,7 +183,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripCalendar by booleanOption(
         key = "stripCalendar",
         default = false,
-        title = "Strip Calendar Permissions",
+        title = "Calendar",
         description = "Remove READ_CALENDAR and WRITE_CALENDAR permissions from AndroidManifest.xml.",
         required = false,
     )
@@ -191,7 +191,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripNearbyDevices by booleanOption(
         key = "stripNearbyDevices",
         default = false,
-        title = "Strip Nearby Devices Permissions",
+        title = "Nearby devices",
         description = "Remove Bluetooth scanning/connection and nearby Wi-Fi permissions (BLUETOOTH_SCAN, BLUETOOTH_CONNECT, BLUETOOTH_ADVERTISE, NEARBY_WIFI_DEVICES, UWB_RANGING) from AndroidManifest.xml.",
         required = false,
     )
@@ -199,7 +199,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripSensors by booleanOption(
         key = "stripSensors",
         default = false,
-        title = "Strip Body Sensors Permissions",
+        title = "Body sensors",
         description = "Remove BODY_SENSORS, BODY_SENSORS_BACKGROUND, and ACTIVITY_RECOGNITION permissions from AndroidManifest.xml.",
         required = false,
     )
