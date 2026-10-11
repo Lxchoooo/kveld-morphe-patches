@@ -81,7 +81,7 @@ def save_contributors_data(path: Path, data: dict) -> None:
 def format_avatar(username: str) -> str:
     return (
         f'<a href="https://github.com/{username}">'
-        f'<img src="https://github.com/{username}.png" width="48" height="48" style="border-radius: 50%;" />'
+        f'<img src="https://github.com/{username}.png" alt="@{username}" width="48" height="48" style="border-radius: 50%;" />'
         f"<br><b>@{username}</b></a>"
     )
 
@@ -92,7 +92,7 @@ def format_contribution_items(items: list, repo: str) -> str:
 
     if len(items) == 1:
         it = items[0]
-        return f'💡 Proposed {it["title"]} feature request ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]})).'
+        return f'Feature request: Proposed {it["title"]} feature request ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]})).'
 
     links = [
         f'{it["title"]} ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]}))'
@@ -100,10 +100,10 @@ def format_contribution_items(items: list, repo: str) -> str:
     ]
 
     if len(links) == 2:
-        return f"💡 Proposed {links[0]} and {links[1]} feature requests."
+        return f"Feature request: Proposed {links[0]} and {links[1]} feature requests."
 
     head = ", ".join(links[:-1])
-    return f"💡 Proposed {head}, and {links[-1]} feature requests."
+    return f"Feature request: Proposed {head}, and {links[-1]} feature requests."
 
 
 def format_contributor_row(entry: dict, repo: str) -> str:
