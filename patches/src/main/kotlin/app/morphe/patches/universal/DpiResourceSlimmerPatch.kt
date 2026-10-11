@@ -243,14 +243,14 @@ private fun pruneEmptyDirectories(resDir: File): Int {
 
 @Suppress("unused")
 val dpiResourceSlimmerPatch = resourcePatch(
-    name = "DPI Resource Slimmer",
-    description = "Strips unselected screen density resource directories from res/ (e.g. drawable-mdpi, drawable-hdpi, mipmap-xhdpi). Density-independent resources (nodpi, anydpi) and orphan resources are safely preserved in-situ.",
+    name = "Remove Unused Screen Sizes",
+    description = "Deletes image folders for screen sizes you do not use.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
     val targetDpis by stringOption(
         key = "dpis",
-        title = "DPI densities to keep",
+        title = "Screen sizes to keep",
         description = "Comma-separated screen densities to preserve (e.g. 'xxhdpi', 'xhdpi, xxhdpi', 'xxxhdpi'). Density-independent resources (nodpi, anydpi) and unquantified base directories are always preserved.",
         default = "xxhdpi",
         required = false,
@@ -258,7 +258,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
 
     val stripSmartwatch by booleanOption(
         key = "stripSmartwatch",
-        title = "Remove smartwatch (Wear OS) resources",
+        title = "Watch resources",
         description = "Removes graphic and non-values layout resources qualified for Wear OS smartwatches (e.g. watch qualifiers).",
         default = false,
         required = false,
@@ -266,7 +266,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
 
     val stripTelevision by booleanOption(
         key = "stripTelevision",
-        title = "Remove Android TV resources",
+        title = "TV resources",
         description = "Removes graphic and non-values layout resources qualified for Android TV / Leanback (e.g. television qualifiers).",
         default = false,
         required = false,
@@ -274,7 +274,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
 
     val stripOtherFormFactors by booleanOption(
         key = "stripOtherFormFactors",
-        title = "Remove automotive, dock, and VR resources",
+        title = "Car, dock and VR resources",
         description = "Removes graphic and non-values layout resources qualified for car head units, desk docks, appliances, or VR headsets.",
         default = false,
         required = false,

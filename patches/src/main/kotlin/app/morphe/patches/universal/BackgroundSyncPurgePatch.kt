@@ -123,8 +123,8 @@ private fun disableServices(doc: Document): Int {
 
 @Suppress("unused")
 val backgroundSyncPurgePatch = resourcePatch(
-    name = "Background Sync & JobScheduler Purge",
-    description = "Strips RECEIVE_BOOT_COMPLETED and disables boot, package-replacement, and periodic background sync receivers and services in AndroidManifest.xml to eliminate background wakeups and conserve battery.",
+    name = "Stop Background Wakeups",
+    description = "Stops boot receivers and background schedulers that wake the app.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)

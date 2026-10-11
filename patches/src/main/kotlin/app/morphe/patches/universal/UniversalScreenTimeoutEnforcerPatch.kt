@@ -32,8 +32,8 @@ private enum class MutationCategory {
 
 @Suppress("unused")
 val universalScreenTimeoutEnforcerPatch = bytecodePatch(
-    name = "Universal Screen Timeout Enforcer",
-    description = "Forces the target application to respect system screen timeout and sleep timers by neutralizing keepScreenOn view calls and stripping FLAG_KEEP_SCREEN_ON from windows and layout parameters.",
+    name = "Force Screen Timeout",
+    description = "Makes apps respect your screen-off timer.",
     default = false,
 ) {
     execute {
