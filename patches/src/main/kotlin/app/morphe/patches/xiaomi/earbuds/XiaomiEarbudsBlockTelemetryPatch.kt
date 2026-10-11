@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
-    name = "Xiaomi Earbuds Telemetry Manifest Purge",
-    description = "Strips advertising, install referrer, and bug report permissions, and disables telemetry providers and receivers in AndroidManifest.xml.",
+    name = "Remove Trackers (Setup)",
+    description = "Removes ad permissions and disables tracking components.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -85,8 +85,8 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val xiaomiEarbudsBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Firebase Analytics, Xiaomi OneTrack, AutoReportHelper, and GlobalReport telemetry and event dispatching.",
+    name = "Block Trackers",
+    description = "Stops analytics and usage reporting.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
