@@ -35,30 +35,30 @@ private data class PendingRewrite(val index: Int, val register: Int, val replace
 
 @Suppress("unused")
 val universalHostsBlockerPatch = bytecodePatch(
-    name = "Universal Hosts Blocker",
-    description = "Rewrites Dalvik const-string URL/host literals matching a user-supplied hosts blocklist to a sink IP (default 0.0.0.0). The blocklist file is read at patch time, so daily DNS updates apply without patch releases.",
+    name = "Block Tracking Servers",
+    description = "Rewrites tracking addresses to nowhere using your blocklist.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val hostsFile by filePathOption(
         key = "hostsFile",
         default = null,
-        title = "Hosts blocklist file",
-        description = "Path to a hosts or plain-domain blocklist file on the patching machine (e.g. Hagezi native.tiktok-onlydomains.txt). Leave empty to skip.",
+        title = "Blocklist file",
+        description = "Blocklist file on this device. Empty skips the patch.",
         required = false,
     )
 
     val sinkIp by stringOption(
         key = "sinkIp",
-        title = "Sink IP address",
-        description = "IPv4 address replacing blocked hosts inside const-string literals (e.g. '0.0.0.0').",
+        title = "Replace with",
+        description = "Address written instead of blocked hosts.",
         default = DEFAULT_SINK_IP,
         required = false,
     )
 
     val matchSubdomains by booleanOption(
         key = "matchSubdomains",
-        title = "Match subdomains",
+        title = "Include subdomains",
         description = "When enabled, a blocklist entry also matches its subdomains (entry 'example.com' matches 'a.example.com').",
         default = true,
         required = false,
