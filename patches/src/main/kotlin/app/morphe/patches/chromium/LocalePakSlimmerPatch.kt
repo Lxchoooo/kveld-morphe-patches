@@ -22,16 +22,16 @@ private val EMPTY_DATAPACK_V5 by lazy {
 
 @Suppress("unused")
 val localePakSlimmerPatch = rawResourcePatch(
-    name = "Locale PAK Slimmer",
-    description = "Strips unselected language resource PAKs from assets/locales/.",
+    name = "Remove Extra Languages",
+    description = "Deletes unused language packs.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
 
     val targetLocales by stringOption(
         key = "locales",
-        title = "Locales to keep",
-        description = "Comma-separated locale codes to keep (e.g. 'es, es-419, en-US, pt-BR, fr, de'). English (en-US) is always kept as a safe fallback.",
+        title = "Languages to keep",
+        description = "List like es, fr, de. English always stays.",
         default = "en-US",
         required = false,
     )
