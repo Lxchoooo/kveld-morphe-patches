@@ -397,8 +397,8 @@ def record_device_epoch(serial: str) -> str:
 
 def query_package_pid(serial: str, package: str) -> str | None:
     res = run_cmd(["adb", "-s", serial, "shell", "pidof", package], timeout=60)
-    pid_str = res.stdout.strip()
-    return pid_str if pid_str else None
+    parts = res.stdout.split()
+    return parts[0] if parts else None
 
 
 def execute_app_launch(serial: str, package: str, wait_seconds: float) -> LaunchOutcome:
@@ -424,7 +424,9 @@ def _split_into_blocks(lines: list[str]) -> list[list[str]]:
 
 
 def _package_process_pattern(package: str) -> re.Pattern[str]:
-    return re.compile(rf"{re.escape(package)}(?::[^\s,]*)?(?![\w.])")
+    # Package names never contain '-' or '/', so a match followed by those
+    # characters is a different token (e.g. "com.hevy-beta"), not our process.
+    return re.compile(rf"{re.escape(package)}(?::[^\s,]*)?(?![\w.\-/])")
 
 
 def _filter_matching_blocks(blocks: list[list[str]], package: str) -> list[list[str]]:
