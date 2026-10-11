@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val braveNotificationSchedulerOptimizationPatch = bytecodePatch(
-    name = "Brave In-Product & Commercial Notification Optimizer",
-    description = "Eliminates background wakeups and notifications from Chromium tips scheduler (Job ID 105), Brave Rewards onboarding promo, and retention marketing campaigns.",
+    name = "Silence Promo Notifications",
+    description = "Stops tips, reward promos and marketing notifications.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
