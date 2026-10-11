@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val hevyBatteryResourcePatch = resourcePatch(
-    name = "Hevy Battery & Memory Resource Hardening",
-    description = "Disables background wakeups, Play Billing components, removes largeHeap, and strips billing queries in AndroidManifest.xml.",
+    name = "Battery & Memory Saver",
+    description = "Saves battery and RAM by turning off billing components and background services.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -128,8 +128,8 @@ private val hevyBatteryResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val hevyBatteryOptimizationPatch = bytecodePatch(
-    name = "Battery & Background Sync Optimizer",
-    description = "Disables background WorkManager alarms, periodic job schedulers, Google Play Billing IPC (~89 MB RAM), and removes largeHeap to force aggressive Garbage Collection.",
+    name = "Stop Background Sync",
+    description = "Stops background sync tasks and alarms that drain the battery.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
