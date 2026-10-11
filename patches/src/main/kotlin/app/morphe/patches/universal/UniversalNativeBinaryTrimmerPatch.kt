@@ -50,15 +50,15 @@ private fun zeroBinaryFile(file: File): Long {
 
 @Suppress("unused")
 val universalNativeBinaryTrimmerPatch = rawResourcePatch(
-    name = "Universal Native Binary Trimmer",
-    description = "Strips non-essential tracking, crash reporting, and debug companion native libraries in lib/** (e.g. libcrashlytics, libsentry, libbugly, libgwp-asan) by zeroing bytes in-situ. Requires SDK Blocker pairing when the app eagerly loads these libs.",
+    name = "Remove Tracking Code",
+    description = "Deletes tracking and crash-reporting native libraries.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val trimCrashReporters by booleanOption(
         key = "trimCrashReporters",
         default = true,
-        title = "Trim Crash Reporting Libraries",
+        title = "Crash reporters",
         description = "Zero native crash reporting and tracking libraries (Crashlytics, Sentry, Bugly, PLCrashReporter).",
         required = false,
     )
@@ -66,7 +66,7 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
     val trimDebugProfilers by booleanOption(
         key = "trimDebugProfilers",
         default = true,
-        title = "Trim Debug & Profiling Libraries",
+        title = "Debuggers",
         description = "Zero debug memory and profiling libraries (GWP-ASan, Simpleperf, Android Studio profilers).",
         required = false,
     )
