@@ -365,7 +365,7 @@ Pass criteria:
 3. Injected metadata entries exist with `A: android:value(0x01010024)="false"`.
 
 ### B. Morphe Patcher Gate Commands
-Run the official patching test harness across the target application. (Commands named for reference; do not run unprompted):
+Run the mandatory in-situ patching gate (`AGENTS.md`, Section 3, Step 4) against the target application after every patch change:
 
 ```bash
 # Execute patch test suite for target app

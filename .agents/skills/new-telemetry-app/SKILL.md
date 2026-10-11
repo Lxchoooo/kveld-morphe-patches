@@ -89,9 +89,11 @@ Place candidate APK, APKM, or XAPK files into `candidate_apks/` (the Morphe patc
 Extract target package name, version name, version code, and SDK requirements:
 
 ```bash
-# Derive aapt2 dynamically from local.properties sdk.dir if not in PATH:
-AAPT2="$(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools/$(ls $(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools | sort -V | tail -n 1)/aapt2"
-"${AAPT2:-aapt2}" dump badging candidate_apks/<app>.apk | grep -E "(package: name=|versionCode=|versionName=|sdkVersion:)"
+# Resolve aapt2: PATH first, then the newest build-tools under ANDROID_HOME or local.properties sdk.dir.
+SDK_DIR="${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' local.properties 2>/dev/null | tr -d '\r')}"
+AAPT2="$(command -v aapt2 || ls -d "$SDK_DIR"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -n 1)"
+[ -x "$AAPT2" ] || { echo "aapt2 not found (set ANDROID_HOME or install build-tools)" >&2; }
+"$AAPT2" dump badging candidate_apks/<app>.apk | grep -E "(package: name=|versionCode=|versionName=|sdkVersion:)"
 ```
 
 Record the following metadata:
@@ -106,7 +108,7 @@ Dump the decoded manifest tree to a scratch path outside git tracking:
 
 ```bash
 mkdir -p scratch
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml candidate_apks/<app>.apk > scratch/manifest_tree.txt
+"$AAPT2" dump xmltree --file AndroidManifest.xml candidate_apks/<app>.apk > scratch/manifest_tree.txt
 ```
 
 ### D. Telemetry Component Inventory
@@ -451,16 +453,18 @@ Verify modifications on the actual output APK artifacts rather than trusting std
 
 #### Verification Commands
 ```bash
-AAPT2="$(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools/$(ls $(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools | sort -V | tail -n 1)/aapt2"
+SDK_DIR="${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' local.properties 2>/dev/null | tr -d '\r')}"
+AAPT2="$(command -v aapt2 || ls -d "$SDK_DIR"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -n 1)"
+[ -x "$AAPT2" ] || { echo "aapt2 not found (set ANDROID_HOME or install build-tools)" >&2; }
 
 # 1. Verify stripped permissions in output APK
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -E "E: uses-permission.*android:name.*(AD_ID|ACCESS_ADSERVICES)"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -E "E: uses-permission.*android:name.*(AD_ID|ACCESS_ADSERVICES)"
 
 # 2. Verify disabled components have android:enabled="false" (0x0)
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "AppMeasurementService"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "AppMeasurementService"
 
 # 3. Verify injected opt-out metadata
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "firebase_analytics_collection_enabled"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "firebase_analytics_collection_enabled"
 ```
 
 Assert that:
@@ -498,11 +502,7 @@ Use `validation/smoke_install.py` against a connected Android device matching th
 ```
 
 #### Post-Test Cleanup
-Uninstall the test package to leave the device in a clean state:
-
-```bash
-adb -s <serial> uninstall <package_name>
-```
+Keep the test install on the device; reinstall with `-r` on the next run to preserve data. The standing device authorization in `AGENTS.md` permits `adb uninstall` of the package under validation only when a signature or split conflict blocks installation, which `--uninstall-on-conflict` already handles.
 
 ### B. Physical Device Comparative Validation
 For non-trivial telemetry, background sync, and compatibility bypass modifications, perform a comparative run (Vanilla vs Patched) on the physical lab device:
@@ -518,25 +518,27 @@ For non-trivial telemetry, background sync, and compatibility bypass modificatio
 Runtime packet capture audits require `tcpdump` on the device and optional analysis tools (`tshark`). Note that `tcpdump` and `tshark` are optional tools that may not be available in standard PATH environments.
 
 ```bash
-# 1. Verify tcpdump binary exists on device first
-adb -s <serial> shell "which tcpdump || ls /data/local/tmp/tcpdump" || { echo "tcpdump not found on device; skipping traffic capture"; exit 0; }
+# 1. Verify tcpdump exists on the device; skip the audit (do not exit the shell) when it is missing
+if ! adb -s <serial> shell "command -v tcpdump || ls /data/local/tmp/tcpdump" >/dev/null 2>&1; then
+    echo "tcpdump not found on device; skipping traffic capture"
+else
+    # 2. Start a bounded capture on the device in the background
+    adb -s <serial> shell su -c "tcpdump -i any -s 0 -c 1000 -w /data/local/tmp/traffic.pcap" &
 
-# 2. Start packet capture on device with packet limit or bound to app UID/IPs
-adb -s <serial> shell su -c "tcpdump -i any -s 0 -c 1000 -w /data/local/tmp/traffic.pcap" &
-TCPDUMP_PID=$!
+    # 3. Launch the patched app and exercise standard user flows
+    adb -s <serial> shell monkey -p <package_name> -c android.intent.category.LAUNCHER 1
+    sleep 30
 
-# 3. Launch patched app and exercise standard user flows
-adb -s <serial> shell monkey -p <package_name> -c android.intent.category.LAUNCHER 1
-sleep 30
+    # 4. Stop the capture, pull the pcap, and remove it from the device
+    adb -s <serial> shell su -c "pkill -f 'tcpdump -i any'"
+    wait
+    adb -s <serial> pull /data/local/tmp/traffic.pcap scratch/traffic.pcap
+    adb -s <serial> shell su -c "rm -f /data/local/tmp/traffic.pcap"
 
-# 4. Stop capture with specific process pattern and pull pcap
-adb -s <serial> shell su -c "pkill -f 'tcpdump -i any'"
-adb -s <serial> pull /data/local/tmp/traffic.pcap scratch/traffic.pcap
-adb -s <serial> shell su -c "rm -f /data/local/tmp/traffic.pcap"
-
-# 5. Assert pcap contains packets (>0 bytes and non-empty). Never report "silent telemetry" if capture was empty!
-if [ ! -s scratch/traffic.pcap ]; then
-    echo "ERROR: Packet capture empty or missing. Aborting traffic analysis."
+    # 5. An empty or missing capture is a failed audit, never evidence of silent telemetry
+    if [ ! -s scratch/traffic.pcap ]; then
+        echo "ERROR: packet capture empty or missing; traffic audit FAILED" >&2
+    fi
 fi
 ```
 
