@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-11T05:29:31",
-  "description": "## [2.7.0-experimental.6](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.5...v2.7.0-experimental.6) (2026-10-11)\n\n### Bug Fixes\n\n* **gboard:** report skipped files in resource slimmer ([ba6b151](https://github.com/kveld9/kveld-morphe-patches/commit/ba6b151a5df06e7105777b3b987939a359d202c7))\n* **universal:** report skipped files in PNG optimizer ([0552317](https://github.com/kveld9/kveld-morphe-patches/commit/055231728cfe16125934e8d8428552187f51d8d2))\n* **universal:** report skipped files in WebP optimizer ([d4b38f9](https://github.com/kveld9/kveld-morphe-patches/commit/d4b38f9c74375b29b05faa1d52c33366882c5298))\n* **validation:** harden crash attribution and pid parsing ([0df8575](https://github.com/kveld9/kveld-morphe-patches/commit/0df8575a2572c77a534efd15a24432e838808d07))\n\n### New Features\n\n* **gboard:** add French localization for settings menu ([a02c93e](https://github.com/kveld9/kveld-morphe-patches/commit/a02c93e19065b772ba0a894193e7e3f216c7e2a2))",
-  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.6/patches-2.7.0-experimental.6.mpp",
+  "created_at": "2026-10-11T06:41:04",
+  "description": "## [2.7.0-experimental.7](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.6...v2.7.0-experimental.7) (2026-10-11)\n\n### Bug Fixes\n\n* **contributors:** text role labels and avatar alt text ([266695d](https://github.com/kveld9/kveld-morphe-patches/commit/266695d3058ef50640b8d31d86a8f87a4a4586ae))",
+  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.7/patches-2.7.0-experimental.7.mpp",
   "signature_download_url": "",
-  "version": "2.7.0-experimental.6"
+  "version": "2.7.0-experimental.7"
 }
