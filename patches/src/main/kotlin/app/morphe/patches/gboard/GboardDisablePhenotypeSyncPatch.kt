@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.cleanClassName
 
 val gboardDisablePhenotypeSyncPatch = bytecodePatch(
-    name = "Disable Remote Configuration",
-    description = "Disables periodic remote experiment flag synchronization and background updates.",
+    name = "Stop Remote Updates",
+    description = "Stops Google from changing settings remotely.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
