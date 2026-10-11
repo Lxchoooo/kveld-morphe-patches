@@ -163,7 +163,7 @@ The patch accepts any valid **2-letter ISO 3166-1 alpha-2** country code. Inputs
 | **Germany** | `DE` | German feed & Central European catalog (subject to GEMA audio restrictions) |
 
 <details>
-<summary><b>🔍 View comprehensive list of 50+ ISO 3166-1 alpha-2 country codes</b></summary>
+<summary><b>🔍 View comprehensive list of 48 ISO 3166-1 alpha-2 country codes</b></summary>
 <br>
 
 ```text
