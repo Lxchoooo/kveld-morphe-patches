@@ -166,13 +166,15 @@ unset_git_env() {
 load_canon_tree() {
     CANON_BLOB=()
     CANON_MODE=()
-    local meta path mode type sha
-    while IFS=$'\t' read -r meta path; do
+    local rec meta path mode type sha
+    while IFS= read -r -d '' rec; do
+        meta="${rec%%$'\t'*}"
+        path="${rec#*$'\t'}"
         [ -n "${path:-}" ] || continue
         read -r mode type sha <<< "$meta"
         CANON_BLOB["$path"]="$sha"
         CANON_MODE["$path"]="$mode"
-    done < <(git -C "$canon_root" ls-tree -r --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
+    done < <(git -C "$canon_root" ls-tree -r -z --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
 }
 
 assert_canon_tree() {
@@ -188,13 +190,15 @@ assert_canon_tree() {
 load_mirror_tree() {
     MIRROR_BLOB=()
     MIRROR_MODE=()
-    local meta path mode type sha
-    while IFS=$'\t' read -r meta path; do
+    local rec meta path mode type sha
+    while IFS= read -r -d '' rec; do
+        meta="${rec%%$'\t'*}"
+        path="${rec#*$'\t'}"
         [ -n "${path:-}" ] || continue
         read -r mode type sha <<< "$meta"
         MIRROR_BLOB["$path"]="$sha"
         MIRROR_MODE["$path"]="$mode"
-    done < <(git -C "$mirror_root" ls-tree -r --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
+    done < <(git -C "$mirror_root" ls-tree -r -z --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
 }
 
 get_all_paths() {
@@ -211,14 +215,14 @@ get_all_paths() {
         done
     fi
     if [ "${#seen[@]}" -gt 0 ]; then
-        printf '%s\n' "${!seen[@]}" | sort
+        printf '%s\0' "${!seen[@]}" | sort -z
     fi
 }
 
 compute_changed_paths() {
     CHANGED_PATHS=()
     local p c_sha m_sha c_mode m_mode
-    while IFS= read -r p; do
+    while IFS= read -r -d '' p; do
         [ -n "$p" ] || continue
         c_sha="${CANON_BLOB[$p]:-}"
         m_sha="${MIRROR_BLOB[$p]:-}"
@@ -232,9 +236,9 @@ compute_changed_paths() {
 
 get_mirror_uncommitted_paths() {
     {
-        git -C "$mirror_root" diff --name-only HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true
-        git -C "$mirror_root" ls-files --others --exclude-standard -- "${SHARED_PATHS[@]}" 2>/dev/null || true
-    } | sort -u
+        git -C "$mirror_root" diff -z --name-only HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true
+        git -C "$mirror_root" ls-files -z --others --exclude-standard -- "${SHARED_PATHS[@]}" 2>/dev/null || true
+    } | sort -zu
 }
 
 run_check() {
@@ -252,7 +256,7 @@ run_check() {
             echo "[SYNC] drift: $p"
         done
     fi
-    while IFS= read -r p; do
+    while IFS= read -r -d '' p; do
         [ -n "$p" ] || continue
         echo "[SYNC] WARN: uncommitted change in mirror: $p"
     done < <(get_mirror_uncommitted_paths)
@@ -305,7 +309,7 @@ check_push_preconditions() {
 find_uncommitted_conflicts() {
     declare -A uncommitted=()
     local p
-    while IFS= read -r p; do
+    while IFS= read -r -d '' p; do
         [ -n "$p" ] || continue
         uncommitted["$p"]=1
     done < <(get_mirror_uncommitted_paths)
@@ -424,10 +428,10 @@ run_hook() {
 find_staged_shared_paths() {
     STAGED_SHARED_PATHS=()
     local p
-    while IFS= read -r p; do
+    while IFS= read -r -d '' p; do
         [ -n "$p" ] || continue
         STAGED_SHARED_PATHS+=("$p")
-    done < <(git diff --cached --name-only --no-renames -- "${SHARED_PATHS[@]}")
+    done < <(git diff -z --cached --name-only --no-renames -- "${SHARED_PATHS[@]}")
 }
 
 run_guard() {
