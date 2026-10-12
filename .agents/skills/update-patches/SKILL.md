@@ -49,6 +49,7 @@ and every patch verified on screen.
 - F2 gate red (build, suite, or per-patch contract) → root-cause, minimal fix, repeat F2 validation. No accumulation of unvalidated changes.
 - F3 failure (Morphe, decompilation, or runtime) → root-cause (re-obfuscated target, injection, dependency, order), minimal code fix, contract plus `buildAndroid`, repeat F3 from the original binary. Never fix the APK by hand.
 - F4 confirmed defect touching patches or the bundle → fix, then repeat F3 in full before closing again.
+- Identical-repeat guard (stuck detection): never re-run the same validation command on the same input without an intervening source change. A second identical failure (same phase, same patch, same blocking reason or fingerprint mismatch) stops the loop: change the diagnosis angle (different anchor string, caller, ABI, or decompiled cross-check) or escalate to the user. The count resets only on a changed hunk or genuinely new evidence, never on a bare re-run.
 - F2/F3 diagnosis builds or refreshes a fast, deterministic reproduction command before theorizing, confined to git-ignored outputs (`build/`) or scratch; never create tracked test files.
 
 ## Step 0 — Scope bootstrap (before any phase)
