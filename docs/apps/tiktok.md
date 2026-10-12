@@ -496,7 +496,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - **`hidePopularLives` (default: true)**: Removes Popular LIVEs recommendation cards and live streams from search discovery. Intercepts `RecomDataWrapper.<init>` to filter `"trending_rank_live"` and `"live_popular"` card items, sanitizes Lynx `abParams` (`has_transfer_tab_live = 0`, `intermediate_show_trending_billboard = 0`), and strips billboard schemas in `LX/0HLB`.
   - **`disableSearchAutoplay` (default: true)**: Disables automatic video and photo playback in search results. Stubs search list autoplay calculation loops (`SearchListAutoplayHelper.LIZIZ`), forces `l2()Z` -> `false` across `SearchCardVideoPlayerAssem`, `SearchVideoForLynx`, and `SearchCardPhotoPlayerAssem`, and stubs `r()V` on `AutoPlayAbility` implementations.
   - **`forceNonPersonalized` (default: true)**: Forces TikTok's non-personalized search mode instead of the saved account choice.
-  - **`enableLiveSearch` (default: true)**: Shows TikTok's search entry in the Live drawer where supported.
+  - **`enableLiveSearch` (default: false)**: Shows TikTok's search entry in the Live drawer where supported.
 
 ### 9. Feed Ads & Content Filter (`feedAdsContentFilterPatch`)
 - Consolidates feed ad suppression, commercial anchors, non-video bloat, live streams, AI disclosures, seen videos, metrics ranges, and media format filtering:
