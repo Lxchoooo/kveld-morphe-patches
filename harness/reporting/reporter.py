@@ -143,7 +143,11 @@ class HarnessReporter:
 
     @staticmethod
     def _render_header(data: HarnessReportData) -> List[str]:
-        status_badge = "[PASS] `SUCCESS`" if data.final_status == "SUCCESS" else "[FAIL] `BLOCKED`"
+        # Never relabel a crashed run as BLOCKED: the pipeline also emits FAILED,
+        # and the header must not contradict the footer.
+        status_badge = (
+            "[PASS] `SUCCESS`" if data.final_status == "SUCCESS" else f"[FAIL] `{data.final_status}`"
+        )
         return [
             f"# {data.app_name} Patches Harness Report",
             "",
@@ -314,6 +318,10 @@ class HarnessReporter:
             lines.append("### Applied Changes:")
             for ch in data.applied_changes:
                 lines.append(f"- [PASS] {ch}")
+        elif data.mode.upper() == "AUDIT":
+            # Audit never writes code, so an empty list here says nothing about
+            # whether the targets matched; claiming they did is a false report.
+            lines.append("- *No code modifications were applied: this run is a non-destructive audit.*")
         else:
             lines.append("- *No code modifications required (all targets match current definitions).*")
 

@@ -109,6 +109,40 @@ class TestHarnessReporting(unittest.TestCase):
         self.assertIn("| **Add AMOLED Theme** | [PASS] `VERIFIED` | `1/1 verified` | All structural assertions satisfied. |", md)
         self.assertIn("**Final Pipeline Status**: `SUCCESS`", md)
 
+    def _minimal_report(self, mode: str, final_status: str) -> HarnessReportData:
+        return HarnessReportData(
+            app_name="TikTok",
+            package_name="com.zhiliaoapp.musically",
+            mode=mode,
+            old_version="1.0",
+            new_version="1.0",
+            old_version_code=None,
+            new_version_code=1,
+            apk_sha256="sha",
+            apk_file_size=1000,
+            patch_results={},
+            applied_changes=[],
+            rejected_changes=[],
+            build_passed=False,
+            build_output="",
+            final_status=final_status,
+        )
+
+    def test_failed_run_is_not_reported_as_blocked(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("AUDIT", "FAILED"))
+        self.assertIn("- **Overall Pipeline Status**: [FAIL] `FAILED`", md)
+        self.assertNotIn("- **Overall Pipeline Status**: [FAIL] `BLOCKED`", md)
+        self.assertIn("**Final Pipeline Status**: `FAILED`", md)
+
+    def test_audit_run_does_not_claim_targets_matched(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("AUDIT", "SUCCESS"))
+        self.assertIn("No code modifications were applied", md)
+        self.assertNotIn("all targets match current definitions", md)
+
+    def test_update_run_without_changes_still_claims_targets_matched(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("UPDATE", "SUCCESS"))
+        self.assertIn("No code modifications required (all targets match current definitions)", md)
+
 
 if __name__ == "__main__":
     unittest.main()
