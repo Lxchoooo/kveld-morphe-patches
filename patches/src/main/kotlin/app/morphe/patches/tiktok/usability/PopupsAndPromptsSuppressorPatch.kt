@@ -65,7 +65,7 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
 
     val suppressPostDownloadDialog by booleanOption(
         key = "suppressPostDownloadDialog",
-        default = true,
+        default = false,
         title = "Disable Post-Download Share Dialog",
         description = "Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download.",
         required = false,
@@ -89,7 +89,7 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
 
     val skipContentWarnings by booleanOption(
         key = "skipContentWarnings",
-        default = true,
+        default = false,
         title = "Skip Content Warnings",
         description = "Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos.",
         required = false,
