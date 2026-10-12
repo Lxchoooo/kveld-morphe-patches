@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-12T19:02:54",
-  "description": "## [2.7.0-experimental.14](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.13...v2.7.0-experimental.14) (2026-10-12)\n\n### Bug Fixes\n\n* **validation:** stop scoring dead battery/sync runs as PASS ([855db80](https://github.com/kveld9/kveld-morphe-patches/commit/855db801ec04e41672aed210914ff25e716c2cd7))",
-  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.14/patches-2.7.0-experimental.14.mpp",
+  "created_at": "2026-10-12T19:23:02",
+  "description": "## [2.7.0-experimental.15](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.14...v2.7.0-experimental.15) (2026-10-12)\n\n### Bug Fixes\n\n* **tiktok:** drop stale indicator view and guard layout params ([73a0dfc](https://github.com/kveld9/kveld-morphe-patches/commit/73a0dfcd23d72ba7282d9bcd721ea75fcf3b10d4))\n* **tiktok:** harden Spotify OAuth WebView and redirect check ([aefeef3](https://github.com/kveld9/kveld-morphe-patches/commit/aefeef39ba6709cc82d0a41f2835b7939e2f6222))\n* **tiktok:** keep cursor columns in privacy filter ([2df4e75](https://github.com/kveld9/kveld-morphe-patches/commit/2df4e75ec99e3feb8a03280596c65c0b75ebddd3))",
+  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.15/patches-2.7.0-experimental.15.mpp",
   "signature_download_url": "",
-  "version": "2.7.0-experimental.14"
+  "version": "2.7.0-experimental.15"
 }

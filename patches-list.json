@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "2.7.0-experimental.14",
+  "version": "2.7.0-experimental.15",
   "patches": [
     {
       "name": "Allow Screenshots",
@@ -42,7 +42,7 @@
     },
     {
       "name": "Auto-Pause First Video",
-      "description": "Automatically pauses the first video when opening TikTok, allowing the application to finish background initialization and preventing playback lag.",
+      "description": "Pauses the first video on launch so it plays without lag.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -557,7 +557,7 @@
     },
     {
       "name": "Bypass Screen Capture Detection",
-      "description": "Clears FLAG_SECURE on protected windows, restores Circle to Search / screen translate and recent apps snapshots, and neutralizes screenshot detection listeners and feedback prompts.",
+      "description": "Removes screenshot and screen recording blocking.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -769,7 +769,7 @@
     },
     {
       "name": "Client-Side AI & Behavioral Profiling Governor",
-      "description": "Neutralizes on-device machine learning inference (Pitaya), Tako AI chatbot entry points and icons, and AI smart search suggestion clutter.",
+      "description": "Turns off on-device AI, the chatbot and AI search.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -795,7 +795,7 @@
     },
     {
       "name": "Comment Customizer",
-      "description": "Customizes TikTok's comment section, including native sort controls, clean text copying, disabling suggested emojis bar, hiding comment quick actions, hiding in-comment surveys and feedback cards, hiding profile photo story rings, enabling voice comments, automatic comment translation, fixing silent comment drops, and hiding comment popup ads.",
+      "description": "Takes control of comments: sort, copy, translate and hide clutter.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -932,7 +932,7 @@
     },
     {
       "name": "Core Asset De-bloat",
-      "description": "Strips embedded Microblink/FinTech card scanner models, Pitaya AI & ByteNN LLM engines, C2PA origin verification, DLNA cast scanners, and redundant non-Latin fonts to save APK space.",
+      "description": "Removes card scanners, AI engines and extra fonts to save space.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -996,7 +996,7 @@
     },
     {
       "name": "Custom Share Sheet",
-      "description": "Customizes and cleans the native TikTok share sheet via individual toggle switches for third-party apps, essential sharing features, and secondary utility actions.",
+      "description": "Lets you hide share menu entries you do not use.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -1268,7 +1268,7 @@
     },
     {
       "name": "Device Privacy Guard",
-      "description": "Neutralizes invasive runtime permissions, contacts queries, package inventory inspection, location hardware tracking, advertising ID profiling, background clipboard snooping routines, and motion sensor profiling to protect user data.",
+      "description": "Blocks access to your contacts, location, apps and sensors.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -1296,7 +1296,7 @@
     },
     {
       "name": "Direct Message Declutter",
-      "description": "Removes visual clutter in direct messages and chat list, including the call button, reaction tray, message forward button, camera icons, input action buttons, try effect button, sticker reply suggestions, and the typing-triggered sticker strip.",
+      "description": "Cleans up chat and DM screens by hiding extra buttons.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -1439,7 +1439,7 @@
     },
     {
       "name": "Disable Feed Long-Press Actions",
-      "description": "Disables long-press action gestures on feed buttons, including Like to repost, Share to quick DMs, and Comment to quick emojis, with optional long-press video body redirection.",
+      "description": "Turns off long-press actions like repost, quick DM and quick emoji.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -1509,7 +1509,7 @@
     },
     {
       "name": "Disable HDR Video Playback",
-      "description": "Forces the video playback engine to select standard SDR bitrates (BT.709/sRGB) instead of HDR (HDR10/PQ/HLG), preventing blinding screen brightness spikes and display thermal throttling while preserving smooth playback.",
+      "description": "Plays standard video instead of HDR. Keeps screen brightness normal.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -1561,7 +1561,7 @@
     },
     {
       "name": "Disable Profile Photo LIVE Status",
-      "description": "Removes the pulsing LIVE ring and badge from creator avatars in the feed and ensures clicking navigates strictly to the user profile instead of launching the live stream.",
+      "description": "Removes the LIVE ring on avatars and keeps taps on the profile.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -1587,7 +1587,7 @@
     },
     {
       "name": "Disable Push Notifications",
-      "description": "Neutralizes background push notification tasks and persistent socket wake locks to eliminate background battery drain.",
+      "description": "Stops background push notifications.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -1757,7 +1757,7 @@
     },
     {
       "name": "Enable Profile Banner",
-      "description": "Unlocks the custom profile banner (background header cover) feature on user profiles and enables the banner selection and editing tools in Edit Profile.",
+      "description": "Unlocks the profile banner and its editing tools.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -1840,7 +1840,7 @@
     },
     {
       "name": "Feed Bloat & Distraction Blocker",
-      "description": "Removes non-video clutter and floating ad widgets from the For You, Following, and Friends feeds, including Touchpoint Rewards pendants, floating ad stickers, suggested friend cards, mini-games, CapCut/template creation prompts, memories ('On This Day'), community/topic cards, post-video surveys and evaluation questionnaires, mini-drama paywalls, and in-feed search recommendations/interest cards.",
+      "description": "Removes ads, mini-games and suggested cards from your feed.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -1868,7 +1868,7 @@
     },
     {
       "name": "Feed Content Filter",
-      "description": "Hides stories, photo posts, and videos outside configured view or like ranges from the For You feed only. Following, Friends, profiles, search and other surfaces are never filtered.",
+      "description": "Hides videos, stories and photos outside your view or like range.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -1951,7 +1951,7 @@
     },
     {
       "name": "Feed Interface Declutter",
-      "description": "Customizes and cleans feed video overlay elements, including the full screen button, repost pill, interest feedback pills, video descriptions, profile photo follow badges, story rings, playlist bottom bars, save buttons, and music discs.",
+      "description": "Cleans up the buttons and overlays on top of videos.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -2115,7 +2115,7 @@
     },
     {
       "name": "Fix Spotify Login",
-      "description": "Restores the 'Add to Spotify' music button after patching by routing the Spotify app sign-in, which rejects the modified APK signature, through Spotify's Web-based OAuth.",
+      "description": "Restores 'Add to Spotify' after signing in on the web.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -2177,7 +2177,7 @@
     },
     {
       "name": "Friends Feed Strict Mutuals",
-      "description": "Filters out suggested accounts, recommended videos, and non-mutual profiles (such as 'People you may know') from the Friends feed so it only plays videos from accounts you mutually follow.",
+      "description": "The Friends feed only shows people you both follow.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -2259,7 +2259,7 @@
     },
     {
       "name": "Hide AI-Generated Content",
-      "description": "Filters and skips videos tagged with native AI-generated metadata, C2PA content credentials, or creator AI disclosure tags across the For You, Following, and Friends feeds.",
+      "description": "Skips videos marked as made by AI.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -2341,7 +2341,7 @@
     },
     {
       "name": "Hide Inbox Promos & Alerts",
-      "description": "Hides promotional banners, streak mascot cards, contact sync suggestions, friend recommendations, and migration guide tooltips in the inbox and direct messages.",
+      "description": "Hides promo banners, streak cards and suggestions in your inbox.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -2592,7 +2592,7 @@
     },
     {
       "name": "In-App Browser Privacy Guard",
-      "description": "Redirects external and third-party web links to the default system browser and neutralizes inline JavaScript tracking, DOM monitoring, and AJAX hooking in residual in-app WebViews.",
+      "description": "Opens web links in your browser and blocks tracking in the remaining web views.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -2834,7 +2834,7 @@
     },
     {
       "name": "Live Stream SDK & Minigame De-bloat",
-      "description": "Strips Live link mic SDK (liblink_mic_sdk.so), Lyrax RTC broadcasting engines (liblyrax.so), DM voice/video call engine (libvoip.so), live RTM messaging (librtmglobal.so) and live base runtime (libbase_live.so), plus live stream interactive minigames to reduce APK size and memory footprint. Breaks live viewing/broadcasting and direct message calls.",
+      "description": "Removes live streaming and minigame files. Breaks lives and video calls.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -2868,7 +2868,7 @@
     },
     {
       "name": "Media Usability & Watermark-Free Downloader",
-      "description": "Unblocks the download button on creator-restricted videos inside the Share panel, and routes downloads to clean unwatermarked media streams.",
+      "description": "Unlocks downloading and saves videos without watermark.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -2915,7 +2915,7 @@
     },
     {
       "name": "Navigation & Header Declutter",
-      "description": "Removes clutter from the feed navigation and top header bar, including the Nearby feed tab, Community (Explore) tab, top-left LIVE broadcast button, central '+' create content button, in-video bottom search suggestion bar, friend profile photo previews on the bottom Friends tab, and unread notification badges on the bottom Messages (Inbox) tab.",
+      "description": "Removes extra tabs and buttons from the feed screen.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -3162,7 +3162,7 @@
     },
     {
       "name": "P2P Video Relay & Mesh CDN Blocker",
-      "description": "Strips background Peer-to-Peer CDN distribution binaries (libavmdlp2pv2.so and libp2plivevdp.so) to prevent battery drain, background data upload, and mesh relay.",
+      "description": "Stops your device uploading videos to others.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -3188,7 +3188,7 @@
     },
     {
       "name": "Playback Speed Persistence",
-      "description": "Persists selected video playback speed across all feed videos and application restarts, and optionally enables the native hold-and-slide 2x speed lock gesture.",
+      "description": "Keeps your chosen playback speed across videos and restarts.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -3226,7 +3226,7 @@
     },
     {
       "name": "Popups & Prompts Suppressor",
-      "description": "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, and DM streak expiration warnings.",
+      "description": "Blocks popups, nags and promo dialogs across the app.",
       "default": true,
       "dependencies": [
         "BytecodePatch"
@@ -3982,7 +3982,7 @@
     },
     {
       "name": "SIM Region Selector",
-      "description": "Spoofs the detected SIM and network country ISO code, operator numeric codes, operator names, and cell identity MCC/MNC to bypass regional feed restrictions and catalog blocks.",
+      "description": "Locks the app to a chosen country to unlock regional content.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -4280,7 +4280,7 @@
     },
     {
       "name": "Skip First-Launch Onboarding",
-      "description": "Bypasses the entire first-run introduction funnel (interest pickers, swipe tutorials, language prompts, and consent sheets) directly to the feed.",
+      "description": "Skips the first-launch intro, tutorials and consent screens.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -4657,7 +4657,7 @@
     },
     {
       "name": "Studio & Creation De-bloat",
-      "description": "Strips heavy video creation plugins, CapCut NLE editor SDKs, effect plugins, camera dynamic features, upload video encoders, on-device AI runtimes (LiteRT), and AR camera face models to significantly reduce APK size.",
+      "description": "Removes video editing and effects tools to free up space.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -4711,7 +4711,7 @@
     },
     {
       "name": "Telemetry Manifest Purge",
-      "description": "Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase analytics/transport registrars, and injects opt-out metadata (Firebase, AppsFlyer, Meta).",
+      "description": "Removes tracking permissions and disables telemetry components.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
@@ -5055,7 +5055,7 @@
     },
     {
       "name": "Video Fit",
-      "description": "Adjusts video display aspect ratio across feeds and story cells: 'fit' ensures the entire video is visible without cropping, or 'fill' expands the video to fill the screen.",
+      "description": "Shows the whole video ('fit') or fills the screen ('fill').",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -5096,7 +5096,7 @@
     },
     {
       "name": "Video Quality Governor",
-      "description": "Caps video playback resolution (1080p, 720p, 540p, 480p, 360p) to conserve battery, GPU/MediaCodec load, and mobile data. Download quality is controlled separately by the Media Usability patch (downloadQuality).",
+      "description": "Caps video quality (1080p to 360p) to save battery and data.",
       "default": false,
       "dependencies": [
         "BytecodePatch"
@@ -5152,7 +5152,7 @@
     },
     {
       "name": "Voice & Speech Engine De-bloat",
-      "description": "Strips on-device voice recognition and speech synthesis engines (libspeechspg.so, libspeechsdk.so) and their loader stubs (libspeechengine.so, libspeechepg.so) to save APK space. Breaks voice search (microphone button), voice input, and editor text-to-speech/sing features.",
+      "description": "Removes voice search and text-to-speech to save space. Breaks voice features.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
