@@ -64,6 +64,7 @@ declare -A MIRROR_BLOB=()
 declare -A MIRROR_MODE=()
 CHANGED_PATHS=()
 CONFLICTING_PATHS=()
+UNSAFE_PATHS=()
 STAGED_SHARED_PATHS=()
 
 usage() {
@@ -306,6 +307,57 @@ check_push_preconditions() {
     fi
 }
 
+is_safe_tree_path() {
+    local p="$1"
+    case "$p" in
+        /*|"") return 1 ;;
+    esac
+    local parts=() part
+    IFS=/ read -r -d "" -a parts < <(printf "%s" "$p") || true
+    for part in "${parts[@]}"; do
+        case "$part" in
+            ""|"."|".."|".git") return 1 ;;
+        esac
+    done
+    return 0
+}
+
+has_symlink_component() {
+    local p="$1"
+    local parts=() part prefix="" target
+    IFS=/ read -r -d "" -a parts < <(printf "%s" "$p") || true
+    for part in "${parts[@]}"; do
+        prefix="${prefix:+$prefix/}$part"
+        target="$mirror_root/$prefix"
+        if [ -L "$target" ]; then
+            return 0
+        fi
+        if [ ! -e "$target" ]; then
+            return 1
+        fi
+    done
+    return 1
+}
+
+# Keep all writes inside the mirror tree and reject symlinks or invalid paths.
+find_unsafe_paths() {
+    UNSAFE_PATHS=()
+    local p
+    for p in "${CHANGED_PATHS[@]}"; do
+        if ! is_safe_tree_path "$p"; then
+            UNSAFE_PATHS+=("$p")
+            continue
+        fi
+        if [ "${CANON_MODE[$p]:-}" = "120000" ] || [ "${MIRROR_MODE[$p]:-}" = "120000" ]; then
+            UNSAFE_PATHS+=("$p")
+            continue
+        fi
+        if has_symlink_component "$p"; then
+            UNSAFE_PATHS+=("$p")
+        fi
+    done
+}
+
 find_uncommitted_conflicts() {
     declare -A uncommitted=()
     local p
@@ -400,6 +452,14 @@ run_push() {
     if [ "${#CHANGED_PATHS[@]}" -eq 0 ]; then
         echo "[SYNC] Mirror already in sync."
         exit 0
+    fi
+    find_unsafe_paths
+    if [ "${#UNSAFE_PATHS[@]}" -gt 0 ]; then
+        echo "[SYNC] ERROR: refusing unsafe shared paths (symlink or invalid path): ${UNSAFE_PATHS[*]}; nothing written."
+        if [ "$MODE" = "hook" ]; then
+            exit 0
+        fi
+        exit 1
     fi
     find_uncommitted_conflicts
     if [ "${#CONFLICTING_PATHS[@]}" -gt 0 ]; then
