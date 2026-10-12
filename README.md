@@ -111,27 +111,6 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 
 <!-- PATCHES_START -->
 <details>
-<summary>NokoPrint - WiFi, Bluetooth, USB&nbsp;&nbsp;•&nbsp;&nbsp;<b>7 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 5.28.6 |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Ad Dispatch Governor** | Neutralizes ad loaders, unlocks ad-free status, and strips mediation components & startup providers. |  |
-| **Asset Debloat** | Strips embedded ad DEX, tracking scripts, web templates, and ad drawables to reduce APK size. |  |
-| **Background Sync Optimizer** | Neutralizes background WorkManager constraint tasks and diagnostic wakelocks. |  |
-| **Block Telemetry & Trackers** | Neutralizes Firebase Analytics, Google Measurement, TikTok Business SDK, and crashlytics tracking. |  |
-| **Multi-Store Debridger** | Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei, Xiaomi, Samsung). |  |
-| **Network Security Hardening** | Enforces user trust anchors while preserving HTTP cleartext traffic for driver downloads and LAN printers. |  |
-| **Skip Welcome Dialog** | Suppresses the first-launch About/privacy dialog by applying the app's own accept action silently. The About entry in the menu keeps working. |  |
-
-</details>
-
-<details>
 <summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>72 patches</b></summary>
 <br>
 
@@ -218,49 +197,6 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 </details>
 
 <details>
-<summary>Xiaomi Earbuds&nbsp;&nbsp;•&nbsp;&nbsp;<b>11 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 1.38.0i |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Anti-Tamper Bypass** | Bypasses Xposed and hook detection, neutralizes VPN and ADB security checks, bypasses root and emulator detection, and hardens WebView JavaScript bridges. |  |
-| **Background Optimizer** | Neutralizes KeepAliveForegroundService, background BLE observation, companion device manager, and MIUI Nearby discovery to eliminate persistent notifications, wakelocks, and background battery drain. |  |
-| **Block Telemetry & Trackers** | Neutralizes Firebase Analytics, Xiaomi OneTrack, AutoReportHelper, and GlobalReport telemetry and event dispatching. |  |
-| **Device Privacy Guard** | Blinds hardware device IDs, anonymizes device identifiers, neutralizes environment info leakage, and bypasses location checks for Bluetooth scanning. |  |
-| **Disable Promos & Nags** | Bypasses startup privacy agreements, onboarding guides, region selector prompts, and Bluetooth permission nags, and disables in-app promotional banners, marketing activities, and store review nag dialogs. |  |
-| **Guest OTA Unlock** | Bypasses mandatory Xiaomi account login checks for firmware update queries, allowing guest users to check and perform device OTA updates. |  |
-| **Model Catalog Unlock** | Forces DeviceInfoListCache.isShowProduct to return true, bypassing version-gating and distribution restrictions so that all device models are always displayed and discoverable. |  |
-| **Network Security & TLS Inspection** | Disables cleartext traffic, trusts user-installed certificates, and bypasses OkHttp certificate pinning. |  |
-| **Offline Only** | Completely isolates the app from the network by revoking internet permissions and spoofing offline status. Note: do not activate on first launch; pair your earbuds once before enabling. |  |
-| **Sound Features Unlock** | Unblocks Spatial Audio, hearing enhancement, and voice wake-up restrictions, unbans Spatial Audio on 96kHz aptX Adaptive connections, and bypasses XPAN requirements. |  |
-| **Surgical OEM Unlock** | Bypasses Xiaomi OEM gating to enable full feature parity (voice assistant & spatial audio dialogs) on non-Xiaomi devices (Samsung, Pixel, etc.). |  |
-
-</details>
-
-<details>
-<summary>Hevy - Gym Log Workout Tracker&nbsp;&nbsp;•&nbsp;&nbsp;<b>4 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 3.1.14 |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Battery & Background Sync Optimizer** | Disables background WorkManager alarms, periodic job schedulers, Google Play Billing IPC (~89 MB RAM), and removes largeHeap to force aggressive Garbage Collection. |  |
-| **Block Telemetry & Trackers** | Neutralizes Sentry crash reporting, Adjust attribution, Facebook AppEvents, Branch referral tracking, and WearOS background sync. |  |
-| **Resource Slimmer** | Strips embedded onboarding MP4 tutorial video, heavy IMG.LY photo editor stickers/textures, and compiler junk metadata. |  |
-| **Unlock Pro** | Unlocks local Hevy Pro capabilities (unlimited workout routines, routine folders, advanced graphs, and local analytics) by dynamically enabling Pro getters and suppressing grace period payment warnings in Hermes Bytecode (HBC96). |  |
-
-</details>
-
-<details>
 <summary>Brave Private Web Browser, VPN&nbsp;&nbsp;•&nbsp;&nbsp;<b>16 patches</b></summary>
 <br>
 
@@ -271,22 +207,43 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
-| **Block Brave Telemetry** | Blocks P3A product analytics, Brave Stats usage pings, crash dump uploads, WDP, Chromium UMA metrics, and Variations seed fetching. | • Block Offers host |
-| **Brave In-Product & Commercial Notification Optimizer** | Eliminates background wakeups and notifications from Chromium tips scheduler (Job ID 105), Brave Rewards onboarding promo, and retention marketing campaigns. |  |
-| **Brave Origin** | Unlocks Brave Origin and enables local feature toggle controls. |  |
-| **Brave Startup Performance Optimization** | Optimizes startup time and eliminates background CPU/disk overhead by disabling unused OEM carrier partner customizations. |  |
-| **Clean New Tab Page** | Removes sponsored wallpaper images, Brave News/Today feeds, marketing widgets, and promo cards from the New Tab Page. | • Hide Top Sites & Shortcuts |
-| **Clean Share URL** | Strips tracking parameters (utm_*, fbclid, gclid, igshid, si, msclkid) when sharing or copying links. |  |
-| **Disable Background Sync & Periodic Sync** | Eliminates background wakeups, radio modem activity, and battery drain by forcing GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true and neutralizing wakeup tasks. |  |
-| **Disable Battery Status API & OS Listener** | Neutralizes the Battery Status API (navigator.getBattery) to prevent cross-site device fingerprinting and drops OS battery change broadcasts. |  |
-| **Disable Content Capture** | Stops Chromium from streaming on-screen page text and URLs to the Android ContentCapture system service (Android System Intelligence). |  |
-| **Disable Tab Auto-Minimization** | Prevents Brave from minimizing active tabs to the background and forcing a New Tab Page when returning to the browser after inactivity. |  |
-| **Locale PAK Slimmer** | Strips unselected language resource PAKs from assets/locales/. | • Locales to keep |
-| **Native Bloat Slimmer** | Strips unused native companion binaries (Impress Vision AI, WireGuard VPN, and Android XR) to significantly reduce APK size. |  |
-| **Sensor Privacy Guard** | Neutralizes motion, ambient, and orientation sensor providers to prevent hardware fingerprinting and tracking via Generic Sensor APIs. |  |
-| **Skip First Run** | Skips the welcome screen, search engine selection, and onboarding First Run Experience (FRE) on clean installs. |  |
-| **Suppress In-App Promos & Surveys** | Suppresses intrusive in-app rating surveys, Play Store review prompts, and marketing promo popups (YouTube promo, ad-free callouts, and Brave Ads onboarding). |  |
-| **Tab Group Close Selection** | When closing the active tab in a tab group, selects the previous tab in the same group instead of jumping outside the group. |  |
+| **Better Tab Closing** | Closing a tab picks the previous tab in the same group. |  |
+| **Block Motion Sensors** | Stops sites from reading motion sensors to identify you. |  |
+| **Block Popups & Rating Requests** | Blocks rating popups, review requests and promo dialogs. |  |
+| **Block Tracking** | Blocks usage analytics, crash uploads and experiment downloads. | • Block offers server |
+| **Brave Origin** | Unlocks Brave Origin feature switches. |  |
+| **Clean Shared Links** | Removes tracking codes from links you share or copy. |  |
+| **Clean Start Page** | Removes sponsored wallpapers, news feed and promo cards. | • Hide shortcut tiles |
+| **Faster Startup** | Speeds up launch by disabling carrier customizations. |  |
+| **Hide Battery Status** | Stops sites from reading your battery level to track you. |  |
+| **Keep Tabs Open** | Stops Brave from minimizing your tabs in the background. |  |
+| **Remove Extra Languages** | Deletes unused language packs. | • Languages to keep |
+| **Remove Unused Parts** | Deletes unused AI, VPN and AR files to shrink the app. |  |
+| **Silence Promo Notifications** | Stops tips, reward promos and marketing notifications. |  |
+| **Skip Welcome Screens** | Skips welcome, search choice and onboarding on fresh installs. |  |
+| **Stop Background Sync** | Stops background wakeups and battery drain. |  |
+| **Stop Text Sharing with System** | Stops sending page text to the Android capture service. |  |
+
+</details>
+
+<details>
+<summary>NokoPrint - WiFi, Bluetooth, USB&nbsp;&nbsp;•&nbsp;&nbsp;<b>7 patches</b></summary>
+<br>
+
+**Supported versions:**
+
+| 5.28.6 |
+| :---: |
+
+| Patch | Description | Options |
+|----------|----------------|-----------|
+| **Block Ads** | Blocks ad loaders and unlocks ad-free status. |  |
+| **Block Trackers** | Blocks analytics and ad tracking. |  |
+| **Remove Ad Files** | Deletes hidden ad files and trackers to shrink the app. |  |
+| **Remove Extra Stores** | Disables payment components for other app stores you do not use. |  |
+| **Safer Connections** | Uses trusted certificates while keeping printer downloads working. |  |
+| **Skip Welcome Screen** | Skips the first-launch popup (the About menu still works). |  |
+| **Stop Background Sync** | Stops background tasks that drain the battery. |  |
 
 </details>
 
@@ -301,17 +258,60 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
-| **Block Telemetry** | Disables background metrics dispatch, event logging, daily pings, Google Primes profiling, crash reporting, AppDoctor diagnostics, and Tenor share tracking. | • Block Adwords Host |
-| **Clone Gboard** | Changes the package name by appending a dot and custom suffix (defaults to 'clone') and optionally customizes the app label to allow installing Gboard alongside the original application. | • Package name suffix<br>• App label |
-| **Disable Background Sync** | Neutralizes AndroidX WorkManager schedulers, MDD (Mobile Data Download) periodic sync, and Superpacks eager asset synchronization (opt-in to preserve initial dictionary downloads). |  |
-| **Disable Cloud Backup** | Disables Android backup for Gboard (allowBackup=false and backup agent removed) so keyboard settings, learned words, and personal dictionary data are never uploaded to Google Drive backups or copied by device-to-device transfer. |  |
-| **Disable Play Services Integration** | Makes Gboard's Google Play services availability check always report SERVICE_DISABLED, so GMS-backed code paths (Clearcut logging, Phenotype, account sync, Google Help feedback) are skipped at the source instead of being attempted. Note: Disables Gboard's inline Google Translate tool, which relies on Play Services Cronet. |  |
-| **Disable Remote Configuration** | Disables periodic remote experiment flag synchronization and background updates. |  |
-| **Gboard Enhancements** | Master customization suite bundling in-app toggleable features (AMOLED Pure Black theme, zero bottom inset, independent keyboard vibration, force incognito, voice typing in incognito, clipboard in incognito, clipboard retention, top toolbar icons count, cursor trackpad, and smart flags) managed directly from a top-level Morphe Patches category in Gboard Settings. |  |
-| **Hardened Intent Security** | Enables Gboard internal external intent protection against unauthorized intent hijacking, removes the exported, permissionless web debug bridge content provider, and purges federated learning (Brella) services, receivers, queries, and metadata from AndroidManifest.xml. |  |
-| **Offline Only** | Completely isolates Gboard from the network by revoking network permissions, neutralizing HTTP clients (Cronet, OkHttp, Superpacks), and spoofing offline status. |  |
-| **Resource Slimmer** | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |  |
-| **Strip Permissions** | Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml. | • Strip Contacts Permission<br>• Strip Microphone Permission<br>• Strip Media & Storage Permissions<br>• Strip System Dictionary Permissions<br>• Strip Cross-Profile Permission |
+| **Block App Hijacking** | Protects against other apps hijacking Gboard and removes debug tools. |  |
+| **Block Trackers** | Stops background metrics, event logging and crash reporting. | • Block ad servers |
+| **Install a Copy** | Installs this Gboard next to the original one. | • Copy name ending<br>• Copy display name |
+| **Keyboard Settings** | Adds a settings screen inside Gboard: theme, vibration, clipboard and more. |  |
+| **No Cloud Backup** | Keeps keyboard data off Google Drive backups. |  |
+| **No Play Services** | Runs without Google Play services. Also turns off inline Translate. |  |
+| **Offline Only** | Fully disconnects Gboard. Download dictionaries first. |  |
+| **Remove Extra Files** | Deletes licenses, tutorial animations and junk. |  |
+| **Remove Permissions** | Removes permissions you pick below. | • Contacts<br>• Microphone<br>• Photos & files<br>• Dictionary sync<br>• Work profile link |
+| **Stop Background Sync** | Stops background downloads and sync to save battery. |  |
+| **Stop Remote Updates** | Stops Google from changing settings remotely. |  |
+
+</details>
+
+<details>
+<summary>Hevy - Gym Log Workout Tracker&nbsp;&nbsp;•&nbsp;&nbsp;<b>4 patches</b></summary>
+<br>
+
+**Supported versions:**
+
+| 3.1.14 |
+| :---: |
+
+| Patch | Description | Options |
+|----------|----------------|-----------|
+| **Block Trackers** | Blocks crash reporting, ad attribution and referral tracking. |  |
+| **Remove Extra Files** | Deletes tutorial videos, editor stickers and junk to shrink the app. |  |
+| **Stop Background Sync** | Stops background sync tasks and alarms that drain the battery. |  |
+| **Unlock Pro** | Unlocks Pro features stored on the device (routines, folders, charts). Server-limited items may still need a subscription. |  |
+
+</details>
+
+<details>
+<summary>Xiaomi Earbuds&nbsp;&nbsp;•&nbsp;&nbsp;<b>11 patches</b></summary>
+<br>
+
+**Supported versions:**
+
+| 1.38.0i |
+| :---: |
+
+| Patch | Description | Options |
+|----------|----------------|-----------|
+| **Block Trackers** | Stops analytics and usage reporting. |  |
+| **Hide Device ID** | Hides hardware IDs and lets Bluetooth work without location. |  |
+| **Offline Only** | Fully disconnects the app. Pair your earbuds first, then enable. |  |
+| **Run on Rooted Devices** | Lets the app run on rooted phones and network tools without crashing. |  |
+| **Safer Connections** | Blocks unencrypted traffic and allows inspection. |  |
+| **Show All Models** | Shows every earbud model for pairing. |  |
+| **Skip Popups & Tutorials** | Skips startup agreements, tutorials and promo banners. |  |
+| **Stop Background Activity** | Removes persistent notifications and background battery drain. |  |
+| **Unlock Sound Features** | Enables spatial audio and hearing features on all devices. |  |
+| **Unlock for Other Phones** | Enables full features on Samsung, Pixel and other non-Xiaomi phones. |  |
+| **Update Without Account** | Lets guests check and install earbud firmware updates. |  |
 
 </details>
 
@@ -321,21 +321,21 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
-| **APK Junk Cleaner** | Strips non-functional build metadata, compiler properties, Kotlin coroutines debug tables, and duplicate license texts from META-INF and APK root while preserving kotlin/*.kotlin_builtins runtime descriptors. |  |
-| **Background Sync & JobScheduler Purge** | Strips RECEIVE_BOOT_COMPLETED and disables boot, package-replacement, and periodic background sync receivers and services in AndroidManifest.xml to eliminate background wakeups and conserve battery. | • Strip RECEIVE_BOOT_COMPLETED Permission<br>• Disable Boot & Package Receivers<br>• Disable WorkManager & Job Schedulers<br>• Strip WAKE_LOCK Permission |
-| **DPI Resource Slimmer** | Strips unselected screen density resource directories from res/ (e.g. drawable-mdpi, drawable-hdpi, mipmap-xhdpi). Density-independent resources (nodpi, anydpi) and orphan resources are safely preserved in-situ. | • DPI densities to keep<br>• Remove smartwatch (Wear OS) resources<br>• Remove Android TV resources<br>• Remove automotive, dock, and VR resources |
-| **Locale Resource Slimmer** | Strips unselected language translation directories from res/ (e.g. values-*, raw-*, xml-*). Base fallback resources with no language qualifiers are always preserved. | • Locales to keep |
-| **PNG Asset Optimizer** | Losslessly recompresses PNG assets with maximum zlib compression and strips non-rendering metadata chunks (pHYs, tEXt, tIME) while preserving 9-patch structures and pixel accuracy. In raw-only pipeline mode, optimizes assets/ only as res/ is not decoded. |  |
-| **Universal Hosts Blocker** | Rewrites Dalvik const-string URL/host literals matching a user-supplied hosts blocklist to a sink IP (default 0.0.0.0). The blocklist file is read at patch time, so daily DNS updates apply without patch releases. | • Hosts blocklist file<br>• Sink IP address<br>• Match subdomains |
-| **Universal Native Binary Trimmer** | Strips non-essential tracking, crash reporting, and debug companion native libraries in lib/** (e.g. libcrashlytics, libsentry, libbugly, libgwp-asan) by zeroing bytes in-situ. Requires SDK Blocker pairing when the app eagerly loads these libs. | • Trim Crash Reporting Libraries<br>• Trim Debug & Profiling Libraries |
-| **Universal Offline Mode** | Forces offline execution across any application by revoking INTERNET and network permissions from AndroidManifest.xml and blocking cleartext HTTP traffic at the OS level. | • Strip Network State Permissions<br>• Strip Wi-Fi Control Permissions<br>• Strip Push Notification Permissions<br>• Strip Google Services Sync Permissions<br>• Block Cleartext Traffic |
-| **Universal Privacy Permissions Stripper** | Selectively strips sensitive privacy, sensor, and hardware permissions from AndroidManifest.xml via configurable boolean toggles. | • Strip Notification Permission<br>• Strip Camera Permission<br>• Strip Microphone Permissions<br>• Strip Storage & Media Permissions<br>• Strip Location Permissions<br>• Strip Contacts & Accounts Permissions<br>• Strip Calendar Permissions<br>• Strip Nearby Devices Permissions<br>• Strip Body Sensors Permissions |
-| **Universal SDK Blocker** | Neutralizes third-party APM, crash reporting, analytics, attribution, session replay, location tracking, and push engagement SDK init and event methods at DEX level via early return-void; companion runtime layer to Universal Telemetry Neutralizer (manifest layer). | • Block APM & Performance Monitoring SDKs<br>• Block Crash Reporting SDKs<br>• Block Analytics SDKs<br>• Block Attribution & Engagement SDKs<br>• Block Legacy Google Analytics<br>• Block Push Engagement SDKs (WARNING: Breaks Push)<br>• Block Session Replay SDKs<br>• Block Location & Beacon Tracking SDKs |
-| **Universal Screen Brightness Governor** | Prevents applications from overriding display brightness (such as in-app brightness sliders, barcode/QR full-screen brightness, or window-level overrides) by neutralizing all direct writes to WindowManager.LayoutParams.screenBrightness. |  |
-| **Universal Screen Timeout Enforcer** | Forces the target application to respect system screen timeout and sleep timers by neutralizing keepScreenOn view calls and stripping FLAG_KEEP_SCREEN_ON from windows and layout parameters. |  |
-| **Universal Screenshot Protection Bypass** | Neutralizes FLAG_SECURE on windows, layout params, and SurfaceViews, unlocks audio playback capture, and suppresses Android 14+ screenshot and screen recording detection callbacks. |  |
-| **Universal Telemetry Neutralizer** | Strips advertising and Privacy Sandbox permissions, disables analytics ContentProviders and telemetry background services (Firebase, Sentry, Adjust, AppsFlyer, DataTransport), prunes ComponentDiscovery registrars, and injects telemetry opt-out metadata. Includes an optional toggle to disable push notification services. | • Revoke Advertising & Tracking Permissions<br>• Disable Telemetry ContentProviders<br>• Disable Telemetry Background Services<br>• Disable Telemetry Receivers<br>• Inject Telemetry Opt-Out Flags & Prune Registrars<br>• Disable Firebase Init Provider<br>• Disable Push Notification Services<br>• Disable Google Analytics Services<br>• Disable Meta Analytics Upload Pipeline<br>• Disable Crash Detectors & Dump Upload<br>• Disable Device-ID & Cross-App Identity Providers<br>• Disable ML Kit On-Device Vision<br>• Disable Firebase Remote Config<br>• Disable Firebase Crashlytics Registrars<br>• Disable Ad SDK Startup Initializers |
-| **Universal WebP Asset Optimizer** | Losslessly strips non-rendering metadata and ancillary chunks (EXIF, XMP, ICCP) from WebP assets across res/ and assets/ to reduce APK size. In raw-only pipeline mode, optimizes assets/ only as res/ is not decoded. | • Strip EXIF Metadata<br>• Strip XMP Metadata<br>• Strip ICC Color Profiles |
+| **Allow Screenshots** | Removes screenshot blocking and capture detection. |  |
+| **Block Tracking SDKs** | Disables analytics, crash and ad SDKs inside the app. | • Performance monitors<br>• Crash reporters<br>• Analytics<br>• Ad attribution<br>• Old Google Analytics<br>• Push SDKs (breaks push!)<br>• Screen recorders<br>• Location trackers |
+| **Block Tracking Servers** | Rewrites tracking addresses to nowhere using your blocklist. | • Blocklist file<br>• Replace with<br>• Include subdomains |
+| **Clean App Packaging** | Removes build leftovers and duplicate files. |  |
+| **Force Screen Timeout** | Makes apps respect your screen-off timer. |  |
+| **Go Fully Offline** | Removes internet access completely. | • Network state<br>• Wi-Fi controls<br>• Push permissions<br>• Google sync<br>• Block unencrypted traffic |
+| **Lock Screen Brightness** | Stops apps from changing brightness by themselves. |  |
+| **Remove Extra Languages** | Deletes unselected translation folders. | • Languages to keep |
+| **Remove Permissions** | Removes permissions you pick below. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors |
+| **Remove Trackers** | Removes ad IDs, disables tracking components and adds opt-outs. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
+| **Remove Tracking Code** | Deletes tracking and crash-reporting native libraries. | • Crash reporters<br>• Debuggers |
+| **Remove Unused Screen Sizes** | Deletes image folders for screen sizes you do not use. | • Screen sizes to keep<br>• Watch resources<br>• TV resources<br>• Car, dock and VR resources |
+| **Shrink PNG Images** | Recompresses PNGs without losing quality. |  |
+| **Shrink WebP Images** | Strips hidden metadata from WebP images. | • Camera data<br>• Editing history<br>• Color profiles |
+| **Stop Background Wakeups** | Stops boot receivers and background schedulers that wake the app. | • Strip RECEIVE_BOOT_COMPLETED Permission<br>• Disable Boot & Package Receivers<br>• Disable WorkManager & Job Schedulers<br>• Strip WAKE_LOCK Permission |
 
 </details>
 
