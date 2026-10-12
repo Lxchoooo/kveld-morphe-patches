@@ -89,7 +89,8 @@ val hideInboxStoryTrayPatch = bytecodePatch(
         ).method.addInstructions(
             0,
             """
-                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterSuggestedStoriesInList(Ljava/lang/Object;)V
+                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterSuggestedStoriesInList(Ljava/lang/Object;)Ljava/util/List;
+                move-result-object p1
             """.trimIndent(),
         )
         println("[Hide Inbox Story & Status Tray] Hooked StoryGetFeedByPageResponse.<init> -> suggested stories filtered from tray.")
