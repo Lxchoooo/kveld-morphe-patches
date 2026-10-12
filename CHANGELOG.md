@@ -1,3 +1,21 @@
+## [2.7.0-experimental.11](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.10...v2.7.0-experimental.11) (2026-10-12)
+
+### Bug Fixes
+
+* **tiktok:** branch-free desc hiding via extension helper ([f60e579](https://github.com/kveld9/kveld-morphe-patches/commit/f60e579a6f2b5c06d3d569490e15a718345862f9))
+* **tiktok:** drop ineffective feed-scope gate ([695c42b](https://github.com/kveld9/kveld-morphe-patches/commit/695c42b4c436d87771bde798f2e969445d680784))
+* **tiktok:** exact helper signatures for desc prologue guards ([d1d6c5a](https://github.com/kveld9/kveld-morphe-patches/commit/d1d6c5ab0d7b7e7d8dee5097ca871346b9c9f50f))
+* **tiktok:** guard desc visibility helpers at callee entry ([80e35a8](https://github.com/kveld9/kveld-morphe-patches/commit/80e35a825fda4f6bde0fc78246a55d84ee1390df))
+* **tiktok:** hide desc node by resolved id in feed assem ([122dab9](https://github.com/kveld9/kveld-morphe-patches/commit/122dab9080424d379623c8762b23ea69b44e548d))
+* **tiktok:** persistent layout watch for async desc shows ([792002d](https://github.com/kveld9/kveld-morphe-patches/commit/792002d9d2cbdacc8c72cd163d65e599c0f64755))
+* **tiktok:** scope desc guards to feed hierarchy ([a407437](https://github.com/kveld9/kveld-morphe-patches/commit/a4074377558fc50d82b9bcdae36c3c71dc769dfa))
+* **tiktok:** use single-label guards in desc hooks to avoid malformed branches ([43ee7ba](https://github.com/kveld9/kveld-morphe-patches/commit/43ee7babeac7be60ea6711ba71737129a9356f67))
+
+### New Features
+
+* **skills:** add identical-repeat guard to update-patches remediation loops ([faf1d99](https://github.com/kveld9/kveld-morphe-patches/commit/faf1d99296a27f5008ffdffd68a4a6d58366af77))
+* **skills:** add shared privacy-controls skill for capture, permission and offline axes ([5efb335](https://github.com/kveld9/kveld-morphe-patches/commit/5efb3355a233fb0b17efd32623f1fd10c3496f93))
+
 ## [2.7.0-experimental.10](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.9...v2.7.0-experimental.10) (2026-10-12)
 
 ### Bug Fixes
