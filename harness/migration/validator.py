@@ -376,17 +376,26 @@ class AdversarialValidator:
         )
 
     def _audit_locale_slimmer_patch(self) -> PatchAuditResult:
+        # No APK-level evidence is collected for this raw-resource patch, so it is
+        # reported as statically verified rather than claiming a check that never ran.
         return PatchAuditResult(
             patch_name="Locale PAK Slimmer",
-            status=PatchStatus.VERIFIED,
-            evidence=["Raw resource patch stripping unselected PAK files in assets/locales/"],
+            status=PatchStatus.STATICALLY_VERIFIED,
+            evidence=[
+                "Raw resource patch stripping unselected PAK files in assets/locales/; "
+                "declared by the patch source, not verified against APK entries"
+            ],
         )
 
     def _audit_native_bloat_slimmer_patch(self) -> PatchAuditResult:
+        # Same as above: no companion-binary inventory is checked at audit time.
         return PatchAuditResult(
             patch_name="Native Bloat Slimmer",
-            status=PatchStatus.VERIFIED,
-            evidence=["Raw resource patch stripping bloat companion binaries across lib/arm64-v8a/ and lib/armeabi-v7a/"],
+            status=PatchStatus.STATICALLY_VERIFIED,
+            evidence=[
+                "Raw resource patch stripping bloat companion binaries across lib/arm64-v8a/ "
+                "and lib/armeabi-v7a/; declared by the patch source, not verified against APK entries"
+            ],
         )
 
     def run_gradle_build_verification(self) -> Tuple[bool, str]:
