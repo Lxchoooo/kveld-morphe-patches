@@ -44,13 +44,14 @@ SHARED_PATHS=(
   .agents/skills/smali-bytecode-hooks
   .agents/skills/native-binary-patching
   .agents/skills/telemetry-blocking
-  .agents/skills/new-telemetry-app
+  .agents/skills/patch-app
   .agents/skills/update-patches
   .agents/skills/app-debloat
   .agents/skills/compat-bypass
   .agents/skills/privacy-controls
   .agents/skills/ux-declutter
   .opencode/commands/update-patches.md
+  .opencode/commands/patch-app.md
   scripts/sync_shared_skills.sh
   scripts/hooks/post-commit
   scripts/hooks/post-merge
