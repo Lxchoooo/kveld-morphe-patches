@@ -1,3 +1,9 @@
+## [2.7.0-experimental.14](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.13...v2.7.0-experimental.14) (2026-10-12)
+
+### Bug Fixes
+
+* **validation:** stop scoring dead battery/sync runs as PASS ([855db80](https://github.com/kveld9/kveld-morphe-patches/commit/855db801ec04e41672aed210914ff25e716c2cd7))
+
 ## [2.7.0-experimental.13](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.12...v2.7.0-experimental.13) (2026-10-12)
 
 ### Bug Fixes

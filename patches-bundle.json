@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-12T18:55:18",
-  "description": "## [2.7.0-experimental.13](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.12...v2.7.0-experimental.13) (2026-10-12)\n\n### Bug Fixes\n\n* **validation:** abort when the device clock cannot bound the crash window ([49880b3](https://github.com/kveld9/kveld-morphe-patches/commit/49880b39643798e097a245baa0993a41660cb498))",
-  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.13/patches-2.7.0-experimental.13.mpp",
+  "created_at": "2026-10-12T19:02:54",
+  "description": "## [2.7.0-experimental.14](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.13...v2.7.0-experimental.14) (2026-10-12)\n\n### Bug Fixes\n\n* **validation:** stop scoring dead battery/sync runs as PASS ([855db80](https://github.com/kveld9/kveld-morphe-patches/commit/855db801ec04e41672aed210914ff25e716c2cd7))",
+  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.14/patches-2.7.0-experimental.14.mpp",
   "signature_download_url": "",
-  "version": "2.7.0-experimental.13"
+  "version": "2.7.0-experimental.14"
 }
