@@ -49,6 +49,8 @@ SHARED_PATHS=(
 SYNC_SUBJECT="chore(sync): mirror shared skills from kveld-morphe-patches"
 
 # Every path the script passes to git is a literal file or directory name, never a glob.
+# Clear other global pathspec modes because git rejects combining them with literal mode.
+unset GIT_GLOB_PATHSPECS GIT_NOGLOB_PATHSPECS GIT_ICASE_PATHSPECS
 export GIT_LITERAL_PATHSPECS=1
 
 MODE=""
