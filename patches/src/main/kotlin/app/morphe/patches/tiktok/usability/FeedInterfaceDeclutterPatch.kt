@@ -244,12 +244,9 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p0
                         invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
                         move-result-object v0
-                        if-eqz v0, :cond_qc_null_z4_$i
+                        if-eqz v0, :cond_skip_z4_$i
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        goto :cond_skip_z4_$i
-                        :cond_qc_null_z4_$i
-                        goto :cond_skip_z4_$i
                         :cond_skip_z4_$i
                     """.trimIndent(),
                 )
@@ -275,12 +272,9 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p0
                         invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
                         move-result-object v0
-                        if-eqz v0, :cond_qc_null_js_$i
+                        if-eqz v0, :cond_skip_js_$i
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        goto :cond_skip_js_$i
-                        :cond_qc_null_js_$i
-                        goto :cond_skip_js_$i
                         :cond_skip_js_$i
                     """.trimIndent(),
                 )
