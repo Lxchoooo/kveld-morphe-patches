@@ -49,6 +49,7 @@ SHARED_PATHS=(
   .agents/skills/app-debloat
   .agents/skills/compat-bypass
   .agents/skills/privacy-controls
+  .agents/skills/ux-declutter
   .opencode/commands/update-patches.md
   scripts/sync_shared_skills.sh
   scripts/hooks/post-commit
