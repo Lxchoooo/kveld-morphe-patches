@@ -25,6 +25,9 @@ PATCHES_REL = Path("patches/src/main/kotlin/app/morphe/patches")
 _FINGERPRINT_OPEN = re.compile(r"\bFingerprint\s*\(")
 _DEFINING_CLASS = re.compile(r"\bdefiningClass\s*=")
 _STRINGS = re.compile(r"\bstrings\s*=")
+# `filters = listOf(string("..."))` is the newer spelling of `strings`; both resolve
+# through the patcher index and cost nothing.
+_INDEXED_FILTERS = re.compile(r"\bfilters\s*=[^)]*?\bstring\s*\(", re.S)
 _MATCH_ALL = re.compile(r"\.matchAll\(\s*\)")
 
 
@@ -72,7 +75,11 @@ def scan_patch_sources(repo_root: str | Path) -> List[FingerprintCost]:
         rel_parts = path.relative_to(patches_dir).parts
         app = rel_parts[0] if len(rel_parts) > 1 else "."
         for line, block, tail in _iter_fingerprint_blocks(src):
-            if _DEFINING_CLASS.search(block) or _STRINGS.search(block):
+            if (
+                _DEFINING_CLASS.search(block)
+                or _STRINGS.search(block)
+                or _INDEXED_FILTERS.search(block)
+            ):
                 continue  # indexed lookup, no walk
             costs.append(
                 FingerprintCost(

@@ -53,6 +53,18 @@ val walkTwo = Fingerprint(
         self.assertEqual(len(costs), 2)
         self.assertTrue(all(c.app == "universal" for c in costs))
 
+    def test_indexed_filters_are_not_counted_as_walks(self):
+        # `filters = listOf(string(...))` is the newer spelling of `strings`; both are
+        # resolved through the patcher index and cost nothing.
+        _write(self.root, "gboard/Probe.kt", """
+val indexed = Fingerprint(
+    name = "<clinit>",
+    returnType = "V",
+    filters = listOf(string("config_max_access_points")),
+)
+""")
+        self.assertEqual(scan_patch_sources(self.root), [])
+
     def test_reports_location_and_file(self):
         _write(self.root, "tiktok/Probe.kt", """
 val walk = Fingerprint(
