@@ -73,7 +73,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Slimmer** | **Core Asset De-bloat** | `rawResourcePatch` | Strips Microblink OCR models, C2PA AI libs, ByteDance TTWebView engine, non-Latin fonts, Python VM (~77 MB saved). |
 | **Slimmer** | **Studio & Creation De-bloat** | `rawResourcePatch` | Strips AR camera engine (`libeffect_plugin.so`), video editor SDK (`libttvesdk_plugin.so`), CapCut NLE libs, CutSame/Davinci template engine, camera dynamic features, upload video encoders, and on-device AI runtimes (LiteRT). |
 | **Slimmer** | **Language Pack Purger** | `rawResourcePatch` | Strips unselected language string bundles from `assets/strings#lang_*`. |
-| **Universal Patches Suite** | Multiple | Optimization & Privacy | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Universal Hosts Blocker only. See [Universal Patch Reference](../universal-patches.md). |
+| **Universal Patches Suite** | Multiple | Optimization & Privacy | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Block Tracking Servers only. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
 
@@ -366,14 +366,14 @@ The **`TikTok Privacy Permissions Stripper`** patch selectively strips sensitive
 | **Strip Foreground Service Permissions** | `stripForegroundServices` | Boolean | `false` | **High Risk** | Remove generic `FOREGROUND_SERVICE` and specialized types (`DATA_SYNC`, `MEDIA_PLAYBACK`, `MEDIA_PROJECTION`, `PHONE_CALL`). WARNING: HIGH RISK. Breaks background video uploads, offline caching, media playback notification services, screen sharing, and background VoIP calls. |
 | **Strip System Alert Window Permission** | `stripSystemAlertWindow` | Boolean | `false` | **Risk** | Remove `SYSTEM_ALERT_WINDOW`. WARNING: Breaks Picture-in-Picture overlay window outside the app, floating mini-player, and overlay notification heads. |
 | **Strip Wake Lock Permission** | `stripWakeLock` | Boolean | `false` | **Risk** | Remove `WAKE_LOCK`. WARNING: Device CPU may sleep during media playback or long video uploads/downloads when screen turns off, suspending progress. |
-| **Strip Screenshot Detection Permissions** | `stripScreenshotDetection` | Boolean | `true` | **Safe** | Remove `DETECT_SCREEN_CAPTURE` and `DETECT_SCREEN_RECORDING` to neutralize OS-level capture detection callbacks. Complements Universal Screenshot Protection Bypass. |
+| **Strip Screenshot Detection Permissions** | `stripScreenshotDetection` | Boolean | `true` | **Safe** | Remove `DETECT_SCREEN_CAPTURE` and `DETECT_SCREEN_RECORDING` to neutralize OS-level capture detection callbacks. Complements Allow Screenshots. |
 | **Strip Miscellaneous Hardware Permissions** | `stripMiscHardware` | Boolean | `false` | **Low/Med** | Remove `VIBRATE`, `MODIFY_AUDIO_SETTINGS`, `MANAGE_OWN_CALLS`, `REORDER_TASKS`, `SET_WALLPAPER`, and `USE_FULL_SCREEN_INTENT`. WARNING: Disables haptic feedback vibration, volume adjustments, alarm priority intents, and live wallpaper export. |
 | **Strip OEM Signals & Telemetry** | `stripOemSignals` | Boolean | `true` | **Safe\*** | Remove vendor diagnostic/attribution tokens (Huawei, Oppo, Orange, Samsung MapsAgent), launcher badge providers, AICore service binding, and internal TikTok IPC permissions. WARNING: Removing `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` may impact dynamic broadcast receivers registered at runtime. |
 | **Strip Push Delivery Permissions** | `stripPushDelivery` | Boolean | `false` | **Risk** | Remove Google C2DM/FCM (`com.google.android.c2dm.permission.RECEIVE`) and Amazon ADM (`com.amazon.device.messaging.permission.RECEIVE`). WARNING: Breaks background push notification reception. |
 | **Strip In-App Billing Permission** | `stripBilling` | Boolean | `false` | **Risk** | Remove Google Play In-App Billing (`com.android.vending.BILLING`). WARNING: Breaks coin purchases and in-app monetization transactions. |
 
 > [!NOTE]
-> `stripScreenshotDetection` provides OS-layer defense-in-depth alongside Universal Screenshot Protection Bypass: while the runtime bypass clears `FLAG_SECURE` and stubs `registerScreenCaptureCallback`, it does not revoke manifest declarations. Stripping `DETECT_*` ensures the OS never dispatches capture callbacks regardless of runtime state. Both can coexist.
+> `stripScreenshotDetection` provides OS-layer defense-in-depth alongside Allow Screenshots: while the runtime bypass clears `FLAG_SECURE` and stubs `registerScreenCaptureCallback`, it does not revoke manifest declarations. Stripping `DETECT_*` ensures the OS never dispatches capture callbacks regardless of runtime state. Both can coexist.
 
 #### Non-Negotiables Excluded (Managed by Dedicated Patches)
 
@@ -381,10 +381,10 @@ Certain permissions are intentionally excluded from this manifest stripper becau
 
 | Excluded Permissions | Authoritative Handler | Handling Mechanism & Rationale |
 | :--- | :--- | :--- |
-| `com.google.android.gms.permission.AD_ID`<br>`android.permission.ACCESS_ADSERVICES_AD_ID`<br>`android.permission.ACCESS_ADSERVICES_ATTRIBUTION`<br>`com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE` | **Universal Telemetry Neutralizer** + **Device Privacy Guard** | Bytecode hook zeroes GAID (`00000000-0000-0000-0000-000000000000`), drops AdServices attribution tokens, and neutralizes Play Store install referrer receivers in runtime memory. |
+| `com.google.android.gms.permission.AD_ID`<br>`android.permission.ACCESS_ADSERVICES_AD_ID`<br>`android.permission.ACCESS_ADSERVICES_ATTRIBUTION`<br>`com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE` | **Remove Trackers** + **Device Privacy Guard** | Bytecode hook zeroes GAID (`00000000-0000-0000-0000-000000000000`), drops AdServices attribution tokens, and neutralizes Play Store install referrer receivers in runtime memory. |
 | `android.permission.ACCESS_FINE_LOCATION`<br>`android.permission.ACCESS_COARSE_LOCATION` | **Device Privacy Guard** | Intercepts `LocationManager` and `PowerPermissions` headless dispatcher at the Dalvik layer, returning `PERMISSION_DENIED` and clearing location caches while avoiding manifest-level XML parse shifts. |
 | `android.permission.READ_CONTACTS` | **Device Privacy Guard** | Intercepts `ContentResolver.query` and BPEA contacts reader trampolines (`LX/0OFU`, `LX/0OFw`), returning empty cursors and neutralizing background sync Lego tasks without breaking caller state. |
-| `android.permission.INTERNET` | **Universal Offline Mode** *(Optional)* | **Total Exclusion**: Revoking `INTERNET` at the manifest level causes Linux kernel socket allocation denials (`EPERM` / `socket failed: EACCES`), crashing the process at frame 0. Users requiring total offline isolation should use [Universal Offline Mode](../universal-patches.md#5-universal-offline-mode-universalofflinepatch). |
+| `android.permission.INTERNET` | **Go Fully Offline** *(Optional)* | **Total Exclusion**: Revoking `INTERNET` at the manifest level causes Linux kernel socket allocation denials (`EPERM` / `socket failed: EACCES`), crashing the process at frame 0. Users requiring total offline isolation should use [Go Fully Offline](../universal-patches.md#5-go-fully-offline-universalofflinepatch). |
 
 ---
 
@@ -609,7 +609,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
 - **Comprehensive Manifest Coverage & Pruning Discipline**:
   - Covers 51 unique permissions mapped into 15 categorized boolean toggle switches (see `PERMISSION_GROUPS` in `TikTokPrivacyPermissionsStripperPatch.kt`).
   - 51 permissions mapped into 15 categorized boolean toggle switches (5 default `true`: `nfc`, `screenshotDetection`, `oemSignals`, `bluetooth`, `biometric`; 10 default `false`).
-  - 7 non-negotiable permissions pruned from manifest stripping and delegated to specialized runtime governors (**Universal Telemetry Neutralizer** and **Device Privacy Guard**).
+  - 7 non-negotiable permissions pruned from manifest stripping and delegated to specialized runtime governors (**Remove Trackers** and **Device Privacy Guard**).
   - 1 kernel-critical permission (`android.permission.INTERNET`) explicitly excluded to prevent cold startup socket allocation aborts.
 - **Dynamic Mutation & Telemetry Summary**:
   - Validates manifest existence before execution.

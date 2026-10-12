@@ -22,7 +22,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val directMessageDeclutterPatch = bytecodePatch(
     name = "Direct Message Declutter",
-    description = "Removes visual clutter in direct messages and chat list, including the call button, reaction tray, message forward button, camera icons, input action buttons, try effect button, sticker reply suggestions, and the typing-triggered sticker strip. Scope: conversation rows and the chat input bar only; inbox header banners live in Hide Inbox Promos & Alerts.",
+    description = "Cleans up chat and DM screens by hiding extra buttons.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

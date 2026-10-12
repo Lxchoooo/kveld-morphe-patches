@@ -1,3 +1,30 @@
+## [2.7.0-experimental.15](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.14...v2.7.0-experimental.15) (2026-10-12)
+
+### Bug Fixes
+
+* **tiktok:** drop stale indicator view and guard layout params ([73a0dfc](https://github.com/kveld9/kveld-morphe-patches/commit/73a0dfcd23d72ba7282d9bcd721ea75fcf3b10d4))
+* **tiktok:** harden Spotify OAuth WebView and redirect check ([aefeef3](https://github.com/kveld9/kveld-morphe-patches/commit/aefeef39ba6709cc82d0a41f2835b7939e2f6222))
+* **tiktok:** keep cursor columns in privacy filter ([2df4e75](https://github.com/kveld9/kveld-morphe-patches/commit/2df4e75ec99e3feb8a03280596c65c0b75ebddd3))
+
+## [2.7.0-experimental.14](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.13...v2.7.0-experimental.14) (2026-10-12)
+
+### Bug Fixes
+
+* **validation:** stop scoring dead battery/sync runs as PASS ([855db80](https://github.com/kveld9/kveld-morphe-patches/commit/855db801ec04e41672aed210914ff25e716c2cd7))
+
+## [2.7.0-experimental.13](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.12...v2.7.0-experimental.13) (2026-10-12)
+
+### Bug Fixes
+
+* **validation:** abort when the device clock cannot bound the crash window ([49880b3](https://github.com/kveld9/kveld-morphe-patches/commit/49880b39643798e097a245baa0993a41660cb498))
+
+## [2.7.0-experimental.12](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.11...v2.7.0-experimental.12) (2026-10-12)
+
+### New Features
+
+* **skills:** add shared ux-declutter skill for ads, promos, onboarding, nags and UI clutter ([f117037](https://github.com/kveld9/kveld-morphe-patches/commit/f11703792f8d38b640c65c5a6414bf5769eb5c77))
+* **skills:** replace new-telemetry-app with shared patch-app skill covering all patch families ([0a29380](https://github.com/kveld9/kveld-morphe-patches/commit/0a2938095ec4defc51aeffcee50f7d820e245de3))
+
 ## [2.7.0-experimental.11](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.10...v2.7.0-experimental.11) (2026-10-12)
 
 ### Bug Fixes

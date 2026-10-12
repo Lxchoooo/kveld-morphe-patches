@@ -30,8 +30,8 @@ Official Brave periodically downloads full-screen sponsored advertising wallpape
 - **Preference Defaults Enforcement (`resourcePatch`)**: Sets XML defaults for `show_sponsored_images`, `new_tab_page_show_sponsored_images`, `brave_news_switch`, and `show_brave_news` to `false`.
 - **Dalvik Gatekeeper Interception (`bytecodePatch`)**: Intercepts `PrefService.e` for `brave.new_tab_page.show_sponsored_images`, `brave.today.enabled`, `brave.today.opted_in`, and `brave.new_tab_page.show_brave_news`, returning `false` directly at the preference service layer.
 
-### 2. Sensor Privacy Guard (W3C Generic Sensor API Neutralization)
-Web applications can fingerprint device hardware variations or infer user input patterns (keystroke acoustic leakage and walking cadence) via high-frequency accelerometer and gyroscope APIs. The **`Sensor Privacy Guard`** patch neutralizes the underlying Chromium sensor providers:
+### 2. Block Motion Sensors (W3C Generic Sensor API Neutralization)
+Web applications can fingerprint device hardware variations or infer user input patterns (keystroke acoustic leakage and walking cadence) via high-frequency accelerometer and gyroscope APIs. The **`Block Motion Sensors`** patch neutralizes the underlying Chromium sensor providers:
 - **`PlatformSensorProvider.hasSensorType(int)`**: Forces return `false` (`0x0`) so hardware sensor existence queries report unsupported.
 - **`PlatformSensor.create(PlatformSensorProvider, int, long)`**: Forces return `null` so any low-level or sensor-fusion creation attempts gracefully resolve to `nullptr`.
 - **JNI Receiver Stability**: Preserves the `PlatformSensorProvider` Java instance created by `PlatformSensorProvider.create()` because Chromium's native `PlatformSensorProviderAndroid` caches it as a JNI receiver; returning null would trigger a fatal `SIGSEGV` / CheckJNI abort when calling instance methods.
@@ -95,7 +95,7 @@ Chromium browsers (such as Brave), however, bypass Android's resource pipeline f
 3. **Morphe's Safe Substitution Strategy**:
    - `Locale PAK Slimmer` (`localePakSlimmerPatch`): Copies `en-US.pak` byte payloads into all stripped locale paths, satisfying the C++ bundle loader with zero native crashes while freeing ~9.64 MB.
 4. **Separation of Concerns**:
-   - `Locale Resource Slimmer` operates universally across all Android apps on `res/values-*`.
+   - `Remove Extra Languages` operates universally across all Android apps on `res/values-*`.
    - `Locale PAK Slimmer` operates specifically on Chromium's native `assets/locales/*.pak`.
    - In Brave, both patches can be combined to achieve complete language stripping at both the C++ native engine and Android wrapper layers.
 
@@ -120,7 +120,7 @@ Unlike traditional Android apps whose logic lives exclusively in Dalvik `.dex` f
 
 ### 1. Model Catalog Filtering Bypass (`DeviceInfoListCache.isShowProduct`)
 - **Upstream Gating Mechanism**: Xiaomi Earbuds evaluates each earphone model against the installed application version using `DeviceInfoListCache.isShowProduct(String model)`. In upstream code, channel checks and strict version regexes can cause supported hardware models to be silently excluded from discovery caches, rejecting device models during Bluetooth LE scanning.
-- **Surgical Bytecode Override**: The `Xiaomi Earbuds Model Catalog Unlock` patch hooks `DeviceInfoListCache.isShowProduct(Ljava/lang/String;)Z` to return `true` unconditionally (`const/4 v0, 1; return v0`). This guarantees all device models defined in the internal catalog are recognized, retained in `DeviceInfoListCache`, and discoverable during manual pairing and BLE scanning.
+- **Surgical Bytecode Override**: The `Xiaomi Earbuds Show All Models` patch hooks `DeviceInfoListCache.isShowProduct(Ljava/lang/String;)Z` to return `true` unconditionally (`const/4 v0, 1; return v0`). This guarantees all device models defined in the internal catalog are recognized, retained in `DeviceInfoListCache`, and discoverable during manual pairing and BLE scanning.
 
 ### 2. OEM Feature Gating & Audio Codec Unlock
 - **SuperAivs OEM Gating (`SurgicalOEMUnlockPatch`)**: Xiaomi restricts specific integrations (such as SuperAivs, function `5009`) to MIUI/HyperOS devices. The patch intercepts the hardware brand check to unlock full feature parity on non-Xiaomi Android devices (Samsung, Google Pixel, Motorola, OnePlus).

@@ -10,7 +10,7 @@ import app.morphe.patches.shared.replaceWithReturnVoid
 
 val hideInboxPromosAndAlertsPatch = bytecodePatch(
     name = "Hide Inbox Promos & Alerts",
-    description = "Hides promotional banners, streak mascot cards, contact sync suggestions, friend recommendations, and migration guide tooltips in the inbox chat-list header. Does not touch the chat input bar (see Direct Message Declutter) or the story tray (see Hide Inbox Story & Status Tray).",
+    description = "Hides promo banners, streak cards and suggestions in your inbox.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

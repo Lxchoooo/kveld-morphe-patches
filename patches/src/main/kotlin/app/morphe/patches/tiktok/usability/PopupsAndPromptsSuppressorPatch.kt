@@ -17,7 +17,7 @@ private const val NEW_USER_JOURNEY_SERVICE = "Lcom/ss/android/ugc/aweme/NewUserJ
 
 val popupsAndPromptsSuppressorPatch = bytecodePatch(
     name = "Popups & Prompts Suppressor",
-    description = "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, DM streak expiration warnings, post-download share dialogs, update nags, first-launch onboarding, and content warnings.",
+    description = "Blocks popups, nags and promo dialogs across the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -83,7 +83,7 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
         key = "skipOnboarding",
         default = true,
         title = "Skip First-Launch Onboarding",
-        description = "Bypasses the entire first-run introduction funnel (interest pickers, swipe tutorials, language prompts, and consent sheets) directly to the feed.",
+        description = "Skips the first-launch intro, tutorials and consent screens.",
         required = false,
     )
 

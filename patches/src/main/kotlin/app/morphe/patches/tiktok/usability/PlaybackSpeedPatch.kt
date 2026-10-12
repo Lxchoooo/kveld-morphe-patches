@@ -43,7 +43,7 @@ private fun BytecodePatchContext.findAbHelperType(): String? {
 
 val playbackSpeedPatch = bytecodePatch(
     name = "Playback Speed Persistence",
-    description = "Persists selected video playback speed across all feed videos and application restarts, and optionally enables the native hold-and-slide 2x speed lock gesture.",
+    description = "Keeps your chosen playback speed across videos and restarts.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

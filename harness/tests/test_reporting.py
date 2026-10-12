@@ -11,6 +11,52 @@ from harness.gboard.invariants import InvariantsReport, InvariantResult
 
 
 class TestHarnessReporting(unittest.TestCase):
+    def _telemetry_report(self, status: str):
+        from harness.core.elf import NativeStringMatch
+        from harness.core.telemetry import HostAuditResult, TelemetryReport
+
+        match = NativeStringMatch(
+            offset=0x1000,
+            matched_string="cr.brave.com",
+            section_name=".rodata",
+            original_bytes=b"cr.brave.com",
+            replacement_bytes=b"0.0.0.0" + b"\x00" * 5,
+            is_null_terminated=True,
+        )
+        return TelemetryReport(
+            known_results=[HostAuditResult("cr.brave.com", 1, 1, [match], status)],
+            all_known_verified=status == "VERIFIED",
+            vanished_hosts=[],
+            shifted_hosts=[],
+            discovered_candidates=[],
+        )
+
+    def _report_with_telemetry(self, status: str):
+        data = HarnessReportData(
+            app_name="Brave Browser",
+            package_name="com.brave.browser",
+            mode="AUDIT",
+            old_version="1.0",
+            new_version="1.0",
+            old_version_code=None,
+            new_version_code=1,
+            apk_sha256="sha",
+            apk_file_size=1000,
+            patch_results={},
+            telemetry_report=self._telemetry_report(status),
+            final_status="SUCCESS",
+        )
+        return HarnessReporter.render_markdown(data)
+
+    def test_offset_changed_host_is_a_warning_not_a_pass(self):
+        md = self._report_with_telemetry("OFFSET_CHANGED")
+        self.assertIn("[WARN] `OFFSET_CHANGED`", md)
+        self.assertNotIn("[PASS] `OFFSET_CHANGED`", md)
+
+    def test_verified_and_vanished_hosts_keep_their_icons(self):
+        self.assertIn("[PASS] `VERIFIED`", self._report_with_telemetry("VERIFIED"))
+        self.assertIn("[FAIL] `VANISHED`", self._report_with_telemetry("VANISHED"))
+
 
     def test_brave_report_rendering(self):
         data = HarnessReportData(
@@ -108,6 +154,40 @@ class TestHarnessReporting(unittest.TestCase):
         self.assertIn("## Invariants & Regression Contract Checks", md)
         self.assertIn("| **Add AMOLED Theme** | [PASS] `VERIFIED` | `1/1 verified` | All structural assertions satisfied. |", md)
         self.assertIn("**Final Pipeline Status**: `SUCCESS`", md)
+
+    def _minimal_report(self, mode: str, final_status: str) -> HarnessReportData:
+        return HarnessReportData(
+            app_name="TikTok",
+            package_name="com.zhiliaoapp.musically",
+            mode=mode,
+            old_version="1.0",
+            new_version="1.0",
+            old_version_code=None,
+            new_version_code=1,
+            apk_sha256="sha",
+            apk_file_size=1000,
+            patch_results={},
+            applied_changes=[],
+            rejected_changes=[],
+            build_passed=False,
+            build_output="",
+            final_status=final_status,
+        )
+
+    def test_failed_run_is_not_reported_as_blocked(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("AUDIT", "FAILED"))
+        self.assertIn("- **Overall Pipeline Status**: [FAIL] `FAILED`", md)
+        self.assertNotIn("- **Overall Pipeline Status**: [FAIL] `BLOCKED`", md)
+        self.assertIn("**Final Pipeline Status**: `FAILED`", md)
+
+    def test_audit_run_does_not_claim_targets_matched(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("AUDIT", "SUCCESS"))
+        self.assertIn("No code modifications were applied", md)
+        self.assertNotIn("all targets match current definitions", md)
+
+    def test_update_run_without_changes_still_claims_targets_matched(self):
+        md = HarnessReporter.render_markdown(self._minimal_report("UPDATE", "SUCCESS"))
+        self.assertIn("No code modifications required (all targets match current definitions)", md)
 
 
 if __name__ == "__main__":

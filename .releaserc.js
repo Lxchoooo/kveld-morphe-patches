@@ -7,6 +7,8 @@ const ignoredScopes = [
   'docs',
   'governance',
   'agents',
+  'skills',
+  'contributors',
   'readme',
   'github',
   'release',
