@@ -143,23 +143,51 @@ class PatchMigrator:
                 if m_single:
                     existing_entries.append((int(m_single.group(1), 16), 0, m_single.group(2)))
 
+        # Pair each newly discovered match with its own prior entry. Pairing by
+        # position attached one host's offsets to another host whenever the scan
+        # order differed from the source order, and a host with multiple literals
+        # (crashpad, variations) always shifts the pairing after the first one.
+        existing_by_host: Dict[str, List[Tuple[int, int]]] = {}
+        for arm64_off, arm32_off, host in existing_entries:
+            existing_by_host.setdefault(host, []).append((arm64_off, arm32_off))
+
         # Build HostEntry lines
         entries_lines = []
-        match_idx = 0
+        occurrence: Dict[str, int] = {}
+        unresolved: List[str] = []
         for r in host_results:
             for match in r.matches:
-                arm64_off = match.offset if not is_arm32 else (existing_entries[match_idx][0] if match_idx < len(existing_entries) else 0)
-                arm32_off = match.offset if is_arm32 else (existing_entries[match_idx][1] if match_idx < len(existing_entries) else 0)
+                host = match.matched_string
+                index = occurrence.get(host, 0)
+                occurrence[host] = index + 1
+                priors = existing_by_host.get(host, [])
+                prior = priors[index] if index < len(priors) else None
+                if prior is None and host not in unresolved:
+                    unresolved.append(host)
+                arm64_off = match.offset if not is_arm32 else (prior[0] if prior else 0)
+                arm32_off = match.offset if is_arm32 else (prior[1] if prior else 0)
                 entries_lines.append(f'            HostEntry(0x{arm64_off:08x}L, 0x{arm32_off:08x}L, "{match.matched_string}"),')
-                match_idx += 1
 
         replacement_block = "        val hostEntries = listOf(\n" + "\n".join(entries_lines) + "\n        )"
+
+        # An empty scan means the ELF analysis produced nothing (missing libchrome.so,
+        # unreadable binary, ...). Rewriting the block with no entries would delete every
+        # HostEntry and silently disable telemetry blocking while still reporting success.
+        if not entries_lines:
+            return MigrationPlan(self.telemetry_patch_file, content, content, [])
 
         pattern = r"        val hostEntries = listOf\(.*?\n        \)"
         new_content = re.sub(pattern, replacement_block, content, flags=re.DOTALL)
         if new_content != content:
             target_abi = "armeabi-v7a" if is_arm32 else "arm64-v8a"
             changes.append(f"Updated {len(entries_lines)} HostEntry native offsets for {target_abi} in libchrome.so")
+
+        if unresolved:
+            changes.append(
+                "No previous HostEntry for host(s) "
+                + ", ".join(unresolved)
+                + "; the sibling ABI offset defaults to 0x0 and must be filled before shipping"
+            )
 
         return MigrationPlan(self.telemetry_patch_file, content, new_content, changes)
 
