@@ -48,6 +48,9 @@ SHARED_PATHS=(
 )
 SYNC_SUBJECT="chore(sync): mirror shared skills from kveld-morphe-patches"
 
+# Every path the script passes to git is a literal file or directory name, never a glob.
+export GIT_LITERAL_PATHSPECS=1
+
 MODE=""
 OTHER_REPO_ARG=""
 main_root=""
@@ -63,6 +66,7 @@ declare -A CANON_MODE=()
 declare -A MIRROR_BLOB=()
 declare -A MIRROR_MODE=()
 CHANGED_PATHS=()
+APPLIED_PATHS=()
 CONFLICTING_PATHS=()
 UNSAFE_PATHS=()
 STAGED_SHARED_PATHS=()
@@ -358,6 +362,11 @@ find_unsafe_paths() {
     done
 }
 
+is_mirror_path_occupied() {
+    local p="$1"
+    [ -L "$mirror_root/$p" ] || { [ -e "$mirror_root/$p" ] && [ ! -d "$mirror_root/$p" ]; }
+}
+
 find_uncommitted_conflicts() {
     declare -A uncommitted=()
     local p
@@ -370,12 +379,15 @@ find_uncommitted_conflicts() {
     for p in "${CHANGED_PATHS[@]}"; do
         if [ -n "${uncommitted[$p]:-}" ]; then
             CONFLICTING_PATHS+=("$p")
+        elif [ -z "${MIRROR_BLOB[$p]:-}" ] && is_mirror_path_occupied "$p"; then
+            CONFLICTING_PATHS+=("$p")
         fi
     done
 }
 
 apply_changed_path() {
     local p="$1"
+    APPLIED_PATHS+=("$p")
     local sha="${CANON_BLOB[$p]:-}"
     local mode="${CANON_MODE[$p]:-}"
     local target="$mirror_root/$p"
@@ -411,7 +423,7 @@ apply_all_changed_paths() {
 
 rollback_mirror() {
     local p
-    for p in "${CHANGED_PATHS[@]}"; do
+    for p in "${APPLIED_PATHS[@]}"; do
         if [ -n "${MIRROR_BLOB[$p]:-}" ]; then
             git -C "$mirror_root" restore --source=HEAD --staged --worktree -- "$p" || true
         else
