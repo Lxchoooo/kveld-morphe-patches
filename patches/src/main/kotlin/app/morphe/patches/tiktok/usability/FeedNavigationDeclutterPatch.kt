@@ -18,10 +18,18 @@ import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 val feedNavigationDeclutterPatch = bytecodePatch(
     name = "Navigation & Header Declutter",
-    description = "Removes clutter from the feed navigation and top header bar, including the Nearby feed tab, Community (Explore) tab, top-left LIVE broadcast button, central '+' create content button, in-video bottom search suggestion bar, friend profile photo previews on the bottom Friends tab, and unread notification badges on the bottom Messages (Inbox) tab.",
+    description = "Removes clutter from the feed navigation and top header bar, including the TikTok Shop / Mall tab, Nearby feed tab, Community (Explore) tab, top-left LIVE broadcast button, central '+' create content button, in-video bottom search suggestion bar, friend profile photo previews on the bottom Friends tab, and unread notification badges on the bottom Messages (Inbox) tab.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
+
+    val hideShopTab by booleanOption(
+        key = "hideShopTab",
+        default = true,
+        title = "Hide Shop Navigation Tab",
+        description = "Removes the TikTok Shop / Mall navigation tab and indicator from navigation bars. Disable if you want to keep access to your purchases and orders while still hiding video product tags.",
+        required = false,
+    )
 
     val hideNearbyTab by booleanOption(
         key = "hideNearbyTab",
@@ -80,7 +88,8 @@ val feedNavigationDeclutterPatch = bytecodePatch(
     )
 
     execute {
-        if (hideNearbyTab != true &&
+        if (hideShopTab != true &&
+            hideNearbyTab != true &&
             hideCommunityTab != true &&
             hideTopLiveEntrance != true &&
             hideFeedSearchBar != true &&
@@ -93,6 +102,56 @@ val feedNavigationDeclutterPatch = bytecodePatch(
         }
 
         var patched = 0
+
+        // 0. Feature: Hide Shop Navigation Tab
+        if (hideShopTab == true) {
+            // Disable ShopBottomTabProtocol
+            val bottomTabFp = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/ecommerce/mall/ShopBottomTabProtocol;",
+                name = "enable",
+                returnType = "Z",
+            )
+            bottomTabFp.method.addInstructions(
+                0,
+                """
+                const/4 v0, 0
+                return v0
+                """.trimIndent()
+            )
+            patched++
+
+            // Disable ShopTopTabProtocol
+            val topTabFp = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/ecommerce/mall/ShopTopTabProtocol;",
+                name = "enable",
+                returnType = "Z",
+            )
+            topTabFp.method.addInstructions(
+                0,
+                """
+                const/4 v0, 0
+                return v0
+                """.trimIndent()
+            )
+            patched++
+
+            // Disable ShopIconServiceImpl indicator
+            val iconServiceFp = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/ecommerce/mall/vm/ShopIconServiceImpl;",
+                parameters = emptyList(),
+                returnType = "Z",
+            )
+            iconServiceFp.method.addInstructions(
+                0,
+                """
+                const/4 v0, 0
+                return v0
+                """.trimIndent()
+            )
+            patched++
+
+            println("[Navigation & Header Declutter] TikTok Shop / Mall navigation tabs eliminated.")
+        }
 
         // 1. Feature: Hide Nearby Feed Tab
         if (hideNearbyTab == true) {
