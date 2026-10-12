@@ -1,17 +1,17 @@
 ---
 name: telemetry-blocking
-description: Technical methodology and implementation patterns for telemetry, tracking, analytics, and crash-reporting blocking in Morphe patches.
+description: Methodology and patterns for blocking telemetry, tracking, analytics, ads and crash reporting in Morphe patches (manifest purge, SDK dispatcher stubs, preservation rules, method exclusions, aapt2 verification). Use when implementing or reviewing a telemetry-blocking patch.
 ---
 
-<!-- Canonical shared copy: byte-identical file in kveld-extra-morphe-patches and brave-origin-patches (.agents/skills, hardlinked to .claude/skills inside each repo). Keep copies byte-identical; propagate edits with scripts/sync_shared_skills.sh. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Telemetry Blocking Implementation Guidelines
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is canonical and byte-identical in both sibling repos. Edits propagate automatically via the `scripts/hooks/post-commit` hook (enabled per clone with `git config core.hooksPath scripts/hooks`); `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks.
-- **Helpers**: manifestening helpers live in `app.morphe.patches.shared` (`ManifestXml.kt`, `BytecodeUtils.kt`) in both repos with the same API (`stripPermissionsWhere`, `disableComponentsByName`, `setApplicationMetaData`, `replaceWithReturnVoid`, `clearTryBlocks`).
-- **Extension wiring**: companion runtime filters (e.g. preference-gate filters) follow the local repo convention: `dependsOn(sharedExtensionPatch)` in kveld-extra, `extendWith("extensions/extension.mpe")` in brave-origin.
+- **Sync invariant**: the canonical copy lives in kveld-morphe-patches; edit this file only there. After each commit or merge in the kveld-morphe-patches main checkout (linked worktrees are skipped), `scripts/hooks/post-commit` and `scripts/hooks/post-merge` copy the committed version into kveld-extra-morphe-patches and commit it there when that checkout is safe to write; the sibling `pre-commit` hook rejects direct edits. `scripts/sync_shared_skills.sh --check` verifies. Repo-specific deltas belong in this section.
+- **Helpers**: manifest and bytecode helpers live in `app.morphe.patches.shared` (`ManifestXml.kt`, `BytecodeUtils.kt`) in both repos with the same API (`stripPermissionsWhere`, `disableComponentsWhere`, `disableComponentsByName`, `setApplicationMetaData`, `replaceWithReturnVoid`, `replaceWithReturnBoolean`, `clearTryBlocks`).
+- **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 
 ## 1. Analysis Methodology (Hybrid Discovery Model)
 
@@ -365,7 +365,7 @@ Pass criteria:
 3. Injected metadata entries exist with `A: android:value(0x01010024)="false"`.
 
 ### B. Morphe Patcher Gate Commands
-Run the official patching test harness across the target application. (Commands named for reference; do not run unprompted):
+Run the mandatory in-situ patching gate (`AGENTS.md`, Section 3, Step 4) against the target application after every patch change:
 
 ```bash
 # Execute patch test suite for target app

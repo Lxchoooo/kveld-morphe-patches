@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val batteryOptimizationPatch = bytecodePatch(
-    name = "Disable Battery Status API & OS Listener",
-    description = "Neutralizes the Battery Status API (navigator.getBattery) to prevent cross-site device fingerprinting and drops OS battery change broadcasts.",
+    name = "Hide Battery Status",
+    description = "Stops sites from reading your battery level to track you.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

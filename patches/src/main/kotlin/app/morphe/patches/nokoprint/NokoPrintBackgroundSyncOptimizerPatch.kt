@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
-    name = "Background Sync Manifest Hardening",
-    description = "Disables WorkManager alarms, constraint proxies, diagnostic receivers, and non-essential background schedulers.",
+    name = "Battery Saver (Setup)",
+    description = "Turns off background alarms and schedulers.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -74,8 +74,8 @@ private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val nokoPrintBackgroundSyncOptimizerPatch = bytecodePatch(
-    name = "Background Sync Optimizer",
-    description = "Neutralizes background WorkManager constraint tasks and diagnostic wakelocks.",
+    name = "Stop Background Sync",
+    description = "Stops background tasks that drain the battery.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)

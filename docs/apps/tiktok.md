@@ -75,7 +75,6 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Privacy** | **Only Mutual Friends** | `bytecodePatch` | Filters suggested accounts, recommended videos, and non-mutual profiles (such as 'People you may know') from the Friends feed so it strictly reproduces content from mutual friends. |
 | **Privacy** | **Hide Suggested People** | `bytecodePatch` | Removes suggested-account cards from profile headers and inbox/notification surfaces. |
 | **Privacy** | **Hide AI Videos** | `bytecodePatch` | Filters and skips videos tagged with native AI-generated metadata, C2PA content credentials, or creator AI disclosure tags across the For You, Following, and Friends feeds. |
-| **Privacy** | **Hide Ads in Feed** | `bytecodePatch` | Filters and skips videos disclosing branded or paid-promotional content ('Contenido Promocional' / paid partnership tags, StarAtlas orders, branded content accounts) across the For You, Following, and Friends feeds. |
 | **Privacy** | **No Lives in Feed** | `bytecodePatch` | Removes live broadcast cards and live recommendations from FYP and Following. |
 | **Privacy** | **Cleaner Feed** | `bytecodePatch` | Removes friend suggestions, suggested account carousels, mini-games, CapCut prompts, memories, community/topic cards, post-video evaluation surveys, questionnaires, mini-dramas, Lemon8 promo, in-feed search recommendations/interest cards, and floating rewards pendants across For You, Following, and Friends feeds. |
 | **Privacy** | **Block All Tracking** | `bytecodePatch` | Neutralizes ByteDance AppLog, APM/Npth/Heimdallr crash telemetry, and AppsFlyer. |
@@ -84,7 +83,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Privacy** | **No Watch History** | `bytecodePatch` | Prevents viewed videos from being recorded in account watch history, playback duration stores, and local history caches. |
 | **Privacy** | **No Update Popups** | `bytecodePatch` | Neutralizes background update polling tasks and version enforcement dialogs. |
 | **Privacy** | **[Remove Permissions](#12-tiktok-privacy-permissions-stripper)** | `resourcePatch` | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via 15 granular opt-in boolean toggles. |
-| **Privacy** | **[Remove Trackers (Setup)](#29-telemetry-manifest-purge-telemetrymanifestpurgepatch)** | `resourcePatch` | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase discovery registrars, and injects analytics opt-out metadata (Firebase, AppsFlyer, Meta AppEvents) into AndroidManifest.xml. |
+| **Privacy** | **[Remove Trackers (Setup)](#28-telemetry-manifest-purge-telemetrymanifestpurgepatch)** | `resourcePatch` | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase discovery registrars, and injects analytics opt-out metadata (Firebase, AppsFlyer, Meta AppEvents) into AndroidManifest.xml. |
 | **Performance** | **[Smooth Screen (120Hz)](#3-display-refresh-rate-governor)** | `bytecodePatch` | Locks window to peak hardware refresh rate (120Hz/90Hz) and neutralizes playback downclocking. |
 | **Performance** | **[No HDR Videos](#26-disable-hdr-video-playback-disablehdrvideopatch)** | `bytecodePatch` | Forces the video playback engine to select standard SDR bitrates instead of HDR (HDR10/PQ/HLG). |
 | **Performance** | **Fast Startup** | `bytecodePatch` | Eliminates cold startup delays, real-time splash advertisements, and background TopView ad preloading. |
@@ -641,20 +640,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - Aggregates enabled toggles into a single pass predicate to prune elements efficiently.
   - Emits concise ASCII telemetry (`[TikTok Privacy Permissions Stripper] Stripped N permission(s) from AndroidManifest.xml: ...`) with clean short names.
 
-### 28. Hide Ads in Feed (`hidePromotionalContentPatch`)
-- Filters and skips videos disclosing branded or paid-promotional content ("Contenido Promocional" / paid partnership disclosure tags) across the For You, Following, and Friends feeds.
-- **Feed API Response Interception**: Hooks `FeedApiService.fetchFeedList` to filter incoming items at the network response boundary before model mapping.
-- **Feed Item Model Interception**: Hooks `FeedItemList.getItems()` and `FollowFeedList.getItems()` to sanitize feed collections in-situ.
-- **Friends Feed Network Interception**: Hooks `FriendsV3FeedNetworkSource.LJ` (V3 response handler) and the friend feed request `LX/06CX;->LIZLLL` (`/tiktok/v1/friend/friend_feed`, V2) return points to filter `friendsV3Feeds` / `friendFeedData` after deserialization.
-- **Multi-Vector Commercial & Branded Metadata Inspection**: Inspects `Aweme` for:
-  - `AwemeCommerceStruct` (`bcHashtag` tag disclosure text, `isBrandedContent` / `brandedContentType > 0`, `isBrandOrganicContent` / `brandOrganicType > 0`, `CommerceLabelInfo.bcLabelDisplayType == 1`, `ecSearchBoBcLabelText`).
-  - `brandContentAccounts` (tagged sponsor accounts list).
-  - `starAtlasOrderId` (ByteDance Star Atlas commercial order ID).
-  - `commercialVideoInfo` (commercial video payload marker).
-  - `promoteModel` and `promoteIconText` (native in-feed promotion triggers).
-  - Multi-locale description, caption, banner, and anchor fallback pattern matching (`#paidpartnership`, `#brandedcontent`, `#contenidopromocional`, `[Contenido Promocional]`, `[Paid partnership]`, `[Contenu sponsorisé]`, `[Colaboración pagada]`, `[Parceria paga]`, etc.).
-
-### 29. Remove Trackers (Setup) (`telemetryManifestPurgePatch`)
+### 28. Remove Trackers (Setup) (`telemetryManifestPurgePatch`)
 - **Manifest DOM Transformation**:
   - Implemented as a clean `resourcePatch` executing directly against `AndroidManifest.xml`.
   - Uses shared helpers from `app.morphe.patches.shared` (`stripPermissionsWhere`, `disableComponentsWhere`, `removeComponentDiscoveryRegistrarsWhere`, `setApplicationMetaData`) for consistent DOM manipulation.

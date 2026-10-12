@@ -11,8 +11,8 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 @Suppress("unused")
 val xiaomiEarbudsSurgicalOEMUnlockPatch = bytecodePatch(
-    name = "Surgical OEM Unlock",
-    description = "Bypasses Xiaomi OEM gating to enable full feature parity (voice assistant & spatial audio dialogs) on non-Xiaomi devices (Samsung, Pixel, etc.).",
+    name = "Unlock for Other Phones",
+    description = "Enables full features on Samsung, Pixel and other non-Xiaomi phones.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
