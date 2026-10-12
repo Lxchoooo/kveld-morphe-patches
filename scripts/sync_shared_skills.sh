@@ -45,6 +45,8 @@ SHARED_PATHS=(
   .agents/skills/native-binary-patching
   .agents/skills/telemetry-blocking
   .agents/skills/new-telemetry-app
+  .agents/skills/update-patches
+  .opencode/commands/update-patches.md
   scripts/sync_shared_skills.sh
   scripts/hooks/post-commit
   scripts/hooks/post-merge
