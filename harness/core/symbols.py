@@ -99,15 +99,31 @@ class SymbolResolver:
     @staticmethod
     def _resolve_origin_locked_field(cls: IndexedClass, cls_name: str) -> ResolvedSymbol:
         boolean_fields = [f for f in cls.fields if f[1] == "Z" and (f[2] & 0x8) == 0]
+        # A settings class normally holds several instance booleans. Taking the first one
+        # is a guess, and the migrator writes that name straight into BraveOriginPatch.kt,
+        # so an ambiguous match must block instead of being reported as verified.
+        ambiguous = len(boolean_fields) > 1
         locked_field_name = boolean_fields[0][0] if boolean_fields else "O0"
+        evidence = (
+            [f"Instance boolean field on {cls_name}: {locked_field_name}"]
+            if boolean_fields and not ambiguous
+            else [
+                f"{len(boolean_fields)} instance boolean field(s) on {cls_name} "
+                f"({', '.join(f[0] for f in boolean_fields[:6])}); the locked one is ambiguous"
+            ]
+        )
         return ResolvedSymbol(
             symbol_id="origin_locked_field",
             target_class=cls_name,
             old_symbol="N0:Z",
             new_symbol=f"{locked_field_name}:Z",
             symbol_type="field",
-            confidence=SymbolConfidence.VERIFIED if boolean_fields else SymbolConfidence.BLOCKED,
-            evidence=[f"Instance boolean field on {cls_name}: {locked_field_name}"]
+            confidence=(
+                SymbolConfidence.VERIFIED
+                if boolean_fields and not ambiguous
+                else SymbolConfidence.BLOCKED
+            ),
+            evidence=evidence
         )
 
     @staticmethod
@@ -116,15 +132,30 @@ class SymbolResolver:
             m for m in cls.methods
             if (m.access_flags & 0x8) != 0 and m.parameters == ["Ljava/lang/String;"] and m.return_type == "Ljava/lang/String;"
         ]
+        # Same rule as the locked field: several static String->String helpers can coexist,
+        # and writing the wrong one into the patch would rewrite an unrelated call site.
+        ambiguous = len(static_str_str) > 1
         key_map_name = static_str_str[0].name if static_str_str else "e5"
+        evidence = (
+            [f"Static (String) -> String method on {cls_name}: {key_map_name}"]
+            if static_str_str and not ambiguous
+            else [
+                f"{len(static_str_str)} static (String)->String method(s) on {cls_name} "
+                f"({', '.join(m.name for m in static_str_str[:6])}); the key mapping one is ambiguous"
+            ]
+        )
         return ResolvedSymbol(
             symbol_id="origin_key_mapping_method",
             target_class=cls_name,
             old_symbol="b5(Ljava/lang/String;)Ljava/lang/String;",
             new_symbol=f"{key_map_name}(Ljava/lang/String;)Ljava/lang/String;",
             symbol_type="method",
-            confidence=SymbolConfidence.VERIFIED if static_str_str else SymbolConfidence.BLOCKED,
-            evidence=[f"Static (String) -> String method on {cls_name}: {key_map_name}"]
+            confidence=(
+                SymbolConfidence.VERIFIED
+                if static_str_str and not ambiguous
+                else SymbolConfidence.BLOCKED
+            ),
+            evidence=evidence
         )
 
     @staticmethod

@@ -22,7 +22,7 @@ private const val GROUP_CHAT_HINT_ASSEM_CLASS =
 
 val customShareSheetPatch = bytecodePatch(
     name = "Custom Share Sheet",
-    description = "Customizes and cleans the native TikTok share sheet and direct message share panel via individual toggle switches for third-party apps, essential sharing features, secondary utility actions, and DM panel elements.",
+    description = "Lets you hide share menu entries you do not use.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

@@ -145,6 +145,109 @@ class TestMigratorAndValidator(unittest.TestCase):
         self.assertEqual(set(arm64), set(arm32))
         self.assertNotEqual(arm64["cr.brave.com"], arm32["cr.brave.com"])
 
+    # 20. Raw-resource patches must not claim a verified check that never ran
+    def test_unverified_raw_resource_patches_are_not_marked_verified(self):
+        validator = AdversarialValidator(self.repo_root, MagicMock())
+        for result in (validator._audit_locale_slimmer_patch(), validator._audit_native_bloat_slimmer_patch()):
+            self.assertEqual(result.status, PatchStatus.STATICALLY_VERIFIED)
+            self.assertEqual(result.blocking_reasons, [])
+            self.assertTrue(
+                any("not verified against APK entries" in e for e in result.evidence),
+                f"{result.patch_name} evidence must disclose the missing verification",
+            )
+
+    # 20b. Downgrading to STATICALLY_VERIFIED must not block the pipeline
+    def test_statically_verified_still_counts_as_passing(self):
+        from harness.core.pipeline import BaseTargetPipeline
+
+        class _Stub(BaseTargetPipeline):
+            app_name = "stub"
+
+            def __init__(self):  # bypass the APK-dependent constructor
+                pass
+
+            def matches_package(self, package_name): return True
+            def validate_apk_sanity(self): pass
+            def extract_and_index(self): pass
+            def get_old_target_version(self): return "0"
+            def run_gradle_verification(self, validator): return True, "ok"
+            def execute_audit_and_validation(self): return {}, None
+            def create_migration_plans(self, extra_data): return []
+
+        results = {
+            "locale": PatchAuditResult("Locale PAK Slimmer", PatchStatus.STATICALLY_VERIFIED),
+            "bloat": PatchAuditResult("Native Bloat Slimmer", PatchStatus.STATICALLY_VERIFIED),
+        }
+        self.assertTrue(_Stub().is_all_verified(results, None))
+        results["bloat"] = PatchAuditResult("Native Bloat Slimmer", PatchStatus.BLOCKED, blocking_reasons=["nope"])
+        self.assertFalse(_Stub().is_all_verified(results, None))
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOriginSymbolAmbiguity(unittest.TestCase):
+    """The migrator writes resolved symbol names straight into BraveOriginPatch.kt.
+
+    A settings class usually exposes several instance booleans and several static
+    String->String helpers, so a "first match wins" guess must not be reported as
+    verified: it would silently patch an unrelated member.
+    """
+
+    @staticmethod
+    def _prefs_class(booleans, statics):
+        from harness.core.dex import IndexedClass, IndexedMethod
+
+        return IndexedClass(
+            dex_name="classes.dex",
+            name="Lorg/chromium/chrome/browser/settings/BraveOriginPreferences;",
+            access_flags=1,
+            superclass="Ljava/lang/Object;",
+            interfaces=[],
+            class_def=None,
+            methods=[
+                IndexedMethod(
+                    dex_name="classes.dex",
+                    class_name="Lorg/chromium/chrome/browser/settings/BraveOriginPreferences;",
+                    name=name,
+                    parameters=["Ljava/lang/String;"],
+                    return_type="Ljava/lang/String;",
+                    access_flags=0x9,  # public static
+                    encoded_method=MagicMock(),
+                )
+                for name in statics
+            ],
+            fields=[(n, "Z", 0x2) for n in booleans],
+        )
+
+    def test_single_boolean_is_verified(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], [])
+        sym = SymbolResolver._resolve_origin_locked_field(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.VERIFIED)
+        self.assertEqual(sym.new_symbol, "N0:Z")
+
+    def test_multiple_booleans_block_instead_of_guessing(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0", "O0", "P0"], [])
+        sym = SymbolResolver._resolve_origin_locked_field(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+        self.assertIn("ambiguous", " ".join(sym.evidence))
+
+    def test_single_static_string_method_is_verified(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], ["b5"])
+        sym = SymbolResolver._resolve_origin_key_mapping(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.VERIFIED)
+
+    def test_multiple_static_string_methods_block(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], ["b5", "c5"])
+        sym = SymbolResolver._resolve_origin_key_mapping(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+        self.assertIn("ambiguous", " ".join(sym.evidence))

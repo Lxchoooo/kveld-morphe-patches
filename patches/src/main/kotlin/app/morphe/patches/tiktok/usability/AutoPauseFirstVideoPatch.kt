@@ -9,7 +9,7 @@ import app.morphe.patches.shared.sharedExtensionPatch
 
 val autoPauseFirstVideoPatch = bytecodePatch(
     name = "Auto-Pause First Video",
-    description = "Automatically pauses the first video when opening TikTok, allowing the application to finish background initialization and preventing playback lag.",
+    description = "Pauses the first video on launch so it plays without lag.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

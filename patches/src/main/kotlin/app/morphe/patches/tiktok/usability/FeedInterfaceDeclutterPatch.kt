@@ -25,7 +25,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val feedInterfaceDeclutterPatch = bytecodePatch(
     name = "Feed Interface Declutter",
-    description = "Customizes and cleans feed video overlay elements and interaction gestures, including the full screen button, repost pill, interest feedback pills, video descriptions, profile photo follow badges, story rings, playlist bottom bars, save buttons, music discs, double tap to like, avatar LIVE status, and feed long-press action gestures.",
+    description = "Cleans up the buttons and overlays on top of videos.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -115,14 +115,14 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
         key = "disableAvatarLiveStatus",
         default = true,
         title = "Disable Profile Photo LIVE Status",
-        description = "Removes the pulsing LIVE ring and badge from creator avatars in the feed and ensures clicking navigates strictly to the user profile instead of launching the live stream.",
+        description = "Removes the LIVE ring on avatars and keeps taps on the profile.",
         required = false,
     )
 
     val disableLikeRepost by booleanOption(
         key = "disableLikeRepost",
         title = "Disable Long-Press Like (Repost)",
-        description = "Prevents holding the Like button on feed videos from opening the Repost action panel.",
+        description = "Prevents holding the Like button on feed videos from opening the Repost action panel. Turns off long-press actions like repost, quick DM and quick emoji.",
         default = true,
         required = false,
     )
@@ -130,7 +130,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
     val disableShareQuickDms by booleanOption(
         key = "disableShareQuickDms",
         title = "Disable Long-Press Share (Quick DMs)",
-        description = "Prevents holding the Share button on feed videos from opening the quick share recent contacts tray.",
+        description = "Prevents holding the Share button on feed videos from opening the quick share recent contacts tray. Turns off long-press actions like repost, quick DM and quick emoji.",
         default = true,
         required = false,
     )
@@ -138,7 +138,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
     val disableCommentReactions by booleanOption(
         key = "disableCommentReactions",
         title = "Disable Long-Press Comment (Quick Emojis)",
-        description = "Prevents holding the Comment button on feed videos from opening the quick reaction emojis picker.",
+        description = "Prevents holding the Comment button on feed videos from opening the quick reaction emojis picker. Turns off long-press actions like repost, quick DM and quick emoji.",
         default = true,
         required = false,
     )

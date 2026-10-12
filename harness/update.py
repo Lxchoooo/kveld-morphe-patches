@@ -69,6 +69,8 @@ def main():
     group.add_argument("--update", action="store_true", help="Apply minimal migrations and run build")
     group.add_argument("--dry-run", action="store_true", help="Show proposed changes without writing")
     group.add_argument("--doctor", action="store_true", help="Run toolchain readiness checks only")
+    group.add_argument("--audit-walks", action="store_true",
+                       help="Report fingerprints that force a full APK scan (no APK required)")
     parser.add_argument("--output", help="Save markdown report to file")
     parser.add_argument("--json", action="store_true",
                         help="Also write a machine-readable JSON sidecar next to the report")
@@ -79,6 +81,13 @@ def main():
         results, ok = run_doctor(repo_root=REPO_ROOT)
         print(render_doctor(results, ok))
         sys.exit(0 if ok else 1)
+
+    if args.audit_walks:
+        # Static source audit: no APK, no Gradle, no toolchain required.
+        from harness.core.fingerprint_cost import render_cost_report
+
+        print(render_cost_report(REPO_ROOT))
+        sys.exit(0)
 
     if not args.apk:
         parser.error("the following arguments are required: apk (or use --doctor)")

@@ -67,14 +67,26 @@ def _compare_sync(vanilla_dir: Path, patched_dir: Path) -> str:
     p_sched = p_sync.get("job_scheduling_state", "UNKNOWN")
     v_exec = v_sync.get("execution_state", "UNKNOWN")
     p_exec = p_sync.get("execution_state", "UNKNOWN")
+    v_reg = v_sync.get("registration_state", "UNKNOWN")
 
     v_ev = f"[{v_sched}] [{v_exec}]"
     p_ev = f"[{p_sched}] [{p_exec}]"
 
-    if v_sched == "JOB_SCHEDULED" and p_sched == "JOB_NOT_SCHEDULED":
+    # The vanilla run is the only proof that the sync path is active at all.
+    # Without a scheduled/executed job in vanilla, an absent job in patched is
+    # indistinguishable from a dead test, so it must never be scored as PASS.
+    vanilla_baseline = v_sched == "JOB_SCHEDULED" or v_exec == "JOB_EXECUTED"
+
+    if not vanilla_baseline:
+        reason = (
+            "Vanilla run never scheduled or executed a sync job "
+            f"(vanilla={v_ev}, registration={v_reg}); absence in patched is unproven"
+        )
+        res, meas = "INCONCLUSIVE", reason
+    elif v_sched == "JOB_SCHEDULED" and p_sched == "JOB_NOT_SCHEDULED":
         res, meas = "PASS", "Jobs absent from JobScheduler after background transition"
     elif p_sched == "JOB_NOT_SCHEDULED" and p_exec == "JOB_NOT_EXECUTED":
-        res, meas = "PASS", "Zero jobs scheduled in JobScheduler"
+        res, meas = "PASS", "Zero jobs scheduled in JobScheduler (vanilla baseline active)"
     else:
         res, meas = "INCONCLUSIVE", "Inconclusive JobScheduler state"
 
@@ -95,9 +107,17 @@ def _compare_smoke(vanilla_dir: Path, patched_dir: Path) -> str:
     p_crash = p_smoke.get("crash_detected", False)
     v_time = v_smoke.get("startup_time_ms", 0)
     p_time = p_smoke.get("startup_time_ms", 0)
+    # Only claim a run count when the producer recorded one; never invent it.
+    v_runs = v_smoke.get("runs", v_smoke.get("launch_count"))
+    p_runs = p_smoke.get("runs", p_smoke.get("launch_count"))
+    runs_ev = ""
+    if isinstance(v_runs, int) and isinstance(p_runs, int):
+        runs_ev = f" across {min(v_runs, p_runs)} recorded runs"
+    else:
+        runs_ev = " (run count not recorded in result JSON)"
 
     if not p_crash and not v_crash:
-        res, meas = "PASS", f"Zero crashes detected across 5 warm runs (Startup: {p_time}ms vs {v_time}ms)"
+        res, meas = "PASS", f"Zero crashes detected{runs_ev} (Startup: {p_time}ms vs {v_time}ms)"
     elif not p_crash and v_crash:
         res, meas = "PASS", "Patched build fixed crash"
     else:

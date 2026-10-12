@@ -143,7 +143,11 @@ class HarnessReporter:
 
     @staticmethod
     def _render_header(data: HarnessReportData) -> List[str]:
-        status_badge = "[PASS] `SUCCESS`" if data.final_status == "SUCCESS" else "[FAIL] `BLOCKED`"
+        # Never relabel a crashed run as BLOCKED: the pipeline also emits FAILED,
+        # and the header must not contradict the footer.
+        status_badge = (
+            "[PASS] `SUCCESS`" if data.final_status == "SUCCESS" else f"[FAIL] `{data.final_status}`"
+        )
         return [
             f"# {data.app_name} Patches Harness Report",
             "",
@@ -289,7 +293,14 @@ class HarnessReporter:
         ]
         for h in telemetry_report.known_results:
             offs = ", ".join([f"`0x{m.offset:08x}`" for m in h.matches]) if h.matches else "None"
-            st_icon = "[PASS]" if h.status in ("VERIFIED", "OFFSET_CHANGED") else "[FAIL]"
+            # OFFSET_CHANGED means the recorded offsets no longer hold, so the patch
+            # cannot apply at them: that is a warning, not a pass.
+            if h.status == "VERIFIED":
+                st_icon = "[PASS]"
+            elif h.status == "OFFSET_CHANGED":
+                st_icon = "[WARN]"
+            else:
+                st_icon = "[FAIL]"
             lines.append(f"| `{h.hostname}` | `{h.expected_count}` | `{h.found_count}` | {offs} | {st_icon} `{h.status}` |")
 
         if telemetry_report.discovered_candidates:
@@ -314,6 +325,10 @@ class HarnessReporter:
             lines.append("### Applied Changes:")
             for ch in data.applied_changes:
                 lines.append(f"- [PASS] {ch}")
+        elif data.mode.upper() == "AUDIT":
+            # Audit never writes code, so an empty list here says nothing about
+            # whether the targets matched; claiming they did is a false report.
+            lines.append("- *No code modifications were applied: this run is a non-destructive audit.*")
         else:
             lines.append("- *No code modifications required (all targets match current definitions).*")
 
