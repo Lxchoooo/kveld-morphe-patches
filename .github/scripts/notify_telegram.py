@@ -156,6 +156,9 @@ def get_repo_from_git() -> str:
     try:
         cmd = ["git", "remote", "get-url", "origin"]
         res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        # `res.stdout` was never read: the search used an undefined `url`, so this
+        # function raised NameError on every call and always fell back to "".
+        url = res.stdout.strip()
         m = re.search(r"github\.com(?::\d+)?[:/]([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+?)(?:\.git)?$", url)
         if m:
             return m.group(1)
