@@ -155,7 +155,11 @@ class ApkContext:
             ver_name = apk_obj.get_androidversion_name() or ""
             ver_code = int(apk_obj.get_androidversion_code() or 0)
             return pkg_name, ver_name, ver_code
-        except Exception:
+        except Exception as e:
+            # Surface the cause: the caller only sees an empty package name and would
+            # otherwise report "no pipeline handles package ''", which hides the real
+            # problem (unreadable manifest, missing parser dependency, corrupt APK).
+            print(f"[WARN] Could not parse AndroidManifest from {path.name}: {type(e).__name__}: {e}")
             return "", "", 0
 
     def extract_dex_bytes(self) -> List[tuple[str, bytes]]:

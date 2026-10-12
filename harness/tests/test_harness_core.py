@@ -4,6 +4,8 @@ Demonstrates deterministic behavior across all 12 edge cases specified in Phase 
 """
 
 from pathlib import Path
+import contextlib
+import io
 import struct
 import unittest
 from unittest.mock import MagicMock
@@ -185,3 +187,26 @@ class TestNativeElf(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestApkManifestDiagnostics(unittest.TestCase):
+    """A manifest that cannot be parsed must name the cause, not just return blanks.
+
+    Without the diagnostic the caller reports "no harness pipeline handles package ''",
+    which hides whether the manifest is corrupt, the parser is missing, or the APK is
+    simply not a supported target.
+    """
+
+    def test_parse_failure_reports_the_underlying_cause(self):
+        from harness.core.apk import ApkContext
+
+        ctx = ApkContext.__new__(ApkContext)
+        ctx.temp_dir = None
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            package, version, code = ctx._try_androguard_manifest(Path("/nonexistent.apk"))
+
+        self.assertEqual((package, version, code), ("", "", 0))
+        output = buf.getvalue()
+        self.assertIn("Could not parse AndroidManifest", output)
+        self.assertIn("/nonexistent.apk", output)
