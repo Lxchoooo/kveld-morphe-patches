@@ -87,8 +87,9 @@ class GboardInvariantsChecker:
                 with zipfile.ZipFile(self.apk_path, "r") as zf:
                     namelist = set(zf.namelist())
                     assets_ok = "assets/theme/style_sheet_color_black.binarypb" in namelist
-            except Exception:
-                pass
+            except Exception as e:
+                # Distinguish "asset absent" from "APK could not be read".
+                print(f"[WARN] Could not read APK {self.apk_path.name} while checking theme assets: {type(e).__name__}: {e}")
         results.append(InvariantResult(
             invariant_id="theme_assets_intact",
             passed=assets_ok,
