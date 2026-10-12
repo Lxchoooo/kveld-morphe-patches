@@ -3,7 +3,7 @@ name: release-conventions
 description: Release pipeline and commit conventions (semantic-release types, release-suppressed scopes, release.yml and .releaserc.js chain, dev and main branching). Use when choosing a commit type or scope, or when reasoning about releases, CHANGELOG or generated catalog files.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (.claude/skills is a symlink to .agents/skills in each repo). When editing shared core guidance, replicate the change there. -->
 
 # Semantic Release & CI/CD Lifecycle
 
