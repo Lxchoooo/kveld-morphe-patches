@@ -77,6 +77,8 @@ class GboardInvariantsChecker:
             description="APK contains valid multidex entries",
             details=f"DEX files: {self.meta.dex_files}",
         ))
+        if not dex_ok:
+            blocking.append("No DEX entries indexed from the APK; the audit has nothing to validate.")
 
         # 4. Theme Assets Invariant
         assets_ok = False
@@ -85,8 +87,9 @@ class GboardInvariantsChecker:
                 with zipfile.ZipFile(self.apk_path, "r") as zf:
                     namelist = set(zf.namelist())
                     assets_ok = "assets/theme/style_sheet_color_black.binarypb" in namelist
-            except Exception:
-                pass
+            except Exception as e:
+                # Distinguish "asset absent" from "APK could not be read".
+                print(f"[WARN] Could not read APK {self.apk_path.name} while checking theme assets: {type(e).__name__}: {e}")
         results.append(InvariantResult(
             invariant_id="theme_assets_intact",
             passed=assets_ok,
@@ -96,5 +99,5 @@ class GboardInvariantsChecker:
         if not assets_ok:
             blocking.append("Required AMOLED theme assets not found in APK.")
 
-        passed = (len(blocking) == 0)
+        passed = all(r.passed for r in results)
         return InvariantsReport(passed=passed, results=results, blocking_reasons=blocking)
