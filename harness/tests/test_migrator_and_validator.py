@@ -145,6 +145,43 @@ class TestMigratorAndValidator(unittest.TestCase):
         self.assertEqual(set(arm64), set(arm32))
         self.assertNotEqual(arm64["cr.brave.com"], arm32["cr.brave.com"])
 
+    # 20. Raw-resource patches must not claim a verified check that never ran
+    def test_unverified_raw_resource_patches_are_not_marked_verified(self):
+        validator = AdversarialValidator(self.repo_root, MagicMock())
+        for result in (validator._audit_locale_slimmer_patch(), validator._audit_native_bloat_slimmer_patch()):
+            self.assertEqual(result.status, PatchStatus.STATICALLY_VERIFIED)
+            self.assertEqual(result.blocking_reasons, [])
+            self.assertTrue(
+                any("not verified against APK entries" in e for e in result.evidence),
+                f"{result.patch_name} evidence must disclose the missing verification",
+            )
+
+    # 20b. Downgrading to STATICALLY_VERIFIED must not block the pipeline
+    def test_statically_verified_still_counts_as_passing(self):
+        from harness.core.pipeline import BaseTargetPipeline
+
+        class _Stub(BaseTargetPipeline):
+            app_name = "stub"
+
+            def __init__(self):  # bypass the APK-dependent constructor
+                pass
+
+            def matches_package(self, package_name): return True
+            def validate_apk_sanity(self): pass
+            def extract_and_index(self): pass
+            def get_old_target_version(self): return "0"
+            def run_gradle_verification(self, validator): return True, "ok"
+            def execute_audit_and_validation(self): return {}, None
+            def create_migration_plans(self, extra_data): return []
+
+        results = {
+            "locale": PatchAuditResult("Locale PAK Slimmer", PatchStatus.STATICALLY_VERIFIED),
+            "bloat": PatchAuditResult("Native Bloat Slimmer", PatchStatus.STATICALLY_VERIFIED),
+        }
+        self.assertTrue(_Stub().is_all_verified(results, None))
+        results["bloat"] = PatchAuditResult("Native Bloat Slimmer", PatchStatus.BLOCKED, blocking_reasons=["nope"])
+        self.assertFalse(_Stub().is_all_verified(results, None))
+
 
 if __name__ == "__main__":
     unittest.main()
