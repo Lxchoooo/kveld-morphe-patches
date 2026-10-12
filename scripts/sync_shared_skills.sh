@@ -442,15 +442,41 @@ rollback_mirror() {
     done
 }
 
+# Print the applied paths that still differ from mirror HEAD after a rollback.
+find_unrestored_paths() {
+    local p
+    if [ "${#APPLIED_PATHS[@]}" -gt 0 ]; then
+        for p in "${APPLIED_PATHS[@]}"; do
+            if [ -n "${MIRROR_BLOB[$p]:-}" ]; then
+                git -C "$mirror_root" diff --quiet HEAD -- "$p" 2>/dev/null || echo "$p"
+            elif [ -e "$mirror_root/$p" ] || [ -L "$mirror_root/$p" ] || git -C "$mirror_root" ls-files --error-unmatch -- "$p" >/dev/null 2>&1; then
+                echo "$p"
+            fi
+        done
+    fi
+}
+
+# Roll back the applied paths and report whether the mirror is really restored.
+rollback_and_report() {
+    local reason="$1"
+    local left
+    rollback_mirror
+    left="$(find_unrestored_paths | tr '\n' ' ')"
+    if [ -n "$left" ]; then
+        echo "[SYNC] ERROR: $reason; mirror NOT fully restored, nothing committed. Inspect: ${left% }"
+    else
+        echo "[SYNC] ERROR: $reason; mirror restored, nothing committed."
+    fi
+    exit_failure
+}
+
 commit_mirror() {
     local canon_sha mirror_sha count
     canon_sha="$(git -C "$canon_root" rev-parse --short HEAD)"
     count="${#CHANGED_PATHS[@]}"
     # SIBLING_REPO is role-relative and must not reach the mirror's hooks.
     if ! env -u SIBLING_REPO git -C "$mirror_root" commit -q -m "$SYNC_SUBJECT" -m "Source: $CANONICAL_REPO $canon_sha"; then
-        rollback_mirror
-        echo "[SYNC] ERROR: mirror commit failed; mirror restored, nothing committed."
-        exit_failure
+        rollback_and_report "mirror commit failed"
     fi
     mirror_sha="$(git -C "$mirror_root" rev-parse --short HEAD)"
     echo "[SYNC] Mirrored $count path(s) into $MIRROR_REPO as $mirror_sha; push it with the normal workflow."
@@ -475,9 +501,7 @@ skip_on_uncommitted_conflicts() {
 
 apply_or_rollback() {
     if ! apply_all_changed_paths; then
-        rollback_mirror
-        echo "[SYNC] ERROR: applying shared files failed; mirror restored, nothing committed."
-        exit_failure
+        rollback_and_report "applying shared files failed"
     fi
 }
 
