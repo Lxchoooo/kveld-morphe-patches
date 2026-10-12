@@ -29,6 +29,7 @@
 #   - SYNC_SHARED_SKILLS_DISABLE=1 disables automatic hook propagation.
 #   - SIBLING_REPO or --with overrides the default sibling repo path.
 #   - Hooks are enabled per clone with: git config core.hooksPath scripts/hooks
+#     --check warns when a clone has not enabled them.
 #   - Nothing is ever pushed by this script.
 #
 set -euo pipefail
@@ -263,6 +264,17 @@ print_mirror_warnings() {
     done < <(get_mirror_uncommitted_paths)
 }
 
+# Hooks run only when a clone opts in; a missing hooksPath silently disables sync and the guard.
+print_hook_warnings() {
+    local root hooks
+    for root in "$canon_root" "$mirror_root"; do
+        hooks="$(git -C "$root" config --get core.hooksPath || true)"
+        if [ "$hooks" != "scripts/hooks" ]; then
+            echo "[SYNC] WARN: hooks not enabled in $(basename "$root"): run git -C $root config core.hooksPath scripts/hooks"
+        fi
+    done
+}
+
 run_check() {
     if [ ! -e "$other_root/.git" ]; then
         echo "[SYNC] Other repository not found: $other_root (use --with or SIBLING_REPO)"
@@ -274,6 +286,7 @@ run_check() {
     compute_changed_paths
     print_drift_paths
     print_mirror_warnings
+    print_hook_warnings
     if [ "${#CHANGED_PATHS[@]}" -gt 0 ]; then
         echo "[SYNC] FAIL: shared files drifted."
         exit 1
