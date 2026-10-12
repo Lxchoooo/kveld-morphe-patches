@@ -22,7 +22,8 @@
 # Safety and Invariants:
 #   - Hooks skip linked worktrees: task branches never propagate until merged
 #     into the main checkout.
-#   - Hooks propagate only commits on CANONICAL_BRANCH (dev); --push syncs from any branch.
+#   - Hooks propagate only commits on CANONICAL_BRANCH (dev), including rebase
+#     picks onto it; --push syncs from any branch.
 #   - Mirror commits happen only when the mirror checkout is safe to write:
 #     on a branch, no merge/rebase/cherry-pick/revert in progress, clean index,
 #     and no uncommitted changes in shared paths.
@@ -539,12 +540,34 @@ run_push() {
     commit_mirror
 }
 
-# Hooks propagate only commits on CANONICAL_BRANCH; --push still syncs from any branch.
+# Full ref of the canonical branch: HEAD, or the branch being rebased while HEAD is detached.
+canonical_head_ref() {
+    local ref op p path
+    ref="$(git -C "$canon_root" symbolic-ref -q HEAD || true)"
+    if [ -n "$ref" ]; then
+        echo "$ref"
+        return 0
+    fi
+    for op in rebase-merge rebase-apply; do
+        p="$(git -C "$canon_root" rev-parse --git-path "$op/head-name" 2>/dev/null || true)"
+        [ -n "$p" ] || continue
+        case "$p" in
+            /*) path="$p" ;;
+            *) path="$canon_root/$p" ;;
+        esac
+        if [ -f "$path" ]; then
+            head -n 1 "$path"
+            return 0
+        fi
+    done
+}
+
+# Hooks propagate only commits on CANONICAL_BRANCH (also while it is being rebased); --push still syncs from any branch.
 skip_unless_canonical_branch() {
-    local branch
-    branch="$(git -C "$canon_root" symbolic-ref --short -q HEAD || true)"
-    if [ "$branch" != "$CANONICAL_BRANCH" ]; then
-        echo "[SYNC] Skipped: canonical checkout is on ${branch:-a detached HEAD}, not $CANONICAL_BRANCH; run scripts/sync_shared_skills.sh --push to sync it manually."
+    local ref
+    ref="$(canonical_head_ref)"
+    if [ "$ref" != "refs/heads/$CANONICAL_BRANCH" ]; then
+        echo "[SYNC] Skipped: canonical checkout is on ${ref:-a detached HEAD}, not $CANONICAL_BRANCH; run scripts/sync_shared_skills.sh --push to sync it manually."
         exit 0
     fi
 }
