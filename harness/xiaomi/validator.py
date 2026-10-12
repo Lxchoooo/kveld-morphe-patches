@@ -25,14 +25,19 @@ class XiaomiEarbudsValidator:
             details = []
             blocking_reasons = []
             evidence = []
+            fp_results = []
 
             found_classes = []
             for cls_desc in contract.required_classes:
                 matched = self.dex_index.find_class(cls_desc)
                 if matched:
                     evidence.append(f"Found class `{cls_desc}` in `{matched.dex_name}`")
+                    fp_results.append((cls_desc, PatchStatus.VERIFIED.value, matched.dex_name))
                     found_classes.append(matched)
                 else:
+                    # Report this class with its own outcome: copying the contract-level
+                    # status here marked resolved classes as BLOCKED and vice versa.
+                    fp_results.append((cls_desc, "NOT FOUND", "NONE"))
                     status = PatchStatus.BLOCKED if contract.criticality in ("CRITICAL", "HIGH") else PatchStatus.STATICALLY_VERIFIED
                     blocking_reasons.append(f"Missing required class `{cls_desc}`")
 
@@ -51,7 +56,7 @@ class XiaomiEarbudsValidator:
             results[contract.patch_id] = PatchAuditResult(
                 patch_name=contract.name,
                 status=status,
-                fingerprint_results=[(c, status.value, "") for c in contract.required_classes],
+                fingerprint_results=fp_results,
                 blocking_reasons=blocking_reasons,
                 evidence=evidence,
             )
