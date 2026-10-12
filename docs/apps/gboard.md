@@ -33,20 +33,20 @@ If you perform a clean install of Gboard Lite with background sync debloat patch
 
 1. **When patching for a clean install (or when adding new languages):**
    - **Leave unchecked (default):**
-     - ❌ `Disable Background Sync`
+     - ❌ `Stop Background Sync`
    - *(Also ensure `Force Incognito Mode` is unchecked if you want personalized learning and history).*
 
 2. **Open Gboard once with an active Internet connection:**
    - Type a few words, test a swipe gesture, or navigate to *Gboard Settings > Languages* so it downloads your language dictionary and gesture pack into local storage (`/data/data/com.google.android.inputmethod.latin/...`).
 
 3. **Re-apply debloat patches (Optional):**
-   - Once your language packs are cached locally on device, you can optionally re-patch with `Disable Background Sync` enabled to freeze background network traffic, WorkManager schedulers, MDD, and Superpacks polling permanently.
+   - Once your language packs are cached locally on device, you can optionally re-patch with `Stop Background Sync` enabled to freeze background network traffic, WorkManager schedulers, MDD, and Superpacks polling permanently.
 
 > [!NOTE]
 > **Inline Google Translate Tool & Play Services:**
 > Gboard's inline translation tool (*Translate* / *Traductor* on the top toolbar) does not bundle a standalone HTTP stack; it relies on Google Play Services to provide its Cronet network client dynamically (`PlayServicesCronetProvider`).
-> When **`Disable Play Services Integration`** is enabled, GMS availability is reported as `SERVICE_DISABLED`, skipping GMS background sync and telemetry but also preventing Play Services Cronet from initializing, which deactivates inline translation.
-> If you rely on Gboard's inline translation tool, leave **`Disable Play Services Integration`** unselected when patching.
+> When **`No Play Services`** is enabled, GMS availability is reported as `SERVICE_DISABLED`, skipping GMS background sync and telemetry but also preventing Play Services Cronet from initializing, which deactivates inline translation.
+> If you rely on Gboard's inline translation tool, leave **`No Play Services`** unselected when patching.
 
 ---
 
@@ -65,13 +65,13 @@ If you perform a clean install of Gboard Lite with background sync debloat patch
 | **Offline Only** | `bytecodePatch` + `resourcePatch` | Privacy & Security | ❌ No | Completely isolates Gboard from network access by purging manifest permissions, disabling foreground sync services, neutralizing HTTP clients (Cronet, OkHttp, Superpacks), and spoofing offline status. |
 | **Remove Extra Files** | `resourcePatch` | Optimization | ✅ Yes | Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files. |
 | **Remove Permissions** | `resourcePatch` | Privacy & Security | ❌ No | Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml. |
-| **Universal Slimmers** | `resourcePatch` + `rawResourcePatch` | Optimization | ✅ Yes | `Locale Resource Slimmer`, `DPI Resource Slimmer`, `PNG Asset Optimizer`, and `APK Junk Cleaner`. |
+| **Universal Slimmers** | `resourcePatch` + `rawResourcePatch` | Optimization | ✅ Yes | `Remove Extra Languages`, `Remove Unused Screen Sizes`, `Shrink PNG Images`, and `Clean App Packaging`. |
 
 ---
 
-## ⚙️ Gboard Enhancements: In-App Customization Suite
+## ⚙️ Keyboard Settings: In-App Customization Suite
 
-The **`Gboard Enhancements`** patch injects a top-level **Morphe Patches** category directly into Gboard's main settings screen (*Settings > Morphe Patches*). All runtime-configurable features are consolidated here, eliminating the need to re-patch the APK to adjust settings. All preference titles, summaries, category headers, status cards, and live slider units dynamically adapt to the active device/app language (supporting Spanish on `es` locales with English fallback).
+The **`Keyboard Settings`** patch injects a top-level **Morphe Patches** category directly into Gboard's main settings screen (*Settings > Morphe Patches*). All runtime-configurable features are consolidated here, eliminating the need to re-patch the APK to adjust settings. All preference titles, summaries, category headers, status cards, and live slider units dynamically adapt to the active device/app language (supporting Spanish on `es` locales with English fallback).
 
 ### 🌐 Multi-Language Support & Community Contributions
 The settings UI automatically detects the active device system language (`LocaleList` on Android 7+ and legacy `locale`) and routes strings to the corresponding language pack:
@@ -157,9 +157,9 @@ The **`Strip Permissions`** patch provides granular control over sensitive hardw
 
 ---
 
-## 🏷️ Configurable Options: Clone Gboard
+## 🏷️ Configurable Options: Install a Copy
 
-The **`Clone Gboard`** patch allows running a patched build alongside stock Gboard by modifying the application package identifier:
+The **`Install a Copy`** patch allows running a patched build alongside stock Gboard by modifying the application package identifier:
 
 | Option | Key | Type | Default | Description |
 | :--- | :--- | :--- | :---: | :--- |
