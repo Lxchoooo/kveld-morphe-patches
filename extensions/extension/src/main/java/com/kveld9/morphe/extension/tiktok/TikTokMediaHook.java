@@ -698,6 +698,9 @@ public final class TikTokMediaHook {
             public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
                 try {
                     View d = cached[0] != null ? cached[0].get() : null;
+                    if (d != null && (d.getParent() == null || !d.isAttachedToWindow())) {
+                        d = null;
+                    }
                     if (d == null) {
                         d = root.findViewById(descId);
                         if (d == null) return;
@@ -726,6 +729,7 @@ public final class TikTokMediaHook {
     public static void hideDescViewIfDesc(View view) {
         if (view == null) return;
         try {
+            if (!feedScoped(view)) return;
             int id = resolveDescResId(view);
             if (id == 0) return;
             if (view.getId() == id) {
@@ -734,6 +738,22 @@ public final class TikTokMediaHook {
             }
             hideDescChildIfPresent(view, id);
         } catch (Throwable ignored) {}
+    }
+
+    private static boolean feedScoped(View view) {
+        Object cur = view;
+        for (int i = 0; i <= 12 && cur != null; i++) {
+            String name = cur.getClass().getSimpleName();
+            if (name.contains("Feed") || name.contains("Cell")) {
+                return true;
+            }
+            if (cur instanceof View) {
+                cur = ((View) cur).getParent();
+            } else {
+                break;
+            }
+        }
+        return false;
     }
 
     private static void hideDescChildIfPresent(View view, int id) {
@@ -745,3 +765,4 @@ public final class TikTokMediaHook {
         }
     }
 }
+
