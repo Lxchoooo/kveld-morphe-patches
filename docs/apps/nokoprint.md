@@ -28,13 +28,13 @@ Comprehensive technical, architecture, and patch guide for **NokoPrint - WiFi, B
 | **Remove Extra Stores** | `resourcePatch` | Debloat & Performance | ✅ Yes | Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei HMS/AGConnect & OTA, Xiaomi Billing & Common IAP, Samsung IAP, RuStore, OneStore, CafeBazaar, Amazon IAP). |
 | **Safer Connections** | `resourcePatch` | Security & Network | ✅ Yes | Enforces user trust anchors while preserving HTTP cleartext traffic for driver downloads and LAN printers. |
 | **Skip Welcome Screen** | `bytecodePatch` | Debloat & UX | ✅ Yes | Auto-accepts the first-launch privacy notice in `ActivityHome` (`privacy_accepted=true` + post-consent init) instead of showing the About dialog. Menu About is untouched. |
-| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Universal Hosts Blocker only. See [Universal Patch Reference](../universal-patches.md). |
+| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Block Tracking Servers only. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
 
 ## 🔒 Deep Technical Patch Breakdown
 
-### 1. Ad Dispatch Governor (`nokoPrintAdDispatchGovernorPatch`)
+### 1. Remove Ads (Setup) (`nokoPrintAdDispatchGovernorPatch`)
 - **Objective**: Neutralize all advertising dispatchers, preloading schedulers, anti-tamper exit routines, and nagware while unlocking premium functionality and debloating ad components.
 - **Companion Manifest Purge (`nokoPrintAdManifestResourcePatch`)**:
   - **Ad Activities & Receivers**: Disables over 100 components matching ad SDK prefixes (AppLovin, MBridge, Facebook, Unity3D, IronSource, Fyber, Vungle, Chartboost, InMobi, Amazon, AppBrain, PubNative, Smaato, ByteDance, Bigo, Ogury, Moloco, PubMatic, and Tappx).
@@ -51,7 +51,7 @@ Comprehensive technical, architecture, and patch guide for **NokoPrint - WiFi, B
   - **Anti-Tamper & License Check Bypass**: Stubs Google Play Protect / Pairip license check in `com.pairip.licensecheck.LicenseClient.checkLicense(Context)V` with immediate `return-void`, preventing forced application shutdown.
   - **Rewarded Ad Bypass**: Stubs `com.nokoprint.l4.b` to dismiss the progress dialog and invoke the target driver download callback immediately, avoiding hangs and ad gates.
 
-### 2. Asset Debloat (`nokoPrintAssetDebloatPatch`)
+### 2. Remove Ad Files (`nokoPrintAssetDebloatPatch`)
 - **Objective**: Reclaim APK storage by zeroing obsolete ad web assets, secondary DEX containers, tracking scripts, and RuStore certificates.
 - **Mechanisms**:
   - Strips secondary DEX (`assets/audience_network/classes.dex`, `audience_network.dex`).
@@ -60,13 +60,13 @@ Comprehensive technical, architecture, and patch guide for **NokoPrint - WiFi, B
   - Strips RuStore TLS certificates in `res/raw/` (`sdk_imaging_*.pem`, `sdk_pay_*.pem`, `ministry_of_digital_*.pem`, `rootca_ssl_rsa2022.cer`) while strictly preserving essential UI assets.
   - Strips third-party ad network drawables matching ad tokens (`bigo_`, `tt_`, `pob_`, `tappx_`, `ogury_`, `moloco_`, etc.).
 
-### 3. Background Sync Optimizer (`nokoPrintBackgroundSyncOptimizerPatch`)
+### 3. Stop Background Sync (`nokoPrintBackgroundSyncOptimizerPatch`)
 - **Objective**: Prevent background wakeups and battery drain from scheduler components.
 - **Mechanisms**:
   - Disables AndroidX WorkManager background alarms, constraint proxies, diagnostic receivers, and non-essential schedulers.
   - Neutralizes `WorkManagerInitializer.create` to prevent automatic scheduler startup.
 
-### 4. Block Telemetry & Trackers (`nokoPrintBlockTelemetryPatch`)
+### 4. Block Trackers (`nokoPrintBlockTelemetryPatch`)
 - **Objective**: Terminate Firebase Analytics, Google Measurement, Crashlytics, and TikTok Business telemetry.
 - **Mechanisms**:
   - Manifest purge: Strips `AD_ID`, `BIND_GET_INSTALL_REFERRER_SERVICE`, and `BIND_APPHUB_SERVICE` permissions, disabling measurement and Firebase components.
@@ -74,20 +74,20 @@ Comprehensive technical, architecture, and patch guide for **NokoPrint - WiFi, B
   - Stubs TikTok Business SDK initialization (`TikTokBusinessSdk.initializeSdk`, `TikTokBusinessSdk.startTrack`).
   - Stubs Measurement signing certificate telemetry reporting (`zzez.zzL`).
 
-### 5. Multi-Store Debridger (`nokoPrintMultiStoreDebridgerPatch`)
+### 5. Remove Extra Stores (`nokoPrintMultiStoreDebridgerPatch`)
 - **Objective**: Neutralize orphan billing activities, background sync services, and store permissions.
 - **Mechanisms**:
   - Disables alternative OEM store components: Huawei HMS/AGConnect & OTA, Xiaomi Billing & Common IAP, Samsung IAP, RuStore Pay & Imaging, OneStore, CafeBazaar, Amazon IAP, Google Play Billing & Core, and LicenseActivity.
   - Strips orphan store permissions (`BILLING`, `CHECK_LICENSE`, `GET_COMMON_DATA`, `ATTEST`, `ACCESS_ADSERVICES_*`).
 
-### 6. Network Security Hardening (`nokoPrintNetworkSecurityHardeningPatch`)
+### 6. Safer Connections (`nokoPrintNetworkSecurityHardeningPatch`)
 - **Objective**: Protect printer driver downloads and backend API communication while allowing user trust anchors and preserving local network printing and HTTP fallback downloads.
 - **Mechanisms**:
   - Replaces `res/xml/network_security_config.xml`.
   - Configures system and user trust anchors (`<certificates src="system" />`, `<certificates src="user" />`).
   - Preserves `base-config cleartextTrafficPermitted="true"` globally to ensure driver download fallback retries (`http://www.nokoprint.com/android_packs/`) and direct communication with WiFi and Ethernet printers (raw port 9100 / IPP / LPD) function normally without `Cleartext HTTP traffic not permitted` errors.
 
-### 7. Skip Welcome Dialog (`nokoPrintSkipWelcomeDialogPatch`)
+### 7. Skip Welcome Screen (`nokoPrintSkipWelcomeDialogPatch`)
 - **Objective**: Remove the non-cancelable About/privacy dialog (version, tagline, privacy policy link, EXIT/ACCEPT) shown on first launch.
 - **Mechanisms**:
   - Hooks the `ActivityHome` dialog builder (`(Z)V`, matched by its `purchase_sku`/`purchase_store` strings). When called in first-launch mode it performs the app's own accept action: writes `privacy_accepted=true` and invokes the post-consent initializer derived from the accept handler (the `DialogInterface.OnClickListener.onClick` that writes `privacy_accepted`), then returns without showing the dialog.

@@ -41,7 +41,7 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
 | **Stop Text Sharing with System** | `bytecodePatch` | Privacy & Anti-Tracking | ✅ Yes | Forces `OnscreenContentProvider.shouldCapture -> false`. Stops page text/URL streaming to the Android ContentCapture service. |
 | **Skip Welcome Screens** | `bytecodePatch` | Usability & UX | ✅ Yes | Skips the welcome screen, search engine selection, and onboarding First Run Experience (FRE) on clean installs. |
 | **Better Tab Closing** | `bytecodePatch` | Usability & UX | ✅ Yes | When closing the selected tab in a tab group, selects the previous tab in the same group instead of jumping to a tab outside the group. |
-| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal slimmers or privacy patches on maintained apps. Only the curated Universal Hosts Blocker may be applied. See [Universal Patch Reference](../universal-patches.md). |
+| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal slimmers or privacy patches on maintained apps. Only the curated Block Tracking Servers may be applied. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
 
@@ -133,12 +133,12 @@ Comprehensive technical and configuration guide for **Brave Browser** (`com.brav
 
 > [!NOTE]
 > #### Why Chromium Browsers Require a Dedicated PAK Slimmer
-> Standard Android applications (such as Gboard Lite, Hevy, or NokoPrint) store localized strings in the standard Android resource hierarchy (`res/values-<lang>/strings.xml`). Android's `AssetManager` automatically falls back to base `res/values/` when a localized folder is deleted, making universal directory removal safe via **`Locale Resource Slimmer`**.
+> Standard Android applications (such as Gboard Lite, Hevy, or NokoPrint) store localized strings in the standard Android resource hierarchy (`res/values-<lang>/strings.xml`). Android's `AssetManager` automatically falls back to base `res/values/` when a localized folder is deleted, making universal directory removal safe via **`Remove Extra Languages`**.
 >
 > In contrast, Chromium-based browsers compile over 95% of their browser UI strings, Omnibox text, Brave Shields, and core Chromium components into **Chromium DataPack v5 binary archives** located in `assets/locales/<locale>.pak`.
 > - **Native C++ Loader Invariant**: Chromium's native C++ resource loader (`ui::ResourceBundle`) expects a valid binary DataPack file for the active device locale. Deleting `<locale>.pak` or replacing it with an empty (0-byte) stub triggers a native segmentation fault or assertion failure on startup (`Check failed: file_is_valid`) whenever the device is set to an unselected language.
 > - **Zero-Crash Fallback Substitution**: Instead of deleting files, `Locale PAK Slimmer` safely replaces stripped `.pak` files with the binary table of `en-US.pak`. This satisfies the native C++ loader while reclaiming ~9.64 MB of storage.
-> - **Complementary Operation**: For maximum slimming in Brave, both `Locale PAK Slimmer` (targeting native `assets/locales/*.pak`) and `Locale Resource Slimmer` (targeting Android wrapper `res/values-*`) can be applied together without conflict.
+> - **Complementary Operation**: For maximum slimming in Brave, both `Locale PAK Slimmer` (targeting native `assets/locales/*.pak`) and `Remove Extra Languages` (targeting Android wrapper `res/values-*`) can be applied together without conflict.
 
 #### Popular Language Codes
 
