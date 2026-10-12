@@ -219,6 +219,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p1
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->setFeedDescRootView(Landroid/view/View;)V
                     """.trimIndent(),
                 )
             }
@@ -243,9 +244,12 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p0
                         invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
                         move-result-object v0
-                        if-eqz v0, :cond_skip_z4_$i
+                        if-eqz v0, :cond_qc_null_z4_$i
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        goto :cond_skip_z4_$i
+                        :cond_qc_null_z4_$i
+                        invoke-static {}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneFeedDescRoot()V
                         :cond_skip_z4_$i
                     """.trimIndent(),
                 )
@@ -271,9 +275,12 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p0
                         invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
                         move-result-object v0
-                        if-eqz v0, :cond_skip_js_$i
+                        if-eqz v0, :cond_qc_null_js_$i
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        goto :cond_skip_js_$i
+                        :cond_qc_null_js_$i
+                        invoke-static {}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneFeedDescRoot()V
                         :cond_skip_js_$i
                     """.trimIndent(),
                 )
@@ -283,13 +290,14 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
 
             // 2b. Redirect feed desc visibility calls to always-GONE wrappers
             // (reactive-proof hiding without touching method bodies).
-            // LX/09Ce is instantiated 1:1 by VideoDescAssem.onViewCreated, so hooks
-            // here affect feed desc cells only. Neither VideoDescAssem nor 09Ce ever
-            // calls setVisibility directly: every desc visibility change flows
-            // through the LX/00kn visibility helpers below. Redirecting those calls
-            // (same invoke shape and width, only the callee changes) to extension
-            // wrappers that force GONE covers every current and future show path,
-            // including see-more expansion flows, with no control-flow disturbance.
+            // LX/09Ce is instantiated 1:1 by VideoDescAssem.onViewCreated, and
+            // VideoDescAssem itself manages desc container visibility. Neither
+            // VideoDescAssem nor 09Ce ever calls setVisibility directly: every desc
+            // visibility change flows through the LX/00kn visibility helpers below.
+            // Redirecting those calls (same invoke shape and width, only the callee changes)
+            // across both VideoDescAssem and LX/09Ce to extension wrappers that force GONE
+            // covers every current and future show path, including see-more expansion flows,
+            // with no control-flow disturbance.
             val descVisibilityRedirects = mapOf(
                 "LLLLLZIL" to "${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneViewLast(Landroid/view/View;I)V",
                 "LLLLLZ" to "${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneViewLast(Landroid/view/View;I)V",
@@ -298,43 +306,46 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             )
             var redirectedMethods = 0
             var redirectedCalls = 0
-            for (target in mutableClassDefBy("LX/09Ce;").methods) {
-                val instructions = target.implementation?.instructions ?: continue
-                val redirectIndices = mutableListOf<Pair<Int, String>>()
-                for ((index, instruction) in instructions.withIndex()) {
-                    val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference ?: continue
-                    if (reference.definingClass != "LX/00kn;") continue
-                    if (reference.name !in descVisibilityRedirects) continue
-                    val newCallee = descVisibilityRedirects[reference.name] ?: continue
-                    val registers = when (instruction) {
-                        is FiveRegisterInstruction -> listOf(
-                            instruction.registerC,
-                            instruction.registerD,
-                            instruction.registerE,
-                            instruction.registerF,
-                            instruction.registerG,
-                        ).take(instruction.registerCount)
-                        is RegisterRangeInstruction -> (instruction.startRegister until instruction.startRegister + instruction.registerCount).toList()
-                        else -> continue
+            val descRedirectClasses = listOf(descTargetClass, "LX/09Ce;")
+            for (targetClass in descRedirectClasses) {
+                for (target in mutableClassDefBy(targetClass).methods) {
+                    val instructions = target.implementation?.instructions ?: continue
+                    val redirectIndices = mutableListOf<Pair<Int, String>>()
+                    for ((index, instruction) in instructions.withIndex()) {
+                        val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference ?: continue
+                        if (reference.definingClass != "LX/00kn;") continue
+                        if (reference.name !in descVisibilityRedirects) continue
+                        val newCallee = descVisibilityRedirects[reference.name] ?: continue
+                        val registers = when (instruction) {
+                            is FiveRegisterInstruction -> listOf(
+                                instruction.registerC,
+                                instruction.registerD,
+                                instruction.registerE,
+                                instruction.registerF,
+                                instruction.registerG,
+                            ).take(instruction.registerCount)
+                            is RegisterRangeInstruction -> (instruction.startRegister until instruction.startRegister + instruction.registerCount).toList()
+                            else -> continue
+                        }
+                        if (registers.size != 2) continue
+                        val newInvoke = if (instruction is RegisterRangeInstruction) {
+                            "invoke-static/range {v${registers[0]} .. v${registers[1]}}, $newCallee"
+                        } else {
+                            "invoke-static {v${registers[0]}, v${registers[1]}}, $newCallee"
+                        }
+                        redirectIndices.add(index to newInvoke)
                     }
-                    if (registers.size != 2) continue
-                    val newInvoke = if (instruction is RegisterRangeInstruction) {
-                        "invoke-static/range {v${registers[0]} .. v${registers[1]}}, $newCallee"
-                    } else {
-                        "invoke-static {v${registers[0]}, v${registers[1]}}, $newCallee"
+                    for ((index, newInvoke) in redirectIndices.sortedByDescending { it.first }) {
+                        target.replaceInstructions(index, newInvoke)
+                        redirectedCalls++
                     }
-                    redirectIndices.add(index to newInvoke)
-                }
-                for ((index, newInvoke) in redirectIndices.sortedByDescending { it.first }) {
-                    target.replaceInstructions(index, newInvoke)
-                    redirectedCalls++
-                }
-                if (redirectIndices.isNotEmpty()) {
-                    redirectedMethods++
+                    if (redirectIndices.isNotEmpty()) {
+                        redirectedMethods++
+                    }
                 }
             }
-            require(redirectedCalls > 0) { "09Ce desc redirect: no visibility helper call found" }
-            println("[Feed Interface Declutter] Hooked 09Ce visibility calls -> $redirectedCalls call(s) across $redirectedMethods method(s) forced GONE.")
+            require(redirectedCalls > 0) { "VideoDescAssem/09Ce desc redirect: no visibility helper call found" }
+            println("[Feed Interface Declutter] Hooked desc visibility calls -> $redirectedCalls call(s) across $redirectedMethods method(s) forced GONE.")
             patched++
 
             val friendsDescClass = "Lcom/ss/android/ugc/aweme/friendstab/ui/feed/cell/component/desc/FriendsV3DescAssem;"
