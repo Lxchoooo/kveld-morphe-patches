@@ -106,7 +106,59 @@ class TestFingerprints(unittest.TestCase):
         self.assertEqual(len(res.candidates), 2)
 
 
+def _telemetry_analyzer(offsets_by_host):
+    """Elf analyzer stub that reports the given offsets for each known host."""
+    analyzer = MagicMock(spec=Elf64Analyzer)
+    analyzer.find_string_occurrences.return_value = []
+    analyzer.get_section_at_offset.return_value = ".rodata"
+    analyzer.data = b""
+
+    def analyze_host(host):
+        matches = [
+            NativeStringMatch(
+                offset=off,
+                matched_string=host,
+                section_name=".rodata",
+                original_bytes=host.encode("ascii"),
+                replacement_bytes=b"0.0.0.0" + b"\x00" * 9,
+                is_null_terminated=True,
+            )
+            for off in offsets_by_host.get(host, [])
+        ]
+        return ("EXACT_MATCH" if matches else "NOT_FOUND", matches)
+
+    analyzer.analyze_host.side_effect = analyze_host
+    return analyzer
+
 class TestNativeElf(unittest.TestCase):
+    def test_matching_recorded_offsets_are_verified(self):
+        recorded = {
+            host: [0x1000 * (i + 1), 0x2000 * (i + 1)] if host in ("crashpad.chromium.org", "variations.brave.com")
+            else [0x1000 * (i + 1)]
+            for i, host in enumerate(KNOWN_TELEMETRY_HOSTS)
+        }
+        scanner = TelemetryScanner(_telemetry_analyzer(recorded))
+        report = scanner.audit_known_hosts(recorded)
+        self.assertTrue(report.all_known_verified, [r.status for r in report.known_results])
+        self.assertTrue(all(r.status == "VERIFIED" for r in report.known_results))
+
+    # 7c. shifted offsets are not a pass: the patch asserts bytes at the recorded offset
+    def test_shifted_offsets_do_not_count_as_verified(self):
+        recorded = {
+            host: [0x1000 * (i + 1), 0x2000 * (i + 1)] if host in ("crashpad.chromium.org", "variations.brave.com")
+            else [0x1000 * (i + 1)]
+            for i, host in enumerate(KNOWN_TELEMETRY_HOSTS)
+        }
+        actual = {host: list(offs) for host, offs in recorded.items()}
+        actual["cr.brave.com"] = [recorded["cr.brave.com"][0] + 0x40]
+
+        report = TelemetryScanner(_telemetry_analyzer(actual)).audit_known_hosts(recorded)
+        shifted = {r.hostname: r for r in report.shifted_hosts}
+        self.assertIn("cr.brave.com", shifted)
+        self.assertEqual(shifted["cr.brave.com"].status, "OFFSET_CHANGED")
+        self.assertFalse(report.all_known_verified)
+
+
 
     # 6. native host found -> PASS
     def test_native_host_found_pass(self):
