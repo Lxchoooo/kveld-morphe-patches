@@ -392,7 +392,15 @@ def record_device_epoch(serial: str) -> str:
     epoch = res.stdout.strip()
     if epoch.isdigit():
         return epoch
-    return str(int(time.time()))
+    # The crash scan bounds itself with `logcat -T <epoch>`, which logcat interprets in
+    # device time. Substituting the host clock silently mis-bounds that window whenever the
+    # two clocks disagree: a device behind the host yields no log lines at all, which reads
+    # as "no crashes" and reports a launch as PASS. Refuse instead of guessing.
+    log_fail(
+        f"Could not read the device clock on '{serial}' (got {res.stdout!r}); "
+        "the crash window cannot be bounded, so the run is aborted rather than reported green."
+    )
+    sys.exit(2)
 
 
 def query_package_pid(serial: str, package: str) -> str | None:
