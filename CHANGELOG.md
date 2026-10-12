@@ -1,3 +1,11 @@
+## [2.7.0-experimental.15](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.14...v2.7.0-experimental.15) (2026-10-12)
+
+### Bug Fixes
+
+* **tiktok:** drop stale indicator view and guard layout params ([73a0dfc](https://github.com/kveld9/kveld-morphe-patches/commit/73a0dfcd23d72ba7282d9bcd721ea75fcf3b10d4))
+* **tiktok:** harden Spotify OAuth WebView and redirect check ([aefeef3](https://github.com/kveld9/kveld-morphe-patches/commit/aefeef39ba6709cc82d0a41f2835b7939e2f6222))
+* **tiktok:** keep cursor columns in privacy filter ([2df4e75](https://github.com/kveld9/kveld-morphe-patches/commit/2df4e75ec99e3feb8a03280596c65c0b75ebddd3))
+
 ## [2.7.0-experimental.14](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.13...v2.7.0-experimental.14) (2026-10-12)
 
 ### Bug Fixes
