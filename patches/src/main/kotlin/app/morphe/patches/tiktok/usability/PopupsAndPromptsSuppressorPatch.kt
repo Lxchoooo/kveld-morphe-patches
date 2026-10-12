@@ -3,6 +3,7 @@ package app.morphe.patches.tiktok.usability
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
@@ -12,9 +13,11 @@ import app.morphe.patches.shared.replaceWithReturnVoid
 import app.morphe.patches.shared.sharedExtensionPatch
 import com.android.tools.smali.dexlib2.AccessFlags
 
+private const val NEW_USER_JOURNEY_SERVICE = "Lcom/ss/android/ugc/aweme/NewUserJourneyService;"
+
 val popupsAndPromptsSuppressorPatch = bytecodePatch(
     name = "Popups & Prompts Suppressor",
-    description = "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, and DM streak expiration warnings.",
+    description = "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, DM streak expiration warnings, post-download share dialogs, update nags, first-launch onboarding, and content warnings.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -60,6 +63,38 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
         required = false,
     )
 
+    val suppressPostDownloadDialog by booleanOption(
+        key = "suppressPostDownloadDialog",
+        default = true,
+        title = "Disable Post-Download Share Dialog",
+        description = "Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download.",
+        required = false,
+    )
+
+    val suppressUpdateNags by booleanOption(
+        key = "suppressUpdateNags",
+        default = true,
+        title = "Update Prompt Suppressor",
+        description = "Neutralizes background update polling tasks and device ID check routines to prevent forced update popups.",
+        required = false,
+    )
+
+    val skipOnboarding by booleanOption(
+        key = "skipOnboarding",
+        default = true,
+        title = "Skip First-Launch Onboarding",
+        description = "Bypasses the entire first-run introduction funnel (interest pickers, swipe tutorials, language prompts, and consent sheets) directly to the feed.",
+        required = false,
+    )
+
+    val skipContentWarnings by booleanOption(
+        key = "skipContentWarnings",
+        default = true,
+        title = "Skip Content Warnings",
+        description = "Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos.",
+        required = false,
+    )
+
     execute {
         var patched = 0
 
@@ -81,6 +116,22 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
 
         if (suppressStreakReminders == true) {
             patched += applyStreakReminderHook()
+        }
+
+        if (suppressPostDownloadDialog == true) {
+            patched += applyPostDownloadDialogHook()
+        }
+
+        if (suppressUpdateNags == true) {
+            patched += applyUpdateNagHooks()
+        }
+
+        if (skipOnboarding == true) {
+            patched += applySkipOnboardingHooks()
+        }
+
+        if (skipContentWarnings == true) {
+            patched += applySkipContentWarningsHook()
         }
 
         println("[Popups & Prompts Suppressor] Applied $patched popup and prompt suppression hook(s).")
@@ -348,5 +399,142 @@ private fun BytecodePatchContext.applyStreakReminderHook(): Int {
         """.trimIndent(),
     )
     println("[Popups & Prompts Suppressor] Hooked LX/0O2v.LIZ() -> DM streak expiration reminders blocked.")
+    return 1
+}
+
+private fun BytecodePatchContext.applyPostDownloadDialogHook(): Int {
+    val showFp = Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/internalshare/impl/fragment/DownloadAndShareFragment;",
+        strings = listOf("after_video_saved_share_to_nscreen"),
+        returnType = "V",
+    )
+    val showMethod = showFp.method
+    showMethod.addInstructions(
+        0,
+        """
+            return-void
+        """.trimIndent(),
+    )
+    println("[Popups & Prompts Suppressor] Hooked DownloadAndShareFragment.${showMethod.name} -> Suppressed post-download popup.")
+    return 1
+}
+
+private fun BytecodePatchContext.applyUpdateNagHooks(): Int {
+    var count = 0
+
+    // 1. CheckUpdateChangeDeviceIDTaskHolder$Background
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/legoImp/task/CheckUpdateChangeDeviceIDTaskHolder\$Background;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Popups & Prompts Suppressor] Neutralized CheckUpdateChangeDeviceIDTaskHolder\$Background.run().")
+    count++
+
+    // 2. CheckUpdateChangeDeviceIDTaskHolder$BootFinish
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/legoImp/task/CheckUpdateChangeDeviceIDTaskHolder\$BootFinish;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Popups & Prompts Suppressor] Neutralized CheckUpdateChangeDeviceIDTaskHolder\$BootFinish.run().")
+    count++
+
+    // 3. CheckUpdateChangeDeviceIDTask (cold startup update check)
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/app/application/task/CheckUpdateChangeDeviceIDTask;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Popups & Prompts Suppressor] Neutralized CheckUpdateChangeDeviceIDTask.run().")
+    count++
+
+    return count
+}
+
+private fun BytecodePatchContext.applySkipOnboardingHooks(): Int {
+    var count = 0
+
+    // 1. NewUserJourneyService.LIZJ()Z -> return true (reports did_finish_nuj = true)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        strings = listOf("did_finish_nuj"),
+    ).method.replaceWithReturnBoolean(true)
+    println("[Popups & Prompts Suppressor] Forced NewUserJourneyService.LIZJ() -> Reported did_finish_nuj = true.")
+    count++
+
+    // 2. NewUserJourneyService.LJJJI(Landroid/app/Activity;)Z -> return false (never show NUJ)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        parameters = listOf("Landroid/app/Activity;"),
+        strings = listOf("new_user_journey"),
+    ).method.replaceWithReturnBoolean(false)
+    println("[Popups & Prompts Suppressor] Neutralized NewUserJourneyService.LJJJI() -> Should show NUJ suppressed.")
+    count++
+
+    // 3. NewUserJourneyService.LJIJI(...)V -> return-void (suppress launching NUJ Activity)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "V",
+        strings = listOf("deeplink_intent_about_welcome_screen"),
+    ).method.replaceWithReturnVoid()
+    println("[Popups & Prompts Suppressor] Neutralized NewUserJourneyService.LJIJI() -> Launch activity intent suppressed.")
+    count++
+
+    // 4. NewUserJourneyService.LJJJ(Landroid/app/Activity;, Landroid/content/Intent;)V -> return-void
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "V",
+        parameters = listOf("Landroid/app/Activity;", "Landroid/content/Intent;"),
+        strings = listOf("reorder_new_journey_front"),
+    ).method.replaceWithReturnVoid()
+    println("[Popups & Prompts Suppressor] Neutralized NewUserJourneyService.LJJJ() -> Reorder NUJ suppressed.")
+    count++
+
+    // 5. NewUserJourneyService.LJIJJLI(Lcom/bytedance/ies/foundation/activity/BaseActivity;)Z -> return false
+    val candidates = Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        parameters = listOf("Lcom/bytedance/ies/foundation/activity/BaseActivity;"),
+    ).matchAll(classDefBy(NEW_USER_JOURNEY_SERVICE)).map { it.method }
+    require(candidates.size == 1) {
+        "Ambiguous LJIJJLI overloads: ${candidates.size}"
+    }
+    val method = candidates.first()
+    method.replaceWithReturnBoolean(false)
+    println("[Popups & Prompts Suppressor] Neutralized NewUserJourneyService.LJIJJLI() -> Container activity launch suppressed.")
+    count++
+
+    return count
+}
+
+private fun BytecodePatchContext.applySkipContentWarningsHook(): Int {
+    val fp = Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/feed/assem/videoauthorinfo/VideoAuthorInfoVM;",
+        custom = { method, _ ->
+            method.name == "paramSync2StateAccept" &&
+                "Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;" in method.parameterTypes
+        },
+    )
+    val method = try {
+        fp.method
+    } catch (e: Exception) {
+        throw PatchException("Anchor VideoAuthorInfoVM.paramSync2StateAccept(VideoItemParams) not found for Skip Content Warnings", e)
+    }
+
+    val vipType = "Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"
+    val paramTypeStrings = method.parameterTypes.map { it.toString() }
+    val vipIndex = paramTypeStrings.indexOf(vipType)
+    if (vipIndex < 0) throw PatchException("VideoItemParams parameter not found in VideoAuthorInfoVM.paramSync2StateAccept")
+    var slot = if (AccessFlags.STATIC.isSet(method.accessFlags)) 0 else 1
+    for (i in 0 until vipIndex) { slot += 1; val t = paramTypeStrings[i]; if (t == "J" || t == "D") slot += 1 }
+    val paramReg = "p$slot"
+    method.addInstructions(
+        0,
+        "invoke-static/range {$paramReg .. $paramReg}, ${Constants.TIKTOK_EXTENSION_SENSITIVE_WARNINGS_HOOK}->clear(Ljava/lang/Object;)V",
+    )
+    println("[Popups & Prompts Suppressor] Neutralized content warnings via VideoAuthorInfoVM.paramSync2StateAccept.")
     return 1
 }
