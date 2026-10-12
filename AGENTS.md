@@ -66,7 +66,7 @@ morphe-patches/
      b) Companion `.so` bloat trimming: In-situ zeroing (`writeBytes(byteArrayOf())`) of unused bundled native binaries.
      c) React Native Hermes bytecode: Dynamic parsing and prologue patching of `assets/index.android.bundle` (HBC).
    - **Dependency Chaining**: Composite patches declare execution hierarchies explicitly via `dependsOn(subPatch1, subPatch2)`.
-   - **Runtime Extension Payloads**: When bytecode hooks require companion Java/Kotlin runtime logic, patches declare `extendWith("extensions/extension.mpe")`.
+   - **Runtime Extension Payloads**: When bytecode hooks require companion Java/Kotlin runtime logic, patches declare `dependsOn(sharedExtensionPatch)` (`app.morphe.patches.shared.SharedExtensionPatch.kt`), which merges `extensions/extension.mpe` once; never call `extendWith(...)` per patch (each call repeats a full ClassMerger pass).
 
 3. **Smali Hook Conventions**:
    - Hooks must maintain register stability (`p0`, `p1`, `v0`, `v1`).
