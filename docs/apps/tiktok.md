@@ -103,7 +103,7 @@ When selecting a region code, balance **e-commerce bloat (TikTok Shop / Mall / L
 ##### B. Anglo-American Trends & North American Catalog: `CA`, `AU`, or `US`
 - **`CA` (Canada) / `AU` (Australia)**: Full access to North American and global trending audios with significantly less commercial push and fewer affiliate streams than the US.
 - **`US` (United States)**: Maximum creator and audio catalog, but carries the heaviest native deployment of TikTok Shop, live shopping cards, and commercial anchors.
-  - *Recommendation*: When using `US`, ensure `Hide TikTok Shop & Mall` and `Feed Live Stream Blocker` are activated.
+  - *Recommendation*: When using `US`, ensure `Feed Ads & Content Filter` (`stripShopAnchors`, `blockLiveStreams`) and `Navigation & Header Declutter` (`hideShopTab`) are activated.
 
 ##### C. Problematic Regions to Avoid
 
@@ -304,10 +304,10 @@ The **`Popups & Prompts Suppressor`** patch suppresses intrusive dialogs, bottom
 | **Filter PopLayer Prompts & Nags** | `filterPopLayerPrompts` | Boolean | `true` | Suppresses repetitive PopLayer prompts including favorites collection guides, launcher shortcut dialogs, repost newbie sheets, STEM feed prompts, campus education sheets, creator inbox guides, app review dialogs, marketing opt-ins, FYP surveys, CapCut/Lemon8 upsells, profile visitor prompts, and story intro sheets. |
 | **Suppress Live Teaser Bubbles** | `suppressLiveTeaserBubble` | Boolean | `true` | Disables floating live stream preview teasers and popup windows from appearing over the video feed. |
 | **Suppress DM Streak Reminders** | `suppressStreakReminders` | Boolean | `true` | Suppresses direct message streak expiration warning banners and inline urgency reminders. |
-| **Disable Post-Download Share Dialog** | `suppressPostDownloadDialog` | Boolean | `true` | Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download. |
+| **Disable Post-Download Share Dialog** | `suppressPostDownloadDialog` | Boolean | `false` | Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download. |
 | **Update Prompt Suppressor** | `suppressUpdateNags` | Boolean | `true` | Neutralizes background update polling tasks and device ID check routines to prevent forced update popups. |
 | **Skip First-Launch Onboarding** | `skipOnboarding` | Boolean | `true` | Bypasses the entire first-run introduction funnel (interest pickers, swipe tutorials, language prompts, and consent sheets) directly to the feed. |
-| **Skip Content Warnings** | `skipContentWarnings` | Boolean | `true` | Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos. |
+| **Skip Content Warnings** | `skipContentWarnings` | Boolean | `false` | Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos. |
 
 ---
 
@@ -321,7 +321,7 @@ The **`Search Experience`** patch customizes TikTok search and discovery surface
 | **Hide Popular Lives In Search** | `hidePopularLives` | Boolean | `true` | Removes the Popular LIVEs recommendation card and live stream broadcasts from the search discovery page. |
 | **Disable Search Video Autoplay** | `disableSearchAutoplay` | Boolean | `true` | Disables automatic video playback in search results. Videos only play when tapped to view in detail. |
 | **Non-Personalized Search** | `forceNonPersonalized` | Boolean | `true` | Forces TikTok's non-personalized search mode instead of the saved account choice. |
-| **Enable Live Search** | `enableLiveSearch` | Boolean | `true` | Shows TikTok's search entry in the Live drawer where supported. |
+| **Enable Live Search** | `enableLiveSearch` | Boolean | `false` | Shows TikTok's search entry in the Live drawer where supported. |
 
 ---
 
@@ -503,7 +503,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - **`filterAds` (default: true)**: Removes sponsored advertisements, brand promotions, and promotional audio from For You, Following, and Search feeds.
   - **`filterBloat` (default: true)**: Injects `return-void` into `SpecActWidget.bind(ViewGroup)` to suppress floating Rewards widgets (countdown coins, stickers). Nullifies `Aweme.getActivityPendant()`, `getCommerceStickerInfo()`, `getFloatingCardInfo()`, and `getBannerTip()`. Filters suggested accounts, mini-games, CapCut creation prompts, memories recaps, mini-dramas, in-feed search interest cards, and trending search cards via `TikTokFeedAdFilter.isFeedBloat()`. Neutralizes inserted Lynx cards and topic cards. Suppresses in-feed safety evaluation surveys ("¿Valió la pena ver este video?", questionnaires, push surveys, and survey buttons) by stubbing `CellSurveyComponent` and `FeedBottomSurveyButtonComponent`, forcing `AwemeExtKt.isWithSurvey()` -> `false`, nullifying survey getters on `Aweme`, and pruning standalone survey cards. Stubs `AbsSearchService.u()` to stop search card insert generators.
   - **`stripShopAnchors` (default: true)**: Removes shopping cart tags, product showcase badges, and commercial anchors from FYP and Following feed videos.
-  - **`blockLiveStreams` (default: true)**: Removes live stream broadcast cards and live recommendations from the For You and Following feeds.
+  - **`blockLiveStreams` (default: false)**: Removes live stream broadcast cards and live recommendations from the For You and Following feeds.
   - **`hideAiContent` (default: false)**: Filters and skips videos tagged with native AI-generated metadata, C2PA content credentials, or creator AI disclosure tags across FYP, Following, and Friends feeds (`AIGCInfo`, `ModerationAigcInfo`, `C2PAInfo`, `ANCHOR_AIGC`, and creator disclosure regexes).
   - **`hideSeenVideos` (default: true)**: Filters previously watched videos from incoming For You feed batches (absorbed from former standalone patch). Hooks `PlayerController.onPlayProgressChange` and `onPlayCompleted` to track playback progress (>= 5s or >= 70% duration) and prunes seen entries from `FeedItemList` payloads at network ingestion.
   - **`minViews` / `maxViews` / `minLikes` / `maxLikes` (defaults: 0)**: Filters videos whose view count or like count falls outside the configured integer range (0 disables boundary).

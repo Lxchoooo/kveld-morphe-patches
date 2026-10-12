@@ -77,7 +77,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
 
     val enableLiveSearch by booleanOption(
         key = "enableLiveSearch",
-        default = true,
+        default = false,
         title = "Enable Live Search",
         description = "Shows TikTok's search entry in the Live drawer where supported.",
         required = false,

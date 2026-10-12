@@ -48,7 +48,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
         key = "blockLiveStreams",
         title = "Block Live Streams",
         description = "Removes live stream broadcast cards and live recommendations from the For You and Following feeds.",
-        default = true,
+        default = false,
         required = false,
     )
 
