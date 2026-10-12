@@ -78,7 +78,7 @@ flowchart TD
 ![](images/divider-purple.svg)
 
 > [!TIP]
-> For CPU architecture guidelines (ARM64 vs 32-bit ARMv7a) and variant selection rationales, consult the [Compatibility Guide](docs/compatibility.md).
+> Not sure which file fits your phone (ARM64 vs older 32-bit)? The [Compatibility Guide](docs/compatibility.md) explains which download to pick.
 
 <!-- GENERATOR-SYNC: generate_patches_readme.py rewrites version cells and download URLs in this table in place via literal regexes — do not rename app cells, reorder columns, or remove backticks -->
 
@@ -96,7 +96,7 @@ Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Mo
 <details>
 <summary><b>Troubleshooting</b></summary>
 
-- **App not installed / signature conflict**: the patched APK is re-signed; uninstall the original app first (for Gboard, **Install a Copy** installs in parallel).
+- **App won't install**: the patched file carries a new signature, so uninstall the original app first (for Gboard, **Install a Copy** installs next to the original).
 - **Google login broken (TikTok)**: enable **Fix Google Login**.
 - **Patcher applies nothing / fingerprint errors**: use the exact version and variant from the table above.
 - **Crash after patching**: disable the last patch you enabled and retry.
