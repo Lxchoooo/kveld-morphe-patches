@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -600,34 +599,15 @@ public final class TikTokMediaHook {
         }
     }
 
-    private static volatile WeakReference<android.view.View> feedDescRootViewRef;
-
-    public static void setFeedDescRootView(android.view.View view) {
-        feedDescRootViewRef = view != null ? new WeakReference<>(view) : null;
-    }
-
-    public static void forceGoneFeedDescRoot() {
-        WeakReference<android.view.View> ref = feedDescRootViewRef;
-        if (ref != null) {
-            android.view.View view = ref.get();
-            if (view != null) {
-                view.setVisibility(android.view.View.GONE);
-                Log.d(TAG, "[Feed Interface Declutter] forceGoneFeedDescRoot: forced GONE");
-            }
-        }
-    }
-
     public static void forceGoneViewLast(android.view.View view, int visibility) {
         if (view != null) {
             view.setVisibility(android.view.View.GONE);
-            Log.d(TAG, "[Feed Interface Declutter] forceGoneViewLast: forced GONE");
         }
     }
 
     public static void forceGoneViewFirst(int visibility, android.view.View view) {
         if (view != null) {
             view.setVisibility(android.view.View.GONE);
-            Log.d(TAG, "[Feed Interface Declutter] forceGoneViewFirst: forced GONE");
         }
     }
 }
