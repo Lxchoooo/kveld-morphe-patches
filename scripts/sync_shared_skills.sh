@@ -411,7 +411,8 @@ apply_changed_path() {
     else
         chmod 644 "$target" || return 1
     fi
-    git -C "$mirror_root" add -- "$p" || return 1
+    # -f: the path is tracked in canonical, so the mirror must track it even if its .gitignore matches.
+    git -C "$mirror_root" add -f -- "$p" || return 1
     return 0
 }
 
