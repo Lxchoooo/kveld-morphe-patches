@@ -12,7 +12,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val feedBloatBlockerPatch = bytecodePatch(
     name = "Feed Bloat & Distraction Blocker",
-    description = "Removes non-video clutter and floating ad widgets from the For You, Following, and Friends feeds, including Touchpoint Rewards pendants, floating ad stickers, suggested friend cards, mini-games, CapCut/template creation prompts, memories ('On This Day'), community/topic cards, post-video surveys and evaluation questionnaires, mini-drama paywalls, and in-feed search recommendations/interest cards.",
+    description = "Removes ads, mini-games and suggested cards from your feed.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

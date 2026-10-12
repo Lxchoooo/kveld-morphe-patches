@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val feedContentFilterPatch = bytecodePatch(
     name = "Feed Content Filter",
-    description = "Hides stories, photo posts, and videos outside configured view or like ranges from the For You feed only. Following, Friends, profiles, search and other surfaces are never filtered.",
+    description = "Hides videos, stories and photos outside your view or like range.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

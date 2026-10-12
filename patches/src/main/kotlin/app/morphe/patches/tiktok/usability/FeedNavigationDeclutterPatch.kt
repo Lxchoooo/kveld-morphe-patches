@@ -18,7 +18,7 @@ import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 val feedNavigationDeclutterPatch = bytecodePatch(
     name = "Navigation & Header Declutter",
-    description = "Removes clutter from the feed navigation and top header bar, including the Nearby feed tab, Community (Explore) tab, top-left LIVE broadcast button, central '+' create content button, in-video bottom search suggestion bar, friend profile photo previews on the bottom Friends tab, and unread notification badges on the bottom Messages (Inbox) tab.",
+    description = "Removes extra tabs and buttons from the feed screen.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

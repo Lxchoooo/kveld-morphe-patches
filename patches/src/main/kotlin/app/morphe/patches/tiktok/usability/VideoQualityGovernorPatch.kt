@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val videoQualityGovernorPatch = bytecodePatch(
     name = "Video Quality Governor",
-    description = "Caps video playback resolution (1080p, 720p, 540p, 480p, 360p) to conserve battery, GPU/MediaCodec load, and mobile data. Download quality is controlled separately by the Media Usability patch (downloadQuality).",
+    description = "Caps video quality (1080p to 360p) to save battery and data.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
