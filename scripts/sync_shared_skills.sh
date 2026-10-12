@@ -46,7 +46,7 @@ SHARED_PATHS=(
   scripts/hooks/post-merge
   scripts/hooks/pre-commit
 )
-SYNC_SUBJECT="chore(sync): mirror shared skills from kveld-morphe-patches"
+SYNC_SUBJECT="chore(sync): mirror shared skills from $CANONICAL_REPO"
 
 # Every path the script passes to git is a literal file or directory name, never a glob.
 # Clear other global pathspec modes because git rejects combining them with literal mode.
@@ -72,12 +72,22 @@ APPLIED_PATHS=()
 CONFLICTING_PATHS=()
 UNSAFE_PATHS=()
 STAGED_SHARED_PATHS=()
+declare -A STAGED_BLOBS=()
+OFFENDING_PATHS=()
 
 usage() {
     cat <<'EOF' >&2
 Usage: scripts/sync_shared_skills.sh --check | --push | --hook | --guard [--with <other-repo-path>]
 EOF
     exit 2
+}
+
+# Fail with exit 1, except in hook mode, which must never fail the calling git command.
+exit_failure() {
+    if [ "$MODE" = "hook" ]; then
+        exit 0
+    fi
+    exit 1
 }
 
 parse_args() {
@@ -170,42 +180,28 @@ unset_git_env() {
     unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
 }
 
-load_canon_tree() {
-    CANON_BLOB=()
-    CANON_MODE=()
+load_tree() {
+    local root="$1"
+    local -n blob_map="$2"
+    local -n mode_map="$3"
+    blob_map=()
+    mode_map=()
     local rec meta path mode type sha
     while IFS= read -r -d '' rec; do
         meta="${rec%%$'\t'*}"
         path="${rec#*$'\t'}"
         [ -n "${path:-}" ] || continue
         read -r mode type sha <<< "$meta"
-        CANON_BLOB["$path"]="$sha"
-        CANON_MODE["$path"]="$mode"
-    done < <(git -C "$canon_root" ls-tree -r -z --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
+        blob_map["$path"]="$sha"
+        mode_map["$path"]="$mode"
+    done < <(git -C "$root" ls-tree -r -z --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
 }
 
 assert_canon_tree() {
     if [ "${#CANON_BLOB[@]}" -eq 0 ]; then
         echo "[SYNC] ERROR: canonical tree for shared paths is empty or unreadable in $canon_root; nothing written."
-        if [ "$MODE" = "hook" ]; then
-            exit 0
-        fi
-        exit 1
+        exit_failure
     fi
-}
-
-load_mirror_tree() {
-    MIRROR_BLOB=()
-    MIRROR_MODE=()
-    local rec meta path mode type sha
-    while IFS= read -r -d '' rec; do
-        meta="${rec%%$'\t'*}"
-        path="${rec#*$'\t'}"
-        [ -n "${path:-}" ] || continue
-        read -r mode type sha <<< "$meta"
-        MIRROR_BLOB["$path"]="$sha"
-        MIRROR_MODE["$path"]="$mode"
-    done < <(git -C "$mirror_root" ls-tree -r -z --full-tree HEAD -- "${SHARED_PATHS[@]}" 2>/dev/null || true)
 }
 
 get_all_paths() {
@@ -248,25 +244,34 @@ get_mirror_uncommitted_paths() {
     } | sort -zu
 }
 
-run_check() {
-    if [ ! -e "$other_root/.git" ]; then
-        echo "[SYNC] Other repository not found: $other_root (use --with or SIBLING_REPO)"
-        exit 2
-    fi
-    load_canon_tree
-    assert_canon_tree
-    load_mirror_tree
-    compute_changed_paths
+print_drift_paths() {
     local p
     if [ "${#CHANGED_PATHS[@]}" -gt 0 ]; then
         for p in "${CHANGED_PATHS[@]}"; do
             echo "[SYNC] drift: $p"
         done
     fi
+}
+
+print_mirror_warnings() {
+    local p
     while IFS= read -r -d '' p; do
         [ -n "$p" ] || continue
         echo "[SYNC] WARN: uncommitted change in mirror: $p"
     done < <(get_mirror_uncommitted_paths)
+}
+
+run_check() {
+    if [ ! -e "$other_root/.git" ]; then
+        echo "[SYNC] Other repository not found: $other_root (use --with or SIBLING_REPO)"
+        exit 2
+    fi
+    load_tree "$canon_root" CANON_BLOB CANON_MODE
+    assert_canon_tree
+    load_tree "$mirror_root" MIRROR_BLOB MIRROR_MODE
+    compute_changed_paths
+    print_drift_paths
+    print_mirror_warnings
     if [ "${#CHANGED_PATHS[@]}" -gt 0 ]; then
         echo "[SYNC] FAIL: shared files drifted."
         exit 1
@@ -443,14 +448,35 @@ commit_mirror() {
     if ! env -u SIBLING_REPO git -C "$mirror_root" commit -q -m "$SYNC_SUBJECT" -m "Source: $CANONICAL_REPO $canon_sha"; then
         rollback_mirror
         echo "[SYNC] ERROR: mirror commit failed; mirror restored, nothing committed."
-        if [ "$MODE" = "hook" ]; then
-            exit 0
-        fi
-        exit 1
+        exit_failure
     fi
     mirror_sha="$(git -C "$mirror_root" rev-parse --short HEAD)"
     echo "[SYNC] Mirrored $count path(s) into $MIRROR_REPO as $mirror_sha; push it with the normal workflow."
     exit 0
+}
+
+refuse_unsafe_paths() {
+    find_unsafe_paths
+    if [ "${#UNSAFE_PATHS[@]}" -gt 0 ]; then
+        echo "[SYNC] ERROR: refusing unsafe shared paths (symlink or invalid path): ${UNSAFE_PATHS[*]}; nothing written."
+        exit_failure
+    fi
+}
+
+skip_on_uncommitted_conflicts() {
+    find_uncommitted_conflicts
+    if [ "${#CONFLICTING_PATHS[@]}" -gt 0 ]; then
+        echo "[SYNC] Skipped: uncommitted mirror changes in ${CONFLICTING_PATHS[*]}."
+        exit 0
+    fi
+}
+
+apply_or_rollback() {
+    if ! apply_all_changed_paths; then
+        rollback_mirror
+        echo "[SYNC] ERROR: applying shared files failed; mirror restored, nothing committed."
+        exit_failure
+    fi
 }
 
 run_push() {
@@ -459,35 +485,17 @@ run_push() {
         exit 2
     fi
     check_push_preconditions
-    load_canon_tree
+    load_tree "$canon_root" CANON_BLOB CANON_MODE
     assert_canon_tree
-    load_mirror_tree
+    load_tree "$mirror_root" MIRROR_BLOB MIRROR_MODE
     compute_changed_paths
     if [ "${#CHANGED_PATHS[@]}" -eq 0 ]; then
         echo "[SYNC] Mirror already in sync."
         exit 0
     fi
-    find_unsafe_paths
-    if [ "${#UNSAFE_PATHS[@]}" -gt 0 ]; then
-        echo "[SYNC] ERROR: refusing unsafe shared paths (symlink or invalid path): ${UNSAFE_PATHS[*]}; nothing written."
-        if [ "$MODE" = "hook" ]; then
-            exit 0
-        fi
-        exit 1
-    fi
-    find_uncommitted_conflicts
-    if [ "${#CONFLICTING_PATHS[@]}" -gt 0 ]; then
-        echo "[SYNC] Skipped: uncommitted mirror changes in ${CONFLICTING_PATHS[*]}."
-        exit 0
-    fi
-    if ! apply_all_changed_paths; then
-        rollback_mirror
-        echo "[SYNC] ERROR: applying shared files failed; mirror restored, nothing committed."
-        if [ "$MODE" = "hook" ]; then
-            exit 0
-        fi
-        exit 1
-    fi
+    refuse_unsafe_paths
+    skip_on_uncommitted_conflicts
+    apply_or_rollback
     commit_mirror
 }
 
@@ -508,6 +516,42 @@ find_staged_shared_paths() {
     done < <(git diff -z --cached --name-only --no-renames -- "${SHARED_PATHS[@]}")
 }
 
+record_staged_blobs() {
+    STAGED_BLOBS=()
+    local p
+    if [ "${#STAGED_SHARED_PATHS[@]}" -gt 0 ]; then
+        for p in "${STAGED_SHARED_PATHS[@]}"; do
+            STAGED_BLOBS["$p"]="$(git rev-parse -q --verify ":$p" 2>/dev/null || true)"
+        done
+    fi
+}
+
+find_offending_paths() {
+    OFFENDING_PATHS=()
+    local p staged_blob canon_blob
+    if [ "${#STAGED_SHARED_PATHS[@]}" -gt 0 ]; then
+        for p in "${STAGED_SHARED_PATHS[@]}"; do
+            staged_blob="${STAGED_BLOBS[$p]:-}"
+            canon_blob="$(git -C "$canon_root" rev-parse -q --verify "HEAD:$p" 2>/dev/null || true)"
+            if [ "$staged_blob" != "$canon_blob" ]; then
+                OFFENDING_PATHS+=("$p")
+            fi
+        done
+    fi
+}
+
+report_offending_paths() {
+    local p
+    echo "[SYNC] BLOCKED: these files are mirrored from $CANONICAL_REPO; edit them there and commit, the mirror updates itself:"
+    if [ "${#OFFENDING_PATHS[@]}" -gt 0 ]; then
+        for p in "${OFFENDING_PATHS[@]}"; do
+            echo "  $p"
+        done
+    fi
+    echo "[SYNC] Bypass only if intended: git commit --no-verify"
+    exit 1
+}
+
 run_guard() {
     if [ "$role" = "canonical" ]; then
         exit 0
@@ -516,36 +560,15 @@ run_guard() {
     if [ "${#STAGED_SHARED_PATHS[@]}" -eq 0 ]; then
         exit 0
     fi
-    declare -A staged_blobs=()
-    local p
-    for p in "${STAGED_SHARED_PATHS[@]}"; do
-        staged_blobs["$p"]="$(git rev-parse -q --verify ":$p" 2>/dev/null || true)"
-    done
-
+    record_staged_blobs
     unset_git_env
-
     if [ ! -e "$canon_root/.git" ]; then
         echo "[SYNC] WARN: $CANONICAL_REPO not found; cannot verify shared files."
         exit 0
     fi
-
-    local offending=()
-    local staged_blob canon_blob
-    for p in "${STAGED_SHARED_PATHS[@]}"; do
-        staged_blob="${staged_blobs[$p]:-}"
-        canon_blob="$(git -C "$canon_root" rev-parse -q --verify "HEAD:$p" 2>/dev/null || true)"
-        if [ "$staged_blob" != "$canon_blob" ]; then
-            offending+=("$p")
-        fi
-    done
-
-    if [ "${#offending[@]}" -gt 0 ]; then
-        echo "[SYNC] BLOCKED: these files are mirrored from $CANONICAL_REPO; edit them there and commit, the mirror updates itself:"
-        for p in "${offending[@]}"; do
-            echo "  $p"
-        done
-        echo "[SYNC] Bypass only if intended: git commit --no-verify"
-        exit 1
+    find_offending_paths
+    if [ "${#OFFENDING_PATHS[@]}" -gt 0 ]; then
+        report_offending_paths
     fi
     exit 0
 }
