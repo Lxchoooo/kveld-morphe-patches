@@ -313,6 +313,36 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             println("[Feed Interface Declutter] Hooked desc visibility calls -> $redirectedCalls call(s) (VideoDescAssem: $redirectedCallsDescAssem, LX/09Ce: $redirectedCalls09Ce, skippedShapes: $skippedShapes) across $redirectedMethods method(s) forced GONE.")
             patched++
 
+            // 2c. Direct prologue guards on LX/00kn visibility helpers
+            val descHelpers = listOf(
+                Triple("LLLLLZIL", listOf("Landroid/view/View;", "I"), "p0"),
+                Triple("LLLLLZ", listOf("Landroid/view/View;", "I"), "p0"),
+                Triple("LJLLLLLL", listOf("I", "Landroid/view/View;"), "p1"),
+                Triple("LJLLILLLL", listOf("I", "Landroid/view/View;"), "p1"),
+            )
+            var installedHelpers = 0
+            for ((name, params, viewReg) in descHelpers) {
+                try {
+                    val method = Fingerprint(
+                        definingClass = "LX/00kn;",
+                        name = name,
+                        returnType = "V",
+                        parameters = params,
+                    ).method
+                    method.addInstructions(
+                        0,
+                        "invoke-static {$viewReg}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideDescViewIfDesc(Landroid/view/View;)V",
+                    )
+                    println("[Feed Interface Declutter] Hooked LX/00kn.$name() prologue -> hideDescViewIfDesc($viewReg).")
+                    installedHelpers++
+                } catch (e: Exception) {
+                    println("[Feed Interface Declutter] WARNING: helper $name signature not found, skipped")
+                }
+            }
+            println("[Feed Interface Declutter] Installed desc prologue guards on $installedHelpers / ${descHelpers.size} helper(s).")
+            require(installedHelpers > 0) { "No LX/00kn desc visibility helper matched for prologue guards" }
+            patched++
+
             val friendsDescClass = "Lcom/ss/android/ugc/aweme/friendstab/ui/feed/cell/component/desc/FriendsV3DescAssem;"
 
             Fingerprint(

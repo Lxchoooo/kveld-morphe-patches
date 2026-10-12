@@ -3,6 +3,7 @@ package com.kveld9.morphe.extension.tiktok;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -678,6 +679,42 @@ public final class TikTokMediaHook {
         View desc = root.findViewById(id);
         if (desc != null) {
             desc.setVisibility(View.GONE);
+        }
+    }
+
+    private static volatile int cachedDescResId = 0;
+
+    private static int resolveDescResId(View view) {
+        int id = cachedDescResId;
+        if (id != 0) return id;
+        Context ctx = view.getContext();
+        if (ctx == null) return 0;
+        id = ctx.getResources().getIdentifier("desc", "id", ctx.getPackageName());
+        if (id != 0) {
+            cachedDescResId = id;
+        }
+        return id;
+    }
+
+    public static void hideDescViewIfDesc(View view) {
+        if (view == null) return;
+        try {
+            int id = resolveDescResId(view);
+            if (id == 0) return;
+            if (view.getId() == id) {
+                view.setVisibility(View.GONE);
+                return;
+            }
+            hideDescChildIfPresent(view, id);
+        } catch (Throwable ignored) {}
+    }
+
+    private static void hideDescChildIfPresent(View view, int id) {
+        if (view instanceof ViewGroup) {
+            View desc = ((ViewGroup) view).findViewById(id);
+            if (desc != null) {
+                desc.setVisibility(View.GONE);
+            }
         }
     }
 }
