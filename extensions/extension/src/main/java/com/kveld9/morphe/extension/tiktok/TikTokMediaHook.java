@@ -9,9 +9,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Runtime hook helper for TikTok media playback and usability controls.
@@ -24,6 +28,9 @@ public final class TikTokMediaHook {
     private static final String TAG = "MorpheTikTok";
     public static volatile boolean forceWatermarkFreeDownload = true;
     public static volatile String downloadQuality = "high";
+
+    private static final Set<View> DESC_LISTENED_ROOTS =
+            Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<View, Boolean>()));
 
     private static volatile boolean videoReflectionInitialized = false;
     private static Field downloadNoWatermarkAddrField;
@@ -667,19 +674,39 @@ public final class TikTokMediaHook {
     public static void hideDescById(View root) {
         if (root == null) return;
         try {
-            applyDescGone(root);
+            int id = resolveDescResId(root);
+            if (id == 0) return;
+            applyDescGone(root, id);
+            ensureDescLayoutWatch(root, id);
         } catch (Throwable ignored) {}
     }
 
-    private static void applyDescGone(View root) {
-        Context ctx = root.getContext();
-        if (ctx == null) return;
-        int id = ctx.getResources().getIdentifier("desc", "id", ctx.getPackageName());
-        if (id == 0) return;
+    private static void applyDescGone(View root, int id) {
         View desc = root.findViewById(id);
         if (desc != null) {
             desc.setVisibility(View.GONE);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void ensureDescLayoutWatch(final View root, final int descId) {
+        if (root == null || descId == 0) return;
+        if (!DESC_LISTENED_ROOTS.add(root)) return;
+        final WeakReference<View>[] cached = (WeakReference<View>[]) new WeakReference[1];
+        root.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+                try {
+                    View d = cached[0] != null ? cached[0].get() : null;
+                    if (d == null) {
+                        d = root.findViewById(descId);
+                        if (d == null) return;
+                        cached[0] = new WeakReference<>(d);
+                    }
+                    if (d.getVisibility() != View.GONE) d.setVisibility(View.GONE);
+                } catch (Throwable ignored) {}
+            }
+        });
     }
 
     private static volatile int cachedDescResId = 0;
