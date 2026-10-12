@@ -80,6 +80,15 @@ class TestGboardInvariants(unittest.TestCase):
         report = GboardInvariantsChecker(_metadata(["classes.dex"]), _dex_with_ime(), apk).check_all()
         self.assertEqual(report.passed, all(r.passed for r in report.results))
 
+    def test_unreadable_apk_is_not_reported_as_a_missing_asset(self):
+        broken = Path(tempfile.mkdtemp(prefix="gboard_broken_")) / "not-a-zip.apk"
+        broken.write_bytes(b"this is not a zip archive")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            report = GboardInvariantsChecker(_metadata(["classes.dex"]), _dex_with_ime(), broken).check_all()
+        self.assertIn("Could not read APK", buf.getvalue())
+        self.assertFalse(report.passed)
+
     def test_package_mismatch_blocks(self):
         apk = _apk_with([THEME_ASSET])
         meta = _metadata(["classes.dex"])
