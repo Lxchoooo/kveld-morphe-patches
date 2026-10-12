@@ -138,8 +138,10 @@ def inject_table_into_readme(readme_path: Path, table_content: str) -> bool:
             re.escape(START_MARKER) + r".*?" + re.escape(END_MARKER),
             re.DOTALL,
         )
+        # A function replacement keeps the table literal: issue titles are user
+        # written and a backslash in one used to abort the whole README sync.
         replacement = f"{START_MARKER}\n{table_content}\n{END_MARKER}"
-        new_content = pattern.sub(replacement, content)
+        new_content = pattern.sub(lambda _match: replacement, content)
     else:
         # Fallback: locate ## Credits & Contributors and wrap existing table
         credits_pattern = re.compile(
@@ -149,8 +151,8 @@ def inject_table_into_readme(readme_path: Path, table_content: str) -> bool:
         if not credits_pattern.search(content):
             print("[FAIL] Could not find Credits & Contributors section in README.md")
             return False
-        replacement = r"\g<1>" + f"{START_MARKER}\n{table_content}\n{END_MARKER}\n\n"
-        new_content = credits_pattern.sub(replacement, content)
+        block = f"{START_MARKER}\n{table_content}\n{END_MARKER}\n\n"
+        new_content = credits_pattern.sub(lambda m: m.group(1) + block, content)
 
     if content != new_content:
         readme_path.write_text(new_content, encoding="utf-8")
@@ -166,7 +168,8 @@ def sanitize_issue_title(title: str) -> str:
     clean = clean.rstrip(".")
     if clean and clean[0].islower():
         clean = clean[0].upper() + clean[1:]
-    return clean
+    # Titles land inside a markdown table cell, so a pipe would split the row.
+    return clean.replace("|", "\\|")
 
 
 def collect_credited_and_ignored_issues(data: dict) -> set:
