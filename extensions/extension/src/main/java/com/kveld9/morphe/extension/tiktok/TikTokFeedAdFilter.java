@@ -2624,17 +2624,27 @@ public final class TikTokFeedAdFilter {
         List<Object> items = (List<Object>) listObj;
         if (items.isEmpty()) return items;
 
+        Throwable failure = null;
+        List<Object> result = items;
         synchronized (items) {
             try {
                 ensureInitializedFromList(items);
-                ClassLoader loader = items.get(0) != null ? items.get(0).getClass().getClassLoader() : null;
+                ClassLoader loader = getItemClassLoader(items);
                 String currentUserId = getCurrentUserId(loader);
-                return filterSuggestedStoryItems(items, currentUserId);
+                result = filterSuggestedStoryItems(items, currentUserId);
             } catch (Throwable e) {
-                Log.w(TAG, "[Hide Inbox Story & Status Tray] Error filtering suggested stories from tray list: " + e.getMessage(), e);
-                return items;
+                failure = e;
             }
         }
+        if (failure != null) {
+            Log.w(TAG, "[Hide Inbox Story & Status Tray] Error filtering suggested stories from tray list: " + failure.getMessage(), failure);
+        }
+        return result;
+    }
+
+    private static ClassLoader getItemClassLoader(List<Object> items) {
+        Object item = items.get(0);
+        return item != null ? item.getClass().getClassLoader() : null;
     }
 
     private static void ensureInitializedFromList(List<Object> items) {
@@ -2662,16 +2672,17 @@ public final class TikTokFeedAdFilter {
             return items;
         }
         Log.i(TAG, "[Hide Inbox Story & Status Tray] Pruned " + removed + " suggested story circle(s) from inbox tray.");
-        applyFilteredItems(items, filtered);
-        return filtered;
+        return applyFilteredItems(items, filtered);
     }
 
-    private static void applyFilteredItems(List<Object> target, List<Object> filtered) {
+    private static List<Object> applyFilteredItems(List<Object> target, List<Object> filtered) {
         try {
             target.clear();
             target.addAll(filtered);
+            return target;
         } catch (UnsupportedOperationException e) {
             Log.w(TAG, "[Hide Inbox Story & Status Tray] Original tray list is unmodifiable, returning filtered copy: " + e.getMessage());
+            return filtered;
         }
     }
 
