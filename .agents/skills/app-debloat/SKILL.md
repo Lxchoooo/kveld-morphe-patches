@@ -1,6 +1,6 @@
 ---
 name: app-debloat
-description: Architectural patterns and implementation guides for Android application asset, native binary, locale, density, and background sync debloating.
+description: Architectural patterns and implementation guides for Android application asset, native binary, locale, density, background sync debloating, and PNG/WebP image optimization.
 ---
 
 <!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
@@ -216,6 +216,36 @@ Eliminate battery-draining wakeups and periodic synchronizations:
 2. Disable broadcast receivers matching boot intent filters (`BOOT_COMPLETED`, `MY_PACKAGE_REPLACED`).
 3. Disable WorkManager services (`SystemAlarmService`, `SystemJobService`, `SystemForegroundService`).
 4. Keep `android.permission.WAKE_LOCK` intact by default to prevent disrupting audio playback or active background downloads.
+
+### F. Image Optimization: PNG Recompression & WebP Metadata Stripping (`rawResourcePatch`)
+Lossless image optimization recompresses raster image payloads and strips non-rendering metadata chunks without downsampling pixel dimensions:
+
+1. **Universal PNG Recompression (`PngOptimizerPatch.kt`)**:
+   - **Asset Discovery & Size Filtering**: Recursively searches `assets/` and `res/` directories for files ending in `.png` (case-insensitive) with file sizes strictly between 512 bytes and 15,000,000 bytes. Handles `resNotDecoded` when `res/` is unavailable in the pipeline.
+   - **Chunk Parsing & 9-Patch Safety**: Parses PNG chunks starting after the 8-byte magic header (`PNG_MAGIC`). Computes and validates 32-bit chunk CRC sums (`CRC32`), skipping corrupted chunks. Strips informational metadata chunks (`tEXt`, `zTXt`, `iTXt`, `tIME`, `pHYs`, `hIST`, `sPLT`). Explicitly preserves essential structural chunks, color palettes (`PLTE`), and Android nine-patch stretch/padding chunks (`npTc`, `npLc`).
+   - **Deflate Optimization**: Concatenates raw `IDAT` chunks, decompresses payload using `java.util.zip.Inflater`, and recompresses via `java.util.zip.Deflater` with `Deflater.BEST_COMPRESSION`.
+   - **Safety & Options**: Declared with `default = false`. The patch checks `optimized.size < original.size` before writing bytes back to disk; if recompression yields no gain or throws an exception, the original file is left untouched.
+
+2. **Universal WebP Metadata Stripping (`UniversalWebpOptimizerPatch.kt`)**:
+   - **Asset Discovery & Size Filtering**: Recursively walks `assets/` and `res/` for `.webp` assets between 20 bytes and 30,000,000 bytes.
+   - **RIFF Container Parsing**: Validates the 12-byte `RIFF....WEBP` header and reads little-endian chunk sizes (`readIntLE`). Strictly checks that the walk cleanly consumes all bytes (`offset == bytes.size`) to prevent corrupting truncated or non-spec containers.
+   - **Configurable Chunk Pruning**:
+     - `stripExif` (`default = true`): Strips `EXIF` chunks containing camera metadata, GPS location, and creator details.
+     - `stripXmp` (`default = true`): Strips `XMP ` chunks containing XML editing history.
+     - `stripIcc` (`default = false`): Strips `ICCP` color profiles. Kept disabled by default to preserve color profile fidelity on wide-gamut displays.
+   - **RFC 9649 / libwebp VP8X Flag Synchronization**: When stripping metadata from extended WebP images containing a `VP8X` header chunk, bitwise-clears corresponding feature flags: `EXIF_FLAG` (`0x08`), `XMP_FLAG` (`0x04`), and `ICCP_FLAG` (`0x20`).
+   - **Safety**: Only writes replacement bytes if the stripped container size is strictly smaller than the original; falls back to the original file on any exception.
+
+3. **Justification for Dedicated Per-App Variants**:
+   - **App Degradation or Incompatible Parsers**: When an application's custom image loader or native library fails on recompressed `IDAT` streams, or when wide-gamut graphics require strictly retaining ICC profiles that universal defaults might strip if misconfigured.
+   - **App-Specific Asset Locations or Formats**: The universal scan only traverses `assets/` and `res/`. Dedicated variants are needed if an app embeds images in custom top-level folders, multi-package resource roots (`resources/<package>/res`), nested container archives, or non-standard file extensions not matched by `.png` or `.webp`.
+   - **Asset Size Threshold Boundaries**: App-critical drawables falling outside the universal filter bounds (e.g. icon sets smaller than 512 bytes for PNGs, or background graphics exceeding 15 MB / 30 MB) require adjusted thresholds in a dedicated patch.
+   - **Negligible Savings / Overhead Avoidance**: If an application already ships pre-optimized drawables (reflected by `alreadyOptimalCount` matching total files), running the universal recompression pass introduces unnecessary patch pipeline overhead without storage benefit.
+
+4. **Verification**:
+   - **Size Reporting**: Track and report exact byte savings per axis via `LocaleUtils.formatBytes` as outlined in [Size Savings Reporting](#a-size-savings-reporting) (§3.A).
+   - **Decode & Smoke Validation**: Confirm that patched PNG and WebP assets inflate without decoding exceptions, UI glitches, or transparency issues during [Smoke Launch Verification](#b-smoke-launch-verification) (§3.B).
+   - **Patcher Pipeline Gate**: Execute the full patching gate with `-PallOptions=true` per [Patcher Harness Gate](#c-patcher-harness-gate) (§3.C) to verify 0 failed patches and 0 exceptions.
 
 ---
 
