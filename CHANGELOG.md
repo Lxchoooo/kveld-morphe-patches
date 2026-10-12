@@ -1,3 +1,40 @@
+## [2.7.0-experimental.9](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.8...v2.7.0-experimental.9) (2026-10-11)
+
+### Bug Fixes
+
+* **tiktok:** remove Hide Promotional Content patch and its exclusive filter code ([f28df82](https://github.com/kveld9/kveld-morphe-patches/commit/f28df82dff02124d85b279817198da7df0174f84)), closes [#84](https://github.com/kveld9/kveld-morphe-patches/issues/84)
+
+## [2.7.0-experimental.8](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.7...v2.7.0-experimental.8) (2026-10-11)
+
+### Bug Fixes
+
+* **tiktok:** harden Hide Promotional Content to native commerce signals only ([3a048b6](https://github.com/kveld9/kveld-morphe-patches/commit/3a048b66e2bcf9ecc8464e8ef9c9f2f220d2cbaf)), closes [#84](https://github.com/kveld9/kveld-morphe-patches/issues/84)
+
+## [2.7.0-experimental.7](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.6...v2.7.0-experimental.7) (2026-10-11)
+
+### Bug Fixes
+
+* **contributors:** text role labels and avatar alt text ([266695d](https://github.com/kveld9/kveld-morphe-patches/commit/266695d3058ef50640b8d31d86a8f87a4a4586ae))
+
+## [2.7.0-experimental.6](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.5...v2.7.0-experimental.6) (2026-10-11)
+
+### Bug Fixes
+
+* **gboard:** report skipped files in resource slimmer ([ba6b151](https://github.com/kveld9/kveld-morphe-patches/commit/ba6b151a5df06e7105777b3b987939a359d202c7))
+* **universal:** report skipped files in PNG optimizer ([0552317](https://github.com/kveld9/kveld-morphe-patches/commit/055231728cfe16125934e8d8428552187f51d8d2))
+* **universal:** report skipped files in WebP optimizer ([d4b38f9](https://github.com/kveld9/kveld-morphe-patches/commit/d4b38f9c74375b29b05faa1d52c33366882c5298))
+* **validation:** harden crash attribution and pid parsing ([0df8575](https://github.com/kveld9/kveld-morphe-patches/commit/0df8575a2572c77a534efd15a24432e838808d07))
+
+### New Features
+
+* **gboard:** add French localization for settings menu ([a02c93e](https://github.com/kveld9/kveld-morphe-patches/commit/a02c93e19065b772ba0a894193e7e3f216c7e2a2))
+
+## [2.7.0-experimental.5](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.4...v2.7.0-experimental.5) (2026-10-11)
+
+### New Features
+
+* **tiktok:** add hideSuggestedOnly toggle to inbox story tray patch ([9480252](https://github.com/kveld9/kveld-morphe-patches/commit/94802528e572b83c4eac17b485a0b4a3f707fc5b))
+
 ## [2.7.0-experimental.4](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.3...v2.7.0-experimental.4) (2026-10-10)
 
 ### Bug Fixes

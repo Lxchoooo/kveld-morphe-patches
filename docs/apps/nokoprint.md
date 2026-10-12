@@ -21,14 +21,14 @@ Comprehensive technical, architecture, and patch guide for **NokoPrint - WiFi, B
 
 | Patch Name | Type | Category | Default | Primary Mechanism |
 | :--- | :--- | :--- | :---: | :--- |
-| **Ad Dispatch Governor** | `bytecodePatch` | Premium & Ad Blocking | ✅ Yes | Stubs banner, interstitial, and ad loaders; forces `is_no_ads` active; neutralizes anti-tamper exit checks; bypasses rewarded ad gates during printer driver downloads; and purges ad activities and startup providers via companion manifest patch. |
-| **Asset Debloat** | `rawResourcePatch` | Storage Reclamation | ✅ Yes | Strips secondary Meta Audience Network DEX, tracking scripts, ad-viewer HTML/JS templates, RuStore TLS certs, and third-party ad assets to reduce APK footprint. |
-| **Background Sync Optimizer** | `bytecodePatch` | Battery & Optimization | ✅ Yes | Disables AndroidX WorkManager background alarms, constraint proxies, diagnostic receivers, and non-essential schedulers. |
-| **Block Telemetry & Trackers** | `bytecodePatch` | Privacy & Telemetry | ✅ Yes | Strips `AD_ID` advertising permissions, neutralizes Google Firebase/Measurement components in `AndroidManifest.xml`, stubs TikTok Business SDK init/events, and stubs Firebase/Measurement telemetry dispatchers. |
-| **Multi-Store Debridger** | `resourcePatch` | Debloat & Performance | ✅ Yes | Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei HMS/AGConnect & OTA, Xiaomi Billing & Common IAP, Samsung IAP, RuStore, OneStore, CafeBazaar, Amazon IAP). |
-| **Network Security Hardening** | `resourcePatch` | Security & Network | ✅ Yes | Enforces user trust anchors while preserving HTTP cleartext traffic for driver downloads and LAN printers. |
-| **Skip Welcome Dialog** | `bytecodePatch` | Debloat & UX | ✅ Yes | Auto-accepts the first-launch privacy notice in `ActivityHome` (`privacy_accepted=true` + post-consent init) instead of showing the About dialog. Menu About is untouched. |
-| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Compatible with universal slimmers and privacy patches (Telemetry Neutralizer, Native Binary Trimmer, WebP/PNG Optimizers, DPI/Locale Slimmers, Offline Mode). See [Universal Patch Reference](../universal-patches.md). |
+| **Block Ads** | `bytecodePatch` | Premium & Ad Blocking | ✅ Yes | Stubs banner, interstitial, and ad loaders; forces `is_no_ads` active; neutralizes anti-tamper exit checks; bypasses rewarded ad gates during printer driver downloads; and purges ad activities and startup providers via companion manifest patch. |
+| **Remove Ad Files** | `rawResourcePatch` | Storage Reclamation | ✅ Yes | Strips secondary Meta Audience Network DEX, tracking scripts, ad-viewer HTML/JS templates, RuStore TLS certs, and third-party ad assets to reduce APK footprint. |
+| **Stop Background Sync** | `bytecodePatch` | Battery & Optimization | ✅ Yes | Disables AndroidX WorkManager background alarms, constraint proxies, diagnostic receivers, and non-essential schedulers. |
+| **Block Trackers** | `bytecodePatch` | Privacy & Telemetry | ✅ Yes | Strips `AD_ID` advertising permissions, neutralizes Google Firebase/Measurement components in `AndroidManifest.xml`, stubs TikTok Business SDK init/events, and stubs Firebase/Measurement telemetry dispatchers. |
+| **Remove Extra Stores** | `resourcePatch` | Debloat & Performance | ✅ Yes | Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei HMS/AGConnect & OTA, Xiaomi Billing & Common IAP, Samsung IAP, RuStore, OneStore, CafeBazaar, Amazon IAP). |
+| **Safer Connections** | `resourcePatch` | Security & Network | ✅ Yes | Enforces user trust anchors while preserving HTTP cleartext traffic for driver downloads and LAN printers. |
+| **Skip Welcome Screen** | `bytecodePatch` | Debloat & UX | ✅ Yes | Auto-accepts the first-launch privacy notice in `ActivityHome` (`privacy_accepted=true` + post-consent init) instead of showing the About dialog. Menu About is untouched. |
+| **Universal Patches Suite** | Multiple | Optimization & Privacy | Contextual | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Universal Hosts Blocker only. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
 

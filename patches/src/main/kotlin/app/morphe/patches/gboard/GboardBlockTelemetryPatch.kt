@@ -19,8 +19,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 val gboardBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry",
-    description = "Disables background metrics dispatch, event logging, daily pings, Google Primes profiling, crash reporting, AppDoctor diagnostics, and Tenor share tracking.",
+    name = "Block Trackers",
+    description = "Stops background metrics, event logging and crash reporting.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -28,8 +28,8 @@ val gboardBlockTelemetryPatch = bytecodePatch(
     val blockAdwordsHost by booleanOption(
         key = "blockAdwordsHost",
         default = true,
-        title = "Block Adwords Host",
-        description = "Rewrites DEX const-string literals containing adwords.google.com and reportingwidget.google.com to 0.0.0.0. Enabled by default.",
+        title = "Block ad servers",
+        description = "Also blocks Google ad servers. Turn off to keep them.",
         required = false,
     )
 

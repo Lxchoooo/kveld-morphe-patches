@@ -134,15 +134,15 @@ private fun optimizeWebpBytes(
 
 @Suppress("unused")
 val universalWebpOptimizerPatch = rawResourcePatch(
-    name = "Universal WebP Asset Optimizer",
-    description = "Losslessly strips non-rendering metadata and ancillary chunks (EXIF, XMP, ICCP) from WebP assets across res/ and assets/ to reduce APK size. In raw-only pipeline mode, optimizes assets/ only as res/ is not decoded.",
+    name = "Shrink WebP Images",
+    description = "Strips hidden metadata from WebP images.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val stripExifOption by booleanOption(
         key = "stripExif",
         default = true,
-        title = "Strip EXIF Metadata",
+        title = "Camera data",
         description = "Remove camera parameters, geolocation, and creator metadata chunks from WebP images.",
         required = false,
     )
@@ -150,7 +150,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
     val stripXmpOption by booleanOption(
         key = "stripXmp",
         default = true,
-        title = "Strip XMP Metadata",
+        title = "Editing history",
         description = "Remove Adobe XMP XML metadata chunks from WebP images.",
         required = false,
     )
@@ -158,7 +158,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
     val stripIccOption by booleanOption(
         key = "stripIcc",
         default = false,
-        title = "Strip ICC Color Profiles",
+        title = "Color profiles",
         description = "Remove ICCP color profile chunks. Default is false to preserve color profile fidelity on wide-gamut displays.",
         required = false,
     )
@@ -208,6 +208,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
 
         val optimizedCount = AtomicInteger(0)
         val alreadyOptimalCount = AtomicInteger(0)
+        val skippedCount = AtomicInteger(0)
         val savedBytes = AtomicLong(0L)
 
         webpFiles.parallelStream().forEach { file ->
@@ -228,6 +229,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
                 }
             } catch (_: Exception) {
                 // Keep original file intact on any I/O or parsing exception
+                skippedCount.incrementAndGet()
             }
         }
 
@@ -237,6 +239,6 @@ val universalWebpOptimizerPatch = rawResourcePatch(
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
         val scopeLabel = if (resNotDecoded) "assets/ WebPs" else "WebP assets"
-        println("[Universal WebP Asset Optimizer] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal) -> Saved $savedFormatted")
+        println("[Universal WebP Asset Optimizer] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }

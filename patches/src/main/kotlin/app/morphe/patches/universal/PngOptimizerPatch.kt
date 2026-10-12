@@ -145,8 +145,8 @@ private fun optimizePngBytes(original: ByteArray): ByteArray? {
 }
 
 val pngOptimizerPatch = rawResourcePatch(
-    name = "PNG Asset Optimizer",
-    description = "Losslessly recompresses PNG assets with maximum zlib compression and strips non-rendering metadata chunks (pHYs, tEXt, tIME) while preserving 9-patch structures and pixel accuracy. In raw-only pipeline mode, optimizes assets/ only as res/ is not decoded.",
+    name = "Shrink PNG Images",
+    description = "Recompresses PNGs without losing quality.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
@@ -191,6 +191,7 @@ val pngOptimizerPatch = rawResourcePatch(
 
         val optimizedCount = AtomicInteger(0)
         val alreadyOptimalCount = AtomicInteger(0)
+        val skippedCount = AtomicInteger(0)
         val savedBytes = AtomicLong(0L)
 
         pngFiles.parallelStream().forEach { file ->
@@ -206,6 +207,7 @@ val pngOptimizerPatch = rawResourcePatch(
                 }
             } catch (_: Exception) {
                 // Keep original file intact on any I/O or parsing exception
+                skippedCount.incrementAndGet()
             }
         }
 
@@ -215,6 +217,6 @@ val pngOptimizerPatch = rawResourcePatch(
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
         val scopeLabel = if (resNotDecoded) "assets/ PNGs" else "PNGs"
-        println("[PNG Asset Optimizer] Recompressed ${optimizedCount.get()} / ${pngFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal) -> Saved $savedFormatted")
+        println("[PNG Asset Optimizer] Recompressed ${optimizedCount.get()} / ${pngFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }

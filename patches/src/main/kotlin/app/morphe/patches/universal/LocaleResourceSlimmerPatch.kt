@@ -6,14 +6,14 @@ import app.morphe.patches.shared.LocaleUtils
 
 @Suppress("unused")
 val localeResourceSlimmerPatch = resourcePatch(
-    name = "Locale Resource Slimmer",
-    description = "Strips unselected language translation directories from res/ (e.g. values-*, raw-*, xml-*). Base fallback resources with no language qualifiers are always preserved.",
+    name = "Remove Extra Languages",
+    description = "Deletes unselected translation folders.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
     val targetLocales by stringOption(
         key = "locales",
-        title = "Locales to keep",
+        title = "Languages to keep",
         description = "Comma-separated language codes to preserve (e.g. 'en, es, pt, fr, de'). English fallback is always retained.",
         default = "en",
         required = false,

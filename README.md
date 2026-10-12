@@ -1,14 +1,16 @@
+<a name="top"></a>
 <p align="center">
-  <a href="https://github.com/kveld9/kveld-morphe-patches/releases/latest"><img src="https://img.shields.io/github/v/release/kveld9/kveld-morphe-patches?color=7928CA&label=Release&logo=github&style=flat-square" alt="Latest Release" /></a>
-  <a href="https://github.com/kveld9/kveld-morphe-patches/releases"><img src="https://img.shields.io/github/downloads/kveld9/kveld-morphe-patches/total?style=flat-square&logo=github" alt="Total Downloads" /></a>
-  <img src="https://img.shields.io/badge/Runtime-Morphe_Patcher_1.8.0-8A2BE2?style=flat-square" alt="Runtime" />
-  <img src="https://img.shields.io/badge/License-GPLv3-blue?style=flat-square" alt="License" />
+  <a href="https://github.com/kveld9/kveld-morphe-patches/releases/latest"><img src="https://img.shields.io/github/v/release/kveld9/kveld-morphe-patches?color=8A2BE2&label=Release&logo=github&style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/kveld9/kveld-morphe-patches/stargazers"><img src="https://img.shields.io/github/stars/kveld9/kveld-morphe-patches?color=8A2BE2&style=flat-square&logo=github" alt="GitHub stars" /></a>
+  <a href="https://github.com/kveld9/kveld-morphe-patches/releases"><img src="https://img.shields.io/github/downloads/kveld9/kveld-morphe-patches/total?color=8A2BE2&style=flat-square&logo=github" alt="Total Downloads" /></a>
+  <img src="https://img.shields.io/badge/Build_Engine-Morphe_Patcher-8A2BE2?style=flat-square" alt="Build engine: Morphe patcher" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-8A2BE2?style=flat-square" alt="License: GNU GPLv3" /></a>
 </p>
 
-<h1 align="center">🔮 Morphe Patches</h1>
+<h1 align="center">Morphe Patches</h1>
 
 <p align="center">
-  Modular bytecode, resource, and native patch suite for <b>Brave Browser</b>, <b>Gboard Lite</b>, <b>Hevy</b>, <b>TikTok</b>, <b>NokoPrint</b>, and <b>Xiaomi Earbuds</b> on Android using the <b><a href="https://morphe.software">Morphe</a></b> patcher framework.
+  Simple tweaks for <b>Brave Browser</b>, <b>Gboard Lite</b>, <b>Hevy</b>, <b>TikTok</b>, <b>NokoPrint</b>, and <b>Xiaomi Earbuds</b> on Android: fewer ads, less tracking, less battery drain. Applied with the <b><a href="https://morphe.software">Morphe</a></b> patcher.
 </p>
 
 <p align="center">
@@ -21,33 +23,91 @@
 
 ---
 
-## ⚡ Key Advantages
+<a name="table-of-contents"></a>
+## Table of Contents
+![](images/divider-purple.svg)
 
-- **Zero Runtime Overhead**: Direct compile-time Dalvik bytecode manipulation, XML transformation, and native ELF patching without resident background daemons, proxy servers, or Xposed frameworks.
-- **Deep Telemetry Neutralization**: Neutralizes tracking, diagnostic pings, crash reporting, and analytics at method call sites (Google Primes, Chromium UMA, P3A, ByteDance AppLog, Adjust, Firebase, Sentry) instead of fragile network-level blackholing.
-- **Aggressive Asset Trimming**: Strips unneeded companion `.so` binaries, unused font families, localized resource bundles, and promotional assets to significantly reduce APK size and memory consumption.
-- **Rootless & Standalone**: Operates directly on userland APKs and APKM split bundles; no Magisk, KernelSU, or root privileges required.
-- **Strict Upstream Parity**: Enforces a strict single-version invariant targeting latest stable upstream releases with exact AST and fingerprint assertions.
+- [Quick Start](#quick-start)
+- [Key Advantages](#key-advantages)
+- [Supported Targets & Downloads](#supported-targets)
+- [Patch Catalog](#patch-catalog)
+- [Documentation & Guides](#documentation)
+- [Contributing & Feature Requests](#contributing)
+- [Community & Support](#community)
+- [Credits & Contributors](#credits)
+- [Legal Disclaimer](#legal)
+- [License](#license)
 
 ---
 
-## 🎯 Supported Targets & Downloads
+<a name="quick-start"></a>
+## Quick Start
+![](images/divider-purple.svg)
+
+1. Install **Morphe Manager** on your Android device.
+2. Download the target app using the **exact version and variant** listed in [Supported Targets & Downloads](#supported-targets) (a version mismatch makes every fingerprint fail).
+3. Add this repository as a patch source with the button above, or add `https://github.com/kveld9/kveld-morphe-patches` manually.
+4. Select the patches, keep a copy of the original APK, run the patcher, and install the rebuilt APK.
+
+> [!NOTE]
+> Requirements: the Morphe patcher on your device (patching happens on-device, no root needed); always use the exact ABI/variant from the table below.
+
+---
+
+<a name="key-advantages"></a>
+## Key Advantages
+![](images/divider-purple.svg)
+
+- **No slowdown**: changes are baked into the app itself. No background services, no VPNs, no extra apps running.
+- **Real privacy**: tracking and crash reporting are switched off inside the app, not just blocked on the network.
+- **Smaller apps**: unused languages, files and extras are removed to save space and memory.
+- **No root needed**: patching happens on your device with Morphe Manager. No root, no computer.
+- **Always up to date**: every app targets its latest version, checked exactly before patching.
+
+```mermaid
+flowchart TD
+    A[Selected APK] --> B[Morphe Patcher<br/>+ this source]
+    B --> C[DEX, XML<br/>and native work]
+    C --> D[Patched APK<br/>no root, no hooks]
+```
+
+---
+
+<a name="supported-targets"></a>
+## Supported Targets & Downloads
+![](images/divider-purple.svg)
 
 > [!TIP]
 > For CPU architecture guidelines (ARM64 vs 32-bit ARMv7a) and variant selection rationales, consult the [Compatibility Guide](docs/compatibility.md).
 
+<!-- GENERATOR-SYNC: generate_patches_readme.py rewrites version cells and download URLs in this table in place via literal regexes — do not rename app cells, reorder columns, or remove backticks -->
+
 | Application | Package ID | Target Version | Architecture / Variant | Download Source | Complete Guide |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Brave Browser** | `com.brave.browser` | `1.97.56` | `arm64-v8a`<br>`armeabi-v7a` (Monolithic) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.56/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.56/BraveMonoarm.apk) | [Brave Guide](docs/apps/brave.md) |
-| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.4.1.985164140` | `arm64-v8a`<br>`armeabi-v7a` (nodpi) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-4-1-985164140-beta/) | [Gboard Lite Guide](docs/apps/gboard.md) |
+| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.4.1.985164140-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (nodpi) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-4-1-985164140-beta/) | [Gboard Lite Guide](docs/apps/gboard.md) |
 | **Hevy** | `com.hevy` | `3.1.14` | `arm64-v8a` (APKM Bundle) | [APKMirror](https://www.apkmirror.com/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/hevy-gym-log-workout-tracker-3-1-14-release/) | [Hevy Guide](docs/apps/hevy.md) |
 | **NokoPrint** | `com.nokoprint` | `5.28.6` | Universal (nodpi) | [APKPure](https://d.apkpure.com/b/XAPK/com.nokoprint?versionCode=52806) | [NokoPrint Guide](docs/apps/nokoprint.md) |
 | **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (nodpi) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | [TikTok Guide](docs/apps/tiktok.md) |
 | **Xiaomi Earbuds** | `com.mi.earphone` | `1.38.0i` | Universal (XAPK Bundle) | [APKPure](https://d.apkpure.com/b/XAPK/com.mi.earphone?versionCode=138000) | [Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md) |
 
+Legend: `nodpi` = density-independent resources; `APKM`/`XAPK` = bundles that Morphe merges; `Monolithic` = single APK.
+
+<details>
+<summary><b>Troubleshooting</b></summary>
+
+- **App not installed / signature conflict**: the patched APK is re-signed; uninstall the original app first (for Gboard, **Install a Copy** installs in parallel).
+- **Google login broken (TikTok)**: enable **Fix Google Login**.
+- **Patcher applies nothing / fingerprint errors**: use the exact version and variant from the table above.
+- **Crash after patching**: disable the last patch you enabled and retry.
+
+</details>
+
 ---
 
-## 💊 Patch Catalog
+<a name="patch-catalog"></a>
+## Patch Catalog
+![](images/divider-purple.svg)
 
 <!-- PATCHES_START -->
 <details>
@@ -72,7 +132,7 @@
 </details>
 
 <details>
-<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>73 patches</b></summary>
+<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>72 patches</b></summary>
 <br>
 
 **Supported versions:**
@@ -119,9 +179,8 @@
 | **Friends Feed Strict Mutuals** | Filters out suggested accounts, recommended videos, and non-mutual profiles (such as 'People you may know') from the Friends feed so it only plays videos from accounts you mutually follow. |  |
 | **Hide AI-Generated Content** | Filters and skips videos tagged with native AI-generated metadata, C2PA content credentials, or creator AI disclosure tags across the For You, Following, and Friends feeds. |  |
 | **Hide Inbox Promos & Alerts** | Hides promotional banners, streak mascot cards, contact sync suggestions, friend recommendations, and migration guide tooltips in the inbox and direct messages. | • Hide Top Promotional Banners<br>• Hide Contact & Friend Recommendations<br>• Hide Navigation Notices & Tooltips |
-| **Hide Inbox Story & Status Tray** | Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. |  |
+| **Hide Inbox Story & Status Tray** | Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. | • Hide Suggested Stories Only |
 | **Hide Popular Lives In Search** | Removes the Popular LIVEs recommendation card and live stream broadcasts from the search discovery page. |  |
-| **Hide Promotional Content** | Filters videos disclosing branded/paid-promotional content (Contenido Promocional tag) from For You, Following and Friends feeds. |  |
 | **Hide Seen Videos** | Filters previously watched videos from incoming For You feed batches. |  |
 | **Hide Suggested Accounts** | Removes suggested-account cards from profile headers and inbox surfaces. |  |
 | **Hide Suggested Searches** | Removes the suggested search keywords section ('You may like' / 'Search suggestions') from the search discovery page. |  |
@@ -282,44 +341,57 @@
 
 <!-- PATCHES_END -->
 
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>
+
 ---
 
-## 📚 Documentation & Guides
+<a name="documentation"></a>
+## Documentation & Guides
+![](images/divider-purple.svg)
 
 Technical references, setup manuals, and architecture notes are organized by focus area:
 
-### 📱 Dedicated Application Guides
+### Dedicated Application Guides
 | Application | Guide | Description |
 | :--- | :--- | :--- |
-| **Brave Browser** | **[Brave Guide](docs/apps/brave.md)** | Zero-configuration debloat, telemetry neutralization, sponsored NTP removal, and PAK slimmer. |
-| **Gboard Lite** | **[Gboard Lite Guide](docs/apps/gboard.md)** | Offline dictionaries & Glide Typing setup, MDD sync debloat, and clipboard retention options. |
-| **Hevy** | **[Hevy Guide](docs/apps/hevy.md)** | Email authentication workflow, Hermes bytecode Pro unlocks, client vs server limits, and telemetry. |
-| **NokoPrint** | **[NokoPrint Guide](docs/apps/nokoprint.md)** | In-app ad loaders neutralization, premium status enforcement, multi-store debloat, and network security. |
-| **TikTok** | **[TikTok Guide](docs/apps/tiktok.md)** | SIM region spoofing, decoupled quality governor, 120Hz refresh lock, watermark-free downloader, and ad filters. |
-| **Xiaomi Earbuds** | **[Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md)** | Initial pairing workflow, anti-tamper bypass, spatial audio / aptX 96kHz unlocks, and offline isolation. |
+| **Brave Browser** | **[Brave Guide](docs/apps/brave.md)** | Faster start, no ads or tracking, clean start page. |
+| **Gboard Lite** | **[Gboard Lite Guide](docs/apps/gboard.md)** | Offline dictionaries, keyboard settings, no tracking. |
+| **Hevy** | **[Hevy Guide](docs/apps/hevy.md)** | Email login help, Pro unlock, less battery use. |
+| **NokoPrint** | **[NokoPrint Guide](docs/apps/nokoprint.md)** | No ads, drivers keep working, safer connections. |
+| **TikTok** | **[TikTok Guide](docs/apps/tiktok.md)** | Change country, block ads, save clean videos, save battery. |
+| **Xiaomi Earbuds** | **[Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md)** | Pairing help, all models, sound unlocks, offline mode. |
 
-### 🌐 Universal & Architecture Reference
+### Universal & Architecture Reference
 | Guide | Description |
 | :--- | :--- |
-| **[Universal Patches & Options](docs/universal-patches.md)** | Universal debloat & privacy suite: Screen Brightness Governor, Screenshot Protection Bypass, Privacy Permissions Stripper, Telemetry Neutralizer, Native Binary Trimmer, WebP Optimizer, Background Sync Purge, Offline Mode, DPI/Locale Slimmers, and Asset Cleaners. |
+| **[Universal Patches & Options](docs/universal-patches.md)** | Works on any app: remove languages, shrink images, go offline, block trackers, allow screenshots. |
 | **[Compatibility Guide](docs/compatibility.md)** | CPU architecture policy (`arm64-v8a` vs `armeabi-v7a`), APK variant requirements, and SHA-256 baseline. |
 | **[Project Scope & Out of Scope](docs/out-of-scope.md)** | Non-negotiable design philosophy, compile-time invariants, and rejected feature categories. |
 | **[Architecture & Security Notes](docs/architecture-security.md)** | Static analysis scanner false positives (ML Kit, Play Billing) and native ELF telemetry neutralization. |
 
-### 🛠️ Developer & Tooling
+### Developer & Tooling
 | Guide | Description |
 | :--- | :--- |
 | **[Building & Development](docs/building.md)** | Toolchain prerequisites, Gradle build tasks, test execution, and catalog synchronization. |
 | **[Reverse Engineering & Update Harness](harness/README.md)** | Automated Python pipeline for multi-DEX indexing, obfuscated symbol resolution, and APK audits. |
 | **[Physical & Runtime ADB Test Suite](validation/physical_harness/README.md)** | Automated on-device validation for battery consumption, ServiceWorker sync, and runtime telemetry. |
 
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>
+
 ---
 
-## 🎯 Contributing & Feature Requests
+<a name="contributing"></a>
+## Contributing & Feature Requests
+![](images/divider-purple.svg)
 
 Before proposing new features or submitting modifications, please review our **[Project Scope & Out-of-Scope Philosophy](docs/out-of-scope.md)**.
 
-We prioritize **surgical, lightweight, zero-overhead compile-time transformations** and rapid upstream synchronization with the latest app versions. Dynamic in-app settings panels, legacy multi-version support, server-side exploits, or heavy feature bloat are explicitly out of scope.
+> [!NOTE]
+> We prioritize **small, fast changes** and keeping up with the latest app versions. Dynamic in-app settings panels, legacy multi-version support, server-side exploits, or heavy feature bloat are explicitly out of scope.
 
 ### Mandatory Verification Gates
 Every patch modification or contribution must pass the official Morphe Patcher in-situ verification gate with 100% success (0 failed patches, 0 fingerprint mismatches):
@@ -335,35 +407,48 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 
 ---
 
-## 💬 Community & Support
+<a name="community"></a>
+## Community & Support
+![](images/divider-purple.svg)
 
-Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
+> [!NOTE]
+> Need assistance, have questions regarding patch configurations, or want to follow release announcements? Join the official Telegram community:
+>
+> - **Telegram Support Group**: [t.me/kveldmorphe](https://t.me/kveldmorphe)
+>
+> - **Bug reports & feature requests**: [GitHub Issues](https://github.com/kveld9/kveld-morphe-patches/issues/new/choose)
+> - **Security vulnerabilities**: see [SECURITY.md](SECURITY.md) (do not open public issues)
+> - **Release notes**: [CHANGELOG.md](CHANGELOG.md)
 
-- 💬 **Telegram Support Group**: [t.me/kveldmorphe](https://t.me/kveldmorphe)
+**Related project**: [kveld-extra-morphe-patches](https://github.com/kveld9/kveld-extra-morphe-patches) is my personal patch collection. It shares this repo's goals but has no per-app completion target — its patches are for personal use, and suggestions for apps to maintain are welcome there.
 
 ---
 
-## 🤝 Credits & Contributors
+<a name="credits"></a>
+## Credits & Contributors
+![](images/divider-purple.svg)
 
 <!-- CONTRIBUTORS_START -->
 | Contributor | Role & Contributions |
 | :--- | :--- |
-| <a href="https://github.com/Lxchoooo"><img src="https://github.com/Lxchoooo.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@Lxchoooo</b></a> | 🧪 Daily patch testing, runtime APK validation, and bug diagnostics. |
-| <a href="https://github.com/Diego694"><img src="https://github.com/Diego694.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@Diego694</b></a> | 🧪 Daily patch testing, runtime APK validation, and bug diagnostics. |
-| <a href="https://github.com/ll0r3nt3"><img src="https://github.com/ll0r3nt3.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@ll0r3nt3</b></a> | 💡 Proposed DPI Resource Slimmer feature request ([#16](https://github.com/kveld9/kveld-morphe-patches/issues/16)). |
-| <a href="https://github.com/aidenking2102-dotcom"><img src="https://github.com/aidenking2102-dotcom.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@aidenking2102-dotcom</b></a> | 💡 Proposed TikTok Feed Ad Blocker ([#23](https://github.com/kveld9/kveld-morphe-patches/issues/23)), Playback Speed Setter ([#25](https://github.com/kveld9/kveld-morphe-patches/issues/25)), and Floating Ad Pendant / Sticker Blocker ([#33](https://github.com/kveld9/kveld-morphe-patches/issues/33)) feature requests. |
-| <a href="https://github.com/mparvezalam808"><img src="https://github.com/mparvezalam808.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@mparvezalam808</b></a> | 💡 Proposed TikTok Always show publish date, Copy comments without username, Fix Google login, and Show seekbar ([#35](https://github.com/kveld9/kveld-morphe-patches/issues/35)) and TikTok Custom offline videos limit ([#40](https://github.com/kveld9/kveld-morphe-patches/issues/40)) feature requests. |
-| <a href="https://github.com/raxelbyte"><img src="https://github.com/raxelbyte.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@raxelbyte</b></a> | 💡 Proposed Gboard Lite Clipboard Enhancements feature request ([#17](https://github.com/kveld9/kveld-morphe-patches/issues/17)). |
-| <a href="https://github.com/rafipasya"><img src="https://github.com/rafipasya.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@rafipasya</b></a> | 💡 Proposed TikTok Auto-translate comments feature request ([#48](https://github.com/kveld9/kveld-morphe-patches/issues/48)). |
-| <a href="https://github.com/Fahry-a"><img src="https://github.com/Fahry-a.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@Fahry-a</b></a> | 💡 Proposed Brave ARMv7a (32-bit) architecture support feature request ([#50](https://github.com/kveld9/kveld-morphe-patches/issues/50)). |
-| <a href="https://github.com/marcoodhb"><img src="https://github.com/marcoodhb.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@marcoodhb</b></a> | 💡 Proposed TikTok Disable double tap to like feature request ([#55](https://github.com/kveld9/kveld-morphe-patches/issues/55)). |
-| <a href="https://github.com/miyqwx-dev"><img src="https://github.com/miyqwx-dev.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@miyqwx-dev</b></a> | 💡 Proposed Gboard Lite Hide Incognito Icon toggle feature request. |
-| <a href="https://github.com/rdx011"><img src="https://github.com/rdx011.png" width="48" height="48" style="border-radius: 50%;" /><br><b>@rdx011</b></a> | 💡 Proposed Gboard Lite Decouple keyboard vibration from system touch feedback feature request ([#69](https://github.com/kveld9/kveld-morphe-patches/issues/69)). |
+| <a href="https://github.com/Lxchoooo"><img src="https://github.com/Lxchoooo.png" alt="@Lxchoooo" width="48" height="48" style="border-radius: 50%;" /><br><b>@Lxchoooo</b></a> | Testing: Daily patch testing, runtime APK validation, and bug diagnostics. |
+| <a href="https://github.com/Diego694"><img src="https://github.com/Diego694.png" alt="@Diego694" width="48" height="48" style="border-radius: 50%;" /><br><b>@Diego694</b></a> | Testing: Daily patch testing, runtime APK validation, and bug diagnostics. |
+| <a href="https://github.com/ll0r3nt3"><img src="https://github.com/ll0r3nt3.png" alt="@ll0r3nt3" width="48" height="48" style="border-radius: 50%;" /><br><b>@ll0r3nt3</b></a> | Feature request: Proposed DPI Resource Slimmer feature request ([#16](https://github.com/kveld9/kveld-morphe-patches/issues/16)). |
+| <a href="https://github.com/aidenking2102-dotcom"><img src="https://github.com/aidenking2102-dotcom.png" alt="@aidenking2102-dotcom" width="48" height="48" style="border-radius: 50%;" /><br><b>@aidenking2102-dotcom</b></a> | Feature request: Proposed TikTok Feed Ad Blocker ([#23](https://github.com/kveld9/kveld-morphe-patches/issues/23)), Playback Speed Setter ([#25](https://github.com/kveld9/kveld-morphe-patches/issues/25)), and Floating Ad Pendant / Sticker Blocker ([#33](https://github.com/kveld9/kveld-morphe-patches/issues/33)) feature requests. |
+| <a href="https://github.com/mparvezalam808"><img src="https://github.com/mparvezalam808.png" alt="@mparvezalam808" width="48" height="48" style="border-radius: 50%;" /><br><b>@mparvezalam808</b></a> | Feature request: Proposed TikTok Always show publish date, Copy comments without username, Fix Google login, and Show seekbar ([#35](https://github.com/kveld9/kveld-morphe-patches/issues/35)) and TikTok Custom offline videos limit ([#40](https://github.com/kveld9/kveld-morphe-patches/issues/40)) feature requests. |
+| <a href="https://github.com/raxelbyte"><img src="https://github.com/raxelbyte.png" alt="@raxelbyte" width="48" height="48" style="border-radius: 50%;" /><br><b>@raxelbyte</b></a> | Feature request: Proposed Gboard Lite Clipboard Enhancements feature request ([#17](https://github.com/kveld9/kveld-morphe-patches/issues/17)). |
+| <a href="https://github.com/rafipasya"><img src="https://github.com/rafipasya.png" alt="@rafipasya" width="48" height="48" style="border-radius: 50%;" /><br><b>@rafipasya</b></a> | Feature request: Proposed TikTok Auto-translate comments feature request ([#48](https://github.com/kveld9/kveld-morphe-patches/issues/48)). |
+| <a href="https://github.com/Fahry-a"><img src="https://github.com/Fahry-a.png" alt="@Fahry-a" width="48" height="48" style="border-radius: 50%;" /><br><b>@Fahry-a</b></a> | Feature request: Proposed Brave ARMv7a (32-bit) architecture support feature request ([#50](https://github.com/kveld9/kveld-morphe-patches/issues/50)). |
+| <a href="https://github.com/marcoodhb"><img src="https://github.com/marcoodhb.png" alt="@marcoodhb" width="48" height="48" style="border-radius: 50%;" /><br><b>@marcoodhb</b></a> | Feature request: Proposed TikTok Disable double tap to like feature request ([#55](https://github.com/kveld9/kveld-morphe-patches/issues/55)). |
+| <a href="https://github.com/miyqwx-dev"><img src="https://github.com/miyqwx-dev.png" alt="@miyqwx-dev" width="48" height="48" style="border-radius: 50%;" /><br><b>@miyqwx-dev</b></a> | Feature request: Proposed Gboard Lite Hide Incognito Icon toggle feature request. |
+| <a href="https://github.com/rdx011"><img src="https://github.com/rdx011.png" alt="@rdx011" width="48" height="48" style="border-radius: 50%;" /><br><b>@rdx011</b></a> | Feature request: Proposed Gboard Lite Decouple keyboard vibration from system touch feedback feature request ([#69](https://github.com/kveld9/kveld-morphe-patches/issues/69)). |
 <!-- CONTRIBUTORS_END -->
 
 ---
 
-## ⚖️ Legal Disclaimer
+<a name="legal"></a>
+## Legal Disclaimer
+![](images/divider-purple.svg)
 
 **Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, Hevy App, ByteDance Ltd., NokoPrint LLC, Xiaomi Inc., or any of their subsidiaries or affiliates.
 
@@ -371,6 +456,14 @@ All product names, logos, brands, and registered trademarks mentioned in this re
 
 ---
 
-## 📜 License
+<a name="license"></a>
+## License
+![](images/divider-purple.svg)
 
 Morphe Patches is open-source software licensed under the [GNU General Public License v3.0](LICENSE).
+
+---
+
+<p align="center">
+  <a href="#top"><b>&uarr; Back to top</b></a>
+</p>

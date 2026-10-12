@@ -53,7 +53,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Usability** | **Remember Clear Display** | `bytecodePatch` | Remembers TikTok's clear-display state between videos and re-applies it when new videos start. |
 | **Usability** | **Stop Video Looping** | `bytecodePatch` | Prevents videos from looping continuously on playback completion. |
 | **Usability** | **[Hide Inbox Promos & Alerts](#9-hide-inbox-promos--alerts)** | `bytecodePatch` | Hides promotional banners, streak mascot cards, contact sync suggestions, friend recommendations, and migration guide tooltips in the inbox and direct messages. |
-| **Usability** | **Hide Inbox Story & Status Tray** | `bytecodePatch` | Removes the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. |
+| **Usability** | **[Hide Inbox Story & Status Tray](#20-hide-inbox-story--status-tray-hideinboxstorytraypatch)** | `bytecodePatch` | Removes the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox, with an option to hide only suggested/non-followed stories while keeping followed accounts visible (`hideSuggestedOnly`). |
 | **Usability** | **[Direct Message Declutter](#10-direct-message-declutter)** | `bytecodePatch` | Cleans direct message conversations and chat list items via individual toggles for chat list camera icons, header voice/video call buttons, message forward buttons, streak mascot and reaction bars, input camera buttons, right-side input action buttons (gallery, emoji, mic), try effect buttons on shared videos, and automatic sticker reply suggestions. |
 | **Usability** | **[Disable Feed Long-Press Actions](#7-disable-feed-long-press-actions)** | `bytecodePatch` | Disables long-press action gestures on feed buttons, including Like to repost, Share to quick DMs, and Comment to quick emojis, with optional video-body long-press modes (`longPressVideo`). |
 | **Usability** | **Enable Profile Banner** | `bytecodePatch` | Unlocks custom profile banner header cover feature and banner editing tools in Edit Profile. |
@@ -75,7 +75,6 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Privacy** | **Friends Feed Strict Mutuals** | `bytecodePatch` | Filters suggested accounts, recommended videos, and non-mutual profiles (such as 'People you may know') from the Friends feed so it strictly reproduces content from mutual friends. |
 | **Privacy** | **Hide Suggested Accounts** | `bytecodePatch` | Removes suggested-account cards from profile headers and inbox/notification surfaces. |
 | **Privacy** | **Hide AI-Generated Content** | `bytecodePatch` | Filters and skips videos tagged with native AI-generated metadata, C2PA content credentials, or creator AI disclosure tags across the For You, Following, and Friends feeds. |
-| **Privacy** | **Hide Promotional Content** | `bytecodePatch` | Filters and skips videos disclosing branded or paid-promotional content ('Contenido Promocional' / paid partnership tags, StarAtlas orders, branded content accounts) across the For You, Following, and Friends feeds. |
 | **Privacy** | **Feed Live Stream Blocker** | `bytecodePatch` | Removes live broadcast cards and live recommendations from FYP and Following. |
 | **Privacy** | **Feed Bloat & Distraction Blocker** | `bytecodePatch` | Removes friend suggestions, suggested account carousels, mini-games, CapCut prompts, memories, community/topic cards, post-video evaluation surveys, questionnaires, mini-dramas, Lemon8 promo, in-feed search recommendations/interest cards, and floating rewards pendants across For You, Following, and Friends feeds. |
 | **Privacy** | **Unified Telemetry & Tracker Silencer** | `bytecodePatch` | Neutralizes ByteDance AppLog, APM/Npth/Heimdallr crash telemetry, and AppsFlyer. |
@@ -84,7 +83,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Privacy** | **Disable Watch History Recording** | `bytecodePatch` | Prevents viewed videos from being recorded in account watch history, playback duration stores, and local history caches. |
 | **Privacy** | **Update Prompt Suppressor** | `bytecodePatch` | Neutralizes background update polling tasks and version enforcement dialogs. |
 | **Privacy** | **[TikTok Privacy Permissions Stripper](#12-tiktok-privacy-permissions-stripper)** | `resourcePatch` | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via 15 granular opt-in boolean toggles. |
-| **Privacy** | **[Telemetry Manifest Purge](#29-telemetry-manifest-purge)** | `resourcePatch` | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase discovery registrars, and injects analytics opt-out metadata (Firebase, AppsFlyer, Meta AppEvents) into AndroidManifest.xml. |
+| **Privacy** | **[Telemetry Manifest Purge](#28-telemetry-manifest-purge-telemetrymanifestpurgepatch)** | `resourcePatch` | Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase discovery registrars, and injects analytics opt-out metadata (Firebase, AppsFlyer, Meta AppEvents) into AndroidManifest.xml. |
 | **Performance** | **[Display Refresh Rate Governor](#3-display-refresh-rate-governor)** | `bytecodePatch` | Locks window to peak hardware refresh rate (120Hz/90Hz) and neutralizes playback downclocking. |
 | **Performance** | **[Disable HDR Video Playback](#26-disable-hdr-video-playback-disablehdrvideopatch)** | `bytecodePatch` | Forces the video playback engine to select standard SDR bitrates instead of HDR (HDR10/PQ/HLG). |
 | **Performance** | **Instant Launch & Splash Blocker** | `bytecodePatch` | Eliminates cold startup delays, real-time splash advertisements, and background TopView ad preloading. |
@@ -97,7 +96,7 @@ Comprehensive technical, architectural, and configuration guide for **TikTok** (
 | **Slimmer** | **Core Asset De-bloat** | `rawResourcePatch` | Strips Microblink OCR models, C2PA AI libs, ByteDance TTWebView engine, non-Latin fonts, Python VM (~77 MB saved). |
 | **Slimmer** | **Studio & Creation De-bloat** | `rawResourcePatch` | Strips AR camera engine (`libeffect_plugin.so`), video editor SDK (`libttvesdk_plugin.so`), CapCut NLE libs, CutSame/Davinci template engine, camera dynamic features, upload video encoders, and on-device AI runtimes (LiteRT). |
 | **Slimmer** | **Language Pack Purger** | `rawResourcePatch` | Strips unselected language string bundles from `assets/strings#lang_*`. |
-| **Universal Patches Suite** | Multiple | Optimization & Privacy | Compatible with universal slimmers and privacy patches (Screen Brightness Governor, Telemetry Neutralizer, Native Binary Trimmer, WebP/PNG Optimizers, DPI/Locale Slimmers). See [Universal Patch Reference](../universal-patches.md). |
+| **Universal Patches Suite** | Multiple | Optimization & Privacy | Do not stack universal telemetry/privacy patches on this maintained app (dedicated patches already cover it). Slimmers + curated Universal Hosts Blocker only. See [Universal Patch Reference](../universal-patches.md). |
 
 ---
 
@@ -163,7 +162,7 @@ The patch accepts any valid **2-letter ISO 3166-1 alpha-2** country code. Inputs
 | **Germany** | `DE` | German feed & Central European catalog (subject to GEMA audio restrictions) |
 
 <details>
-<summary><b>🔍 View comprehensive list of 50+ ISO 3166-1 alpha-2 country codes</b></summary>
+<summary><b>🔍 View comprehensive list of 48 ISO 3166-1 alpha-2 country codes</b></summary>
 <br>
 
 ```text
@@ -451,7 +450,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
 ### 5. Feed Bloat & Distraction Blocker (`feedBloatBlockerPatch`)
 - **Rewards Pendants Suppression**: Injects `return-void` into `SpecActWidget.bind(ViewGroup)` to prevent floating Rewards widgets (countdown coins, soccer ball stickers) from attaching to feed views.
 - **Sticker & Card Stripping**: Nullifies `Aweme.getActivityPendant()`, `getCommerceStickerInfo()`, `getFloatingCardInfo()`, and `getBannerTip()`.
-- **Feed Stream Purge**: Filters suggested accounts, mini-games, CapCut creation prompts, memories recaps, mini-dramas, in-feed search interest cards (card type `38`), and trending search recommendation cards (card types `34`, `35`) before UI adapter binding via `TikTokFeedAdFilter.isFeedBloat()`.
+- **Feed Stream Purge**: Filters suggested accounts, mini-games, CapCut creation prompts, memories recaps, mini-dramas, in-feed search interest cards, and trending search recommendation cards before UI adapter binding via `TikTokFeedAdFilter.isFeedBloat()` (any `CardInsertInfo` with `cardType > 0` or `recommendCardType > 0`).
 - **Community & Lynx Cards Suppression**: Neutralizes all inserted non-video Lynx cards and topic cards via `TikTokFeedAdFilter.isFeedBloat()` (`CardInsertInfo != null`, `recommendCardType > 0`), stubs `Aweme.getExploreCommunityCommentShowType()` -> `null`, and sanitizes community comment headers via `stripSurveyBloat()`.
 - **Post-Video Safety Surveys & Questionnaires Neutralization**: Suppresses in-feed safety evaluation surveys ("¿Valió la pena ver este video?", feedback questionnaires, push surveys, and bottom survey buttons). Injects `return-void` into `CellSurveyComponent` (`onViewCreated`, `ur`, `wr`) and `FeedBottomSurveyButtonComponent.onParentViewCreated()`, forces `AwemeExtKt.isWithSurvey()` -> `false`, `PNSSurveyService.LIZIZ()` -> `false`, `PushSurveyAssemTrigger.yr()` -> `false`, nullifies `Aweme` survey getters (`getWithSurvey() -> false`, `getSurveyInfo() -> null`, `getSurveyInfos() -> null`, `getPersonalizedSurveyUI() -> null`, `getOnboardingSurvey() -> null`, `getPersonalizedOnboardingSurvey() -> null`), prunes standalone survey cards without media content (`hasMediaContent == false`), and strips residual survey bloat metadata on retained videos and photo mode posts (`TikTokFeedAdFilter.stripSurveyBloat()`).
 - **Search Recommendation Request Neutralization**: Stubs `AbsSearchService.u()Ljava/util/List;` to return an empty list (`Collections.emptyList()`), preventing the search module from registering card insert request generators into the feed pipeline.
@@ -561,10 +560,14 @@ Certain permissions are intentionally excluded from this manifest stripper becau
 - **Bottom Sheet Presentation Neutralization**: Stubs the popup display launcher in `DownloadAndShareFragment` (fingerprinted by `definingClass = DownloadAndShareFragment` and string `"after_video_saved_share_to_nscreen"`) with `return-void` at instruction offset 0, preventing the creation and display of the `TuxSheet` bottom sheet dialog while preserving download completion toasts and saved file integrity.
 
 ### 20. Hide Inbox Story & Status Tray (`hideInboxStoryTrayPatch`)
-- Removes the horizontal story carousel, status notes, and creation bubbles (Skylight) displayed at the top of the direct messages inbox.
-- **Skylight Widget Injector Suppression**: Hooks `InboxSkylightWidgetV2Injector.enable()Z` -> returns `false`, preventing the Skylight container from registering or injecting into the inbox multi-pod recycler.
-- **Combine Pod Provider Neutralization**: Stubs `InboxSkylightWidgetV2.Sq()Ljava/util/List;` -> returns `emptyList()`, neutralizing story and thought combine pod creation.
-- **Eligibility Gate Neutralization**: Hooks `InboxSkylightWidgetV2.er(List)Z` -> returns `false`, ensuring display eligibility checks evaluate to empty.
+- Removes the horizontal story carousel, status notes, and creation bubbles (Skylight) displayed at the top of the direct messages inbox, or selectively prunes non-followed and suggested accounts.
+
+| Option | Key | Type | Default | Description |
+| :--- | :--- | :---: | :---: | :--- |
+| **Hide Suggested Stories Only** | `hideSuggestedOnly` | Boolean | `true` | When enabled, hides only suggested and non-followed story circles in the inbox tray while preserving followed accounts and preventing viewer autoplay continuation into suggested users. When disabled, hides the entire horizontal Skylight tray. |
+
+- **Granular Suggested Filtering Mode** (`hideSuggestedOnly = true`): Injects a runtime filter call at `StoryGetFeedByPageResponse.<init>` via `TikTokFeedAdFilter.filterSuggestedStoriesInList(Object)`, pruning non-followed and recommended accounts (`followStatus == 0`) from the story feed payload before they are mapped to `StoryInboxItem` pods. Followed stories and user creation bubbles remain visible, and the story viewer's playlist is constrained exclusively to followed accounts, preventing autoplay continuation into suggested users.
+- **Full Tray Suppression Mode** (`hideSuggestedOnly = false`): Stubs `InboxSkylightWidgetV2Injector.enable()Z` -> `return false`, `InboxSkylightWidgetV2.Sq()Ljava/util/List;` -> `return emptyList()`, and `InboxSkylightWidgetV2.er(List)Z` -> `return false`, completely eliminating the Skylight widget container and its multi-pod recycler.
 
 ### 21. Disable Feed Long-Press Actions (`disableFeedLongPressActionsPatch`)
 - Disables long-press action gestures on feed buttons, eliminating unwanted menu popups while preserving standard single-tap actions.
@@ -628,7 +631,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - Uses `Element.stripPermissionsWhere` to query and remove direct children matching `uses-permission` and `uses-permission-sdk-23` without altering unrelated manifest metadata or application attributes.
   - Guarantees zero resource re-encoding regressions (unlike full ARSC recompilation).
 - **Comprehensive Manifest Coverage & Pruning Discipline**:
-  - Covers all 64 unique permissions extracted from TikTok 47.1.4 standalone manifest (`tiktok_47.1.4_orig.apk`).
+  - Covers 51 unique permissions mapped into 15 categorized boolean toggle switches (see `PERMISSION_GROUPS` in `TikTokPrivacyPermissionsStripperPatch.kt`).
   - 51 permissions mapped into 15 categorized boolean toggle switches (5 default `true`: `nfc`, `screenshotDetection`, `oemSignals`, `bluetooth`, `biometric`; 10 default `false`).
   - 7 non-negotiable permissions pruned from manifest stripping and delegated to specialized runtime governors (**Universal Telemetry Neutralizer** and **Device Privacy Guard**).
   - 1 kernel-critical permission (`android.permission.INTERNET`) explicitly excluded to prevent cold startup socket allocation aborts.
@@ -637,20 +640,7 @@ Certain permissions are intentionally excluded from this manifest stripper becau
   - Aggregates enabled toggles into a single pass predicate to prune elements efficiently.
   - Emits concise ASCII telemetry (`[TikTok Privacy Permissions Stripper] Stripped N permission(s) from AndroidManifest.xml: ...`) with clean short names.
 
-### 28. Hide Promotional Content (`hidePromotionalContentPatch`)
-- Filters and skips videos disclosing branded or paid-promotional content ("Contenido Promocional" / paid partnership disclosure tags) across the For You, Following, and Friends feeds.
-- **Feed API Response Interception**: Hooks `FeedApiService.fetchFeedList` to filter incoming items at the network response boundary before model mapping.
-- **Feed Item Model Interception**: Hooks `FeedItemList.getItems()` and `FollowFeedList.getItems()` to sanitize feed collections in-situ.
-- **Friends Feed Network Interception**: Hooks `FriendsV3FeedNetworkSource.LJ` (V3 response handler) and the friend feed request `LX/06CX;->LIZLLL` (`/tiktok/v1/friend/friend_feed`, V2) return points to filter `friendsV3Feeds` / `friendFeedData` after deserialization.
-- **Multi-Vector Commercial & Branded Metadata Inspection**: Inspects `Aweme` for:
-  - `AwemeCommerceStruct` (`bcHashtag` tag disclosure text, `isBrandedContent` / `brandedContentType > 0`, `isBrandOrganicContent` / `brandOrganicType > 0`, `CommerceLabelInfo.bcLabelDisplayType == 1`, `ecSearchBoBcLabelText`).
-  - `brandContentAccounts` (tagged sponsor accounts list).
-  - `starAtlasOrderId` (ByteDance Star Atlas commercial order ID).
-  - `commercialVideoInfo` (commercial video payload marker).
-  - `promoteModel` and `promoteIconText` (native in-feed promotion triggers).
-  - Multi-locale description, caption, banner, and anchor fallback pattern matching (`#paidpartnership`, `#brandedcontent`, `#contenidopromocional`, `[Contenido Promocional]`, `[Paid partnership]`, `[Contenu sponsorisé]`, `[Colaboración pagada]`, `[Parceria paga]`, etc.).
-
-### 29. Telemetry Manifest Purge (`telemetryManifestPurgePatch`)
+### 28. Telemetry Manifest Purge (`telemetryManifestPurgePatch`)
 - **Manifest DOM Transformation**:
   - Implemented as a clean `resourcePatch` executing directly against `AndroidManifest.xml`.
   - Uses shared helpers from `app.morphe.patches.shared` (`stripPermissionsWhere`, `disableComponentsWhere`, `removeComponentDiscoveryRegistrarsWhere`, `setApplicationMetaData`) for consistent DOM manipulation.

@@ -26,7 +26,7 @@ private sealed class PendingMutation(val instructionIndex: Int) {
 }
 
 private val screenshotProtectionBypassResourcePatch = resourcePatch(
-    name = "Screenshot Protection Bypass Resource",
+    name = "Allow Screen Capture (Setup)",
     description = "Enables allowAudioPlaybackCapture on the application tag in AndroidManifest.xml.",
     default = false,
 ) {
@@ -59,8 +59,8 @@ private val screenshotProtectionBypassResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val universalScreenshotProtectionBypassPatch = bytecodePatch(
-    name = "Universal Screenshot Protection Bypass",
-    description = "Neutralizes FLAG_SECURE on windows, layout params, and SurfaceViews, unlocks audio playback capture, and suppresses Android 14+ screenshot and screen recording detection callbacks.",
+    name = "Allow Screenshots",
+    description = "Removes screenshot blocking and capture detection.",
     default = false,
 ) {
     dependsOn(screenshotProtectionBypassResourcePatch)
