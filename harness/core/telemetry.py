@@ -96,7 +96,12 @@ class TelemetryScanner:
                 if old_offs and sorted(old_offs) == sorted(new_offs):
                     host_status = "VERIFIED"
                 else:
+                    # The host survived but no longer sits at the offset recorded in the
+                    # patch source. The raw-resource patch asserts the original bytes at
+                    # that offset before writing, so it cannot apply here: this is an
+                    # unverified state, not a pass.
                     host_status = "OFFSET_CHANGED"
+                    all_verified = False
                     shifted.append(HostAuditResult(
                         hostname=host,
                         expected_count=exp_count,
