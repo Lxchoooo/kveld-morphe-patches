@@ -341,7 +341,8 @@ commit_mirror() {
     local canon_sha mirror_sha count
     canon_sha="$(git -C "$canon_root" rev-parse --short HEAD)"
     count="${#CHANGED_PATHS[@]}"
-    if ! git -C "$mirror_root" commit -q -m "$SYNC_SUBJECT" -m "Source: $CANONICAL_REPO $canon_sha"; then
+    # SIBLING_REPO is role-relative and must not reach the mirror's hooks.
+    if ! env -u SIBLING_REPO git -C "$mirror_root" commit -q -m "$SYNC_SUBJECT" -m "Source: $CANONICAL_REPO $canon_sha"; then
         echo "[SYNC] ERROR: mirror commit failed; changes left staged in $mirror_root."
         if [ "$MODE" = "hook" ]; then
             exit 0
