@@ -99,22 +99,20 @@ fingerprint.method.addInstructions(putIndex, "const/4 v$putReg, 0x0")
 
 Use `addInstructionsWithLabels` when introducing branching logic (`if-eqz`, `if-nez`, `goto`) to guarantee proper branch label target resolution and relative offset recalculation:
 
+To branch back into the original body, bind an `ExternalLabel` to an existing instruction instead of declaring the label inside the injected smali (production use: `NokoPrintSkipWelcomeDialogPatch.kt`):
+
 ```kotlin
-method.addInstructionsWithLabels(0, """
-    invoke-static {}, Landroid/app/ActivityThread;->currentApplication()Landroid/app/Application;
-    move-result-object v0
-    invoke-static {v0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
-    move-result-object v0
-    const-string v1, "morphe_feature_enabled"
-    invoke-interface {v0, v1}, Landroid/content/SharedPreferences;->contains(Ljava/lang/String;)Z
-    move-result v0
-    if-nez v0, :disabled
-    const/4 v0, 0x1
-    return v0
-    :disabled
-    const/4 v0, 0x0
-    return v0
-""".trimIndent())
+import app.morphe.patcher.util.smali.ExternalLabel
+
+// Instance method: p0 = this, p1 = first argument. A null argument skips the original body.
+method.addInstructionsWithLabels(
+    0,
+    """
+    if-nez p1, :original
+    return-void
+    """.trimIndent(),
+    ExternalLabel("original", method.getInstruction(0)),
+)
 ```
 
 ### Branch Polarity Rule (blocking correctness invariant)
