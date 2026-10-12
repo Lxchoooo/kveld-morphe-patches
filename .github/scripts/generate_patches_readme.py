@@ -300,9 +300,12 @@ for entry in by_app.values():
                 count=1,
             )
 
-new_readme = re.sub(
+# The generated section is inserted as a *function* replacement, never as a template:
+# a patch description containing a backslash (C:\path, \1, \g<name>) would otherwise be
+# parsed as a regex escape and abort the whole release with `bad escape`.
+new_readme, replacements = re.subn(
     rf"{START_PATTERN}.*?{re.escape(END_MARKER)}",
-    f"{actual_start}\n{generated}\n{END_MARKER}",
+    lambda _match: f"{actual_start}\n{generated}\n{END_MARKER}",
     readme,
     flags=re.DOTALL,
 )
