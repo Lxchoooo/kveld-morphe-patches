@@ -22,6 +22,7 @@
 # Safety and Invariants:
 #   - Hooks skip linked worktrees: task branches never propagate until merged
 #     into the main checkout.
+#   - Hooks propagate only commits on CANONICAL_BRANCH (dev); --push syncs from any branch.
 #   - Mirror commits happen only when the mirror checkout is safe to write:
 #     on a branch, no merge/rebase/cherry-pick/revert in progress, clean index,
 #     and no uncommitted changes in shared paths.
@@ -32,9 +33,10 @@
 #
 set -euo pipefail
 
-# Intrinsic definition of the shared repository names, synced paths, and commit subject.
+# Intrinsic definition of the shared repository names, canonical working branch, synced paths, and commit subject.
 CANONICAL_REPO="kveld-morphe-patches"
 MIRROR_REPO="kveld-extra-morphe-patches"
+CANONICAL_BRANCH="dev"
 SHARED_PATHS=(
   .agents/skills/morphe-patcher
   .agents/skills/smali-bytecode-hooks
@@ -499,10 +501,21 @@ run_push() {
     commit_mirror
 }
 
+# Hooks propagate only commits on CANONICAL_BRANCH; --push still syncs from any branch.
+skip_unless_canonical_branch() {
+    local branch
+    branch="$(git -C "$canon_root" symbolic-ref --short -q HEAD || true)"
+    if [ "$branch" != "$CANONICAL_BRANCH" ]; then
+        echo "[SYNC] Skipped: canonical checkout is on ${branch:-a detached HEAD}, not $CANONICAL_BRANCH; run scripts/sync_shared_skills.sh --push to sync it manually."
+        exit 0
+    fi
+}
+
 run_hook() {
     if [ "$role" = "mirror" ] || [ "$is_linked_worktree" -eq 1 ] || [ "${SYNC_SHARED_SKILLS_DISABLE:-}" = "1" ]; then
         exit 0
     fi
+    skip_unless_canonical_branch
     run_push
     exit 0
 }
