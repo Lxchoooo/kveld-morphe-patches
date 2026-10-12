@@ -24,7 +24,7 @@ Automated semantic releases depend on commit messages adhering strictly to the c
 
 ### Release-Suppressed Scopes
 
-`.releaserc.js` maps these scopes to `release: false` regardless of commit type and strips them from release notes: `harness`, `ci`, `test`, `tooling`, `scripts`, `docs`, `governance`, `agents`, `readme`, `github`, `release`, `repo`, `security`, `hygiene`, `git`, `changelog` (matched lowercase, Capitalized or UPPERCASE). `fix(harness): ...` or `feat(scripts): ...` therefore never publish a release. Use an app or `patches`/`shared` scope when a change must reach users; use a suppressed scope for tooling and documentation work that must not.
+`.releaserc.js` maps these scopes to `release: false` regardless of commit type and strips them from release notes: `harness`, `ci`, `test`, `tooling`, `scripts`, `docs`, `governance`, `agents`, `readme`, `github`, `release`, `repo`, `security`, `hygiene`, `git`, `changelog`, `skills`, `validation`, `contributors` (matched lowercase, Capitalized or UPPERCASE). `fix(harness): ...` or `feat(scripts): ...` therefore never publish a release. Use an app or `patches`/`shared` scope when a change must reach users; use a suppressed scope for tooling and documentation work that must not.
 
 ### Mandatory Atomic Commits Policy
 
