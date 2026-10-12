@@ -10,7 +10,7 @@ private const val NEW_USER_JOURNEY_SERVICE = "Lcom/ss/android/ugc/aweme/NewUserJ
 
 val skipFirstLaunchOnboardingPatch = bytecodePatch(
     name = "Skip First-Launch Onboarding",
-    description = "Bypasses the entire first-run introduction funnel (interest pickers, swipe tutorials, language prompts, and consent sheets) directly to the feed.",
+    description = "Skips the first-launch intro, tutorials and consent screens.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

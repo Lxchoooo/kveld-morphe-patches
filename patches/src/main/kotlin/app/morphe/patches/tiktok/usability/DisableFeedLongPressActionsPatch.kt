@@ -12,7 +12,7 @@ import app.morphe.patches.shared.sharedExtensionPatch
 
 val disableFeedLongPressActionsPatch = bytecodePatch(
     name = "Disable Feed Long-Press Actions",
-    description = "Disables long-press action gestures on feed buttons, including Like to repost, Share to quick DMs, and Comment to quick emojis, with optional long-press video body redirection.",
+    description = "Turns off long-press actions like repost, quick DM and quick emoji.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

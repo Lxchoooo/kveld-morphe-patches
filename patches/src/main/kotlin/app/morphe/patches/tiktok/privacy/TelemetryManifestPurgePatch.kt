@@ -49,7 +49,7 @@ private val OPT_OUT_METADATA = listOf(
 
 val telemetryManifestPurgePatch = resourcePatch(
     name = "Telemetry Manifest Purge",
-    description = "Strips advertising and attribution permissions, disables telemetry receivers/services (AppLog, AppsFlyer, Measurement, DataTransport), prunes Firebase analytics/transport registrars, and injects opt-out metadata (Firebase, AppsFlyer, Meta).",
+    description = "Removes tracking permissions and disables telemetry components.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

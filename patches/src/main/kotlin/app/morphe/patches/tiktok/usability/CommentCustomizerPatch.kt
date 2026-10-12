@@ -1066,7 +1066,7 @@ private fun BytecodePatchContext.applyHideCommentPopupAds(): Int {
 
 val commentCustomizerPatch = bytecodePatch(
     name = "Comment Customizer",
-    description = "Customizes TikTok's comment section, including native sort controls, clean text copying, disabling suggested emojis bar, hiding comment quick actions, hiding in-comment surveys and feedback cards, hiding profile photo story rings, enabling voice comments, automatic comment translation, fixing silent comment drops, and hiding comment popup ads.",
+    description = "Takes control of comments: sort, copy, translate and hide clutter.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
