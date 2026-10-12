@@ -1,3 +1,10 @@
+## [2.7.0-experimental.12](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.11...v2.7.0-experimental.12) (2026-10-12)
+
+### New Features
+
+* **skills:** add shared ux-declutter skill for ads, promos, onboarding, nags and UI clutter ([f117037](https://github.com/kveld9/kveld-morphe-patches/commit/f11703792f8d38b640c65c5a6414bf5769eb5c77))
+* **skills:** replace new-telemetry-app with shared patch-app skill covering all patch families ([0a29380](https://github.com/kveld9/kveld-morphe-patches/commit/0a2938095ec4defc51aeffcee50f7d820e245de3))
+
 ## [2.7.0-experimental.11](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.10...v2.7.0-experimental.11) (2026-10-12)
 
 ### Bug Fixes
