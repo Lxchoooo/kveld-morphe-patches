@@ -539,13 +539,22 @@ record_staged_blobs() {
     fi
 }
 
+# Blob id of a canonical file at HEAD; empty when the path is missing or now a directory.
+canonical_blob_at() {
+    local sha
+    sha="$(git -C "$canon_root" rev-parse -q --verify "HEAD:$1" 2>/dev/null || true)"
+    if [ -n "$sha" ] && [ "$(git -C "$canon_root" cat-file -t "$sha" 2>/dev/null || true)" = "blob" ]; then
+        echo "$sha"
+    fi
+}
+
 find_offending_paths() {
     OFFENDING_PATHS=()
     local p staged_blob canon_blob
     if [ "${#STAGED_SHARED_PATHS[@]}" -gt 0 ]; then
         for p in "${STAGED_SHARED_PATHS[@]}"; do
             staged_blob="${STAGED_BLOBS[$p]:-}"
-            canon_blob="$(git -C "$canon_root" rev-parse -q --verify "HEAD:$p" 2>/dev/null || true)"
+            canon_blob="$(canonical_blob_at "$p")"
             if [ "$staged_blob" != "$canon_blob" ]; then
                 OFFENDING_PATHS+=("$p")
             fi
