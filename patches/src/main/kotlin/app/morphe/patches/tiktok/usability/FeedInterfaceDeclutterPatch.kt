@@ -209,7 +209,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 parameters = listOf("Landroid/view/View;"),
             ).method
             descOnViewCreated.clearTryBlocks()
-            descOnViewCreated.ensureRegisterCount(2)
+            descOnViewCreated.ensureRegisterCount(6)
             val descReturns = descOnViewCreated.implementation!!.instructions.mapIndexedNotNull { index, instr ->
                 if (instr.opcode.name == "return-void") index else null
             }.reversed()
@@ -220,6 +220,24 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         move-object/from16 v0, p1
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        move-object/from16 v0, p1
+                        if-eqz v0, :skip_desc_ovc
+                        invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+                        move-result-object v1
+                        invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+                        move-result-object v2
+                        invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+                        move-result-object v3
+                        const-string v4, "desc"
+                        const-string v5, "id"
+                        invoke-virtual {v2, v4, v5, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+                        move-result v4
+                        invoke-virtual {v0, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+                        move-result-object v0
+                        if-eqz v0, :skip_desc_ovc
+                        const/16 v1, 0x8
+                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        :skip_desc_ovc
                     """.trimIndent(),
                 )
             }
@@ -261,7 +279,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method
             descJs.clearTryBlocks()
-            descJs.ensureRegisterCount(2)
+            descJs.ensureRegisterCount(6)
             val jsReturns = descJs.implementation!!.instructions.mapIndexedNotNull { index, instr ->
                 if (instr.opcode.name == "return-void") index else null
             }.reversed()
@@ -276,6 +294,26 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         const/16 v1, 0x8
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
                         :cond_skip_js_$i
+                        move-object/from16 v0, p0
+                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
+                        move-result-object v0
+                        if-eqz v0, :skip_desc_js_$i
+                        invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+                        move-result-object v1
+                        invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+                        move-result-object v2
+                        invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+                        move-result-object v3
+                        const-string v4, "desc"
+                        const-string v5, "id"
+                        invoke-virtual {v2, v4, v5, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+                        move-result v4
+                        invoke-virtual {v0, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+                        move-result-object v0
+                        if-eqz v0, :skip_desc_js_$i
+                        const/16 v1, 0x8
+                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        :skip_desc_js_$i
                     """.trimIndent(),
                 )
             }
