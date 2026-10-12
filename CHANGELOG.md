@@ -1,3 +1,9 @@
+## [2.7.0-experimental.13](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.12...v2.7.0-experimental.13) (2026-10-12)
+
+### Bug Fixes
+
+* **validation:** abort when the device clock cannot bound the crash window ([49880b3](https://github.com/kveld9/kveld-morphe-patches/commit/49880b39643798e097a245baa0993a41660cb498))
+
 ## [2.7.0-experimental.12](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.11...v2.7.0-experimental.12) (2026-10-12)
 
 ### New Features
