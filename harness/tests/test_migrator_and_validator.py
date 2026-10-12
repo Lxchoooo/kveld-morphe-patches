@@ -148,3 +148,69 @@ class TestMigratorAndValidator(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOriginSymbolAmbiguity(unittest.TestCase):
+    """The migrator writes resolved symbol names straight into BraveOriginPatch.kt.
+
+    A settings class usually exposes several instance booleans and several static
+    String->String helpers, so a "first match wins" guess must not be reported as
+    verified: it would silently patch an unrelated member.
+    """
+
+    @staticmethod
+    def _prefs_class(booleans, statics):
+        from harness.core.dex import IndexedClass, IndexedMethod
+
+        return IndexedClass(
+            dex_name="classes.dex",
+            name="Lorg/chromium/chrome/browser/settings/BraveOriginPreferences;",
+            access_flags=1,
+            superclass="Ljava/lang/Object;",
+            interfaces=[],
+            class_def=None,
+            methods=[
+                IndexedMethod(
+                    dex_name="classes.dex",
+                    class_name="Lorg/chromium/chrome/browser/settings/BraveOriginPreferences;",
+                    name=name,
+                    parameters=["Ljava/lang/String;"],
+                    return_type="Ljava/lang/String;",
+                    access_flags=0x9,  # public static
+                    encoded_method=MagicMock(),
+                )
+                for name in statics
+            ],
+            fields=[(n, "Z", 0x2) for n in booleans],
+        )
+
+    def test_single_boolean_is_verified(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], [])
+        sym = SymbolResolver._resolve_origin_locked_field(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.VERIFIED)
+        self.assertEqual(sym.new_symbol, "N0:Z")
+
+    def test_multiple_booleans_block_instead_of_guessing(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0", "O0", "P0"], [])
+        sym = SymbolResolver._resolve_origin_locked_field(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+        self.assertIn("ambiguous", " ".join(sym.evidence))
+
+    def test_single_static_string_method_is_verified(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], ["b5"])
+        sym = SymbolResolver._resolve_origin_key_mapping(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.VERIFIED)
+
+    def test_multiple_static_string_methods_block(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+
+        cls = self._prefs_class(["N0"], ["b5", "c5"])
+        sym = SymbolResolver._resolve_origin_key_mapping(cls, cls.name)
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+        self.assertIn("ambiguous", " ".join(sym.evidence))
