@@ -77,6 +77,8 @@ class GboardInvariantsChecker:
             description="APK contains valid multidex entries",
             details=f"DEX files: {self.meta.dex_files}",
         ))
+        if not dex_ok:
+            blocking.append("No DEX entries indexed from the APK; the audit has nothing to validate.")
 
         # 4. Theme Assets Invariant
         assets_ok = False
@@ -96,5 +98,5 @@ class GboardInvariantsChecker:
         if not assets_ok:
             blocking.append("Required AMOLED theme assets not found in APK.")
 
-        passed = (len(blocking) == 0)
+        passed = all(r.passed for r in results)
         return InvariantsReport(passed=passed, results=results, blocking_reasons=blocking)
