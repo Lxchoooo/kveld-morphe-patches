@@ -111,7 +111,7 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 <!-- PATCHES_START -->
 <details>
-<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>72 patches</b></summary>
+<summary>TikTok&nbsp;&nbsp;•&nbsp;&nbsp;<b>49 patches</b></summary>
 <br>
 
 **Supported versions:**
@@ -126,72 +126,49 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 | **Bypass Mandatory Login** | Neutralizes mandatory login walls, dynamic regional forced login gates, and guest browsing restrictions. |  |
 | **Bypass Screen Capture Detection** | Removes screenshot and screen recording blocking. |  |
 | **Camera & Microphone Indicator** | Shows a corner mark while TikTok holds camera/mic open. |  |
-| **Clean Share Panel** | Removes clutter from the share panel and direct message dialog, including suggested quick emojis and the 'Send to new group' button. | • Hide Quick Emojis<br>• Hide 'Send to New Group' |
 | **Clean Share URL** | Strips tracking parameters, user IDs, device fingerprints, and marketing tokens from shared TikTok links, with optional custom host redirection. | • Custom Share Host |
 | **Client-Side AI & Behavioral Profiling Governor** | Turns off on-device AI, the chatbot and AI search. |  |
 | **Comment Customizer** | Takes control of comments: sort, copy, translate and hide clutter. | • Comment Sort Controls<br>• Fix Silent Comment Drops<br>• Copy Comments Without Username<br>• Disable Suggested Emojis<br>• Hide Comment Quick Actions<br>• Hide Comment Surveys & Feedback Cards<br>• Hide Comment Story Rings<br>• Enable Voice Comments<br>• Hide Comment Popup Ads<br>• Show Community-Flagged Comments<br>• Auto-Translate Comments<br>• Do-Not-Translate Languages |
 | **Core Asset De-bloat** | Removes card scanners, AI engines and extra fonts to save space. |  |
 | **Custom Offline Videos Limit** | Customizes the maximum number of videos available for offline download caching. | • Custom Offline Videos Limit |
-| **Custom Share Sheet** | Lets you hide share menu entries you do not use. | • Hide WhatsApp<br>• Hide Instagram<br>• Hide Facebook & Messenger<br>• Hide Telegram<br>• Hide X / Twitter<br>• Hide Snapchat<br>• Hide Reddit & Discord<br>• Hide SMS & Messages<br>• Hide Secondary Networks<br>• Hide 'Repost' Button<br>• Hide QR Code<br>• Hide 'Copy Link'<br>• Hide System Share ('More')<br>• Hide Friends / Direct Messages Row<br>• Hide 'Promote' Action<br>• Hide 'Why This Video'<br>• Hide 'Create Group' Action<br>• Hide 'Add to Story'<br>• Hide 'Create Sticker'<br>• Hide 'Duet' Action<br>• Hide 'Stitch' Action<br>• Hide 'Picture-in-Picture' (PiP)<br>• Hide 'Clear Display'<br>• Hide 'Background Audio'<br>• Hide Live Wallpaper & GIF<br>• Hide 'Not Interested'<br>• Hide 'Report' |
+| **Custom Share Sheet** | Lets you hide share menu entries you do not use. | • Hide WhatsApp<br>• Hide Instagram<br>• Hide Facebook & Messenger<br>• Hide Telegram<br>• Hide X / Twitter<br>• Hide Snapchat<br>• Hide Reddit & Discord<br>• Hide SMS & Messages<br>• Hide Secondary Networks<br>• Hide 'Repost' Button<br>• Hide QR Code<br>• Hide 'Copy Link'<br>• Hide System Share ('More')<br>• Hide Friends / Direct Messages Row<br>• Hide Quick Emojis<br>• Hide 'Send to New Group'<br>• Hide 'Promote' Action<br>• Hide 'Why This Video'<br>• Hide 'Create Group' Action<br>• Hide 'Add to Story'<br>• Hide 'Create Sticker'<br>• Hide 'Duet' Action<br>• Hide 'Stitch' Action<br>• Hide 'Picture-in-Picture' (PiP)<br>• Hide 'Clear Display'<br>• Hide 'Background Audio'<br>• Hide Live Wallpaper & GIF<br>• Hide 'Not Interested'<br>• Hide 'Report' |
 | **Device Privacy Guard** | Blocks access to your contacts, location, apps and sensors. |  |
 | **Direct Message Declutter** | Cleans up chat and DM screens by hiding extra buttons. | • Hide Chat List Camera Button<br>• Hide Header Call Button<br>• Hide Message Forward Button<br>• Hide Reaction and Streak Bar<br>• Hide Input Bar Camera Button<br>• Hide Gallery Button<br>• Hide Emoji/Stickers Button<br>• Hide Voice Recording Button<br>• Hide Try Effect Button<br>• Hide Sticker Reply Suggestions |
-| **Disable Double Tap to Like** | Disables double tap like in the feed. |  |
-| **Disable Feed Long-Press Actions** | Turns off long-press actions like repost, quick DM and quick emoji. | • Disable Long-Press Like (Repost)<br>• Disable Long-Press Share (Quick DMs)<br>• Disable Long-Press Comment (Quick Emojis)<br>• Long Press Video Action |
-| **Disable HDR Video Playback** | Plays standard video instead of HDR. Keeps screen brightness normal. |  |
-| **Disable Post-Download Share Dialog** | Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download. |  |
-| **Disable Profile Photo LIVE Status** | Removes the LIVE ring on avatars and keeps taps on the profile. |  |
 | **Disable Push Notifications** | Stops background push notifications. |  |
-| **Disable Search History Recording** | Prevents search queries and keywords from being recorded in local history, databases, and analytics stores. |  |
-| **Disable Search Video Autoplay** | Disables automatic video playback in search results. Videos only play when tapped to view in detail. |  |
-| **Disable Watch History Recording** | Prevents viewed videos from being recorded in account watch history, playback duration stores, and local history caches. |  |
-| **Display Refresh Rate Governor** | Forces TikTok to run at peak display refresh rate (120Hz/90Hz/60Hz) and neutralizes video playback framerate downclocking routines. | • Target Refresh Rate |
-| **Enable Live Search** | Shows TikTok's search entry in the Live drawer where supported. |  |
 | **Enable Profile Banner** | Unlocks the profile banner and its editing tools. |  |
-| **Feed Ad Blocker** | Removes sponsored advertisements, brand promotions, and promotional audio from the For You, Following, and Search feeds. |  |
-| **Feed Bloat & Distraction Blocker** | Removes ads, mini-games and suggested cards from your feed. |  |
-| **Feed Content Filter** | Hides videos, stories and photos outside your view or like range. | • Minimum Views<br>• Maximum Views<br>• Minimum Likes<br>• Maximum Likes<br>• Hide Stories<br>• Hide Photo Posts |
-| **Feed Interface Declutter** | Cleans up the buttons and overlays on top of videos. | • Hide Repost Badge<br>• Hide Video Descriptions<br>• Hide Profile Photo Follow Button<br>• Disable Story Feed Indicators<br>• Hide Playlist Bottom Bar<br>• Hide Save Button<br>• Hide Music Cover Disc<br>• Hide Full Screen Button<br>• Hide Feedback Buttons |
-| **Feed Live Stream Blocker** | Removes live stream broadcast cards and live recommendations from the For You and Following feeds. |  |
-| **Fix Google Login** | Restores Google account sign-in after patching by forcing fallback to Web-based OAuth when Google Play Services rejects the modified APK signature. |  |
-| **Fix Spotify Login** | Restores 'Add to Spotify' after signing in on the web. |  |
+| **Feed Ads & Content Filter** | Filters ads, bloat cards, shop anchors, live cards, AI-tagged and seen videos from feeds, plus view/like-range and stories/photos filters, via per-content toggles. | • Filter Feed Ads<br>• Filter Feed Bloat<br>• Hide Video Product Anchors<br>• Block Live Streams<br>• Hide AI-Generated Content<br>• Hide Seen Videos<br>• Minimum Views<br>• Maximum Views<br>• Minimum Likes<br>• Maximum Likes<br>• Hide Stories<br>• Hide Photo Posts |
+| **Feed Interface Declutter** | Cleans up the buttons and overlays on top of videos. | • Hide Repost Badge<br>• Hide Video Descriptions<br>• Hide Profile Photo Follow Button<br>• Disable Story Feed Indicators<br>• Hide Playlist Bottom Bar<br>• Hide Save Button<br>• Hide Music Cover Disc<br>• Hide Full Screen Button<br>• Hide Feedback Buttons<br>• Disable Double Tap to Like<br>• Disable Profile Photo LIVE Status<br>• Disable Long-Press Like (Repost)<br>• Disable Long-Press Share (Quick DMs)<br>• Disable Long-Press Comment (Quick Emojis)<br>• Long Press Video Action |
 | **Force Auto-Scroll** | Forces the activation of the native video auto-scroll experiment flag for accounts and regions that lack it due to A/B testing. |  |
-| **Friends Feed Strict Mutuals** | The Friends feed only shows people you both follow. |  |
-| **Hide AI-Generated Content** | Skips videos marked as made by AI. |  |
+| **Friends & Suggestions Filter** | Keeps the Friends feed strictly mutual and removes suggested-account cards across profile, inbox and feed surfaces via per-scope toggles. | • Strict Mutual Friends Feed<br>• Filter Friends Feed Bloat<br>• Hide Suggested Accounts |
 | **Hide Inbox Promos & Alerts** | Hides promo banners, streak cards and suggestions in your inbox. | • Hide Top Promotional Banners<br>• Hide Contact & Friend Recommendations<br>• Hide Navigation Notices & Tooltips |
-| **Hide Inbox Story & Status Tray** | Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. | • Hide Suggested Stories Only |
-| **Hide Popular Lives In Search** | Removes the Popular LIVEs recommendation card and live stream broadcasts from the search discovery page. |  |
-| **Hide Seen Videos** | Filters previously watched videos from incoming For You feed batches. |  |
-| **Hide Suggested Accounts** | Removes suggested-account cards from profile headers and inbox surfaces. |  |
-| **Hide Suggested Searches** | Removes the suggested search keywords section ('You may like' / 'Search suggestions') from the search discovery page. |  |
-| **Hide TikTok Shop & Mall** | Removes product showcase badges, shopping cart tags, and the TikTok Shop / Mall tab from navigation bars and video posts. | • Hide Shop Navigation Tab<br>• Hide Video Product Anchors |
+| **Hide Inbox Story & Status Tray** | Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. Scope: Skylight story/status tray at the top of inbox and DMs only. | • Hide Suggested Stories Only |
+| **History Recording Governor** | Prevents TikTok from recording watch history and search history via per-surface toggles. | • Disable Watch History<br>• Disable Search History |
 | **In-App Browser Privacy Guard** | Opens web links in your browser and blocks tracking in the remaining web views. |  |
 | **Instant Launch & Splash Blocker** | Eliminates cold startup delays, background resume splash advertisements, real-time splash requests, and TopView ad preloading. |  |
 | **Language Pack Purger** | Strips unselected language string bundles from assets/strings#lang_* to save APK space. | • Languages to keep |
 | **Live Stream 3D Gift Optimizer** | Disables Live 3D gift particle effect engine and widget rendering lifecycle to eliminate frame drops during live streams. |  |
 | **Live Stream SDK & Minigame De-bloat** | Removes live streaming and minigame files. Breaks lives and video calls. |  |
+| **Login Compatibility Fix** | Restores Google and Spotify sign-in on the re-signed APK via Web-OAuth fallbacks, with per-provider toggles. | • Fix Google Login<br>• Fix Spotify Login |
 | **Media Usability & Watermark-Free Downloader** | Unlocks downloading and saves videos without watermark. | • Remove Watermark<br>• Saved-Video Quality Preference |
-| **Navigation & Header Declutter** | Removes extra tabs and buttons from the feed screen. | • Hide Nearby Feed Tab<br>• Hide Community Tab<br>• Hide Top-Left LIVE Button<br>• Hide Feed Search Bar<br>• Hide Create / Publish Button<br>• Hide Friends Tab Avatar Preview<br>• Hide Inbox Notification Badge |
-| **Non-Personalized Search** | Forces TikTok's non-personalized search mode instead of the saved account choice. |  |
+| **Navigation & Header Declutter** | Removes extra tabs and buttons from the feed screen. | • Hide Shop Navigation Tab<br>• Hide Nearby Feed Tab<br>• Hide Community Tab<br>• Hide Top-Left LIVE Button<br>• Hide Feed Search Bar<br>• Hide Create / Publish Button<br>• Hide Friends Tab Avatar Preview<br>• Hide Inbox Notification Badge |
 | **P2P Video Relay & Mesh CDN Blocker** | Stops your device uploading videos to others. |  |
+| **Playback & Display Governor** | Caps playback resolution and dynamic range (SDR ceiling, HDR off) and locks the display refresh rate via per-feature toggles. Download quality is NOT here: it lives in the Media Usability patch (downloadQuality). | • Cap Playback Resolution<br>• Maximum Playback Resolution<br>• Avoid ByteVC2 Software Decoding<br>• Drop Undecodable Video Streams<br>• Disable HDR Video Playback<br>• Govern Display Refresh Rate<br>• Target Refresh Rate |
 | **Playback Speed Persistence** | Keeps your chosen playback speed across videos and restarts. | • Hold-And-Slide 2x Speed Lock |
-| **Popups & Prompts Suppressor** | Blocks popups, nags and promo dialogs across the app. | • Suppress Account & Permission Nags<br>• Suppress Sticker Recommendations<br>• Filter PopLayer Prompts & Nags<br>• Suppress Live Teaser Bubbles<br>• Suppress DM Streak Reminders |
+| **Popups & Prompts Suppressor** | Blocks popups, nags and promo dialogs across the app. | • Suppress Account & Permission Nags<br>• Suppress Sticker Recommendations<br>• Filter PopLayer Prompts & Nags<br>• Suppress Live Teaser Bubbles<br>• Suppress DM Streak Reminders<br>• Disable Post-Download Share Dialog<br>• Update Prompt Suppressor<br>• Skip First-Launch Onboarding<br>• Skip Content Warnings |
 | **Remember Clear Display** | Remembers TikTok's clear-display state between videos and re-applies it when new videos start. |  |
 | **Resource & Battery Governor** | Throttles background sensor polling (gyroscope/accelerometer 3D ads) and prevents aggressive video buffer preloading to conserve battery and CPU resources. |  |
 | **Resume Video After Scroll** | Remembers playback timestamp when scrolling away and resumes from where playback stopped upon returning. |  |
 | **SIM Region Selector** | Locks the app to a chosen country to unlock regional content. | • Spoofed Region ISO Code<br>• Spoofed Operator Numeric Code (MCC+MNC)<br>• Spoofed Operator Name |
+| **Search Experience** | Customizes TikTok search and discovery surfaces via per-feature toggles. | • Hide Suggested Searches<br>• Hide Popular Lives In Search<br>• Disable Search Video Autoplay<br>• Non-Personalized Search<br>• Enable Live Search |
 | **Show Author Region** | Displays the creator's country or region code next to their username in video author info across feeds and deep-linked detail views. |  |
 | **Show Seekbar** | Restores TikTok's native video seekbar and scrubbing controls where normally hidden or disabled. | • Show Dragging Thumbnail Preview |
-| **Skip Content Warnings** | Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos. |  |
-| **Skip First-Launch Onboarding** | Skips the first-launch intro, tutorials and consent screens. |  |
 | **Stop Video Looping** | Stops videos at the end instead of replaying them in an infinite loop. |  |
 | **Studio & Creation De-bloat** | Removes video editing and effects tools to free up space. |  |
 | **System Font** | Forces TikTok to use the Android system font instead of bundled proprietary TikTokSans fonts. |  |
 | **Telemetry Manifest Purge** | Removes tracking permissions and disables telemetry components. |  |
 | **TikTok Privacy Permissions Stripper** | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via configurable boolean toggles. | • Strip Notification Permission<br>• Strip Camera Permission<br>• Strip Microphone Permissions<br>• Strip Storage & Media Permissions<br>• Strip Bluetooth Permissions<br>• Strip NFC Permission<br>• Strip Biometric Permissions<br>• Strip Foreground Service Permissions<br>• Strip System Alert Window Permission<br>• Strip Wake Lock Permission<br>• Strip Screenshot & Recording Detection Permissions<br>• Strip Miscellaneous Hardware & System Permissions<br>• Strip OEM Diagnostic & Background Signals<br>• Strip Push Delivery Permissions<br>• Strip In-App Billing Permission |
 | **Unified Telemetry & Tracker Silencer** | Neutralizes ByteDance AppLog user tracking, APM/Npth/Heimdallr crash monitors, AppsFlyer attribution, and Firebase analytics. |  |
-| **Update Prompt Suppressor** | Neutralizes background update polling tasks and device ID check routines to prevent forced update popups. |  |
 | **Video Fit** | Shows the whole video ('fit') or fills the screen ('fill'). | • Video Fit Mode |
-| **Video Quality Governor** | Caps video quality (1080p to 360p) to save battery and data. | • Maximum Playback Resolution<br>• Avoid ByteVC2 Software Decoding<br>• Drop Undecodable Video Streams |
 | **Voice & Speech Engine De-bloat** | Removes voice search and text-to-speech to save space. Breaks voice features. |  |
 
 </details>
