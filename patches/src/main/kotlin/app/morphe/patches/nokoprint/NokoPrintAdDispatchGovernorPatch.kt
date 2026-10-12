@@ -10,8 +10,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintAdManifestResourcePatch = resourcePatch(
-    name = "Ad Manifest Purge",
-    description = "Disables third-party ad mediation activities, internal web browsers, debuggers, and ad startup ContentProviders in AndroidManifest.xml.",
+    name = "Remove Ads (Setup)",
+    description = "Removes ad screens and ad startup components.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -111,8 +111,8 @@ private val nokoPrintAdManifestResourcePatch = resourcePatch(
 
 @Suppress("unused")
 val nokoPrintAdDispatchGovernorPatch = bytecodePatch(
-    name = "Ad Dispatch Governor",
-    description = "Neutralizes ad loaders, unlocks ad-free status, and strips mediation components & startup providers.",
+    name = "Block Ads",
+    description = "Blocks ad loaders and unlocks ad-free status.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)

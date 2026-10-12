@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# pre-commit: guard shared skills in the mirror repo against direct edits.
+# Enabled per clone with: git config core.hooksPath scripts/hooks
+# The file must be executable.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$ROOT/scripts/sync_shared_skills.sh"
+[ -x "$SCRIPT" ] || exit 0
+
+exec "$SCRIPT" --guard

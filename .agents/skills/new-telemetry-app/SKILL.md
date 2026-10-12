@@ -1,20 +1,21 @@
 ---
 name: new-telemetry-app
-description: End-to-end workflow for onboarding a new target app and authoring telemetry-blocking patches: reconnaissance, registration, patch authoring, verification gates, device smoke test, and network traffic auditing.
+description: End-to-end workflow for onboarding a new target app with telemetry-blocking patches (recon, Constants and runner registration, docs, gates, device smoke test, traffic audit). Use when adding a new app or package to the repository.
 ---
 
-<!-- Canonical shared copy: byte-identical file in kveld-extra-morphe-patches and brave-origin-patches (.agents/skills, hardlinked to .claude/skills inside each repo). Keep copies byte-identical; propagate edits with scripts/sync_shared_skills.sh. Repo-specific deltas live in section 0 below, never in forked copies. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. Repo-specific deltas live in section 0 below. -->
 
 # New Target App Onboarding & Telemetry Hardening
 
 ## 0. Repository Adaptation Notes (Shared Canonical Copy)
 
-- **Sync invariant**: this file is canonical and byte-identical in both sibling repos. Edits propagate automatically via the `scripts/hooks/post-commit` hook (enabled per clone with `git config core.hooksPath scripts/hooks`); `scripts/sync_shared_skills.sh --check` verifies. Never create per-repo forks.
+- **Sync invariant**: the canonical copy lives in kveld-morphe-patches; edit this file only there. After each commit or merge in the kveld-morphe-patches main checkout (linked worktrees are skipped), `scripts/hooks/post-commit` and `scripts/hooks/post-merge` copy the committed version into kveld-extra-morphe-patches and commit it there when that checkout is safe to write; the sibling `pre-commit` hook rejects direct edits. `scripts/sync_shared_skills.sh --check` verifies. Repo-specific deltas belong in this section.
 - **README**: update only the hand-maintained Supported Targets table above `PATCHES_START`/`PATCHES_END`. Never edit the generated Patch Catalog block, `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md`; the release pipeline regenerates them. Verify catalog registration from a temporary directory outside the checkout; never run `generatePatchesList` in the checkout.
 - **Registry**: register the app in `util/PatchExecutionTest.kt` (`id`, `packageName` from `Constants.kt`, `candidateFilenames`, `filePattern`, `patchDirectoryPart`). Known divergence: id `xiaomi_earbuds` uses `patchDirectoryPart` `xiaomi` and guide `docs/apps/xiaomi-earbuds.md`.
-- **Extension wiring**: in kveld-extra link companion runtime via `dependsOn(sharedExtensionPatch)` (direct `extendWith` calls cost redundant `ClassMerger` passes); in brave-origin declare `extendWith("extensions/extension.mpe")` per its `AGENTS.md`. Follow the local repo convention.
+- **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 - **Universal boundary**: dedicated telemetry suites are a precision superset; never stack a generic telemetry neutralizer on maintained apps. Generic debloat universals (locale/dpi) are unaffected.
-- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. brave-origin develops on `dev` (`main` is the release line) and requires a green `audit-stack` over `origin/dev..HEAD` before any push.
+- **Skill availability**: `app-debloat` and `compat-bypass` (Section 5.B and 5.C) exist only in kveld-extra-morphe-patches. In kveld-morphe-patches use `native-binary-patching` for companion `.so` trimming, the universal patches in `app.morphe.patches.universal` (`docs/universal-patches.md`) for debloat axes, and `docs/out-of-scope.md` for compatibility-bypass boundaries.
+- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. kveld-morphe-patches develops on `dev` (`main` is the release line) and requires a green `audit-stack` over `origin/dev..HEAD` before any push; kveld-extra-morphe-patches follows its own `AGENTS.md`.
 
 ## 1. Scope & Non-Goals
 
@@ -89,9 +90,11 @@ Place candidate APK, APKM, or XAPK files into `candidate_apks/` (the Morphe patc
 Extract target package name, version name, version code, and SDK requirements:
 
 ```bash
-# Derive aapt2 dynamically from local.properties sdk.dir if not in PATH:
-AAPT2="$(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools/$(ls $(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools | sort -V | tail -n 1)/aapt2"
-"${AAPT2:-aapt2}" dump badging candidate_apks/<app>.apk | grep -E "(package: name=|versionCode=|versionName=|sdkVersion:)"
+# Resolve aapt2: PATH first, then the newest build-tools under ANDROID_HOME or local.properties sdk.dir.
+SDK_DIR="${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' local.properties 2>/dev/null | tr -d '\r')}"
+AAPT2="$(command -v aapt2 || ls -d "$SDK_DIR"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -n 1)"
+[ -x "$AAPT2" ] || { echo "aapt2 not found (set ANDROID_HOME or install build-tools)" >&2; }
+"$AAPT2" dump badging candidate_apks/<app>.apk | grep -E "(package: name=|versionCode=|versionName=|sdkVersion:)"
 ```
 
 Record the following metadata:
@@ -106,37 +109,14 @@ Dump the decoded manifest tree to a scratch path outside git tracking:
 
 ```bash
 mkdir -p scratch
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml candidate_apks/<app>.apk > scratch/manifest_tree.txt
+"$AAPT2" dump xmltree --file AndroidManifest.xml candidate_apks/<app>.apk > scratch/manifest_tree.txt
 ```
 
 ### D. Telemetry Component Inventory
-Grep the manifest tree for tracking, advertising, and diagnostic entries:
-
-1. **Permissions (`uses-permission`)**:
-   - Advertising ID: `com.google.android.gms.permission.AD_ID`
-   - Privacy Sandbox / AdServices:
-     - `android.permission.ACCESS_ADSERVICES_ATTRIBUTION`
-     - `android.permission.ACCESS_ADSERVICES_AD_ID`
-     - `android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE`
-     - `android.permission.ACCESS_ADSERVICES_TOPICS`
-   - Install Referrer: `com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE`
-   - AppHub / Partner services: `com.applovin.array.apphub.permission.BIND_APPHUB_SERVICE`
-
-2. **Components (`service`, `receiver`, `provider`, `activity`)**:
-   - Facebook Analytics: `com.facebook.analytics2.*` (upload services, alarm receivers)
-   - Google Measurement / Firebase: `com.google.android.gms.measurement.*`, `com.google.android.gms.analytics.*`
-   - Google DataTransport: `com.google.android.datatransport.runtime.*`
-   - Device & Install Identifiers: `*FDIDLiteProvider`, `*PhoneIdProvider`, `*InstallReferrerProvider`
-   - Firebase Component Discovery: `com.google.firebase.components.ComponentDiscoveryService`
-   - MLKit Discovery: `com.google.mlkit.common.internal.MlKitComponentDiscoveryService`
-
-3. **Startup Initializers (`androidx.startup.InitializationProvider`)**:
-   - Ad SDK initializers: `com.unity3d.services.core.configuration.AdsSdkInitializer`, `com.google.android.gms.ads.MobileAdsInitProvider`
+Grep `scratch/manifest_tree.txt` for the six entrypoint categories catalogued in `telemetry-blocking` Section 1.A (permissions, providers, services, receivers/activities, component discovery registrars, startup initializers) and record every match with its exact component name. Apply the preservation rules in `telemetry-blocking` Section 1.C before marking any match for removal.
 
 ### E. ML Kit Analysis & Scanner False-Positive Rule
-Component scanners (App Manager, Exodus Privacy) frequently flag Google ML Kit components (`MlKitInitProvider`, `MlKitComponentDiscoveryService`) as "trackers" because ML Kit uses the Firebase dependency injection framework (`CommonComponentRegistrar`).
-- **Empirical Reality**: ML Kit models (OCR, barcode scanning, Autofill vision) execute strictly locally on-device and send zero telemetry.
-- **Rule**: Never strip ML Kit components in default telemetry patches. Disabling ML Kit breaks in-app barcode and QR scanning. If an ML Kit slimmer is desired, author it as a separate opt-in patch with `default = false` and an explicit description warning.
+Scanners flag `MlKitInitProvider` and `MlKitComponentDiscoveryService` as trackers, but ML Kit runs on-device and default telemetry patches must keep it. Follow `telemetry-blocking` Section 2.B (an ML Kit slimmer is only allowed as a separate opt-in patch with a breakage warning).
 
 ### F. Native Binary Reconnaissance (`lib/<abi>/*.so`)
 When the target application bundles native libraries:
@@ -187,7 +167,7 @@ When signatures shift or cannot be identified via simple grep:
 - **`jadx-gui` (Static Triage)**: Open APK in jadx, follow Xrefs from string constants or log messages, and identify the shifted method signature.
 - **`frida` / `jnitrace` (Dynamic Lab Triage)**: Attach to the target process on the lab device to confirm whether candidate methods execute during user interactions before writing hooks.
 
-Always store intermediate recon dumps in `scratch/` (ensuring `mkdir -p scratch` first) or `<appDataDir>/brain/<conversation-id>/scratch/`. Never commit raw scan outputs.
+Always store intermediate recon dumps in `scratch/` (ensuring `mkdir -p scratch` first). Never commit raw scan outputs.
 
 ### I. Compatibility Blocker Reconnaissance
 After analyzing telemetry, investigate client-side post-patch compatibility blockers and functioning gates that prevent the modified application from installing, launching, or operating properly:
@@ -267,7 +247,7 @@ File: `patches/src/main/kotlin/util/PatchExecutionTest.kt`
 Every target app establishes a 1:1:1:1 mapping:
 - `TargetApp.id`: CLI/runner identifier (e.g. `instagram`, `xiaomi_earbuds`)
 - `TargetApp.patchDirectoryPart`: Subdirectory under `patches/src/main/kotlin/app/morphe/patches/` (usually matches `id`, but can diverge, e.g. `xiaomi_earbuds` id pointing to `xiaomi` directory)
-- Guide filename: `docs/apps/<id>.md`
+- Guide filename: `docs/apps/<id>.md`, with underscores in the id written as hyphens (e.g. `xiaomi_earbuds` -> `docs/apps/xiaomi-earbuds.md`)
 - README table row: Target entry matching the target repo's table columns
 
 Add the target to `enum class TargetApp`:
@@ -362,17 +342,7 @@ Telemetry blocking and asset debloating implementations are partitioned into ded
 
 ### A. Telemetry Blocking Implementation (`telemetry-blocking`)
 - **When to Invoke**: Invoke when implementing the primary telemetry suppression suite for a target application, including manifest-level permission stripping, component disabling, opt-out metadata injection, and Dalvik bytecode dispatcher stubs.
-- **What It Delivers**:
-  - Manifest purge implementation using shared helpers in `app.morphe.patches.shared.ManifestXml.kt`: `stripPermissionsWhere`, `disableComponentsWhere`, `disableComponentsByName`, and `setApplicationMetaData`.
-  - Bytecode stubbing via `app.morphe.patches.shared.BytecodeUtils.kt`: `replaceWithReturnVoid()`, `replaceWithReturnBoolean(value)`, and `clearTryBlocks()` to eliminate dangling exception blocks that trigger Dalvik/ART `VerifyError`.
-  - Direction-inversion trap awareness: gatekeeper methods named `isTrackingDisabled`, `isLimitAdTrackingEnabled`, or `areNotificationsOptedOut` must return `true` (0x1) to disable tracking, whereas methods like `isAnalyticsEnabled` must return `false` (0x0).
-  - Bytecode return type validation: assert `returnType != "V"` before attempting return-value injections, and verify method signature return types.
-  - Component discovery registrar pruning patterns and the ML Kit scanner false-positive caveat.
-  - Reverse traversal multi-return hook insertion and register stability invariants.
-  - The zero-zombie fingerprint contract and `[Patch Name]` diagnostic telemetry logging standard.
-  - Verification assertions against the compiled APK manifest tree via `aapt2`.
-  - Reference: `.agents/skills/telemetry-blocking/SKILL.md`.
-  - DEX hosts-rewrite follows the telemetry-blocking hosts-rewrite pattern, and all stub selections must pass its mandatory exclusion list.
+- **What It Delivers**: manifest purge with the `ManifestXml.kt` helpers, bytecode stubs with the `BytecodeUtils.kt` helpers, direction-inversion and return-type traps, registrar pruning and the ML Kit caveat, multi-return reverse traversal, the DEX hosts-rewrite pattern, the mandatory SDK method exclusion list, the zero-zombie and diagnostic telemetry contracts, and `aapt2` manifest assertions. Reference: `.agents/skills/telemetry-blocking/SKILL.md`.
 
 ### B. Application Debloating & Asset Slimming (`app-debloat`)
 - **When to Invoke**: Invoke when analyzing or stripping companion native libraries, non-essential asset bundles, multi-language string tables, high-density screen graphics, onboarding videos, editor assets, or background sync schedulers.
@@ -451,16 +421,18 @@ Verify modifications on the actual output APK artifacts rather than trusting std
 
 #### Verification Commands
 ```bash
-AAPT2="$(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools/$(ls $(grep '^sdk.dir=' local.properties | cut -d= -f2)/build-tools | sort -V | tail -n 1)/aapt2"
+SDK_DIR="${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' local.properties 2>/dev/null | tr -d '\r')}"
+AAPT2="$(command -v aapt2 || ls -d "$SDK_DIR"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -n 1)"
+[ -x "$AAPT2" ] || { echo "aapt2 not found (set ANDROID_HOME or install build-tools)" >&2; }
 
 # 1. Verify stripped permissions in output APK
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -E "E: uses-permission.*android:name.*(AD_ID|ACCESS_ADSERVICES)"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -E "E: uses-permission.*android:name.*(AD_ID|ACCESS_ADSERVICES)"
 
 # 2. Verify disabled components have android:enabled="false" (0x0)
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "AppMeasurementService"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "AppMeasurementService"
 
 # 3. Verify injected opt-out metadata
-"${AAPT2:-aapt2}" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "firebase_analytics_collection_enabled"
+"$AAPT2" dump xmltree --file AndroidManifest.xml build/test-<app_id>.apk | grep -B 2 -A 5 "firebase_analytics_collection_enabled"
 ```
 
 Assert that:
@@ -498,11 +470,7 @@ Use `validation/smoke_install.py` against a connected Android device matching th
 ```
 
 #### Post-Test Cleanup
-Uninstall the test package to leave the device in a clean state:
-
-```bash
-adb -s <serial> uninstall <package_name>
-```
+Keep the test install on the device; reinstall with `-r` on the next run to preserve data. The standing device authorization in `AGENTS.md` permits `adb uninstall` of the package under validation only when a signature or split conflict blocks installation, which `--uninstall-on-conflict` already handles.
 
 ### B. Physical Device Comparative Validation
 For non-trivial telemetry, background sync, and compatibility bypass modifications, perform a comparative run (Vanilla vs Patched) on the physical lab device:
@@ -518,25 +486,27 @@ For non-trivial telemetry, background sync, and compatibility bypass modificatio
 Runtime packet capture audits require `tcpdump` on the device and optional analysis tools (`tshark`). Note that `tcpdump` and `tshark` are optional tools that may not be available in standard PATH environments.
 
 ```bash
-# 1. Verify tcpdump binary exists on device first
-adb -s <serial> shell "which tcpdump || ls /data/local/tmp/tcpdump" || { echo "tcpdump not found on device; skipping traffic capture"; exit 0; }
+# 1. Verify tcpdump exists on the device; skip the audit (do not exit the shell) when it is missing
+if ! adb -s <serial> shell "command -v tcpdump || ls /data/local/tmp/tcpdump" >/dev/null 2>&1; then
+    echo "tcpdump not found on device; skipping traffic capture"
+else
+    # 2. Start a bounded capture on the device in the background
+    adb -s <serial> shell su -c "tcpdump -i any -s 0 -c 1000 -w /data/local/tmp/traffic.pcap" &
 
-# 2. Start packet capture on device with packet limit or bound to app UID/IPs
-adb -s <serial> shell su -c "tcpdump -i any -s 0 -c 1000 -w /data/local/tmp/traffic.pcap" &
-TCPDUMP_PID=$!
+    # 3. Launch the patched app and exercise standard user flows
+    adb -s <serial> shell monkey -p <package_name> -c android.intent.category.LAUNCHER 1
+    sleep 30
 
-# 3. Launch patched app and exercise standard user flows
-adb -s <serial> shell monkey -p <package_name> -c android.intent.category.LAUNCHER 1
-sleep 30
+    # 4. Stop the capture, pull the pcap, and remove it from the device
+    adb -s <serial> shell su -c "pkill -f 'tcpdump -i any'"
+    wait
+    adb -s <serial> pull /data/local/tmp/traffic.pcap scratch/traffic.pcap
+    adb -s <serial> shell su -c "rm -f /data/local/tmp/traffic.pcap"
 
-# 4. Stop capture with specific process pattern and pull pcap
-adb -s <serial> shell su -c "pkill -f 'tcpdump -i any'"
-adb -s <serial> pull /data/local/tmp/traffic.pcap scratch/traffic.pcap
-adb -s <serial> shell su -c "rm -f /data/local/tmp/traffic.pcap"
-
-# 5. Assert pcap contains packets (>0 bytes and non-empty). Never report "silent telemetry" if capture was empty!
-if [ ! -s scratch/traffic.pcap ]; then
-    echo "ERROR: Packet capture empty or missing. Aborting traffic analysis."
+    # 5. An empty or missing capture is a failed audit, never evidence of silent telemetry
+    if [ ! -s scratch/traffic.pcap ]; then
+        echo "ERROR: packet capture empty or missing; traffic audit FAILED" >&2
+    fi
 fi
 ```
 
@@ -578,20 +548,12 @@ Every completed unit of work must be committed immediately as an isolated, indep
    - Scope: Standalone fix for a shifted fingerprint or broken component.
    - Format: `fix(<app_id>): update uploader fingerprint for <version>`
 
-### B. Conventional Commits Standards
-- Written strictly in English.
-- Imperative mood, concise summary line.
-- Plain ASCII only: no emojis, unicode pictographs, or non-ASCII symbols.
-- Zero AI attribution, zero `Co-Authored-By` lines.
+### B. Commit Message & Push Rules
+Commit format, language, attribution, direct-commit and push/PR rules are defined in `AGENTS.md` (rules 14 and 15) and the `release-conventions` skill; follow them exactly.
 
-### C. Direct Commit & No-Push Invariant
-- **Direct Commit**: Commit completed units autonomously upon satisfying verification gates.
-- **Strict No-Push**: NEVER execute `git push` autonomously. Pushing is reserved strictly for explicit user instructions.
-- **Strict No-PR**: Never generate PR titles, PR descriptions, or suggest opening PRs.
-
-### D. Mandatory Post-Close Adversarial Audit (audit-stack)
+### C. Mandatory Post-Close Adversarial Audit (audit-stack)
 After all commits in A are landed, automatically run the `audit-stack` skill against the onboarding changeset before closing the task (auditing the pending range, e.g. `origin/<base>..HEAD`). Never run per-commit auto-audits.
 1. **Scope**: Strictly the onboarding scope -- `patches/.../<app_id>/`, `docs/apps/<app_id>.md`, and the app's hunks in `Constants.kt` / `PatchExecutionTest.kt` / `README.md`. Explicitly exclude `FOREIGN_IN_PROGRESS_WORK` (uncommitted files and directories outside the app scope); never stage, modify, or report foreign work as part of this audit.
-2. **Remediation precedence**: `audit-stack`'s autonomous fix loop runs through the AGY delegation in force -- fixes are applied by the same AGY worker conversations (steered with concrete findings), gates are executed by the orchestrator. Never fix project files directly from the orchestrator; never use another harness's subagents for implementation.
+2. **Remediation precedence**: `audit-stack` applies fixes through whatever implementation workflow is configured for the local harness (for example a delegated worker); this skill does not define who edits files.
 3. **Fix commits**: Each confirmed fix lands as its own `fix(<app_id>): ...` commit after re-running the Section 6 gates. Loop until the audit reports zero blocking findings.
-4. No push / no PR (per C).
+4. No push / no PR (per B).

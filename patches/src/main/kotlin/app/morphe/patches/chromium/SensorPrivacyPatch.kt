@@ -8,8 +8,8 @@ import app.morphe.patches.shared.replaceWithReturnNull
 
 @Suppress("unused")
 val sensorPrivacyPatch = bytecodePatch(
-    name = "Sensor Privacy Guard",
-    description = "Neutralizes motion, ambient, and orientation sensor providers to prevent hardware fingerprinting and tracking via Generic Sensor APIs.",
+    name = "Block Motion Sensors",
+    description = "Stops sites from reading motion sensors to identify you.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

@@ -168,8 +168,8 @@ private val gboardRemoveWebDebugBridgePatch = resourcePatch {
 }
 
 val gboardHardenedIntentSecurityPatch = bytecodePatch(
-    name = "Hardened Intent Security",
-    description = "Enables Gboard internal external intent protection against unauthorized intent hijacking, removes the exported, permissionless web debug bridge content provider, and purges federated learning (Brella) services, receivers, queries, and metadata from AndroidManifest.xml.",
+    name = "Block App Hijacking",
+    description = "Protects against other apps hijacking Gboard and removes debug tools.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)

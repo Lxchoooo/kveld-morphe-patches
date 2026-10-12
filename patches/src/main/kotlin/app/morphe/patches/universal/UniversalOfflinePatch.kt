@@ -100,15 +100,15 @@ private fun enforceCleartextBlock(doc: Document): Boolean {
 
 @Suppress("unused")
 val universalOfflinePatch = resourcePatch(
-    name = "Universal Offline Mode",
-    description = "Forces offline execution across any application by revoking INTERNET and network permissions from AndroidManifest.xml and blocking cleartext HTTP traffic at the OS level.",
+    name = "Go Fully Offline",
+    description = "Removes internet access completely.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val stripNetworkState by booleanOption(
         key = "stripNetworkState",
         default = false,
-        title = "Strip Network State Permissions",
+        title = "Network state",
         description = "Also remove ACCESS_NETWORK_STATE and ACCESS_WIFI_STATE permissions. Default is false to prevent SecurityException crashes in apps that query network status without error handling.",
         required = false,
     )
@@ -116,7 +116,7 @@ val universalOfflinePatch = resourcePatch(
     val stripWifiControls by booleanOption(
         key = "stripWifiControls",
         default = true,
-        title = "Strip Wi-Fi Control Permissions",
+        title = "Wi-Fi controls",
         description = "Remove CHANGE_NETWORK_STATE, CHANGE_WIFI_STATE, CHANGE_WIFI_MULTICAST_STATE, and NEARBY_WIFI_DEVICES permissions.",
         required = false,
     )
@@ -124,7 +124,7 @@ val universalOfflinePatch = resourcePatch(
     val stripPush by booleanOption(
         key = "stripPush",
         default = false,
-        title = "Strip Push Notification Permissions",
+        title = "Push permissions",
         description = "Remove Google Cloud Messaging and Firebase Cloud Messaging push receiver permissions (com.google.android.c2dm.permission.RECEIVE).",
         required = false,
     )
@@ -132,7 +132,7 @@ val universalOfflinePatch = resourcePatch(
     val stripGoogleServices by booleanOption(
         key = "stripGoogleServices",
         default = false,
-        title = "Strip Google Services Sync Permissions",
+        title = "Google sync",
         description = "Remove Google Services Framework and account sync permissions (com.google.android.providers.gsf.permission.READ_GSERVICES, android.permission.GET_ACCOUNTS).",
         required = false,
     )
@@ -140,7 +140,7 @@ val universalOfflinePatch = resourcePatch(
     val blockCleartext by booleanOption(
         key = "blockCleartext",
         default = true,
-        title = "Block Cleartext Traffic",
+        title = "Block unencrypted traffic",
         description = "Enforce android:usesCleartextTraffic='false' on the application tag in AndroidManifest.xml.",
         required = false,
     )

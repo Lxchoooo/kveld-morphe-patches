@@ -11,8 +11,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 @Suppress("unused")
 val cleanShareUrlPatch = bytecodePatch(
-    name = "Clean Share URL",
-    description = "Strips tracking parameters (utm_*, fbclid, gclid, igshid, si, msclkid) when sharing or copying links.",
+    name = "Clean Shared Links",
+    description = "Removes tracking codes from links you share or copy.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.cleanClassName
 
 val gboardDisableBackgroundSyncPatch = bytecodePatch(
-    name = "Disable Background Sync",
-    description = "Neutralizes AndroidX WorkManager schedulers, MDD (Mobile Data Download) periodic sync, and Superpacks eager asset synchronization (opt-in to preserve initial dictionary downloads).",
+    name = "Stop Background Sync",
+    description = "Stops background downloads and sync to save battery.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)

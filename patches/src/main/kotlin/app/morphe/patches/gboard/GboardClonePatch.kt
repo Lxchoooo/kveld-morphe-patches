@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 val gboardClonePatch = resourcePatch(
-    name = "Clone Gboard",
-    description = "Changes the package name by appending a dot and custom suffix (defaults to 'clone') and optionally customizes the app label to allow installing Gboard alongside the original application.",
+    name = "Install a Copy",
+    description = "Installs this Gboard next to the original one.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -17,16 +17,16 @@ val gboardClonePatch = resourcePatch(
 
     val packageSuffix by stringOption(
         key = "packageSuffix",
-        title = "Package name suffix",
-        description = "Suffix appended after the original package name and a dot (e.g. 'clone' -> 'com.google.android.inputmethod.latin.clone').",
+        title = "Copy name ending",
+        description = "Ending added to the copy (e.g. clone).",
         default = "clone",
         required = false,
     )
 
     val appLabel by stringOption(
         key = "appLabel",
-        title = "App label",
-        description = "Replaces the launcher and keyboard-list name (<application android:label>) so the clone is visually distinguishable from stock Gboard; leave blank to keep the original label.",
+        title = "Copy display name",
+        description = "Name shown for the copy. Empty keeps the original.",
         default = "",
         required = false,
     )

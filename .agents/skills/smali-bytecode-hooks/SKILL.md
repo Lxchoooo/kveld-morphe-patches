@@ -1,9 +1,9 @@
 ---
 name: smali-bytecode-hooks
-description: Smali and Dalvik bytecode hooking guidelines, register architecture conventions, multi-return reverse traversal, TwoRegisterInstruction extraction, reflection bridges, and obfuscation guidelines.
+description: Smali and Dalvik hooking rules (register conventions, whole-body replacement helpers, multi-return reverse traversal, register extraction, branch polarity, reflection bridges, device-only VerifyError traps). Use when writing or reviewing inline smali, addInstructions calls or register-level hooks.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Smali & Dalvik Bytecode Hooking Guidelines
 
@@ -23,16 +23,13 @@ import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 ```
 
 ### Safe Return Overrides
-When replacing a complete method body, calculate register usage and wipe existing instructions:
+When replacing a complete method body, use the shared helpers in `app.morphe.patches.shared` (`BytecodeUtils.kt`): `replaceWithReturnVoid()`, `replaceWithReturnBoolean(value)`, `replaceWithReturnInt(value)`, `replaceWithReturnNull()`, `replaceWithReturnBooleanObject(value)`, `replaceWithReturnIntegerObject(value)`, `replaceWithReturnEmptyList()`. They clear try blocks before wiping the body (dangling try ranges cause ART `VerifyError`) and make sure the frame holds the registers the new body uses:
 ```kotlin
-fingerprint.method.apply {
-    removeInstructions(0, implementation!!.instructions.count())
-    addInstructions(0, """
-        const/4 v0, 0x1
-        return v0
-    """.trimIndent())
-}
+import app.morphe.patches.shared.replaceWithReturnBoolean
+
+fingerprint.method.replaceWithReturnBoolean(true)
 ```
+For a custom whole-body replacement without a helper, keep the same order: `clearTryBlocks()`, `ensureRegisterCount(n)`, `removeInstructions(0, count)`, then `addInstructions(0, ...)`.
 
 ---
 
@@ -159,4 +156,6 @@ return-void
 
 Any modified Smali hook, register rewrite, or fingerprint must pass the `runPatchTest` gate in `AGENTS.md` (Section 3, Step 4), including its zero-smali-compile-error rule (non-range invokes only address `v0`-`v15`).
 
-> **Runtime safety (device-proven):** a green gate proves assembly only. Never `remove`+`replace` lone invokes and never grow the register frame; both cause device-only `VerifyError` boot crashes. See `agy-orchestrator` `references/observations.md:40-41`.
+> **Runtime safety (device-proven):** a green `runPatchTest` proves assembly only. Two patterns pass the gate and still crash on device with `VerifyError`:
+> - Removing and re-adding a single invoke inside a live body (`removeInstructions` + `addInstructions` at one index): branches that targeted the invoke are re-linked to the following `move-result`, which ART rejects (`invalid use of move-result`). Insert after the `move-result` instead, reusing existing registers.
+> - Growing the register frame (`ensureRegisterCount`) while original instructions remain: already encoded parameter registers are not remapped, so `p` registers resolve to undefined slots. Growing the frame is safe only when the whole body is replaced (Section 1, Safe Return Overrides).

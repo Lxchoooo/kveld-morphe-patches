@@ -1,9 +1,9 @@
 ---
 name: morphe-patcher
-description: Architecture, patch typology (bytecodePatch, resourcePatch, rawResourcePatch), universal patches, stringOption DSL, fingerprint resolution, compatibility contracts (Constants.kt), and diagnostic telemetry invariants.
+description: Morphe patch architecture and DSL reference (bytecodePatch, resourcePatch, rawResourcePatch, universal patches, booleanOption and stringOption, fingerprints, Constants.kt compatibility, diagnostic telemetry). Use when creating or modifying any patch, fingerprint, patch option or compatibility target.
 ---
 
-<!-- Mirror: this skill also exists in kveld-extra-morphe-patches/.agents/skills (hardlinked to its .claude/skills). When editing shared core guidance, replicate the change there. -->
+<!-- Shared skill: canonical source is kveld-morphe-patches; scripts/sync_shared_skills.sh mirrors it byte-identically into kveld-extra-morphe-patches (.claude/skills is a symlink to .agents/skills in each repo). Edit only in kveld-morphe-patches; the sibling pre-commit hook rejects direct edits. -->
 
 # Morphe Patcher Architectural Guidelines
 
@@ -90,13 +90,25 @@ Compatibility is configured via `compatibleWith(...)`:
   compatibleWith(targetA, targetB)
   ```
 - **Universal Patches**:
-  **Omitting `compatibleWith(...)`** entirely produces a universal patch (e.g. `LocaleResourceSlimmerPatch`, `DpiResourceSlimmerPatch`). Universal patches are offered across all target applications in Morphe Manager and the CLI patcher. Universal patch sources live in `app.morphe.patches.universal`; `app.morphe.patches.shared` holds only contracts and helpers.
+  **Omitting `compatibleWith(...)`** entirely produces a universal patch (e.g. `LocaleResourceSlimmerPatch`, `DpiResourceSlimmerPatch`). Universal patches are offered across all target applications in Morphe Manager and the CLI patcher. In kveld-morphe-patches, universal patch sources live in `app.morphe.patches.universal`; `app.morphe.patches.shared` holds only contracts and helpers in both repositories.
 
 ---
 
-## 3. User Configurable Options (`stringOption` DSL)
+## 3. User Configurable Options (`booleanOption` / `stringOption` DSL)
 
-Patches can expose configurable settings to users in Morphe Manager or CLI using the `stringOption` property delegate:
+Patches expose patch-time settings in Morphe Manager or CLI through option property delegates. Use `booleanOption` for toggles and `stringOption` for free-form values:
+
+```kotlin
+import app.morphe.patcher.patch.booleanOption
+
+val blockOffersHost by booleanOption(
+    key = "blockOffersHost",
+    default = true,
+    title = "Block offers server",
+    description = "Also blocks the shopping offers server. Turn off to keep it.",
+    required = false,
+)
+```
 
 ```kotlin
 import app.morphe.patcher.patch.stringOption
@@ -110,6 +122,8 @@ val targetLocales by stringOption(
 )
 ```
 
+Code behind a disabled-by-default option is only exercised by `runPatchTest -PallOptions=true`; run it whenever such code changes.
+
 ### Metadata Synchronization Rule
 When patch options, descriptions, titles, or defaults are added or modified in Kotlin code, verify catalog registration by running the patch list generator against the built `.mpp` from a temporary working directory outside the repository, and confirm the expected entries appear. Do NOT run `./gradlew generatePatchesList` in the repository checkout: it rewrites the tracked `patches-list.json`, which the release pipeline regenerates (see `AGENTS.md`, rule 11).
 
@@ -118,6 +132,8 @@ When patch options, descriptions, titles, or defaults are added or modified in K
 ## 4. Fingerprint Resolution Strategies
 
 Fingerprints locate target methods across obfuscated versions without hardcoding method names:
+
+> **Scan cost:** a fingerprint without `strings` or an exact `definingClass` walks every method of the APK. Follow the measured rules in `AGENTS.md` Section 2, item 5 (one candidate scan per target family, cheap checks first, iterate only the member kind needed, scope `matchAll()` with `classDefBy(TYPE)`, prefer indexed filters, prove performance-only changes with `-PdexDigest`).
 
 1. **String Literals**: Most resilient anchor. Locate methods referencing unique log strings or preference keys.
    ```kotlin
@@ -150,7 +166,7 @@ Fingerprints locate target methods across obfuscated versions without hardcoding
    val targetReg = fp.method.getInstruction<OneRegisterInstruction>(matchIndex + 1).registerA
    ```
 
-   > **Runtime safety (device-proven):** never `remove`+`replace` a lone invoke and never grow the register frame. Both cause device-only `VerifyError` boot crashes that a green `runPatchTest` does not catch. Insert-only after `move-result`, reusing existing registers. See `agy-orchestrator` `references/observations.md:40-41`.
+   > **Runtime safety (device-proven):** hook insert-only after `move-result`, reusing existing registers. Removing and re-adding a lone invoke, or growing the register frame while original instructions remain, passes `runPatchTest` and crashes on device with `VerifyError`; whole-body replacement through the `replaceWith*` helpers is safe. Details: `smali-bytecode-hooks` skill, Section 6.
 
 ---
 
@@ -158,13 +174,7 @@ Fingerprints locate target methods across obfuscated versions without hardcoding
 
 Every patch must reference the shared compatibility object defined centrally in `Constants.kt`. Never inline `Compatibility(...)` objects.
 
-Active targets defined in `Constants.kt`:
-1. **Brave**: `Constants.COMPATIBILITY_BRAVE` (`com.brave.browser`)
-2. **Gboard Lite**: `Constants.COMPATIBILITY_GBOARD` (`com.google.android.inputmethod.latin`)
-3. **Hevy**: `Constants.COMPATIBILITY_HEVY` (`com.hevy`)
-4. **TikTok**: `Constants.COMPATIBILITY_TIKTOK` (`com.zhiliaoapp.musically`)
-5. **NokoPrint**: `Constants.COMPATIBILITY_NOKOPRINT` (`com.nokoprint`)
-6. **Xiaomi Earbuds**: `Constants.COMPATIBILITY_XIAOMI_EARBUDS` (`com.mi.earphone`)
+Active targets are defined in each repository's `Constants.kt` as `COMPATIBILITY_<APP>`; add new ones there. Code examples in this skill come from kveld-morphe-patches and use its Brave target for illustration.
 
 **Single Target Version Invariant**: Every target app maintains strictly ONE active version (the latest supported release) in `targets = listOf(AppTarget(...))`. Never retain older versions or multi-version entries in `targets`.
 
@@ -201,4 +211,4 @@ Every patch execution must emit concise, high-signal diagnostic telemetry captur
 
 ## 7. Mandatory Verification Gate
 
-Static checks are never enough. Run the in-situ patching gate defined in `AGENTS.md` (Section 3, Step 4): `./gradlew runPatchTest -Papp=<targetApp>` (targets: `gboard`, `tiktok`, `brave`, `hevy`, `nokoprint`, `xiaomi_earbuds`), adding `-PallOptions=true` when the change sits behind an option.
+Static checks are never enough. Run the in-situ patching gate defined in `AGENTS.md` (Section 3, Step 4): `./gradlew runPatchTest -Papp=<targetApp>` (`<targetApp>` is a `TargetApp` id registered in `PatchExecutionTest.kt`), adding `-PallOptions=true` when the change sits behind an option.

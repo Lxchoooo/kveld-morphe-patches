@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val braveBackgroundSyncPatch = bytecodePatch(
-    name = "Disable Background Sync & Periodic Sync",
-    description = "Eliminates background wakeups, radio modem activity, and battery drain by forcing GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true and neutralizing wakeup tasks.",
+    name = "Stop Background Sync",
+    description = "Stops background wakeups and battery drain.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

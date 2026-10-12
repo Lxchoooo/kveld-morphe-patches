@@ -18,8 +18,8 @@ import org.w3c.dom.Element
 
 // ── Resource Patch: Sets defaultValue="false" for NTP marketing switches in XML ──────────
 private val braveCleanNtpXmlPatch = resourcePatch(
-    name = "Clean NTP Resource Defaults",
-    description = "Sets default values of NTP sponsored images, Brave News, and stats switches to false in XML preferences.",
+    name = "Clean Start Page (Setup)",
+    description = "Turns off ads and news switches by default.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -101,8 +101,8 @@ private fun injectPrefGuards(
 // ── Bytecode Patch: Suppresses sponsored wallpaper & news preferences at runtime ────────
 @Suppress("unused")
 val braveCleanNewTabPagePatch = bytecodePatch(
-    name = "Clean New Tab Page",
-    description = "Removes sponsored wallpaper images, Brave News/Today feeds, marketing widgets, and promo cards from the New Tab Page.",
+    name = "Clean Start Page",
+    description = "Removes sponsored wallpapers, news feed and promo cards.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -111,8 +111,8 @@ val braveCleanNewTabPagePatch = bytecodePatch(
     val hideTopSites by booleanOption(
         key = "hideTopSites",
         default = false,
-        title = "Hide Top Sites & Shortcuts",
-        description = "Removes top sites shortcuts and most visited tiles from the New Tab Page for a completely blank home screen.",
+        title = "Hide shortcut tiles",
+        description = "Removes most-visited tiles for a blank start page.",
         required = false,
     )
 
