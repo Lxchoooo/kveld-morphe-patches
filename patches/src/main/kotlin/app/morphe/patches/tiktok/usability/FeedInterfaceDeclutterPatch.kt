@@ -217,59 +217,12 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 descOnViewCreated.addInstructions(
                     index,
                     """
-                        move-object/from16 v0, p1
-                        const/16 v1, 0x8
-                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        move-object/from16 v0, p1
-                        if-eqz v0, :skip_desc_ovc
-                        invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
-                        move-result-object v1
-                        invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
-                        move-result-object v2
-                        invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
-                        move-result-object v3
-                        const-string v4, "desc"
-                        const-string v5, "id"
-                        invoke-virtual {v2, v4, v5, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
-                        move-result v4
-                        invoke-virtual {v0, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
-                        move-result-object v0
-                        if-eqz v0, :skip_desc_ovc
-                        const/16 v1, 0x8
-                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        :skip_desc_ovc
+                        move-object/from16 v0, p0
+                        invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFeedDescForAssem(Ljava/lang/Object;)V
                     """.trimIndent(),
                 )
             }
             println("[Feed Interface Declutter] Hooked VideoDescAssem.onViewCreated() -> appended setVisibility(GONE).")
-            patched++
-
-            val descZ4 = Fingerprint(
-                definingClass = descTargetClass,
-                name = "z4",
-                returnType = "V",
-                parameters = listOf("Ljava/lang/Object;"),
-            ).method
-            descZ4.clearTryBlocks()
-            descZ4.ensureRegisterCount(2)
-            val z4Returns = descZ4.implementation!!.instructions.mapIndexedNotNull { index, instr ->
-                if (instr.opcode.name == "return-void") index else null
-            }.reversed()
-            for ((i, index) in z4Returns.withIndex()) {
-                descZ4.addInstructions(
-                    index,
-                    """
-                        move-object/from16 v0, p0
-                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
-                        move-result-object v0
-                        if-eqz v0, :cond_skip_z4_$i
-                        const/16 v1, 0x8
-                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        :cond_skip_z4_$i
-                    """.trimIndent(),
-                )
-            }
-            println("[Feed Interface Declutter] Hooked VideoDescAssem.z4() -> appended GONE enforcement.")
             patched++
 
             val descJs = Fingerprint(
@@ -283,37 +236,12 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             val jsReturns = descJs.implementation!!.instructions.mapIndexedNotNull { index, instr ->
                 if (instr.opcode.name == "return-void") index else null
             }.reversed()
-            for ((i, index) in jsReturns.withIndex()) {
+            for (index in jsReturns) {
                 descJs.addInstructions(
                     index,
                     """
                         move-object/from16 v0, p0
-                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
-                        move-result-object v0
-                        if-eqz v0, :cond_skip_js_$i
-                        const/16 v1, 0x8
-                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        :cond_skip_js_$i
-                        move-object/from16 v0, p0
-                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
-                        move-result-object v0
-                        if-eqz v0, :skip_desc_js_$i
-                        invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
-                        move-result-object v1
-                        invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
-                        move-result-object v2
-                        invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
-                        move-result-object v3
-                        const-string v4, "desc"
-                        const-string v5, "id"
-                        invoke-virtual {v2, v4, v5, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
-                        move-result v4
-                        invoke-virtual {v0, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
-                        move-result-object v0
-                        if-eqz v0, :skip_desc_js_$i
-                        const/16 v1, 0x8
-                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-                        :skip_desc_js_$i
+                        invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFeedDescForAssem(Ljava/lang/Object;)V
                     """.trimIndent(),
                 )
             }

@@ -1,6 +1,8 @@
 package com.kveld9.morphe.extension.tiktok;
 
+import android.content.Context;
 import android.util.Log;
+import android.view.View;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -608,6 +610,74 @@ public final class TikTokMediaHook {
     public static void forceGoneViewFirst(int visibility, android.view.View view) {
         if (view != null) {
             view.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    private static volatile Method feedDescQcMethod;
+
+    public static void hideFeedDescForAssem(Object assem) {
+        if (assem == null) return;
+        try {
+            Object root = getFeedDescRoot(assem);
+            if (root instanceof View) {
+                hideDescById((View) root);
+            }
+        } catch (Throwable ignored) {}
+    }
+
+    private static Object getFeedDescRoot(Object assem) {
+        Method qc = getQcMethod(assem.getClass());
+        if (qc == null) return null;
+        try {
+            return qc.invoke(assem);
+        } catch (IllegalArgumentException e) {
+            feedDescQcMethod = null;
+            return retryFeedDescQc(assem);
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static Method getQcMethod(Class<?> clazz) {
+        Method qc = feedDescQcMethod;
+        return qc != null ? qc : lookupQcMethod(clazz);
+    }
+
+    private static Object retryFeedDescQc(Object assem) {
+        Method qc = lookupQcMethod(assem.getClass());
+        if (qc == null) return null;
+        try {
+            return qc.invoke(assem);
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static Method lookupQcMethod(Class<?> clazz) {
+        try {
+            Method qc = clazz.getMethod("qc");
+            feedDescQcMethod = qc;
+            return qc;
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    public static void hideDescById(View root) {
+        if (root == null) return;
+        try {
+            applyDescGone(root);
+        } catch (Throwable ignored) {}
+    }
+
+    private static void applyDescGone(View root) {
+        Context ctx = root.getContext();
+        if (ctx == null) return;
+        int id = ctx.getResources().getIdentifier("desc", "id", ctx.getPackageName());
+        if (id == 0) return;
+        View desc = root.findViewById(id);
+        if (desc != null) {
+            desc.setVisibility(View.GONE);
         }
     }
 }
