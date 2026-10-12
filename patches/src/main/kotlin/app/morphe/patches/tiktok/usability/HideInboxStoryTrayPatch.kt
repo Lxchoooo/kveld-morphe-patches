@@ -11,7 +11,7 @@ import app.morphe.patches.shared.sharedExtensionPatch
 
 val hideInboxStoryTrayPatch = bytecodePatch(
     name = "Hide Inbox Story & Status Tray",
-    description = "Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox.",
+    description = "Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. Scope: Skylight story/status tray at the top of inbox and DMs only.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
