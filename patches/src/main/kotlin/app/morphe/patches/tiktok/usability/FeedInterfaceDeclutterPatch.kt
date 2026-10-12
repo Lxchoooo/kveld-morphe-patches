@@ -6,12 +6,14 @@ import app.morphe.patcher.extensions.InstructionExtensions.removeInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstructions
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.patch.stringOption
 import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.sharedExtensionPatch
 import app.morphe.patches.shared.clearTryBlocks
 import app.morphe.patches.shared.ensureRegisterCount
 import app.morphe.patches.shared.replaceWithReturnBoolean
 import app.morphe.patches.shared.replaceWithReturnInt
+import app.morphe.patches.shared.replaceWithReturnIntegerObject
 import app.morphe.patches.shared.replaceWithReturnNull
 import app.morphe.patches.shared.replaceWithReturnVoid
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
@@ -23,7 +25,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val feedInterfaceDeclutterPatch = bytecodePatch(
     name = "Feed Interface Declutter",
-    description = "Customizes and cleans feed video overlay elements, including the full screen button, repost pill, interest feedback pills, video descriptions, profile photo follow badges, story rings, playlist bottom bars, save buttons, and music discs.",
+    description = "Customizes and cleans feed video overlay elements and interaction gestures, including the full screen button, repost pill, interest feedback pills, video descriptions, profile photo follow badges, story rings, playlist bottom bars, save buttons, music discs, double tap to like, avatar LIVE status, and feed long-press action gestures.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -101,6 +103,55 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
         required = false,
     )
 
+    val disableDoubleTapLike by booleanOption(
+        key = "disableDoubleTapLike",
+        default = true,
+        title = "Disable Double Tap to Like",
+        description = "Disables the double tap gesture to like videos in the feed, preventing accidental likes while scrolling or pausing. Videos can still be liked using the like button.",
+        required = false,
+    )
+
+    val disableAvatarLiveStatus by booleanOption(
+        key = "disableAvatarLiveStatus",
+        default = true,
+        title = "Disable Profile Photo LIVE Status",
+        description = "Removes the pulsing LIVE ring and badge from creator avatars in the feed and ensures clicking navigates strictly to the user profile instead of launching the live stream.",
+        required = false,
+    )
+
+    val disableLikeRepost by booleanOption(
+        key = "disableLikeRepost",
+        title = "Disable Long-Press Like (Repost)",
+        description = "Prevents holding the Like button on feed videos from opening the Repost action panel.",
+        default = true,
+        required = false,
+    )
+
+    val disableShareQuickDms by booleanOption(
+        key = "disableShareQuickDms",
+        title = "Disable Long-Press Share (Quick DMs)",
+        description = "Prevents holding the Share button on feed videos from opening the quick share recent contacts tray.",
+        default = true,
+        required = false,
+    )
+
+    val disableCommentReactions by booleanOption(
+        key = "disableCommentReactions",
+        title = "Disable Long-Press Comment (Quick Emojis)",
+        description = "Prevents holding the Comment button on feed videos from opening the quick reaction emojis picker.",
+        default = true,
+        required = false,
+    )
+
+    val longPressVideo by stringOption(
+        key = "longPressVideo",
+        title = "Long Press Video Action",
+        description = "Action when long pressing feed video body: 'nothing' (default, suppresses menu/repost), 'comments' (opens comments), 'copyLink' (copies link to clipboard), or 'saveSound' (favorites/saves audio).",
+        default = "nothing",
+        values = mapOf("Do nothing" to "nothing", "Open comments" to "comments", "Copy link" to "copyLink", "Save sound" to "saveSound"),
+        required = false,
+    )
+
     execute {
         if (hideRepostBadge != true &&
             hideVideoDescriptions != true &&
@@ -110,7 +161,13 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             hideSaveButton != true &&
             hideMusicCover != true &&
             hideFullscreenButton != true &&
-            hideFeedbackButtons != true
+            hideFeedbackButtons != true &&
+            disableDoubleTapLike != true &&
+            disableAvatarLiveStatus != true &&
+            disableLikeRepost != true &&
+            disableShareQuickDms != true &&
+            disableCommentReactions != true &&
+            (longPressVideo == null || longPressVideo == "nothing")
         ) {
             println("[Feed Interface Declutter] Skipped: All declutter options are disabled.")
             return@execute
@@ -824,6 +881,217 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnVoid()
             println("[Feed Interface Declutter] Hooked EarlyFeedbackStandardButtonAssem.Mr() -> return-void.")
+            patched++
+        }
+
+        // 10. Disable Double Tap to Like
+        if (disableDoubleTapLike == true) {
+            // Hook DiggPanelComponent.handleDoubleClick(MotionEvent) in main feed
+            try {
+                val method = Fingerprint(
+                    definingClass = "Lcom/ss/android/ugc/feed/platform/panel/digg/DiggPanelComponent;",
+                    name = "handleDoubleClick",
+                    parameters = listOf("Landroid/view/MotionEvent;"),
+                    returnType = "V",
+                ).method
+                method.replaceWithReturnVoid()
+                println("[Feed Interface Declutter] Hooked DiggPanelComponent.handleDoubleClick -> Main feed double tap like neutralized.")
+                patched++
+            } catch (e: Exception) {
+                println("[Feed Interface Declutter] DiggPanelComponent note: ${e.message}")
+            }
+
+            // Hook LandscapeFragmentPanel.handleDoubleClick(MotionEvent) in landscape feed
+            try {
+                val method = Fingerprint(
+                    definingClass = "Lcom/ss/android/ugc/aweme/feed/landscape/LandscapeFragmentPanel;",
+                    name = "handleDoubleClick",
+                    parameters = listOf("Landroid/view/MotionEvent;"),
+                    returnType = "V",
+                ).method
+                method.replaceWithReturnVoid()
+                println("[Feed Interface Declutter] Hooked LandscapeFragmentPanel.handleDoubleClick -> Landscape feed double tap like neutralized.")
+                patched++
+            } catch (e: Exception) {
+                println("[Feed Interface Declutter] LandscapeFragmentPanel note: ${e.message}")
+            }
+
+            // Hook FriendsV3GestureDetectorAssem.onDoubleTap(MotionEvent) in friends tab feed
+            try {
+                val method = Fingerprint(
+                    definingClass = "Lcom/ss/android/ugc/aweme/friendstab/ui/feed/cell/component/base/FriendsV3GestureDetectorAssem;",
+                    name = "onDoubleTap",
+                    parameters = listOf("Landroid/view/MotionEvent;"),
+                    returnType = "V",
+                ).method
+                method.replaceWithReturnVoid()
+                println("[Feed Interface Declutter] Hooked FriendsV3GestureDetectorAssem.onDoubleTap -> Friends tab double tap like neutralized.")
+                patched++
+            } catch (e: Exception) {
+                println("[Feed Interface Declutter] FriendsV3GestureDetectorAssem note: ${e.message}")
+            }
+        }
+
+        // 11. Disable Profile Photo LIVE Status
+        if (disableAvatarLiveStatus == true) {
+            val wrapClass = "Lcom/ss/android/ugc/aweme/feed/assem/avatar/FeedAvatarAssemWrap;"
+            val liveAssemClass = "Lcom/ss/android/ugc/aweme/feed/assem/avatar/FeedAvatarLiveAssem;"
+
+            // Discover and hook the author LIVE status validator (e.g. X.09A7.LIZIZ(Aweme, User)Z)
+            var liveCheckClass = "LX/09A7;"
+            var liveCheckMethod = "LIZIZ"
+
+            val wrapFp = Fingerprint(definingClass = wrapClass)
+            for (m in wrapFp.classDef.methods) {
+                val insns = m.implementation?.instructions ?: continue
+                for (insn in insns) {
+                    val ref = (insn as? ReferenceInstruction)?.reference?.toString() ?: continue
+                    if (ref.contains("(Lcom/ss/android/ugc/aweme/feed/model/Aweme;Lcom/ss/android/ugc/aweme/profile/model/User;)Z")) {
+                        val parts = ref.split("->")
+                        if (parts.size == 2) {
+                            liveCheckClass = parts[0]
+                            liveCheckMethod = parts[1].substringBefore("(")
+                            break
+                        }
+                    }
+                }
+                if (liveCheckClass != "LX/09A7;") break
+            }
+
+            Fingerprint(
+                definingClass = liveCheckClass,
+                name = liveCheckMethod,
+                returnType = "Z",
+                parameters = listOf(
+                    "Lcom/ss/android/ugc/aweme/feed/model/Aweme;",
+                    "Lcom/ss/android/ugc/aweme/profile/model/User;",
+                ),
+            ).method.replaceWithReturnBoolean(false)
+            println("[Feed Interface Declutter] Hooked $liveCheckClass->$liveCheckMethod() -> false (all authors treated as non-live).")
+            patched++
+
+            // Hook FeedAvatarAssemWrap.Yr()Z -> return false (prevents attaching FeedAvatarLiveAssem)
+            Fingerprint(
+                definingClass = wrapClass,
+                returnType = "Z",
+                parameters = emptyList(),
+                custom = { m, _ ->
+                    m.implementation?.instructions?.any {
+                        (it as? ReferenceInstruction)?.reference?.toString()?.contains("getCurrentProfileUserRoomId") == true
+                    } ?: false
+                },
+            ).method.replaceWithReturnBoolean(false)
+            println("[Feed Interface Declutter] Hooked FeedAvatarAssemWrap room check -> false.")
+            patched++
+
+            // Hook FeedAvatarLiveAssem.ur()Z -> return false
+            Fingerprint(
+                definingClass = liveAssemClass,
+                returnType = "Z",
+                parameters = emptyList(),
+                custom = { m, _ ->
+                    m.implementation?.instructions?.any {
+                        (it as? ReferenceInstruction)?.reference?.toString()?.contains("getCurrentProfileUserRoomId") == true
+                    } ?: false
+                },
+            ).method.replaceWithReturnBoolean(false)
+            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.ur() -> false.")
+            patched++
+
+            // Hook FeedAvatarLiveAssem.Ar(ZZ)V -> return-void (suppresses live entrance animations)
+            Fingerprint(
+                definingClass = liveAssemClass,
+                returnType = "V",
+                parameters = listOf("Z", "Z"),
+            ).method.replaceWithReturnVoid()
+            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.Ar(ZZ) -> return-void.")
+            patched++
+
+            // Hook FeedAvatarLiveAssem.onBind/z4(Object)V -> return-void (suppresses live UI binding and click redirection)
+            Fingerprint(
+                definingClass = liveAssemClass,
+                returnType = "V",
+                parameters = listOf("Ljava/lang/Object;"),
+            ).method.replaceWithReturnVoid()
+            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.(Object)V -> return-void.")
+            patched++
+        }
+
+        // 12. Disable Feed Long-Press Actions
+        val lpMode = longPressVideo ?: "nothing"
+
+        // 12a. Disable or redirect long-press Like (Repost)
+        if (disableLikeRepost != false || lpMode != "nothing") {
+            val likeRepostFingerprint = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/feed/assem/digg/VideoDiggAssem;",
+                returnType = "Z",
+                parameters = listOf("Landroid/view/View;"),
+                strings = listOf(
+                    "Long press detected on digg button for aweme: ",
+                    "long_press_like_panel",
+                ),
+            )
+            if (lpMode != "nothing") {
+                likeRepostFingerprint.method.addInstructions(
+                    0,
+                    """
+                        const-string v0, "$lpMode"
+                        invoke-static/range {p1 .. p1}, ${Constants.TIKTOK_EXTENSION_GESTURE_HOOK}->handleLongPressVideoAction(Ljava/lang/Object;Ljava/lang/String;)Z
+                        move-result v0
+                        return v0
+                    """.trimIndent(),
+                )
+                println("[Feed Interface Declutter] Hooked VideoDiggAssem.Sr() -> redirected long-press to $lpMode.")
+            } else {
+                likeRepostFingerprint.method.replaceWithReturnBoolean(true)
+                println("[Feed Interface Declutter] Hooked VideoDiggAssem.Sr() -> consumed long-press, like repost disabled.")
+            }
+            patched++
+        }
+
+        // 12b. Disable or redirect long-press Share (Quick DMs)
+        if (disableShareQuickDms != false || lpMode != "nothing") {
+            val shareConfigMethod = Fingerprint(
+                returnType = "Ljava/lang/Object;",
+                parameters = emptyList(),
+                strings = listOf("im_long_press_share_button_to_quick_share"),
+            ).method
+            shareConfigMethod.replaceWithReturnIntegerObject(0)
+            println("[Feed Interface Declutter] Hooked long-press quick share config lambda -> returns 0.")
+            patched++
+
+            val shareTriggerFingerprint = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/feed/assem/unreadshare/ShareUnreadVideoQuickDMTrigger;",
+                returnType = "Z",
+                parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
+            )
+            if (lpMode != "nothing") {
+                shareTriggerFingerprint.method.addInstructions(
+                    0,
+                    """
+                        const-string v0, "$lpMode"
+                        invoke-static/range {p1 .. p1}, ${Constants.TIKTOK_EXTENSION_GESTURE_HOOK}->handleLongPressVideoParams(Ljava/lang/Object;Ljava/lang/String;)V
+                        const/4 v0, 0x0
+                        return v0
+                    """.trimIndent(),
+                )
+                println("[Feed Interface Declutter] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> redirected to $lpMode.")
+            } else {
+                shareTriggerFingerprint.method.replaceWithReturnBoolean(false)
+                println("[Feed Interface Declutter] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> return false.")
+            }
+            patched++
+        }
+
+        // 12c. Disable long-press Comment (Quick Emojis)
+        if (disableCommentReactions != false || lpMode != "nothing") {
+            val commentConfigMethod = Fingerprint(
+                returnType = "Ljava/lang/Object;",
+                parameters = emptyList(),
+                strings = listOf("long_press_quick_comment"),
+            ).method
+            commentConfigMethod.replaceWithReturnIntegerObject(0)
+            println("[Feed Interface Declutter] Hooked long-press quick comment config lambda -> returns 0.")
             patched++
         }
 
