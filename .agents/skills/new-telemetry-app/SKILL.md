@@ -15,7 +15,7 @@ description: End-to-end workflow for onboarding a new target app with telemetry-
 - **Extension wiring**: both repos expose `sharedExtensionPatch` (`app.morphe.patches.shared.SharedExtensionPatch.kt`). Link companion runtime filters (e.g. preference-gate filters) with `dependsOn(sharedExtensionPatch)`; a direct `extendWith("extensions/extension.mpe")` per patch triggers a redundant `ClassMerger` pass.
 - **Universal boundary**: dedicated telemetry suites are a precision superset; never stack a generic telemetry neutralizer on maintained apps. Generic debloat universals (locale/dpi) are unaffected.
 - **Skill availability**: `app-debloat` and `compat-bypass` (Section 5.B and 5.C) exist only in kveld-extra-morphe-patches. In kveld-morphe-patches use `native-binary-patching` for companion `.so` trimming, the universal patches in `app.morphe.patches.universal` (`docs/universal-patches.md`) for debloat axes, and `docs/out-of-scope.md` for compatibility-bypass boundaries.
-- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. kveld-morphe-patches develops on `dev` (`main` is the release line) and requires a green `audit-stack` over `origin/dev..HEAD` before any push; kveld-extra-morphe-patches follows its own `AGENTS.md`.
+- **Commits**: one atomic Conventional Commit per unit (`feat(<app>):` / `fix(<app>):`), direct commit, never push without explicit request. kveld-morphe-patches develops on `dev` (`main` is the release line); kveld-extra-morphe-patches follows its own `AGENTS.md`.
 
 ## 1. Scope & Non-Goals
 
