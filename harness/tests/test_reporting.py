@@ -11,6 +11,52 @@ from harness.gboard.invariants import InvariantsReport, InvariantResult
 
 
 class TestHarnessReporting(unittest.TestCase):
+    def _telemetry_report(self, status: str):
+        from harness.core.elf import NativeStringMatch
+        from harness.core.telemetry import HostAuditResult, TelemetryReport
+
+        match = NativeStringMatch(
+            offset=0x1000,
+            matched_string="cr.brave.com",
+            section_name=".rodata",
+            original_bytes=b"cr.brave.com",
+            replacement_bytes=b"0.0.0.0" + b"\x00" * 5,
+            is_null_terminated=True,
+        )
+        return TelemetryReport(
+            known_results=[HostAuditResult("cr.brave.com", 1, 1, [match], status)],
+            all_known_verified=status == "VERIFIED",
+            vanished_hosts=[],
+            shifted_hosts=[],
+            discovered_candidates=[],
+        )
+
+    def _report_with_telemetry(self, status: str):
+        data = HarnessReportData(
+            app_name="Brave Browser",
+            package_name="com.brave.browser",
+            mode="AUDIT",
+            old_version="1.0",
+            new_version="1.0",
+            old_version_code=None,
+            new_version_code=1,
+            apk_sha256="sha",
+            apk_file_size=1000,
+            patch_results={},
+            telemetry_report=self._telemetry_report(status),
+            final_status="SUCCESS",
+        )
+        return HarnessReporter.render_markdown(data)
+
+    def test_offset_changed_host_is_a_warning_not_a_pass(self):
+        md = self._report_with_telemetry("OFFSET_CHANGED")
+        self.assertIn("[WARN] `OFFSET_CHANGED`", md)
+        self.assertNotIn("[PASS] `OFFSET_CHANGED`", md)
+
+    def test_verified_and_vanished_hosts_keep_their_icons(self):
+        self.assertIn("[PASS] `VERIFIED`", self._report_with_telemetry("VERIFIED"))
+        self.assertIn("[FAIL] `VANISHED`", self._report_with_telemetry("VANISHED"))
+
 
     def test_brave_report_rendering(self):
         data = HarnessReportData(
