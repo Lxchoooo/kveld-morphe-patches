@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2618,38 +2619,59 @@ public final class TikTokFeedAdFilter {
     }
 
     @SuppressWarnings("unchecked")
-    public static void filterSuggestedStoriesInList(Object listObj) {
-        if (!(listObj instanceof List)) return;
+    public static List<Object> filterSuggestedStoriesInList(Object listObj) {
+        if (!(listObj instanceof List)) return null;
         List<Object> items = (List<Object>) listObj;
-        if (items.isEmpty()) return;
+        if (items.isEmpty()) return items;
 
         synchronized (items) {
             try {
-                if (!initialized) {
-                    for (Object item : items) {
-                        if (item != null) {
-                            ensureInitialized(item.getClass().getClassLoader());
-                            break;
-                        }
-                    }
-                }
-
+                ensureInitializedFromList(items);
                 ClassLoader loader = items.get(0) != null ? items.get(0).getClass().getClassLoader() : null;
                 String currentUserId = getCurrentUserId(loader);
+                return filterSuggestedStoryItems(items, currentUserId);
+            } catch (Throwable e) {
+                Log.w(TAG, "[Hide Inbox Story & Status Tray] Error filtering suggested stories from tray list: " + e.getMessage(), e);
+                return items;
+            }
+        }
+    }
 
-                int removed = 0;
-                Iterator<Object> iterator = items.iterator();
-                while (iterator.hasNext()) {
-                    Object item = iterator.next();
-                    if (isSuggestedStory(item, currentUserId)) {
-                        iterator.remove();
-                        removed++;
-                    }
-                }
-                if (removed > 0) {
-                    Log.i(TAG, "[Hide Inbox Story & Status Tray] Pruned " + removed + " suggested story circle(s) from inbox tray.");
-                }
-            } catch (Throwable ignored) {}
+    private static void ensureInitializedFromList(List<Object> items) {
+        if (initialized) return;
+        for (Object item : items) {
+            if (item != null) {
+                ensureInitialized(item.getClass().getClassLoader());
+                return;
+            }
+        }
+    }
+
+    private static List<Object> filterSuggestedStoryItems(List<Object> items, String currentUserId) {
+        List<Object> copy = new ArrayList<>(items);
+        List<Object> filtered = new ArrayList<>(copy.size());
+        int removed = 0;
+        for (Object item : copy) {
+            if (isSuggestedStory(item, currentUserId)) {
+                removed++;
+            } else {
+                filtered.add(item);
+            }
+        }
+        if (removed == 0) {
+            return items;
+        }
+        Log.i(TAG, "[Hide Inbox Story & Status Tray] Pruned " + removed + " suggested story circle(s) from inbox tray.");
+        applyFilteredItems(items, filtered);
+        return filtered;
+    }
+
+    private static void applyFilteredItems(List<Object> target, List<Object> filtered) {
+        try {
+            target.clear();
+            target.addAll(filtered);
+        } catch (UnsupportedOperationException e) {
+            Log.w(TAG, "[Hide Inbox Story & Status Tray] Original tray list is unmodifiable, returning filtered copy: " + e.getMessage());
         }
     }
 
