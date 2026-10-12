@@ -8,8 +8,8 @@ import app.morphe.patches.shared.replaceWithReturnVoid
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 val disableAvatarLiveStatusPatch = bytecodePatch(
-    name = "Disable Profile Photo LIVE Status",
-    description = "Removes the LIVE ring on avatars and keeps taps on the profile.",
+    name = "No LIVE Rings",
+    description = "Removes LIVE rings from avatars.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

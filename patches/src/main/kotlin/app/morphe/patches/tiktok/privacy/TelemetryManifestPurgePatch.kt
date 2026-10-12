@@ -48,8 +48,8 @@ private val OPT_OUT_METADATA = listOf(
 )
 
 val telemetryManifestPurgePatch = resourcePatch(
-    name = "Telemetry Manifest Purge",
-    description = "Removes tracking permissions and disables telemetry components.",
+    name = "Remove Trackers (Setup)",
+    description = "Removes tracking permissions and components.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

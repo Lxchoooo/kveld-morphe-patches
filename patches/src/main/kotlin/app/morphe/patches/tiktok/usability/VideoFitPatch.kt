@@ -2,19 +2,22 @@ package app.morphe.patches.tiktok.usability
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patches.shared.Constants
+import app.morphe.patches.shared.ensureRegisterCount
 import app.morphe.patches.shared.sharedExtensionPatch
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val videoFitPatch = bytecodePatch(
     name = "Video Fit",
-    description = "Shows the whole video ('fit') or fills the screen ('fill').",
+    description = "Fit whole video or fill screen.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -22,8 +25,8 @@ val videoFitPatch = bytecodePatch(
 
     val fitMode by stringOption(
         key = "fitMode",
-        title = "Video Fit Mode",
-        description = "Aspect ratio mode for feed and story videos: 'fit' (entire video visible without crop), or 'fill' (crop to fill screen).",
+        title = "Mode",
+        description = "fit or fill.",
         default = "fit",
         values = mapOf("Fit video" to "fit", "Fill screen" to "fill"),
         required = false,

@@ -7,8 +7,8 @@ import java.io.File
 private val EMPTY_BYTES = byteArrayOf()
 
 val creatorBloatSlimmerPatch = rawResourcePatch(
-    name = "Studio & Creation De-bloat",
-    description = "Removes video editing and effects tools to free up space.",
+    name = "Remove Editor Files",
+    description = "Deletes video editor and effect files.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

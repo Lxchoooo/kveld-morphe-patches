@@ -10,8 +10,8 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 
 val bypassScreenCapturePatch = bytecodePatch(
-    name = "Bypass Screen Capture Detection",
-    description = "Removes screenshot and screen recording blocking.",
+    name = "Allow Screenshots",
+    description = "Removes screenshot blocking and detection.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

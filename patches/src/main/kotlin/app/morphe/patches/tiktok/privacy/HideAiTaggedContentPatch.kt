@@ -10,8 +10,8 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val hideAiTaggedContentPatch = bytecodePatch(
-    name = "Hide AI-Generated Content",
-    description = "Skips videos marked as made by AI.",
+    name = "Hide AI Videos",
+    description = "Skips videos marked as AI-made.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

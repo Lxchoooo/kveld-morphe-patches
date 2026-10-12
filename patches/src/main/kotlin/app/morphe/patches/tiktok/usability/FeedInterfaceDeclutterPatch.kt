@@ -15,15 +15,14 @@ import app.morphe.patches.shared.replaceWithReturnInt
 import app.morphe.patches.shared.replaceWithReturnNull
 import app.morphe.patches.shared.replaceWithReturnVoid
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
-import com.android.tools.smali.dexlib2.iface.instruction.Instruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val feedInterfaceDeclutterPatch = bytecodePatch(
-    name = "Feed Interface Declutter",
-    description = "Cleans up the buttons and overlays on top of videos.",
+    name = "Clean Video Screen",
+    description = "Hides buttons and overlays on videos.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -32,72 +31,72 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
     val hideRepostBadge by booleanOption(
         key = "hideRepostBadge",
         default = true,
-        title = "Hide Repost Badge",
-        description = "Hides the repost and shared-by pill badge ('Shared by' / 'Reposted') above creator details on feed videos.",
+        title = "Repost badge",
+        description = "Hides repost pill.",
         required = false,
     )
 
     val hideVideoDescriptions by booleanOption(
         key = "hideVideoDescriptions",
         default = true,
-        title = "Hide Video Descriptions",
-        description = "Hides video descriptions, captions, and hashtags across feed videos while keeping creator and author title intact.",
+        title = "Descriptions",
+        description = "Hides video text.",
         required = false,
     )
 
     val hideAvatarFollowButton by booleanOption(
         key = "hideAvatarFollowButton",
         default = true,
-        title = "Hide Profile Photo Follow Button",
-        description = "Hides the plus (+) follow badge on creator profile avatars in the feed and disables its touch interaction.",
+        title = "Follow badge",
+        description = "Hides + button on avatars.",
         required = false,
     )
 
     val disableStoryRings by booleanOption(
         key = "disableStoryRings",
         default = true,
-        title = "Disable Story Feed Indicators",
-        description = "Removes creator profile photo story rings from feed videos, ensuring avatar photos remain clean without blue story rings.",
+        title = "Story rings",
+        description = "Removes story rings.",
         required = false,
     )
 
     val hidePlaylistBar by booleanOption(
         key = "hidePlaylistBar",
         default = true,
-        title = "Hide Playlist Bottom Bar",
-        description = "Hides the playlist indicator bar displayed above the bottom navigation when a video is part of a playlist.",
+        title = "Playlist bar",
+        description = "Hides playlist bar.",
         required = false,
     )
 
     val hideSaveButton by booleanOption(
         key = "hideSaveButton",
         default = false,
-        title = "Hide Save Button",
-        description = "Hides the bookmark/favorite save button on the right-side action rail of feed videos.",
+        title = "Save button",
+        description = "Hides bookmark button.",
         required = false,
     )
 
     val hideMusicCover by booleanOption(
         key = "hideMusicCover",
         default = false,
-        title = "Hide Music Cover Disc",
-        description = "Hides the rotating vinyl music album cover disc at the bottom right corner of feed videos.",
+        title = "Music disc",
+        description = "Hides spinning music disc.",
         required = false,
     )
 
     val hideFullscreenButton by booleanOption(
         key = "hideFullscreenButton",
         default = false,
-        title = "Hide Full Screen Button",
-        description = "Hides the floating 'Full screen' landscape orientation button overlay on horizontal feed videos.",
+        title = "Fullscreen button",
+        description = "Hides fullscreen button.",
         required = false,
     )
 
     val hideFeedbackButtons by booleanOption(
         key = "hideFeedbackButtons",
         default = true,
-        title = "Hide Feedback Buttons",
-        description = "Hides the 'Not interested' / 'Interested' feedback pills above the bottom navigation on feed videos.",
+        title = "Feedback pills",
+        description = "Hides interest pills.",
         required = false,
     )
 
@@ -209,20 +208,49 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 parameters = listOf("Landroid/view/View;"),
             ).method
             descOnViewCreated.clearTryBlocks()
-            descOnViewCreated.ensureRegisterCount(6)
+            descOnViewCreated.ensureRegisterCount(4)
             val descReturns = descOnViewCreated.implementation!!.instructions.mapIndexedNotNull { index, instr ->
                 if (instr.opcode.name == "return-void") index else null
             }.reversed()
-            for (index in descReturns) {
+            for ((i, index) in descReturns.withIndex()) {
                 descOnViewCreated.addInstructions(
                     index,
                     """
-                        move-object/from16 v0, p0
-                        invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFeedDescForAssem(Ljava/lang/Object;)V
+                        move-object/from16 v0, p1
+                        const/16 v1, 0x8
+                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
                     """.trimIndent(),
                 )
             }
             println("[Feed Interface Declutter] Hooked VideoDescAssem.onViewCreated() -> appended setVisibility(GONE).")
+            patched++
+
+            val descZ4 = Fingerprint(
+                definingClass = descTargetClass,
+                name = "z4",
+                returnType = "V",
+                parameters = listOf("Ljava/lang/Object;"),
+            ).method
+            descZ4.clearTryBlocks()
+            descZ4.ensureRegisterCount(2)
+            val z4Returns = descZ4.implementation!!.instructions.mapIndexedNotNull { index, instr ->
+                if (instr.opcode.name == "return-void") index else null
+            }.reversed()
+            for ((i, index) in z4Returns.withIndex()) {
+                descZ4.addInstructions(
+                    index,
+                    """
+                        move-object/from16 v0, p0
+                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
+                        move-result-object v0
+                        if-eqz v0, :cond_skip_z4_$i
+                        const/16 v1, 0x8
+                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        :cond_skip_z4_$i
+                    """.trimIndent(),
+                )
+            }
+            println("[Feed Interface Declutter] Hooked VideoDescAssem.z4() -> appended GONE enforcement.")
             patched++
 
             val descJs = Fingerprint(
@@ -232,16 +260,21 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method
             descJs.clearTryBlocks()
-            descJs.ensureRegisterCount(6)
+            descJs.ensureRegisterCount(2)
             val jsReturns = descJs.implementation!!.instructions.mapIndexedNotNull { index, instr ->
                 if (instr.opcode.name == "return-void") index else null
             }.reversed()
-            for (index in jsReturns) {
+            for ((i, index) in jsReturns.withIndex()) {
                 descJs.addInstructions(
                     index,
                     """
                         move-object/from16 v0, p0
-                        invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFeedDescForAssem(Ljava/lang/Object;)V
+                        invoke-virtual {v0}, Lcom/ss/android/ugc/aweme/feed/assem/desc/VideoDescAssem;->qc()Landroid/view/View;
+                        move-result-object v0
+                        if-eqz v0, :cond_skip_js_$i
+                        const/16 v1, 0x8
+                        invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+                        :cond_skip_js_$i
                     """.trimIndent(),
                 )
             }
@@ -250,14 +283,13 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
 
             // 2b. Redirect feed desc visibility calls to always-GONE wrappers
             // (reactive-proof hiding without touching method bodies).
-            // LX/09Ce is instantiated 1:1 by VideoDescAssem.onViewCreated, and
-            // VideoDescAssem itself manages desc container visibility. Neither
-            // VideoDescAssem nor 09Ce ever calls setVisibility directly: every desc
-            // visibility change flows through the LX/00kn visibility helpers below.
-            // Redirecting those calls (same invoke shape and width, only the callee changes)
-            // across both VideoDescAssem and LX/09Ce to extension wrappers that force GONE
-            // covers every current and future show path, including see-more expansion flows,
-            // with no control-flow disturbance.
+            // LX/09Ce is instantiated 1:1 by VideoDescAssem.onViewCreated, so hooks
+            // here affect feed desc cells only. Neither VideoDescAssem nor 09Ce ever
+            // calls setVisibility directly: every desc visibility change flows
+            // through the LX/00kn visibility helpers below. Redirecting those calls
+            // (same invoke shape and width, only the callee changes) to extension
+            // wrappers that force GONE covers every current and future show path,
+            // including see-more expansion flows, with no control-flow disturbance.
             val descVisibilityRedirects = mapOf(
                 "LLLLLZIL" to "${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneViewLast(Landroid/view/View;I)V",
                 "LLLLLZ" to "${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneViewLast(Landroid/view/View;I)V",
@@ -265,82 +297,44 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 "LJLLILLLL" to "${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceGoneViewFirst(ILandroid/view/View;)V",
             )
             var redirectedMethods = 0
-            var redirectedCallsDescAssem = 0
-            var redirectedCalls09Ce = 0
-            var skippedShapes = 0
-            val descRedirectClasses = listOf(descTargetClass, "LX/09Ce;")
-            for (targetClass in descRedirectClasses) {
-                var classRedirectedCalls = 0
-                for (target in mutableClassDefBy(targetClass).methods) {
-                    val instructions = target.implementation?.instructions ?: continue
-                    val redirectIndices = mutableListOf<Pair<Int, String>>()
-                    for ((index, instruction) in instructions.withIndex()) {
-                        val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference ?: continue
-                        if (reference.definingClass != "LX/00kn;") continue
-                        if (reference.name !in descVisibilityRedirects) continue
-                        val newCallee = descVisibilityRedirects[reference.name] ?: continue
-                        val registers = extractInstructionRegisters(instruction)
-                        if (registers == null || registers.size != 2) {
-                            skippedShapes++
-                            continue
-                        }
-                        val newInvoke = if (instruction is RegisterRangeInstruction) {
-                            "invoke-static/range {v${registers[0]} .. v${registers[1]}}, $newCallee"
-                        } else {
-                            "invoke-static {v${registers[0]}, v${registers[1]}}, $newCallee"
-                        }
-                        redirectIndices.add(index to newInvoke)
+            var redirectedCalls = 0
+            for (target in mutableClassDefBy("LX/09Ce;").methods) {
+                val instructions = target.implementation?.instructions ?: continue
+                val redirectIndices = mutableListOf<Pair<Int, String>>()
+                for ((index, instruction) in instructions.withIndex()) {
+                    val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference ?: continue
+                    if (reference.definingClass != "LX/00kn;") continue
+                    if (reference.name !in descVisibilityRedirects) continue
+                    val newCallee = descVisibilityRedirects[reference.name] ?: continue
+                    val registers = when (instruction) {
+                        is FiveRegisterInstruction -> listOf(
+                            instruction.registerC,
+                            instruction.registerD,
+                            instruction.registerE,
+                            instruction.registerF,
+                            instruction.registerG,
+                        ).take(instruction.registerCount)
+                        is RegisterRangeInstruction -> (instruction.startRegister until instruction.startRegister + instruction.registerCount).toList()
+                        else -> continue
                     }
-                    for ((index, newInvoke) in redirectIndices.sortedByDescending { it.first }) {
-                        target.replaceInstructions(index, newInvoke)
-                        classRedirectedCalls++
+                    if (registers.size != 2) continue
+                    val newInvoke = if (instruction is RegisterRangeInstruction) {
+                        "invoke-static/range {v${registers[0]} .. v${registers[1]}}, $newCallee"
+                    } else {
+                        "invoke-static {v${registers[0]}, v${registers[1]}}, $newCallee"
                     }
-                    if (redirectIndices.isNotEmpty()) {
-                        redirectedMethods++
-                    }
+                    redirectIndices.add(index to newInvoke)
                 }
-                if (targetClass == descTargetClass) {
-                    redirectedCallsDescAssem = classRedirectedCalls
-                } else {
-                    redirectedCalls09Ce = classRedirectedCalls
+                for ((index, newInvoke) in redirectIndices.sortedByDescending { it.first }) {
+                    target.replaceInstructions(index, newInvoke)
+                    redirectedCalls++
+                }
+                if (redirectIndices.isNotEmpty()) {
+                    redirectedMethods++
                 }
             }
-            val redirectedCalls = redirectedCallsDescAssem + redirectedCalls09Ce
-            if (redirectedCallsDescAssem == 0) {
-                println("[Feed Interface Declutter] WARNING: VideoDescAssem contributed 0 redirects")
-            }
-            require(redirectedCalls > 0) { "VideoDescAssem/09Ce desc redirect: no visibility helper call found" }
-            println("[Feed Interface Declutter] Hooked desc visibility calls -> $redirectedCalls call(s) (VideoDescAssem: $redirectedCallsDescAssem, LX/09Ce: $redirectedCalls09Ce, skippedShapes: $skippedShapes) across $redirectedMethods method(s) forced GONE.")
-            patched++
-
-            // 2c. Direct prologue guards on LX/00kn visibility helpers
-            val descHelpers = listOf(
-                Triple("LLLLLZIL", listOf("Lcom/bytedance/tux/input/TuxTextView;", "I"), "p0"),
-                Triple("LLLLLZ", listOf("LX/09BJ;", "I"), "p0"),
-                Triple("LJLLLLLL", listOf("I", "Landroid/widget/LinearLayout;"), "p1"),
-                Triple("LJLLILLLL", listOf("I", "Landroid/view/View;"), "p1"),
-            )
-            var installedHelpers = 0
-            for ((name, params, viewReg) in descHelpers) {
-                try {
-                    val method = Fingerprint(
-                        definingClass = "LX/00kn;",
-                        name = name,
-                        returnType = "V",
-                        parameters = params,
-                    ).method
-                    method.addInstructions(
-                        0,
-                        "invoke-static {$viewReg}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideDescViewIfDesc(Landroid/view/View;)V",
-                    )
-                    println("[Feed Interface Declutter] Hooked LX/00kn.$name() prologue -> hideDescViewIfDesc($viewReg).")
-                    installedHelpers++
-                } catch (e: Exception) {
-                    println("[Feed Interface Declutter] WARNING: helper $name signature not found, skipped")
-                }
-            }
-            println("[Feed Interface Declutter] Installed desc prologue guards on $installedHelpers / ${descHelpers.size} helper(s).")
-            require(installedHelpers == descHelpers.size) { "LX/00kn desc visibility helpers: expected ${descHelpers.size}, installed $installedHelpers" }
+            require(redirectedCalls > 0) { "09Ce desc redirect: no visibility helper call found" }
+            println("[Feed Interface Declutter] Hooked 09Ce visibility calls -> $redirectedCalls call(s) across $redirectedMethods method(s) forced GONE.")
             patched++
 
             val friendsDescClass = "Lcom/ss/android/ugc/aweme/friendstab/ui/feed/cell/component/desc/FriendsV3DescAssem;"
@@ -830,18 +824,3 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
         println("[Feed Interface Declutter] Successfully applied $patched hook(s) across selected feed interface options.")
     }
 }
-
-private fun extractInstructionRegisters(instruction: Instruction): List<Int>? {
-    return when (instruction) {
-        is FiveRegisterInstruction -> listOf(
-            instruction.registerC,
-            instruction.registerD,
-            instruction.registerE,
-            instruction.registerF,
-            instruction.registerG,
-        ).take(instruction.registerCount)
-        is RegisterRangeInstruction -> (instruction.startRegister until instruction.startRegister + instruction.registerCount).toList()
-        else -> null
-    }
-}
-

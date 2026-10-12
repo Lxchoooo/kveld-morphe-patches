@@ -9,7 +9,7 @@ import com.android.tools.smali.dexlib2.AccessFlags
 
 val fixSpotifyLoginPatch = bytecodePatch(
     name = "Fix Spotify Login",
-    description = "Restores 'Add to Spotify' after signing in on the web.",
+    description = "Restores Add to Spotify via web login.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

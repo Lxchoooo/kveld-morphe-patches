@@ -6,8 +6,8 @@ import app.morphe.patches.shared.Constants
 private val EMPTY_BYTES = byteArrayOf()
 
 val liveStreamSuiteOptimizerPatch = rawResourcePatch(
-    name = "Live Stream SDK & Minigame De-bloat",
-    description = "Removes live streaming and minigame files. Breaks lives and video calls.",
+    name = "Remove Live & Minigame Files",
+    description = "Deletes live broadcast and minigame files. Breaks lives and video calls.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

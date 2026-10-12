@@ -9,8 +9,8 @@ import app.morphe.patches.shared.replaceWithReturnVoid
 private const val NEW_USER_JOURNEY_SERVICE = "Lcom/ss/android/ugc/aweme/NewUserJourneyService;"
 
 val skipFirstLaunchOnboardingPatch = bytecodePatch(
-    name = "Skip First-Launch Onboarding",
-    description = "Skips the first-launch intro, tutorials and consent screens.",
+    name = "Skip Onboarding",
+    description = "Goes straight to the feed.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

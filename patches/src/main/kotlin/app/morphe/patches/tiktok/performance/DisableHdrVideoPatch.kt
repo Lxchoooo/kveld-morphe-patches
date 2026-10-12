@@ -6,8 +6,8 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
 
 val disableHdrVideoPatch = bytecodePatch(
-    name = "Disable HDR Video Playback",
-    description = "Plays standard video instead of HDR. Keeps screen brightness normal.",
+    name = "No HDR Videos",
+    description = "Plays standard video instead of HDR.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
