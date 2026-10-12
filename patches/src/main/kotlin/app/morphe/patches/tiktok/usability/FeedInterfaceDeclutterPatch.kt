@@ -340,7 +340,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 }
             }
             println("[Feed Interface Declutter] Installed desc prologue guards on $installedHelpers / ${descHelpers.size} helper(s).")
-            require(installedHelpers > 0) { "No LX/00kn desc visibility helper matched for prologue guards" }
+            require(installedHelpers == descHelpers.size) { "LX/00kn desc visibility helpers: expected ${descHelpers.size}, installed $installedHelpers" }
             patched++
 
             val friendsDescClass = "Lcom/ss/android/ugc/aweme/friendstab/ui/feed/cell/component/desc/FriendsV3DescAssem;"
