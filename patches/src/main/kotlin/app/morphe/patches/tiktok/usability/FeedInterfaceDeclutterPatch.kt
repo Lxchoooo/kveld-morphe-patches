@@ -249,9 +249,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
                         goto :cond_skip_z4_$i
                         :cond_qc_null_z4_$i
-                        const-string v0, "MorpheTikTok"
-                        const-string v1, "[Feed Interface Declutter] qc() returned null; no-op bypass"
-                        invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+                        goto :cond_skip_z4_$i
                         :cond_skip_z4_$i
                     """.trimIndent(),
                 )
@@ -282,9 +280,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
                         goto :cond_skip_js_$i
                         :cond_qc_null_js_$i
-                        const-string v0, "MorpheTikTok"
-                        const-string v1, "[Feed Interface Declutter] qc() returned null; no-op bypass"
-                        invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+                        goto :cond_skip_js_$i
                         :cond_skip_js_$i
                     """.trimIndent(),
                 )
@@ -350,10 +346,8 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 }
             }
             val redirectedCalls = redirectedCallsDescAssem + redirectedCalls09Ce
-            if (redirectedCallsDescAssem >= 1) {
-                require(redirectedCallsDescAssem > 0) { "VideoDescAssem desc redirect: no visibility helper call found" }
-            } else {
-                println("[Feed Interface Declutter] VideoDescAssem contributed 0 redirects")
+            if (redirectedCallsDescAssem == 0) {
+                println("[Feed Interface Declutter] WARNING: VideoDescAssem contributed 0 redirects")
             }
             require(redirectedCalls > 0) { "VideoDescAssem/09Ce desc redirect: no visibility helper call found" }
             println("[Feed Interface Declutter] Hooked desc visibility calls -> $redirectedCalls call(s) (VideoDescAssem: $redirectedCallsDescAssem, LX/09Ce: $redirectedCalls09Ce, skippedShapes: $skippedShapes) across $redirectedMethods method(s) forced GONE.")
