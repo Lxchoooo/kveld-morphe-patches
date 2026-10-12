@@ -29,7 +29,7 @@ val loginCompatibilityPatch = bytecodePatch(
         key = "fixSpotifyLogin",
         default = true,
         title = "Fix Spotify Login",
-        description = "Restores the 'Add to Spotify' music button after patching by routing the Spotify app sign-in, which rejects the modified APK signature, through Spotify's Web-based OAuth.",
+        description = "Restores 'Add to Spotify' after signing in on the web.",
         required = false,
     )
 
