@@ -56,7 +56,7 @@ val playbackDisplayGovernorPatch = bytecodePatch(
         key = "disableHdr",
         default = true,
         title = "Disable HDR Video Playback",
-        description = "Forces the video playback engine to select standard SDR bitrates (BT.709/sRGB) instead of HDR (HDR10/PQ/HLG), preventing blinding screen brightness spikes and display thermal throttling while preserving smooth playback.",
+        description = "Plays standard video instead of HDR. Keeps screen brightness normal.",
         required = false,
     )
 
