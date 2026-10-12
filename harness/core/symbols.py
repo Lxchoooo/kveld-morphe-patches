@@ -164,6 +164,7 @@ class SymbolResolver:
             m for m in hierarchy_methods
             if (m.access_flags & 0x8) == 0 and len(m.parameters) == 0 and m.return_type == "Landroid/content/Context;"
         ]
+        ambiguous = len(context_getters) > 1
         ctx_name = context_getters[0].name if context_getters else "N3"
         return ResolvedSymbol(
             symbol_id="origin_context_getter_method",
@@ -171,8 +172,17 @@ class SymbolResolver:
             old_symbol="B4()Landroid/content/Context;",
             new_symbol=f"{ctx_name}()Landroid/content/Context;",
             symbol_type="method",
-            confidence=SymbolConfidence.VERIFIED if context_getters else SymbolConfidence.BLOCKED,
+            confidence=(
+                SymbolConfidence.VERIFIED
+                if context_getters and not ambiguous
+                else SymbolConfidence.BLOCKED
+            ),
             evidence=[f"Instance () -> Context method on {cls_name} (or superclass): {ctx_name}"]
+            if context_getters and not ambiguous
+            else [
+                f"{len(context_getters)} instance () -> Context method(s) on {cls_name} "
+                f"({', '.join(m.name for m in context_getters[:6])}); the context getter is ambiguous"
+            ],
         )
 
     @staticmethod
@@ -181,6 +191,7 @@ class SymbolResolver:
             m for m in cls.methods
             if (m.access_flags & 0x8) == 0 and len(m.parameters) == 0 and m.return_type == "V" and m.name not in ("<init>", "onStart", "onResume")
         ]
+        ambiguous = len(void_zero_param) > 1
         update_name = void_zero_param[0].name if void_zero_param else "d5"
         return ResolvedSymbol(
             symbol_id="origin_update_prefs_method",
@@ -188,8 +199,17 @@ class SymbolResolver:
             old_symbol="e5()V",
             new_symbol=f"{update_name}()V",
             symbol_type="method",
-            confidence=SymbolConfidence.VERIFIED if void_zero_param else SymbolConfidence.BLOCKED,
+            confidence=(
+                SymbolConfidence.VERIFIED
+                if void_zero_param and not ambiguous
+                else SymbolConfidence.BLOCKED
+            ),
             evidence=[f"Instance () -> V refresh method on {cls_name}: {update_name}"]
+            if void_zero_param and not ambiguous
+            else [
+                f"{len(void_zero_param)} candidate refresh method(s) on {cls_name} "
+                f"({', '.join(m.name for m in void_zero_param[:6])}); the update method is ambiguous"
+            ],
         )
 
     @staticmethod
@@ -198,6 +218,7 @@ class SymbolResolver:
             m for m in hierarchy_methods
             if len(m.parameters) == 1 and m.parameters[0] == "Ljava/lang/CharSequence;" and m.return_type == "Landroidx/preference/Preference;"
         ]
+        ambiguous = len(find_pref_candidates) > 1
         find_pref_name = find_pref_candidates[0].name if find_pref_candidates else "S4"
         return ResolvedSymbol(
             symbol_id="origin_find_pref_method",
@@ -205,8 +226,17 @@ class SymbolResolver:
             old_symbol="P4(Ljava/lang/CharSequence;)Landroidx/preference/Preference;",
             new_symbol=f"{find_pref_name}(Ljava/lang/CharSequence;)Landroidx/preference/Preference;",
             symbol_type="method",
-            confidence=SymbolConfidence.VERIFIED if find_pref_candidates else SymbolConfidence.BLOCKED,
+            confidence=(
+                SymbolConfidence.VERIFIED
+                if find_pref_candidates and not ambiguous
+                else SymbolConfidence.BLOCKED
+            ),
             evidence=[f"Method (CharSequence) -> Preference on {cls_name} (or superclass): {find_pref_name}"]
+            if find_pref_candidates and not ambiguous
+            else [
+                f"{len(find_pref_candidates)} (CharSequence) -> Preference method(s) on {cls_name} "
+                f"({', '.join(m.name for m in find_pref_candidates[:6])}); the finder is ambiguous"
+            ],
         )
 
     def _resolve_origin_pref_listener(self) -> ResolvedSymbol:
@@ -220,19 +250,30 @@ class SymbolResolver:
             if listener_fields:
                 pref_listener_field = listener_fields[0]
 
+        # Previously this always reported VERIFIED, even when Preference was not
+        # found at all and the hardcoded fallback was returned. A guess that is
+        # labelled as verified gets written into BraveOriginPatch.kt unchecked.
+        resolved = pref_cls is not None and pref_listener_field != "y"
         return ResolvedSymbol(
             symbol_id="origin_pref_listener_field",
             target_class="Landroidx/preference/Preference;",
             old_symbol="y",
             new_symbol=pref_listener_field,
             symbol_type="field",
-            confidence=SymbolConfidence.VERIFIED,
-            evidence=[f"Reflection listener field on Preference: '{pref_listener_field}'"]
+            confidence=SymbolConfidence.VERIFIED if resolved else SymbolConfidence.BLOCKED,
+            evidence=(
+                [f"Reflection listener field on Preference: '{pref_listener_field}'"]
+                if resolved
+                else ["Preference class or its listener field was not found; fallback 'y' is a guess"]
+            ),
         )
 
     @staticmethod
     def _resolve_origin_pref_key(cls: IndexedClass) -> ResolvedSymbol:
-        key_field = "G"
+        # Collect every candidate instead of keeping the last one found: with more
+        # than one candidate the choice is a guess, and a guessed field name that
+        # does not block migration would be written straight into the patch source.
+        candidates: List[str] = []
         for m in cls.methods:
             if m.return_type == "Z" and len(m.parameters) in (1, 2) and m.parameters[0] == "Landroidx/preference/Preference;":
                 code = m.encoded_method.get_code()
@@ -241,17 +282,25 @@ class SymbolResolver:
                         raw = str(ins)
                         if "iget-object" in raw and "Landroidx/preference/Preference;->" in raw and ":Ljava/lang/String;" in raw:
                             match = re.search(r"Landroidx/preference/Preference;->([A-Za-z0-9_]+):Ljava/lang/String;", raw)
-                            if match:
-                                key_field = match.group(1)
-                                break
+                            if match and match.group(1) not in candidates:
+                                candidates.append(match.group(1))
+        unique = len(candidates) == 1
+        key_field = candidates[0] if candidates else "G"
         return ResolvedSymbol(
             symbol_id="origin_pref_key_field",
             target_class="Landroidx/preference/Preference;",
             old_symbol="G:Ljava/lang/String;",
             new_symbol=f"{key_field}:Ljava/lang/String;",
             symbol_type="field",
-            confidence=SymbolConfidence.VERIFIED if key_field != "G" else SymbolConfidence.HIGH,
-            evidence=[f"Preference key field resolved as '{key_field}'"]
+            confidence=SymbolConfidence.VERIFIED if unique else SymbolConfidence.BLOCKED,
+            evidence=(
+                [f"Preference key field resolved as '{key_field}'"]
+                if unique
+                else [
+                    f"{len(candidates)} preference key field candidate(s) ({', '.join(candidates[:6])}); "
+                    "the key field is ambiguous"
+                ]
+            ),
         )
 
     def resolve_notification_scheduler_symbols(self) -> Optional[BraveNotificationSchedulerSymbols]:

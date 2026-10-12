@@ -214,3 +214,75 @@ class TestOriginSymbolAmbiguity(unittest.TestCase):
         sym = SymbolResolver._resolve_origin_key_mapping(cls, cls.name)
         self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
         self.assertIn("ambiguous", " ".join(sym.evidence))
+
+
+class TestOriginSymbolResolutionGuards(unittest.TestCase):
+    """No resolver may report VERIFIED when it is guessing.
+
+    The migrator writes these names straight into BraveOriginPatch.kt, and the
+    Brave pipeline only blocks migration on BLOCKED symbols.
+    """
+
+    @staticmethod
+    def _method(name, params, ret, flags=0x2):
+        method = MagicMock(return_type=ret, parameters=params, access_flags=flags)
+        method.name = name
+        return method
+
+    def _cls(self, methods, fields=()):
+        from harness.core.dex import IndexedClass
+        return IndexedClass(
+            dex_name="classes.dex",
+            name="Lorg/chromium/chrome/browser/settings/BraveOriginPreferences;",
+            access_flags=1, superclass="Ljava/lang/Object;", interfaces=[],
+            class_def=None, methods=methods, fields=list(fields),
+        )
+
+    def test_listener_is_blocked_when_nothing_was_found(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+        resolver = SymbolResolver.__new__(SymbolResolver)
+        resolver.index = MagicMock()
+        resolver.index.find_class.return_value = None
+        sym = resolver._resolve_origin_pref_listener()
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+
+    def test_key_field_blocks_on_several_candidates(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+        def _ins(text):
+            i = MagicMock(); i.__str__ = lambda self: text; return i
+        def _code(texts):
+            code = MagicMock()
+            code.get_bc.return_value.get_instructions.return_value = [_ins(t) for t in texts]
+            return code
+        read_a = "iget-object v0, p1, Landroidx/preference/Preference;->A:Ljava/lang/String;"
+        read_b = "iget-object v0, p1, Landroidx/preference/Preference;->B:Ljava/lang/String;"
+        m1 = self._method("a", ["Landroidx/preference/Preference;"], "Z")
+        m1.encoded_method.get_code.return_value = _code([read_a])
+        m2 = self._method("b", ["Landroidx/preference/Preference;"], "Z")
+        m2.encoded_method.get_code.return_value = _code([read_b])
+        sym = SymbolResolver._resolve_origin_pref_key(self._cls([m1, m2]))
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
+        self.assertIn("ambiguous", " ".join(sym.evidence))
+
+    def test_single_key_field_candidate_is_verified(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+        def _ins(text):
+            i = MagicMock(); i.__str__ = lambda self: text; return i
+        code = MagicMock()
+        code.get_bc.return_value.get_instructions.return_value = [
+            _ins("iget-object v0, p1, Landroidx/preference/Preference;->H:Ljava/lang/String;")
+        ]
+        m1 = self._method("a", ["Landroidx/preference/Preference;"], "Z")
+        m1.encoded_method.get_code.return_value = code
+        sym = SymbolResolver._resolve_origin_pref_key(self._cls([m1]))
+        self.assertEqual(sym.confidence, SymbolConfidence.VERIFIED)
+        self.assertEqual(sym.new_symbol, "H:Ljava/lang/String;")
+
+    def test_ambiguous_context_getter_blocks(self):
+        from harness.core.symbols import SymbolResolver, SymbolConfidence
+        methods = [
+            self._method("a", [], "Landroid/content/Context;"),
+            self._method("b", [], "Landroid/content/Context;"),
+        ]
+        sym = SymbolResolver._resolve_origin_context_getter(methods, "Lcls;")
+        self.assertEqual(sym.confidence, SymbolConfidence.BLOCKED)
