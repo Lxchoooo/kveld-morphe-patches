@@ -16,7 +16,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 val mediaEnhancementsPatch = bytecodePatch(
     name = "Media Usability & Watermark-Free Downloader",
-    description = "Unblocks the download button on creator-restricted videos inside the Share panel, and routes downloads to clean unwatermarked media streams.",
+    description = "Unlocks downloading and saves videos without watermark.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

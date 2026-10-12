@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.AccessFlags
 
 val popupsAndPromptsSuppressorPatch = bytecodePatch(
     name = "Popups & Prompts Suppressor",
-    description = "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, and DM streak expiration warnings.",
+    description = "Blocks popups, nags and promo dialogs across the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

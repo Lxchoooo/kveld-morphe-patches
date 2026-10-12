@@ -7,7 +7,7 @@ private val EMPTY_BYTES = byteArrayOf()
 
 val p2pVideoRelayBlockerPatch = rawResourcePatch(
     name = "P2P Video Relay & Mesh CDN Blocker",
-    description = "Strips background Peer-to-Peer CDN distribution binaries (libavmdlp2pv2.so and libp2plivevdp.so) to prevent battery drain, background data upload, and mesh relay.",
+    description = "Stops your device uploading videos to others.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

@@ -9,7 +9,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 val disableAvatarLiveStatusPatch = bytecodePatch(
     name = "Disable Profile Photo LIVE Status",
-    description = "Removes the pulsing LIVE ring and badge from creator avatars in the feed and ensures clicking navigates strictly to the user profile instead of launching the live stream.",
+    description = "Removes the LIVE ring on avatars and keeps taps on the profile.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

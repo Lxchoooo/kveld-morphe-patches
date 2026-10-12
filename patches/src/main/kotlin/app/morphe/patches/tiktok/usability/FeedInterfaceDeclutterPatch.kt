@@ -23,7 +23,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val feedInterfaceDeclutterPatch = bytecodePatch(
     name = "Feed Interface Declutter",
-    description = "Customizes and cleans feed video overlay elements, including the full screen button, repost pill, interest feedback pills, video descriptions, profile photo follow badges, story rings, playlist bottom bars, save buttons, and music discs.",
+    description = "Cleans up the buttons and overlays on top of videos.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
