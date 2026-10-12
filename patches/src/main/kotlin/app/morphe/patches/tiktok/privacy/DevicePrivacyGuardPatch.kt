@@ -40,7 +40,7 @@ private fun isCallSiteCandidate(ins: Instruction): Boolean {
 
 val devicePrivacyGuardPatch = bytecodePatch(
     name = "Device Privacy Guard",
-    description = "Neutralizes invasive runtime permissions, contacts queries, package inventory inspection, location hardware tracking, advertising ID profiling, background clipboard snooping routines, and motion sensor profiling to protect user data.",
+    description = "Blocks access to your contacts, location, apps and sensors.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

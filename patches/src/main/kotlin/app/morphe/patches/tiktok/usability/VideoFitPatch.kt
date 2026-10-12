@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val videoFitPatch = bytecodePatch(
     name = "Video Fit",
-    description = "Adjusts video display aspect ratio across feeds and story cells: 'fit' ensures the entire video is visible without cropping, or 'fill' expands the video to fill the screen.",
+    description = "Shows the whole video ('fit') or fills the screen ('fill').",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
