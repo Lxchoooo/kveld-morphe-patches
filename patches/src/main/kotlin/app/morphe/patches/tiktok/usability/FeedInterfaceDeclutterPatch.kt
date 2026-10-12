@@ -315,9 +315,9 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
 
             // 2c. Direct prologue guards on LX/00kn visibility helpers
             val descHelpers = listOf(
-                Triple("LLLLLZIL", listOf("Landroid/view/View;", "I"), "p0"),
-                Triple("LLLLLZ", listOf("Landroid/view/View;", "I"), "p0"),
-                Triple("LJLLLLLL", listOf("I", "Landroid/view/View;"), "p1"),
+                Triple("LLLLLZIL", listOf("Lcom/bytedance/tux/input/TuxTextView;", "I"), "p0"),
+                Triple("LLLLLZ", listOf("LX/09BJ;", "I"), "p0"),
+                Triple("LJLLLLLL", listOf("I", "Landroid/widget/LinearLayout;"), "p1"),
                 Triple("LJLLILLLL", listOf("I", "Landroid/view/View;"), "p1"),
             )
             var installedHelpers = 0
