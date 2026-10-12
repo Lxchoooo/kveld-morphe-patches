@@ -323,18 +323,46 @@ apply_changed_path() {
     local sha="${CANON_BLOB[$p]:-}"
     local mode="${CANON_MODE[$p]:-}"
     local target="$mirror_root/$p"
-    if [ -n "$sha" ]; then
-        mkdir -p "$(dirname "$target")"
-        git -C "$canon_root" cat-file blob "$sha" > "$target"
-        if [ "$mode" = "100755" ]; then
-            chmod 755 "$target"
-        else
-            chmod 644 "$target"
-        fi
-        git -C "$mirror_root" add -- "$p"
+    if [ -z "$sha" ]; then
+        git -C "$mirror_root" rm -q -- "$p" || return 1
         return 0
     fi
-    git -C "$mirror_root" rm -q -- "$p"
+    mkdir -p "$(dirname "$target")" || return 1
+    git -C "$canon_root" cat-file blob "$sha" > "$target" || return 1
+    if [ "$mode" = "100755" ]; then
+        chmod 755 "$target" || return 1
+    else
+        chmod 644 "$target" || return 1
+    fi
+    git -C "$mirror_root" add -- "$p" || return 1
+    return 0
+}
+
+apply_all_changed_paths() {
+    local p
+    for p in "${CHANGED_PATHS[@]}"; do
+        if [ -z "${CANON_BLOB[$p]:-}" ]; then
+            apply_changed_path "$p" || return 1
+        fi
+    done
+    for p in "${CHANGED_PATHS[@]}"; do
+        if [ -n "${CANON_BLOB[$p]:-}" ]; then
+            apply_changed_path "$p" || return 1
+        fi
+    done
+    return 0
+}
+
+rollback_mirror() {
+    local p
+    for p in "${CHANGED_PATHS[@]}"; do
+        if [ -n "${MIRROR_BLOB[$p]:-}" ]; then
+            git -C "$mirror_root" restore --source=HEAD --staged --worktree -- "$p" || true
+        else
+            git -C "$mirror_root" rm -q --cached --ignore-unmatch -- "$p" || true
+            rm -f -- "$mirror_root/$p" || true
+        fi
+    done
 }
 
 commit_mirror() {
@@ -343,7 +371,8 @@ commit_mirror() {
     count="${#CHANGED_PATHS[@]}"
     # SIBLING_REPO is role-relative and must not reach the mirror's hooks.
     if ! env -u SIBLING_REPO git -C "$mirror_root" commit -q -m "$SYNC_SUBJECT" -m "Source: $CANONICAL_REPO $canon_sha"; then
-        echo "[SYNC] ERROR: mirror commit failed; changes left staged in $mirror_root."
+        rollback_mirror
+        echo "[SYNC] ERROR: mirror commit failed; mirror restored, nothing committed."
         if [ "$MODE" = "hook" ]; then
             exit 0
         fi
@@ -373,10 +402,14 @@ run_push() {
         echo "[SYNC] Skipped: uncommitted mirror changes in ${CONFLICTING_PATHS[*]}."
         exit 0
     fi
-    local p
-    for p in "${CHANGED_PATHS[@]}"; do
-        apply_changed_path "$p"
-    done
+    if ! apply_all_changed_paths; then
+        rollback_mirror
+        echo "[SYNC] ERROR: applying shared files failed; mirror restored, nothing committed."
+        if [ "$MODE" = "hook" ]; then
+            exit 0
+        fi
+        exit 1
+    fi
     commit_mirror
 }
 
