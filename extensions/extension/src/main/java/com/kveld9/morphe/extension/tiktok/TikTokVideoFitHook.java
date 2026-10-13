@@ -30,7 +30,7 @@ public final class TikTokVideoFitHook {
      * @return Transformed VideoAdaptionResult or originalResult if mode is off or dimensions invalid.
      */
     public static Object fitted(Object originalResult, View view) {
-        if (originalResult == null || view == null || "off".equals(fitMode) || fitMode == null) {
+        if (originalResult == null || view == null || fitMode == null || "off".equals(fitMode)) {
             return originalResult;
         }
 
@@ -39,6 +39,7 @@ public final class TikTokVideoFitHook {
             int containerW = container[0];
             int containerH = container[1];
             if (containerW <= 0 || containerH <= 0) {
+                Log.w(TAG, "[Video Fit] skip: unmeasured container");
                 return originalResult;
             }
 
@@ -55,8 +56,18 @@ public final class TikTokVideoFitHook {
                 return originalResult;
             }
 
+            Field transXField = clazz.getDeclaredField("translateX");
+            transXField.setAccessible(true);
+            Object origTransX = transXField.get(originalResult);
+
+            Field transYField = clazz.getDeclaredField("translateY");
+            transYField.setAccessible(true);
+            Object origTransY = transYField.get(originalResult);
+
             int newW;
             int newH;
+            Float newTransX;
+            Float newTransY;
 
             if ("fit".equals(fitMode)) {
                 // Entire video visible inside container (pillarbox / letterbox)
@@ -66,6 +77,8 @@ public final class TikTokVideoFitHook {
                 if (!isValidFit(newW, newH, containerW, containerH)) {
                     return originalResult;
                 }
+                newTransX = toFloat(origTransX);
+                newTransY = toFloat(origTransY);
             } else if ("fill".equals(fitMode)) {
                 // Video fills container completely (center crop)
                 float scale = Math.max((float) containerW / origW, (float) containerH / origH);
@@ -74,48 +87,137 @@ public final class TikTokVideoFitHook {
                 if (!isValidFill(newW, newH, containerW, containerH)) {
                     return originalResult;
                 }
+                // Center the oversized view: translations from "fit" geometry
+                // would leave the filled video off-center on later videos.
+                newTransX = (containerW - newW) / 2f;
+                newTransY = (containerH - newH) / 2f;
             } else {
                 return originalResult;
             }
 
-            Field transXField = clazz.getDeclaredField("translateX");
-            transXField.setAccessible(true);
-            Object origTransX = transXField.get(originalResult);
-
-            Field transYField = clazz.getDeclaredField("translateY");
-            transYField.setAccessible(true);
-            Object origTransY = transYField.get(originalResult);
-
-            // Attempt copy method first (Kotlin data class copy)
+            // Prefer Kotlin data-class copy(...) returning a NEW instance: feed
+            // components reuse cached VideoAdaptionResult objects across videos,
+            // so mutating in place leaks one video's dimensions into the next.
             try {
                 for (Method m : clazz.getMethods()) {
-                    if ("copy".equals(m.getName()) && m.getParameterTypes().length >= 4) {
-                        Class<?>[] pts = m.getParameterTypes();
-                        boolean isBoxed = pts[0] == int.class && pts[1] == int.class
-                                && pts[2] == Float.class && pts[3] == Float.class;
-                        boolean isPrimitive = pts[0] == int.class && pts[1] == int.class
-                                && pts[2] == float.class && pts[3] == float.class;
-                        if (isBoxed || isPrimitive) {
-                            if (pts.length == 4) {
-                                return m.invoke(originalResult, newW, newH, origTransX, origTransY);
-                            } else if (pts.length == 6) {
-                                // Default args copy(width, height, transX, transY, mask, marker)
-                                return m.invoke(originalResult, newW, newH, origTransX, origTransY, 0, null);
+                    if (!"copy".equals(m.getName())) {
+                        continue;
+                    }
+                    Class<?>[] pts = m.getParameterTypes();
+                    if (pts.length < 4 || pts[0] != int.class || pts[1] != int.class
+                            || !isFloatLike(pts[2]) || !isFloatLike(pts[3])) {
+                        continue;
+                    }
+                    Object[] args = new Object[pts.length];
+                    args[0] = newW;
+                    args[1] = newH;
+                    args[2] = coerceFloat(pts[2], newTransX);
+                    args[3] = coerceFloat(pts[3], newTransY);
+                    boolean ok = true;
+                    for (int i = 4; i < pts.length; i++) {
+                        args[i] = defaultCopyArg(clazz, originalResult, pts[i]);
+                        if (args[i] == INVALID_ARG) {
+                            if (pts[i].isPrimitive()) {
+                                ok = false;
+                                break;
                             }
+                            args[i] = null;
                         }
                     }
+                    if (!ok) {
+                        continue;
+                    }
+                    Object out = m.invoke(originalResult, args);
+                    if (out != null) {
+                        Log.d(TAG, "[Video Fit] " + fitMode + " " + origW + "x" + origH
+                                + " -> " + newW + "x" + newH
+                                + " container=" + containerW + "x" + containerH);
+                        return out;
+                    }
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable t) {
+                Log.w(TAG, "[Video Fit] copy failed, mutating in place: " + t.getMessage());
+            }
 
             // Fallback: reflectively mutate fields in place
             widthField.setInt(originalResult, newW);
             heightField.setInt(originalResult, newH);
+            setFloatField(transXField, originalResult, newTransX);
+            setFloatField(transYField, originalResult, newTransY);
 
-            Log.d(TAG, "[Video Fit] Fitted result: " + newW + "x" + newH + " (translations preserved)");
+            Log.d(TAG, "[Video Fit] " + fitMode + " (in place) " + origW + "x" + origH
+                    + " -> " + newW + "x" + newH
+                    + " container=" + containerW + "x" + containerH);
             return originalResult;
         } catch (Throwable t) {
             Log.w(TAG, "[Video Fit] fitted swap failed: " + t.getMessage());
             return originalResult;
+        }
+    }
+
+    private static final Object INVALID_ARG = new Object();
+
+    private static boolean isFloatLike(Class<?> c) {
+        return c == Float.class || c == float.class;
+    }
+
+    private static Float toFloat(Object o) {
+        if (o instanceof Number) {
+            return ((Number) o).floatValue();
+        }
+        return null;
+    }
+
+    private static Object coerceFloat(Class<?> target, Float value) {
+        if (target == float.class) {
+            return value == null ? 0f : value;
+        }
+        return value;
+    }
+
+    private static void setFloatField(Field f, Object obj, Float value) throws IllegalAccessException {
+        if (f.getType() == float.class) {
+            f.setFloat(obj, value == null ? 0f : value);
+        } else {
+            f.set(obj, value);
+        }
+    }
+
+    /**
+     * Default value for extra copy(...) parameters (e.g. resultOperator):
+     * reuse the matching field value when types align, else JVM defaults.
+     */
+    private static Object defaultCopyArg(Class<?> clazz, Object obj, Class<?> paramType) {
+        try {
+            boolean hasOperator = hasField(clazz, "resultOperator");
+            for (Field f : clazz.getDeclaredFields()) {
+                if (paramType.isAssignableFrom(f.getType())) {
+                    if (!hasOperator || "resultOperator".equals(f.getName())) {
+                        f.setAccessible(true);
+                        return f.get(obj);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (!paramType.isPrimitive()) {
+            return null;
+        }
+        if (paramType == boolean.class) {
+            return false;
+        }
+        if (paramType == int.class) {
+            return 0;
+        }
+        return INVALID_ARG;
+    }
+
+    private static boolean hasField(Class<?> clazz, String name) {
+        try {
+            clazz.getDeclaredField(name);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 
