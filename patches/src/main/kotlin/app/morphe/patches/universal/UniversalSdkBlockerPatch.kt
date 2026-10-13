@@ -120,6 +120,7 @@ private val ATTRIBUTION_INSTANCE_METHODS = setOf(
 
 // External audit (issue #162): scoped additions, verified void in reference fingerprints.
 // - onCreate is lifecycle-sensitive: scoped to Adjust rule ONLY, never added globally.
+//   Adjust v5 renamed it to initSdk(AdjustConfig) (Atlas Earth, Vinted): same scope and guard.
 // - pushEvent is CleverTap-specific: scoped to CleverTap rule ONLY.
 // - initializeWithGameKey/addDesignEvent verified void: scoped to GameAnalytics ONLY,
 //   added to both static+instance sets to cover SDK variants.
@@ -133,7 +134,7 @@ private val ATTRIBUTION_INSTANCE_METHODS = setOf(
 // but a deferred-conversion listener never fires: document splash-wait risk in docs.
 private val APPSFLYER_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "start"
 
-private val ADJUST_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "onCreate"
+private val ADJUST_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "onCreate" + "initSdk"
 
 // Identity entry points emit profile data even when event tracking is blocked.
 // Only public entry points are listed; generic names such as setUserId, set, increment
@@ -468,7 +469,10 @@ private val ATTRIBUTION_RULES = listOf(
         "Adjust",
         ADJUST_STATIC_SCOPED,
         ATTRIBUTION_INSTANCE_METHODS,
-        staticParamGuards = mapOf("onCreate" to listOf("Lcom/adjust/sdk/AdjustConfig;")),
+        staticParamGuards = mapOf(
+            "onCreate" to listOf("Lcom/adjust/sdk/AdjustConfig;"),
+            "initSdk" to listOf("Lcom/adjust/sdk/AdjustConfig;"),
+        ),
     ),
     SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, AMPLITUDE_INSTANCE_SCOPED),
     SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, MIXPANEL_INSTANCE_SCOPED),
