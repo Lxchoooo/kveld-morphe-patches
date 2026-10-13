@@ -30,7 +30,7 @@ private fun removeManifestPermissions(doc: Document, blocked: Set<String>): List
 
 @Suppress("unused")
 val gboardStripPermissionsPatch = resourcePatch(
-    name = "Remove Permissions",
+    name = "Remove Gboard Permissions",
     description = "Removes permissions you pick below.",
     default = false,
 ) {

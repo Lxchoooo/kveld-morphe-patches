@@ -22,7 +22,7 @@ private val EMPTY_DATAPACK_V5 by lazy {
 
 @Suppress("unused")
 val localePakSlimmerPatch = rawResourcePatch(
-    name = "Remove Extra Languages",
+    name = "Remove Language Packs",
     description = "Deletes unused language packs.",
     default = false,
 ) {
