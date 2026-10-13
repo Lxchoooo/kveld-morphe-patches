@@ -610,6 +610,7 @@ val universalSdkBlockerPatch = bytecodePatch(
         var totalSkipped = 0
         var touchedClasses = 0
         val sdkHookCounts = mutableMapOf<String, Int>()
+        val sdkHookedMethods = mutableMapOf<String, MutableSet<String>>()
 
         classDefForEach { classDef ->
             val rule = matchSdkPrefix(classDef.type, activeRules) ?: return@classDefForEach
@@ -617,7 +618,7 @@ val universalSdkBlockerPatch = bytecodePatch(
             if (targetMethods.isEmpty()) return@classDefForEach
 
             val mutableClass = mutableClassDefBy(classDef)
-            val (hooked, skipped) = applyBlockHooks(mutableClass, targetMethods, rule, sdkHookCounts)
+            val (hooked, skipped) = applyBlockHooks(mutableClass, targetMethods, rule, sdkHookCounts, sdkHookedMethods)
             totalHooked += hooked
             totalSkipped += skipped
             touchedClasses++
@@ -631,6 +632,7 @@ val universalSdkBlockerPatch = bytecodePatch(
         val summary = formatSummary(sdkHookCounts)
         val skippedSuffix = if (totalSkipped > 0) " ($totalSkipped skipped)" else ""
         println("$TAG Applied $totalHooked hook(s) across $touchedClasses class(es) ($summary)$skippedSuffix.")
+        formatMethodLines(sdkHookedMethods).forEach { println("$TAG Hooked methods -> $it.") }
     }
 }
 
@@ -726,6 +728,7 @@ private fun applyBlockHooks(
     targetMethods: List<Method>,
     rule: SdkPrefixRule,
     counts: MutableMap<String, Int>,
+    methodNames: MutableMap<String, MutableSet<String>>,
 ): Pair<Int, Int> {
     var hooked = 0
     var skipped = 0
@@ -741,6 +744,7 @@ private fun applyBlockHooks(
             mutableMethod.addInstruction(0, "return-object p0")
         }
         counts[rule.label] = (counts[rule.label] ?: 0) + 1
+        methodNames.getOrPut(rule.label) { mutableSetOf() }.add(targetMethod.name)
         hooked++
     }
     return Pair(hooked, skipped)
@@ -751,3 +755,8 @@ private fun formatSummary(counts: Map<String, Int>): String {
         .sortedByDescending { it.value }
         .joinToString(", ") { "${it.key}: ${it.value}" }
 }
+
+private fun formatMethodLines(methodNames: Map<String, Set<String>>): List<String> =
+    methodNames.entries
+        .sortedBy { it.key }
+        .map { (label, names) -> "$label: ${names.sorted().joinToString(", ")}" }
