@@ -692,6 +692,13 @@ private fun isPrefixMatch(type: String, prefix: String): Boolean {
 private fun isSpecialMethodName(name: String): Boolean =
     name == "<init>" || name == "<clinit>"
 
+// Kotlin compiles interface default methods into static bridges in $DefaultImpls classes;
+// they are shared plugin/lifecycle plumbing, not SDK entry points (Segment Plugin$DefaultImpls.setup
+// only calls setAnalytics; stubbing it crashed Ground News at launch with an uninitialized lateinit).
+// Public SDK entry points live on the SDK classes themselves and stay covered.
+private fun isKotlinDefaultImplsClass(type: String): Boolean =
+    type.endsWith("\$DefaultImpls;")
+
 private fun isVoidBlockable(method: Method, rule: SdkPrefixRule): Boolean {
     val name = method.name
     return if (AccessFlags.STATIC.isSet(method.accessFlags)) {
@@ -729,6 +736,7 @@ private fun isBlockableMethod(method: Method, classType: String, rule: SdkPrefix
 }
 
 private fun findBlockableMethods(classDef: ClassDef, rule: SdkPrefixRule): List<Method> {
+    if (isKotlinDefaultImplsClass(classDef.type)) return emptyList()
     val matches = mutableListOf<Method>()
     for (method in classDef.methods) {
         if (isBlockableMethod(method, classDef.type, rule)) {
