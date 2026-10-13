@@ -164,6 +164,17 @@ private val AD_STARTUP_INITIALIZERS = setOf(
 
 private const val STARTUP_INIT_PROVIDER = "androidx.startup.InitializationProvider"
 
+// AdServices residual config (issue #162, cf. Nai64 RemoveAdServicesEntriesPatch):
+// <property> and <meta-data> entries whose android:name starts with android.adservices.
+private const val AD_SERVICES_PREFIX = "android.adservices."
+
+private fun Element.removeAdServicesConfigWhere(): Int {
+    val matches = childrenNamed("property", "meta-data")
+        .filter { getAttributeValue(it, "name").startsWith(AD_SERVICES_PREFIX) }
+    removeChildren(matches)
+    return matches.size
+}
+
 private fun Element.removeStartupInitializersWhere(predicate: (String) -> Boolean): Int {
     var removed = 0
     childrenNamed("provider")
@@ -212,7 +223,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
         key = "revokePermissions",
         default = true,
         title = "Ad permissions",
-        description = "Remove AD_ID, Privacy Sandbox attribution/topics/audiences, and Play Install Referrer permissions from AndroidManifest.xml.",
+        description = "Remove advertising ID and Privacy Sandbox permissions plus leftover ad-services app configuration from AndroidManifest.xml.",
         required = false,
     )
 
@@ -369,6 +380,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
         var removedStartupInitCount = 0
         var injectedFlagsCount = 0
         var removedRegistrarsCount = 0
+        var removedAdServicesConfigCount = 0
 
         document(manifestFile.absolutePath).use { doc ->
             val root = doc.documentElement
@@ -376,6 +388,9 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
 
             if (shouldRevoke) {
                 removedPerms = root.stripPermissionsWhere { it in TRACKING_PERMISSIONS }
+                if (application != null) {
+                    removedAdServicesConfigCount = application.removeAdServicesConfigWhere()
+                }
             }
 
             if (application != null) {
@@ -480,7 +495,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
         }
 
         val totalDisabled = disabledProvidersCount + disabledServicesCount + disabledReceiversCount + disabledPushCount + disabledPushReceiversCount + disabledGaServicesCount + disabledGaReceiversCount + disabledMetaServicesCount + disabledMetaReceiversCount + disabledCrashServicesCount + disabledCrashReceiversCount + disabledDeviceIdProvidersCount + disabledDeviceIdServicesCount + disabledDeviceIdReceiversCount
-        if (removedPerms.isEmpty() && totalDisabled == 0 && injectedFlagsCount == 0 && removedRegistrarsCount == 0 && removedStartupInitCount == 0) {
+        if (removedPerms.isEmpty() && totalDisabled == 0 && injectedFlagsCount == 0 && removedRegistrarsCount == 0 && removedStartupInitCount == 0 && removedAdServicesConfigCount == 0) {
             println("[Universal Telemetry Neutralizer] AndroidManifest.xml is already clean (0 tracking elements found).")
             return@execute
         }
@@ -506,6 +521,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
             .joinToString(", ") { "${it.first}=${it.second}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Universal Telemetry Neutralizer] $permNote, disabled $totalDisabled component(s)$componentDetails, injected $injectedFlagsCount opt-out flag(s)$regNote.")
+        val adServicesNote = if (removedAdServicesConfigCount > 0) ", removed $removedAdServicesConfigCount AdServices config entries" else ""
+        println("[Universal Telemetry Neutralizer] $permNote, disabled $totalDisabled component(s)$componentDetails, injected $injectedFlagsCount opt-out flag(s)$regNote$adServicesNote.")
     }
 }
