@@ -1,7 +1,9 @@
 package app.morphe.patches.universal
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.booleanOption
+import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 import com.android.tools.smali.dexlib2.AccessFlags
@@ -16,6 +18,11 @@ private data class SdkPrefixRule(
     val label: String,
     val staticMethods: Set<String>,
     val instanceMethods: Set<String>,
+    // Item 5: lifecycle-sensitive names require a parameter check, not just a name match.
+    // staticParamGuards maps method name -> exact parameter type list (empty = any params).
+    val staticParamGuards: Map<String, List<String>> = emptyMap(),
+    // Instance method names that only match when the method takes at least one parameter.
+    val guardedInstanceMethods: Set<String> = emptySet(),
 )
 
 private val APM_STATIC_METHODS = setOf(
@@ -111,6 +118,40 @@ private val ATTRIBUTION_INSTANCE_METHODS = setOf(
     "trackEvent",
     "sendEvent",
 )
+
+// Nai64 audit (issue #162): scoped additions, verified void in reference fingerprints.
+// - onCreate is lifecycle-sensitive: scoped to Adjust rule ONLY, never added globally.
+// - pushEvent is CleverTap-specific: scoped to CleverTap rule ONLY.
+// - initializeWithGameKey/addDesignEvent verified void: scoped to GameAnalytics ONLY,
+//   added to both static+instance sets to cover SDK variants.
+// - Transaction under Lcom/unity3d/analytics (distinct package from services/analytics):
+//   void per Nai64 reference, UNVERIFIED in local APKs. Scoped to new Unity rule ONLY.
+// NON-VOID POLICY: object-returning initializers (Branch.init, FirebaseApp.initializeApp)
+// are skipped (null would NPE call sites). Exception: chainable instance methods in
+// SELF_RETURN_ALLOWLIST whose returnType == defining class get `return-object p0`.
+// Item 1: AppsFlyer real entry is AFb1vSDK.start (instance, obfuscated impl class),
+// measured in FIFA/CapCut dex. Blocking start also silences install/session dispatch,
+// but a deferred-conversion listener never fires: document splash-wait risk in docs.
+private val APPSFLYER_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "start"
+
+private val ADJUST_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "onCreate"
+
+private val CLEVERTAP_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "pushEvent"
+
+private val GAMEANALYTICS_STATIC_SCOPED =
+    ATTRIBUTION_STATIC_METHODS + "initializeWithGameKey" + "addDesignEvent"
+
+private val GAMEANALYTICS_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "initializeWithGameKey" + "addDesignEvent"
+
+private val UNITY_ANALYTICS_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "Transaction"
+
+// Item 6: instance methods in this allowlist that return their own defining class
+// (chainable APIs, e.g. Amplitude Kotlin track, AppsFlyer init) are hooked with
+// `return-object p0` instead of being skipped. Type-correct by construction
+// (returnType == class type), never null. Boolean/int returns stay out of scope:
+// each needs a hand-reviewed per-method value.
+private val SELF_RETURN_ALLOWLIST = setOf("track", "init")
 
 // MANDATORY exclusion: NEVER block consent or clear setters (setConsent, setAdStorage,
 // setAnalyticsStorage, setAdPersonalization, setAdUserData, clearConditionalUserProperty,
@@ -399,11 +440,23 @@ private val ANALYTICS_RULES = listOf(
 )
 
 private val ATTRIBUTION_RULES = listOf(
-    SdkPrefixRule("Lcom/appsflyer", "AppsFlyer", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/adjust", "Adjust", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule(
+        "Lcom/appsflyer",
+        "AppsFlyer",
+        ATTRIBUTION_STATIC_METHODS,
+        APPSFLYER_INSTANCE_SCOPED,
+        guardedInstanceMethods = setOf("start"),
+    ),
+    SdkPrefixRule(
+        "Lcom/adjust",
+        "Adjust",
+        ADJUST_STATIC_SCOPED,
+        ATTRIBUTION_INSTANCE_METHODS,
+        staticParamGuards = mapOf("onCreate" to listOf("Lcom/adjust/sdk/AdjustConfig;")),
+    ),
     SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/clevertap", "CleverTap", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/clevertap", "CleverTap", ATTRIBUTION_STATIC_METHODS, CLEVERTAP_INSTANCE_SCOPED),
     SdkPrefixRule("Lcom/segment", "Segment", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lio/branch", "Branch", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lcom/branch", "Branch", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
@@ -411,8 +464,9 @@ private val ATTRIBUTION_RULES = listOf(
     SdkPrefixRule("Lcom/kochava", "Kochava", ATTRIBUTION_EXTRA_STATIC, ATTRIBUTION_EXTRA_INSTANCE),
     SdkPrefixRule("Lcom/tenjin", "Tenjin", ATTRIBUTION_EXTRA_STATIC, ATTRIBUTION_EXTRA_INSTANCE),
     SdkPrefixRule("Lcom/unity3d/services/analytics", "Unity Analytics", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/unity3d/analytics", "Unity Analytics", UNITY_ANALYTICS_STATIC_SCOPED, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lcom/flurry", "Flurry", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/gameanalytics", "GameAnalytics", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/gameanalytics", "GameAnalytics", GAMEANALYTICS_STATIC_SCOPED, GAMEANALYTICS_INSTANCE_SCOPED),
 )
 
 private val SESSION_REPLAY_RULES = listOf(
@@ -476,7 +530,7 @@ val universalSdkBlockerPatch = bytecodePatch(
         key = "blockAttribution",
         default = true,
         title = "Ad attribution",
-        description = "Neutralize AppsFlyer, Adjust, Amplitude, Mixpanel, CleverTap, Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics, Flurry, and GameAnalytics conversion, tracking, and attribution SDKs.",
+        description = "Neutralize ad attribution SDKs (AppsFlyer, Adjust, Amplitude, Mixpanel, CleverTap, Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics, Flurry, GameAnalytics). Startup calls that return app objects are left alone to avoid crashes; see docs for method-level detail.",
         required = false,
     )
 
@@ -512,8 +566,21 @@ val universalSdkBlockerPatch = bytecodePatch(
         required = false,
     )
 
+    val excludedSdks by stringOption(
+        key = "excludedSdks",
+        default = "",
+        title = "SDKs to keep",
+        description = "SDK names to leave untouched, separated by commas (e.g. Adjust, Branch). Empty keeps the default behavior of blocking every listed SDK.",
+        required = false,
+    )
+
     execute {
-        val activeRules = buildActiveRules(
+        val excludedLabels = (excludedSdks ?: "")
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+        var activeRules = buildActiveRules(
             blockApm = blockApm ?: true,
             blockCrash = blockCrashReporters ?: true,
             blockAnalytics = blockAnalytics ?: true,
@@ -523,6 +590,15 @@ val universalSdkBlockerPatch = bytecodePatch(
             blockSessionReplay = blockSessionReplay ?: true,
             blockLocationTrackers = blockLocationTrackers ?: true,
         )
+
+        if (excludedLabels.isNotEmpty()) {
+            val knownLabels = activeRules.map { it.label }.toSet()
+            val unknown = excludedLabels - knownLabels
+            if (unknown.isNotEmpty()) {
+                println("$TAG Unknown SDK label(s): ${unknown.sorted().joinToString(", ")}.")
+            }
+            activeRules = activeRules.filter { it.label !in excludedLabels }
+        }
 
         if (activeRules.isEmpty()) {
             println("$TAG Skipped: all SDK blocking options are disabled.")
@@ -598,22 +674,46 @@ private fun isPrefixMatch(type: String, prefix: String): Boolean {
 private fun isSpecialMethodName(name: String): Boolean =
     name == "<init>" || name == "<clinit>"
 
-private fun isBlockableMethod(method: Method, rule: SdkPrefixRule): Boolean {
+private fun isVoidBlockable(method: Method, rule: SdkPrefixRule): Boolean {
+    val name = method.name
+    return if (AccessFlags.STATIC.isSet(method.accessFlags)) {
+        val guard = rule.staticParamGuards[name]
+        if (guard != null) {
+            method.parameters.map { it.type } == guard
+        } else {
+            name in rule.staticMethods
+        }
+    } else {
+        if (name in rule.guardedInstanceMethods) {
+            name in rule.instanceMethods && method.parameters.isNotEmpty()
+        } else {
+            name in rule.instanceMethods
+        }
+    }
+}
+
+private fun isSelfReturnBlockable(method: Method, classType: String, rule: SdkPrefixRule): Boolean {
+    if (AccessFlags.STATIC.isSet(method.accessFlags)) return false
+    val name = method.name
+    if (isSpecialMethodName(name)) return false
+    if (name !in SELF_RETURN_ALLOWLIST) return false
+    if (name !in rule.instanceMethods && name !in rule.guardedInstanceMethods) return false
+    if (method.returnType != classType) return false
+    return (method.implementation?.registerCount ?: 0) >= 1
+}
+
+private fun isBlockableMethod(method: Method, classType: String, rule: SdkPrefixRule): Boolean {
     if (method.implementation == null) return false
     val name = method.name
     if (isSpecialMethodName(name)) return false
-    if (method.returnType != "V") return false
-    return if (AccessFlags.STATIC.isSet(method.accessFlags)) {
-        name in rule.staticMethods
-    } else {
-        name in rule.instanceMethods
-    }
+    if (method.returnType == "V") return isVoidBlockable(method, rule)
+    return isSelfReturnBlockable(method, classType, rule)
 }
 
 private fun findBlockableMethods(classDef: ClassDef, rule: SdkPrefixRule): List<Method> {
     val matches = mutableListOf<Method>()
     for (method in classDef.methods) {
-        if (isBlockableMethod(method, rule)) {
+        if (isBlockableMethod(method, classDef.type, rule)) {
             matches.add(method)
         }
     }
@@ -634,7 +734,11 @@ private fun applyBlockHooks(
             skipped++
             continue
         }
-        mutableMethod.addInstruction(0, "return-void")
+        if (targetMethod.returnType == "V") {
+            mutableMethod.addInstruction(0, "return-void")
+        } else {
+            mutableMethod.addInstructions(0, "move-object v0, p0\nreturn-object v0")
+        }
         counts[rule.label] = (counts[rule.label] ?: 0) + 1
         hooked++
     }
