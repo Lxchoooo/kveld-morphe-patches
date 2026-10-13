@@ -135,7 +135,21 @@ private val APPSFLYER_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "start"
 
 private val ADJUST_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "onCreate"
 
-private val CLEVERTAP_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "pushEvent"
+// Identity entry points emit profile data even when event tracking is blocked.
+// Only public entry points are listed; generic names such as setUserId, set, increment
+// are deliberately excluded because the same names exist on internal SDK state classes
+// (measured in Amplitude Kotlin: State, EventOptions, IdentityCoordinator, AnalyticsEvent
+// use setUserId) and stubbing them would corrupt SDK state.
+// Amplitude identify/groupIdentify/setGroup verified as self-returning on
+// Lcom/amplitude/core/Amplitude in a real APK; Mixpanel identify/alias and CleverTap
+// onUserLogin/pushProfile are void in the public API but UNVERIFIED in local APKs.
+private val AMPLITUDE_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "identify" + "groupIdentify" + "setGroup"
+
+private val MIXPANEL_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "identify" + "alias"
+
+private val CLEVERTAP_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "pushEvent" + "onUserLogin" + "pushProfile"
 
 private val GAMEANALYTICS_STATIC_SCOPED =
     ATTRIBUTION_STATIC_METHODS + "initializeWithGameKey" + "addDesignEvent"
@@ -147,12 +161,13 @@ private val UNITY_ANALYTICS_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "Transa
 
 // Item 6: instance methods in this allowlist that return their own defining class
 // (chainable APIs, e.g. Amplitude Kotlin track) are hooked with `return-object p0`
-// instead of being skipped. Type-correct by construction (returnType == class type),
-// never null. "init" is not listed: it only appears in static method sets, and this
-// path requires an instance method. Classes renamed by R8 fall outside the package
-// prefix and are not covered. Boolean/int returns stay out of scope: each needs a
-// hand-reviewed per-method value.
-private val SELF_RETURN_ALLOWLIST = setOf("track")
+// instead of being skipped. Amplitude Kotlin identify/groupIdentify/setGroup return the
+// Amplitude instance and get `return-object p0`. Type-correct by construction
+// (returnType == class type), never null. "init" is not listed: it only appears in static
+// method sets, and this path requires an instance method. Classes renamed by R8 fall
+// outside the package prefix and are not covered. Boolean/int returns stay out of scope:
+// each needs a hand-reviewed per-method value.
+private val SELF_RETURN_ALLOWLIST = setOf("track", "identify", "groupIdentify", "setGroup")
 
 // MANDATORY exclusion: NEVER block consent or clear setters (setConsent, setAdStorage,
 // setAnalyticsStorage, setAdPersonalization, setAdUserData, clearConditionalUserProperty,
@@ -455,8 +470,8 @@ private val ATTRIBUTION_RULES = listOf(
         ATTRIBUTION_INSTANCE_METHODS,
         staticParamGuards = mapOf("onCreate" to listOf("Lcom/adjust/sdk/AdjustConfig;")),
     ),
-    SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, AMPLITUDE_INSTANCE_SCOPED),
+    SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, MIXPANEL_INSTANCE_SCOPED),
     SdkPrefixRule("Lcom/clevertap", "CleverTap", ATTRIBUTION_STATIC_METHODS, CLEVERTAP_INSTANCE_SCOPED),
     SdkPrefixRule("Lcom/segment", "Segment", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lio/branch", "Branch", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
