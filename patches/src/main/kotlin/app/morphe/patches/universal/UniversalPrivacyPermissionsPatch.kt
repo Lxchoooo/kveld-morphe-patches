@@ -62,6 +62,10 @@ private val SENSORS_PERMISSIONS = setOf(
     "android.permission.ACTIVITY_RECOGNITION",
 )
 
+private val INSTALLED_APPS_PERMISSIONS = setOf(
+    "android.permission.QUERY_ALL_PACKAGES",
+)
+
 private fun buildBlockedPermissions(
     stripNotifications: Boolean,
     stripCamera: Boolean,
@@ -72,6 +76,7 @@ private fun buildBlockedPermissions(
     stripCalendar: Boolean,
     stripNearbyDevices: Boolean,
     stripSensors: Boolean,
+    stripInstalledApps: Boolean,
 ): Set<String> {
     val blocked = mutableSetOf<String>()
     if (stripNotifications) blocked.addAll(NOTIFICATION_PERMISSIONS)
@@ -83,6 +88,7 @@ private fun buildBlockedPermissions(
     if (stripCalendar) blocked.addAll(CALENDAR_PERMISSIONS)
     if (stripNearbyDevices) blocked.addAll(NEARBY_DEVICES_PERMISSIONS)
     if (stripSensors) blocked.addAll(SENSORS_PERMISSIONS)
+    if (stripInstalledApps) blocked.addAll(INSTALLED_APPS_PERMISSIONS)
     return blocked
 }
 
@@ -204,6 +210,14 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         required = false,
     )
 
+    val stripInstalledApps by booleanOption(
+        key = "stripInstalledApps",
+        default = false,
+        title = "Installed apps",
+        description = "Remove QUERY_ALL_PACKAGES so Android 11+ hides your other installed apps from this app. May break launchers, app managers and share menus that list apps.",
+        required = false,
+    )
+
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
@@ -220,6 +234,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         val removeCalendar = stripCalendar ?: false
         val removeNearbyDevices = stripNearbyDevices ?: false
         val removeSensors = stripSensors ?: false
+        val removeInstalledApps = stripInstalledApps ?: false
 
         val blockedPermissions = buildBlockedPermissions(
             stripNotifications = removeNotifications,
@@ -231,6 +246,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
             stripCalendar = removeCalendar,
             stripNearbyDevices = removeNearbyDevices,
             stripSensors = removeSensors,
+            stripInstalledApps = removeInstalledApps,
         )
 
         if (blockedPermissions.isEmpty()) {

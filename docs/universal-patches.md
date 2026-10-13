@@ -348,6 +348,7 @@ The **`Remove Permissions`** patch selectively strips sensitive privacy, sensor,
 | **Calendar** | `android.permission.READ_CALENDAR`, `android.permission.WRITE_CALENDAR` |
 | **Nearby devices** | `android.permission.BLUETOOTH_SCAN`, `android.permission.BLUETOOTH_CONNECT`, `android.permission.BLUETOOTH_ADVERTISE`, `android.permission.NEARBY_WIFI_DEVICES`, `android.permission.UWB_RANGING` |
 | **Body sensors** | `android.permission.BODY_SENSORS`, `android.permission.BODY_SENSORS_BACKGROUND`, `android.permission.ACTIVITY_RECOGNITION` |
+| **Installed apps** | `android.permission.QUERY_ALL_PACKAGES` |
 
 ### Configuration in Morphe Manager
 
@@ -360,6 +361,7 @@ The **`Remove Permissions`** patch selectively strips sensitive privacy, sensor,
 - **Calendar (`stripCalendar`)**: Removes `READ_CALENDAR` and `WRITE_CALENDAR` from `AndroidManifest.xml` (Toggle, default: `false`).
 - **Nearby devices (`stripNearbyDevices`)**: Removes Bluetooth scan/connect/advertise and nearby Wi-Fi device permissions from `AndroidManifest.xml` (Toggle, default: `false`).
 - **Body sensors (`stripSensors`)**: Removes `BODY_SENSORS`, `BODY_SENSORS_BACKGROUND`, and `ACTIVITY_RECOGNITION` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Installed apps (`stripInstalledApps`)**: Removes `QUERY_ALL_PACKAGES` from `AndroidManifest.xml`. On Android 11+ with targetSdk 30 or higher, the app then only sees packages declared in its `<queries>` element (left untouched); apps targeting older SDKs are unaffected. May break launchers, app managers and share menus (Toggle, default: `false`).
 
 ---
 
