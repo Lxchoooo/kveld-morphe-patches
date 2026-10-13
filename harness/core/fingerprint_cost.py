@@ -1,7 +1,7 @@
 """
 Static cost analysis for patch fingerprint scanning.
 
-AGENTS.md section 5 ("Fingerprint Scan Cost") is a measured performance contract:
+The fingerprint scan cost rule is a measured performance contract:
 a fingerprint without `strings` or an exact `definingClass` walks every method of
 the APK, and `matchAll()` always walks every class even when a `definingClass` is
 declared, because `matchAll()` ignores that index.
@@ -112,7 +112,7 @@ def render_cost_report(repo_root: str | Path) -> str:
 
     lines = [
         f"{len(costs)} fingerprint(s) force a full APK scan across {len(grouped)} patch file(s).",
-        "Full scans are the dominant patch-time cost on large APKs (AGENTS.md section 5).",
+        "Full scans are the dominant patch-time cost on large APKs (fingerprint scan cost rule).",
         "",
         "By app: " + ", ".join(f"{app}={n}" for app, n in sorted(by_app.items(), key=lambda x: -x[1])),
         "",
@@ -124,7 +124,7 @@ def render_cost_report(repo_root: str | Path) -> str:
         lines.append(f"| `{path}` | {len(items)} | {locations} |")
     lines.extend([
         "",
-        "Remediation (AGENTS.md section 5):",
+        "Remediation (fingerprint scan cost rule):",
         "  - Merge independent scans of the same patch into ONE union predicate, then partition",
         "    the candidates afterwards. Keep each section's own unchanged predicate and its",
         "    exactly-1 guard.",
