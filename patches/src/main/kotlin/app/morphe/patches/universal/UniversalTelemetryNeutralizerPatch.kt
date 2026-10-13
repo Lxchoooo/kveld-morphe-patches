@@ -164,7 +164,7 @@ private val AD_STARTUP_INITIALIZERS = setOf(
 
 private const val STARTUP_INIT_PROVIDER = "androidx.startup.InitializationProvider"
 
-// AdServices residual config (issue #162, cf. Nai64 RemoveAdServicesEntriesPatch):
+// AdServices residual config (issue #162):
 // <property> and <meta-data> entries whose android:name starts with android.adservices.
 private const val AD_SERVICES_PREFIX = "android.adservices."
 

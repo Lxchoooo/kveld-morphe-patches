@@ -118,13 +118,13 @@ private val ATTRIBUTION_INSTANCE_METHODS = setOf(
     "sendEvent",
 )
 
-// Nai64 audit (issue #162): scoped additions, verified void in reference fingerprints.
+// External audit (issue #162): scoped additions, verified void in reference fingerprints.
 // - onCreate is lifecycle-sensitive: scoped to Adjust rule ONLY, never added globally.
 // - pushEvent is CleverTap-specific: scoped to CleverTap rule ONLY.
 // - initializeWithGameKey/addDesignEvent verified void: scoped to GameAnalytics ONLY,
 //   added to both static+instance sets to cover SDK variants.
 // - Transaction under Lcom/unity3d/analytics (distinct package from services/analytics):
-//   void per Nai64 reference, UNVERIFIED in local APKs. Scoped to new Unity rule ONLY.
+//   void per external reference, UNVERIFIED in local APKs. Scoped to new Unity rule ONLY.
 // NON-VOID POLICY: object-returning initializers (Branch.init, FirebaseApp.initializeApp)
 // are skipped (null would NPE call sites). Exception: chainable instance methods in
 // SELF_RETURN_ALLOWLIST whose returnType == defining class get `return-object p0`.
