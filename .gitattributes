@@ -21,8 +21,5 @@ docs/** linguist-documentation=true
 *.md linguist-documentation=true
 
 # Agent / CI tooling (support files, not product code)
-.agents/** linguist-vendored=true
-.opencode/** linguist-vendored=true
-.claude/** linguist-vendored=true
 .github/** linguist-vendored=true
 
