@@ -299,14 +299,14 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 | Patch | Description | Options |
 |----------|----------------|-----------|
 | **Allow Screenshots** | Removes screenshot blocking and capture detection. |  |
-| **Block Tracking SDKs** | Disables analytics, crash and ad SDKs inside the app. | • Performance monitors<br>• Crash reporters<br>• Analytics<br>• Ad attribution<br>• Old Google Analytics<br>• Push SDKs (breaks push!)<br>• Screen recorders<br>• Location trackers |
+| **Block Tracking SDKs** | Disables analytics, crash and ad SDKs inside the app. | • Performance monitors<br>• Crash reporters<br>• Analytics<br>• Ad attribution<br>• Old Google Analytics<br>• Push SDKs (breaks push!)<br>• Screen recorders<br>• Location trackers<br>• SDKs to keep |
 | **Block Tracking Servers** | Rewrites tracking addresses to nowhere using your blocklist. | • Blocklist file<br>• Replace with<br>• Include subdomains |
 | **Clean App Packaging** | Removes build leftovers and duplicate files. |  |
 | **Force Screen Timeout** | Makes apps respect your screen-off timer. |  |
 | **Go Fully Offline** | Removes internet access completely. | • Network state<br>• Wi-Fi controls<br>• Push permissions<br>• Google sync<br>• Block unencrypted traffic |
 | **Lock Screen Brightness** | Stops apps from changing brightness by themselves. |  |
 | **Remove Extra Languages** | Deletes unselected translation folders. | • Languages to keep |
-| **Remove Permissions** | Removes permissions you pick below. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors |
+| **Remove Permissions** | Removes permissions you pick below. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors<br>• Installed apps |
 | **Remove Trackers** | Removes ad IDs, disables tracking components and adds opt-outs. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
 | **Remove Tracking Code** | Deletes tracking and crash-reporting native libraries. | • Crash reporters<br>• Debuggers |
 | **Remove Unused Screen Sizes** | Deletes image folders for screen sizes you do not use. | • Screen sizes to keep<br>• Watch resources<br>• TV resources<br>• Car, dock and VR resources |
