@@ -2,6 +2,7 @@ package app.morphe.patches.tiktok.usability
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
@@ -97,5 +98,6 @@ val hideInboxStoryTrayPatch = bytecodePatch(
         patched++
 
         println("[Hide Inbox Story & Status Tray] Applied $patched hook(s) -> non-followed stories filtered from inbox tray.")
+        if (patched == 0 && (hideSuggestedOnly != false)) throw PatchException("Hide Inbox Story & Status Tray: no hooks applied, targets shifted.")
     }
 }

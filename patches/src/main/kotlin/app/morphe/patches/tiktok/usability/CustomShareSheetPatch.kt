@@ -2,6 +2,7 @@ package app.morphe.patches.tiktok.usability
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
@@ -478,5 +479,6 @@ val customShareSheetPatch = bytecodePatch(
         }
 
         println("[Custom Share Sheet] Applied $patched hooks -> share sheet customized.")
+        if (patched == 0 && (hideWhatsApp != false || hideInstagram != false || hideFacebook != false || hideTelegram != false || hideTwitter != false || hideSnapchat != false || hideReddit != false || hideSms != false || hideSecondaryApps != false || hideRepost != false || hideQrCode != false || hideCopyLink != false || hideSystemShare != false || hideFriendsRow != false || hidePromote != false || hideWhyThisVideo != false || hideCreateGroup != false || hideAddToStory != false || hideCreateSticker != false || hideDuet != false || hideStitch != false || hidePip != false || hideClearDisplay != false || hideListenAudio != false || hideWallpaperAndGif != false || hideNotInterested != false || hideReport != false)) throw PatchException("Custom Share Sheet: no hooks applied, targets shifted.")
     }
 }
