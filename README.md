@@ -84,12 +84,12 @@ flowchart TD
 
 | Application | Package ID | Target Version | Architecture / Variant | Download Source | Complete Guide |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Brave Browser** | `com.brave.browser` | `1.97.56` | `arm64-v8a`<br>`armeabi-v7a` (single file) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.56/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.56/BraveMonoarm.apk) | [Brave Guide](docs/apps/brave.md) |
-| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.4.1.985164140-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-4-1-985164140-beta/) | [Gboard Lite Guide](docs/apps/gboard.md) |
-| **Hevy** | `com.hevy` | `3.1.14` | `arm64-v8a` (multi-file) | [APKMirror](https://www.apkmirror.com/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/hevy-gym-log-workout-tracker-3-1-14-release/) | [Hevy Guide](docs/apps/hevy.md) |
-| **NokoPrint** | `com.nokoprint` | `5.28.6` | Universal (any screen) | [APKPure](https://d.apkpure.com/b/XAPK/com.nokoprint?versionCode=52806) | [NokoPrint Guide](docs/apps/nokoprint.md) |
-| **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | [TikTok Guide](docs/apps/tiktok.md) |
-| **Xiaomi Earbuds** | `com.mi.earphone` | `1.38.0i` | Universal (multi-file) | [APKPure](https://d.apkpure.com/b/XAPK/com.mi.earphone?versionCode=138000) | [Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md) |
+| **Brave Browser** | `com.brave.browser` | `1.97.56` | `arm64-v8a`<br>`armeabi-v7a` (single file) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.56/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.56/BraveMonoarm.apk) | Brave Guide |
+| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.4.1.985164140-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-4-1-985164140-beta/) | Gboard Lite Guide |
+| **Hevy** | `com.hevy` | `3.1.14` | `arm64-v8a` (multi-file) | [APKMirror](https://www.apkmirror.com/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/hevy-gym-log-workout-tracker-3-1-14-release/) | Hevy Guide |
+| **NokoPrint** | `com.nokoprint` | `5.28.6` | Universal (any screen) | [APKPure](https://d.apkpure.com/b/XAPK/com.nokoprint?versionCode=52806) | NokoPrint Guide |
+| **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | TikTok Guide |
+| **Xiaomi Earbuds** | `com.mi.earphone` | `1.38.0i` | Universal (multi-file) | [APKPure](https://d.apkpure.com/b/XAPK/com.mi.earphone?versionCode=138000) | Xiaomi Earbuds Guide |
 
 Labels: `single file` = one APK; `multi-file` = a package Morphe joins together; `any screen` = works on any screen size.
 
@@ -333,12 +333,12 @@ Technical references, setup manuals, and architecture notes are organized by foc
 ### Dedicated Application Guides
 | Application | Guide | Description |
 | :--- | :--- | :--- |
-| **Brave Browser** | **[Brave Guide](docs/apps/brave.md)** | Faster start, no ads or tracking, clean start page. |
-| **Gboard Lite** | **[Gboard Lite Guide](docs/apps/gboard.md)** | Offline dictionaries, keyboard settings, no tracking. |
-| **Hevy** | **[Hevy Guide](docs/apps/hevy.md)** | Email login help, Pro unlock, less battery use. |
-| **NokoPrint** | **[NokoPrint Guide](docs/apps/nokoprint.md)** | No ads, drivers keep working, safer connections. |
-| **TikTok** | **[TikTok Guide](docs/apps/tiktok.md)** | Change country, block ads, save clean videos, save battery. |
-| **Xiaomi Earbuds** | **[Xiaomi Earbuds Guide](docs/apps/xiaomi-earbuds.md)** | Pairing help, all models, sound unlocks, offline mode. |
+| **Brave Browser** | **Brave Guide** | Faster start, no ads or tracking, clean start page. |
+| **Gboard Lite** | **Gboard Lite Guide** | Offline dictionaries, keyboard settings, no tracking. |
+| **Hevy** | **Hevy Guide** | Email login help, Pro unlock, less battery use. |
+| **NokoPrint** | **NokoPrint Guide** | No ads, drivers keep working, safer connections. |
+| **TikTok** | **TikTok Guide** | Change country, block ads, save clean videos, save battery. |
+| **Xiaomi Earbuds** | **Xiaomi Earbuds Guide** | Pairing help, all models, sound unlocks, offline mode. |
 
 ### Universal & Architecture Reference
 | Guide | Description |
