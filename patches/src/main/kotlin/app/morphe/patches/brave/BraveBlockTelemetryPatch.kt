@@ -216,7 +216,7 @@ private val braveHostsBlockerPatch = rawResourcePatch(
 internal const val BRAVE_UNSUPPORTED_VARIANT_MESSAGE =
     "Unsupported Brave APK variant or drifted target: required hook not found in this build. " +
         "Only Bravemonoarm64.apk / BraveMonoarm.apk v${Constants.BRAVE_TARGET_VERSION} from github.com/brave/brave-browser/releases " +
-        "are supported; Bravearm64Universal.apk is rejected. See docs/apps/brave.md."
+        "are supported; Bravearm64Universal.apk is rejected. See the repository README for details."
 
 @Suppress("unused")
 val braveBlockTelemetryPatch = bytecodePatch(
