@@ -2,6 +2,7 @@ package app.morphe.patches.brave
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.sharedExtensionPatch
@@ -28,27 +29,32 @@ val braveTabGroupCloseSelectionPatch = bytecodePatch(
         // When stock NextTabSelectionUtil.getNextTabIfClosed evaluates the active tab, it finds the newly selected
         // predecessor is not closing, so it preserves it and stays inside the group.
         // All other flows (bulk close, single-tab groups, non-selected tab close, session restore) fall back to stock.
-        val closeSelectionFp = Fingerprint(
-            definingClass = "Lorg/chromium/chrome/browser/tabmodel/TabCollectionTabModelImpl;",
-            name = "Z",
-            parameters = listOf(
-                "Ljava/util/List;",
-                "Lorg/chromium/chrome/browser/tab/Tab;",
-                "I",
-                "Z",
-                "I",
-                "I",
-            ),
-            returnType = "V",
-        )
+        val closeSelectionFp = try {
+            val fp = Fingerprint(
+                definingClass = "Lorg/chromium/chrome/browser/tabmodel/TabCollectionTabModelImpl;",
+                name = "Z",
+                parameters = listOf(
+                    "Ljava/util/List;",
+                    "Lorg/chromium/chrome/browser/tab/Tab;",
+                    "I",
+                    "Z",
+                    "I",
+                    "I",
+                ),
+                returnType = "V",
+            )
 
-        closeSelectionFp.method.addInstructions(
-            0,
-            """
-                invoke-static/range {p0 .. p1}, ${Constants.BRAVE_EXTENSION_CLASS}->preselectPreviousTabInGroup(Ljava/lang/Object;Ljava/util/List;)V
-            """.trimIndent(),
-        )
-        patched++
+            fp.method.addInstructions(
+                0,
+                """
+                    invoke-static/range {p0 .. p1}, ${Constants.BRAVE_EXTENSION_CLASS}->preselectPreviousTabInGroup(Ljava/lang/Object;Ljava/util/List;)V
+                """.trimIndent(),
+            )
+            patched++
+            fp
+        } catch (_: PatchException) {
+            throw PatchException(BRAVE_UNSUPPORTED_VARIANT_MESSAGE)
+        }
 
         println("[Tab Group Close Selection] Applied $patched hook in TabCollectionTabModelImpl.${closeSelectionFp.method.name} -> previous tab selection in tab group enabled.")
     }

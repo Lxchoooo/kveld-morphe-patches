@@ -213,6 +213,11 @@ private val braveHostsBlockerPatch = rawResourcePatch(
 }
 
 // ── Bytecode Patch: Blocks Crash uploads, Variations seed, and forces telemetry gates to false
+internal const val BRAVE_UNSUPPORTED_VARIANT_MESSAGE =
+    "Unsupported Brave APK variant or drifted target: required hook not found in this build. " +
+        "Only Bravemonoarm64.apk / BraveMonoarm.apk v${Constants.BRAVE_TARGET_VERSION} from github.com/brave/brave-browser/releases " +
+        "are supported; Bravearm64Universal.apk is rejected. See docs/apps/brave.md."
+
 @Suppress("unused")
 val braveBlockTelemetryPatch = bytecodePatch(
     name = "Block Tracking",
@@ -286,11 +291,7 @@ val braveBlockTelemetryPatch = bytecodePatch(
                 hookedMethods.add("$className.$name")
             }
         } catch (_: PatchException) {
-            throw PatchException(
-                "Unsupported Brave APK variant or drifted target: variations-seed hook not found. " +
-                    "Only Bravemonoarm64.apk / BraveMonoarm.apk v1.97.56 from github.com/brave/brave-browser/releases " +
-                    "are supported; Bravearm64Universal.apk is rejected. See docs/apps/brave.md.",
-            )
+            throw PatchException(BRAVE_UNSUPPORTED_VARIANT_MESSAGE)
         }
 
         // 4. PrefService.e(String): Filter telemetry preferences (P3A, Stats, WDP) at return
