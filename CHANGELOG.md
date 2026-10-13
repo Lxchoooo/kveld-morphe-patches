@@ -1,3 +1,20 @@
+## [2.7.0-experimental.18](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.17...v2.7.0-experimental.18) (2026-10-13)
+
+### Bug Fixes
+
+* **brave:** extend unsupported-build error to remaining bytecode hooks ([c8cfea1](https://github.com/kveld9/kveld-morphe-patches/commit/c8cfea1a9ba308ed59482de7e4ece139473d46a9))
+* **universal:** also block startup of newer Adjust versions when tracking SDKs are blocked ([72ab642](https://github.com/kveld9/kveld-morphe-patches/commit/72ab6424f7f2a514cc374efd8227dcf7e3b4a38c))
+* **universal:** keep tracking SDK blocking reliable in large methods ([525ff02](https://github.com/kveld9/kveld-morphe-patches/commit/525ff029bbf275c3f1a321856051b43b2e5ba295))
+* **universal:** stop apps using Segment from crashing at launch when tracking SDKs are blocked ([03a95e8](https://github.com/kveld9/kveld-morphe-patches/commit/03a95e8b4c1989c47d211b085cca6979834a79da))
+
+### New Features
+
+* **universal:** add option to hide your other installed apps from the patched app ([60dd890](https://github.com/kveld9/kveld-morphe-patches/commit/60dd890f933dde70c38f690c3ba188e984256bcf))
+* **universal:** list which tracking calls were blocked for each SDK in the patch log ([053b4f4](https://github.com/kveld9/kveld-morphe-patches/commit/053b4f46c744b64720df61c7722b7194de186cd2))
+* **universal:** scope AppsFlyer start, param guards, SDK exclusions and self-return hooks ([fd1937f](https://github.com/kveld9/kveld-morphe-patches/commit/fd1937f0811e9c61437191cbe806415baf8ba9a5))
+* **universal:** stop Amplitude, Mixpanel and CleverTap from sending user profile data ([8002acf](https://github.com/kveld9/kveld-morphe-patches/commit/8002acfca88066dc04b9610fb4fa53b5d26d57b6))
+* **universal:** strip residual AdServices manifest config entries ([6b3c092](https://github.com/kveld9/kveld-morphe-patches/commit/6b3c0924c496dec6541479b3c1638760437eca09))
+
 ## [2.7.0-experimental.1](https://github.com/kveld9/kveld-morphe-patches/compare/v2.6.0...v2.7.0-experimental.1) (2026-10-13)
 
 ### Bug Fixes
