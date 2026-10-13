@@ -1,7 +1,6 @@
 package app.morphe.patches.universal
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.patch.bytecodePatch
@@ -147,11 +146,13 @@ private val GAMEANALYTICS_INSTANCE_SCOPED =
 private val UNITY_ANALYTICS_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "Transaction"
 
 // Item 6: instance methods in this allowlist that return their own defining class
-// (chainable APIs, e.g. Amplitude Kotlin track, AppsFlyer init) are hooked with
-// `return-object p0` instead of being skipped. Type-correct by construction
-// (returnType == class type), never null. Boolean/int returns stay out of scope:
-// each needs a hand-reviewed per-method value.
-private val SELF_RETURN_ALLOWLIST = setOf("track", "init")
+// (chainable APIs, e.g. Amplitude Kotlin track) are hooked with `return-object p0`
+// instead of being skipped. Type-correct by construction (returnType == class type),
+// never null. "init" is not listed: it only appears in static method sets, and this
+// path requires an instance method. Classes renamed by R8 fall outside the package
+// prefix and are not covered. Boolean/int returns stay out of scope: each needs a
+// hand-reviewed per-method value.
+private val SELF_RETURN_ALLOWLIST = setOf("track")
 
 // MANDATORY exclusion: NEVER block consent or clear setters (setConsent, setAdStorage,
 // setAnalyticsStorage, setAdPersonalization, setAdUserData, clearConditionalUserProperty,
@@ -737,7 +738,7 @@ private fun applyBlockHooks(
         if (targetMethod.returnType == "V") {
             mutableMethod.addInstruction(0, "return-void")
         } else {
-            mutableMethod.addInstructions(0, "move-object v0, p0\nreturn-object v0")
+            mutableMethod.addInstruction(0, "return-object p0")
         }
         counts[rule.label] = (counts[rule.label] ?: 0) + 1
         hooked++
