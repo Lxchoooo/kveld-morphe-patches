@@ -284,24 +284,29 @@ public class GboardExtension {
         if (context == null || !(listObj instanceof java.util.List)) return;
         try {
             ClassLoader cl = context.getClassLoader();
-            Class<?> clsXss = Class.forName("xss", false, cl);
-            Constructor<?> ctorXss = clsXss.getDeclaredConstructor(String.class);
-            ctorXss.setAccessible(true);
-            Object xss = ctorXss.newInstance("assets:theme_package_metadata_color_black.binarypb");
+            // 18.5.1 theme stack: nhz factories build themes, ngy rows go in the list.
+            Class<?> clsNhz = Class.forName("nhz", false, cl);
+            Method mD = clsNhz.getDeclaredMethod("d", Context.class, String.class);
+            mD.setAccessible(true);
+            Object theme = mD.invoke(null, context, "color_black");
+            if (theme == null) return;
 
-            Class<?> clsNck = Class.forName("nck", false, cl);
-            Method mE = clsNck.getDeclaredMethod("e", Context.class, clsXss);
-            mE.setAccessible(true);
-            Object nck = mE.invoke(null, context, xss);
-
-            Class<?> clsNbg = Class.forName("nbg", false, cl);
-            Constructor<?> ctorNbg = clsNbg.getDeclaredConstructor(String.class, clsNck);
-            ctorNbg.setAccessible(true);
-            Object nbg = ctorNbg.newInstance("AMOLED", nck);
+            Class<?> clsNgy = Class.forName("ngy", false, cl);
+            Constructor<?> ctorNgy = clsNgy.getDeclaredConstructor(String.class, clsNhz, String.class);
+            ctorNgy.setAccessible(true);
+            String desc;
+            try {
+                Method mL = clsNhz.getDeclaredMethod("l");
+                mL.setAccessible(true);
+                desc = String.valueOf(mL.invoke(theme));
+            } catch (Throwable ignored) {
+                desc = "AMOLED";
+            }
+            Object row = ctorNgy.newInstance("AMOLED", theme, desc);
 
             @SuppressWarnings("unchecked")
             java.util.List<Object> list = (java.util.List<Object>) listObj;
-            list.add(nbg);
+            list.add(row);
         } catch (Throwable ignored) {}
     }
 
