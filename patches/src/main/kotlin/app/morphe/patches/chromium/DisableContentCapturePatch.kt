@@ -22,6 +22,6 @@ val disableContentCapturePatch = bytecodePatch(
             parameters = listOf("Ljava/lang/String;"),
         ).method.replaceWithReturnBoolean(false)
 
-        println("[Disable Content Capture] Forced OnscreenContentProvider.shouldCapture -> false; page content no longer dispatched to ContentCapture.")
+        println("[Stop Text Sharing with System] Forced OnscreenContentProvider.shouldCapture -> false; page content no longer dispatched to ContentCapture.")
     }
 }

@@ -31,7 +31,7 @@ val sensorPrivacyPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Sensor Privacy Guard] PlatformSensorProvider.hasSensorType hook note: ${e.message}")
+            println("[Block Motion Sensors] PlatformSensorProvider.hasSensorType hook note: ${e.message}")
         }
 
         // 2. Neutralize PlatformSensor.create(PlatformSensorProvider, int, long) -> return null
@@ -48,9 +48,9 @@ val sensorPrivacyPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Sensor Privacy Guard] PlatformSensor.create hook note: ${e.message}")
+            println("[Block Motion Sensors] PlatformSensor.create hook note: ${e.message}")
         }
 
-        println("[Sensor Privacy Guard] Neutralized $patched sensor provider hooks (${hookedMethods.joinToString(", ")}) -> motion/ambient sensor fingerprinting disabled.")
+        println("[Block Motion Sensors] Neutralized $patched sensor provider hooks (${hookedMethods.joinToString(", ")}) -> motion/ambient sensor fingerprinting disabled.")
     }
 }

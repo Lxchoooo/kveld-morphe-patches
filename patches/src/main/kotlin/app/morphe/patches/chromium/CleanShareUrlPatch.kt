@@ -49,7 +49,7 @@ val cleanShareUrlPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Clean Share URL] Share Intent builder hook note: ${e.message}")
+            println("[Clean Shared Links] Share Intent builder hook note: ${e.message}")
         }
 
         // 1. Hook ClipboardImpl.setPrimaryClip so all copied links, URLs, and text are sanitized
@@ -71,7 +71,7 @@ val cleanShareUrlPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Clean Share URL] ClipboardImpl.setPrimaryClip hook note: ${e.message}")
+            println("[Clean Shared Links] ClipboardImpl.setPrimaryClip hook note: ${e.message}")
         }
 
         // 2. Fallback hook for Clipboard.setText
@@ -92,9 +92,9 @@ val cleanShareUrlPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Clean Share URL] Clipboard.setText hook note: ${e.message}")
+            println("[Clean Shared Links] Clipboard.setText hook note: ${e.message}")
         }
 
-        println("[Clean Share URL] Applied $patched link tracking sanitizer hook(s) across target components (${hookedTargets.joinToString(", ")}).")
+        println("[Clean Shared Links] Applied $patched link tracking sanitizer hook(s) across target components (${hookedTargets.joinToString(", ")}).")
     }
 }

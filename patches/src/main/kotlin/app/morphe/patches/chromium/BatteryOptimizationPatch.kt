@@ -27,6 +27,6 @@ val batteryOptimizationPatch = bytecodePatch(
         )
 
         val targetClass = fp.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
-        println("[Disable Battery API] Hooked onReceive in $targetClass to drop BATTERY_CHANGED broadcast events")
+        println("[Hide Battery Status] Hooked onReceive in $targetClass to drop BATTERY_CHANGED broadcast events")
     }
 }
