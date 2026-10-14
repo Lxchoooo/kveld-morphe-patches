@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsOfflineManifestResourcePatch = resourcePatch(
-    name = "Go Offline (Setup)",
-    description = "Removes internet permissions.",
+    name = "Offline Only (Setup)",
+    description = "Removes internet and network permissions in the manifest.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsOfflineManifestResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Offline Only] AndroidManifest.xml not found - skipping manifest purge.")
+            println("[Offline Only (Setup)] AndroidManifest.xml not found - skipping manifest purge.")
             return@execute
         }
 
@@ -43,14 +43,14 @@ private val xiaomiEarbudsOfflineManifestResourcePatch = resourcePatch(
             }
         }
 
-        println("[Offline Only] Stripped $removedPermissions network permissions from AndroidManifest.xml.")
+        println("[Offline Only (Setup)] Stripped $removedPermissions network permissions from AndroidManifest.xml.")
     }
 }
 
 @Suppress("unused")
 val xiaomiEarbudsOfflineOnlyPatch = bytecodePatch(
     name = "Offline Only",
-    description = "Fully disconnects the app. Pair your earbuds first, then enable.",
+    description = "Fully disconnects the app from the internet. Pair your earbuds first.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)

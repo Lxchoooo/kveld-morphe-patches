@@ -12,7 +12,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 @Suppress("unused")
 val xiaomiEarbudsSurgicalOEMUnlockPatch = bytecodePatch(
     name = "Unlock for Other Phones",
-    description = "Enables full features on Samsung, Pixel and other non-Xiaomi phones.",
+    description = "Enables full features on Samsung, Pixel, and other non-Xiaomi phones.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -79,6 +79,6 @@ val xiaomiEarbudsSurgicalOEMUnlockPatch = bytecodePatch(
             hookedMethods.add("DeviceSettingsFragment.initFunctionListener\$lambda\$24(SuperAivs)")
         }
 
-        println("[Surgical OEM Unlock] Neutralized Xiaomi OEM restrictions across ${hookedMethods.size} targets (SuperAivs 5009 item, voice settings, and SpatialAudio dialog).")
+        println("[Unlock for Other Phones] Neutralized Xiaomi OEM restrictions across ${hookedMethods.size} targets (SuperAivs 5009 item, voice settings, and SpatialAudio dialog).")
     }
 }

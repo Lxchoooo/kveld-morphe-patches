@@ -29,6 +29,6 @@ val xiaomiEarbudsModelCatalogUnlockPatch = bytecodePatch(
             )
         }
 
-        println("[Model Catalog Unlock] Unlocked full device model catalog (isShowProduct -> true).")
+        println("[Show All Models] Unlocked full device model catalog (isShowProduct -> true).")
     }
 }

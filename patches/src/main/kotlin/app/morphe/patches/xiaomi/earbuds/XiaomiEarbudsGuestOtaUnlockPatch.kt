@@ -82,6 +82,6 @@ val xiaomiEarbudsGuestOtaUnlockPatch = bytecodePatch(
             hookedMethods.add("DeviceSettingsFragment.initFunctionListener\$lambda\$30")
         }
 
-        println("[Guest OTA Unlock] Unlocked guest firmware update checks across ${hookedMethods.size} targets.")
+        println("[Update Without Account] Unlocked guest firmware update checks across ${hookedMethods.size} targets.")
     }
 }

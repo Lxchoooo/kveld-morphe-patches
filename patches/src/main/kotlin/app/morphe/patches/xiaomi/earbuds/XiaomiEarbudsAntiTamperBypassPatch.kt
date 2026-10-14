@@ -342,6 +342,6 @@ val xiaomiEarbudsAntiTamperBypassPatch = bytecodePatch(
             }
         }
 
-        println("[Anti-Tamper Bypass] Neutralized anti-tamper, root/emulator checks, and JS bridges across ${hookedMethods.size} targets.")
+        println("[Run on Rooted Devices] Neutralized anti-tamper, root/emulator checks, and JS bridges across ${hookedMethods.size} targets.")
     }
 }

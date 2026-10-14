@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
-    name = "Remove Trackers (Setup)",
-    description = "Removes ad permissions and disables tracking components.",
+    name = "Block Trackers (Setup)",
+    description = "Removes ad permissions and disables tracking components in the manifest.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Block Telemetry & Trackers] AndroidManifest.xml not found - skipping.")
+            println("[Block Trackers (Setup)] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -79,7 +79,7 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.key}=${it.value}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Block Telemetry & Trackers] Stripped $removedPermissions permissions, disabled $disabledComponents analytics/logging components$componentDetails.")
+        println("[Block Trackers (Setup)] Stripped $removedPermissions permissions, disabled $disabledComponents analytics/logging components$componentDetails.")
     }
 }
 
@@ -183,6 +183,6 @@ val xiaomiEarbudsBlockTelemetryPatch = bytecodePatch(
             hookedMethods.add("Analytics.track")
         }
 
-        println("[Block Telemetry & Trackers] Neutralized ${hookedMethods.size} telemetry, event tracking, and auto-report hooks.")
+        println("[Block Trackers] Neutralized ${hookedMethods.size} telemetry, event tracking, and auto-report hooks.")
     }
 }
