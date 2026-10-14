@@ -14,7 +14,7 @@ private val BACKUP_ATTRIBUTES = listOf(
 
 @Suppress("unused")
 val gboardDisableCloudBackupPatch = resourcePatch(
-    name = "No Cloud Backup",
+    name = "Disable Cloud Backup",
     description = "Keeps keyboard data off Google Drive backups.",
     default = true,
 ) {

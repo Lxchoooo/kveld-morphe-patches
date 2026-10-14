@@ -17,16 +17,16 @@ val gboardClonePatch = resourcePatch(
 
     val packageSuffix by stringOption(
         key = "packageSuffix",
-        title = "Copy name ending",
-        description = "Ending added to the copy (e.g. clone).",
+        title = "Package name suffix",
+        description = "Suffix appended to the package name (e.g. clone).",
         default = "clone",
         required = false,
     )
 
     val appLabel by stringOption(
         key = "appLabel",
-        title = "Copy display name",
-        description = "Name shown for the copy. Empty keeps the original.",
+        title = "App display name",
+        description = "Custom display name for the cloned app. Leave empty for default.",
         default = "",
         required = false,
     )
@@ -38,7 +38,7 @@ val gboardClonePatch = resourcePatch(
 
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Clone Gboard] Skipped: AndroidManifest.xml not found.")
+            println("[Install a Copy] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -164,6 +164,6 @@ val gboardClonePatch = resourcePatch(
             modifiedAppLabels > 0 -> ", 1 app label ('$trimmedLabel')"
             else -> ", 0 app labels (skipped: ${labelSkipReason ?: "unknown"})"
         }
-        println("[Clone Gboard] Renamed package to '$newPackage' ($modifiedProviders providers, $modifiedPermissions permissions, $modifiedComponents components, $modifiedXmlFiles XML files$labelSummary)")
+        println("[Install a Copy] Renamed package to '$newPackage' ($modifiedProviders providers, $modifiedPermissions permissions, $modifiedComponents components, $modifiedXmlFiles XML files$labelSummary)")
     }
 }

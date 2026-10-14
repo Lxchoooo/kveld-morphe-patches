@@ -225,9 +225,9 @@ val gboardDisableBackgroundSyncPatch = bytecodePatch(
         // Note (18.5.1): the legacy eager-sync entry points (gvp.n/gsp.n) are gone
         // upstream (classes repurposed, timestamp/config flow removed). Eager sync
         // stays covered via the MDD worker and scheduler hooks above.
-        println("[Disable Background Sync] Pruned obsolete Superpacks eager-sync hooks: targets removed upstream.")
+        println("[Stop Background Sync] Pruned obsolete Superpacks eager-sync hooks: targets removed upstream.")
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Disable Background Sync] Neutralized ${hookedMethods.size} background sync methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
+        println("[Stop Background Sync] Neutralized ${hookedMethods.size} background sync methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
     }
 }

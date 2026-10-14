@@ -13,7 +13,7 @@ private const val SERVICE_DISABLED = 3
 
 @Suppress("unused")
 val gboardDisablePlayServicesPatch = bytecodePatch(
-    name = "No Play Services",
+    name = "Disable Play Services",
     description = "Runs without Google Play services. Also turns off inline Translate.",
     default = false,
 ) {

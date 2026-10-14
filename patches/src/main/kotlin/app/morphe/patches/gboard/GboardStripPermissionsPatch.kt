@@ -79,7 +79,7 @@ val gboardStripPermissionsPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Strip Permissions] Skipped: AndroidManifest.xml not found.")
+            println("[Remove Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -104,7 +104,7 @@ val gboardStripPermissionsPatch = resourcePatch(
         }
 
         if (blocked.isEmpty()) {
-            println("[Strip Permissions] Skipped: No permissions selected to strip.")
+            println("[Remove Permissions] Skipped: No permissions selected to strip.")
             return@execute
         }
 
@@ -114,6 +114,6 @@ val gboardStripPermissionsPatch = resourcePatch(
         }
 
         val removedShortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[Strip Permissions] Revoked ${removedList.size} permission(s) from AndroidManifest.xml: ${removedShortNames.joinToString(", ")}")
+        println("[Remove Permissions] Revoked ${removedList.size} permission(s) from AndroidManifest.xml: ${removedShortNames.joinToString(", ")}")
     }
 }

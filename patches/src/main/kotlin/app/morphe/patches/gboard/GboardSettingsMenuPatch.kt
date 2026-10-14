@@ -102,7 +102,7 @@ val gboardSettingsMenuPatch = resourcePatch(
     execute {
         val resDir = get("res")
         if (!resDir.exists() || !resDir.isDirectory) {
-            println("[Gboard Enhancements] Skipped: res directory not found.")
+            println("[Keyboard Settings] Skipped: res directory not found.")
             return@execute
         }
 
@@ -146,13 +146,13 @@ val gboardSettingsMenuPatch = resourcePatch(
             }
         }
         if (strippedEmojiSliders > 0) {
-            println("[Gboard Enhancements] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
+            println("[Keyboard Settings] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
         }
         if (strippedHeaders > 0) {
-            println("[Gboard Enhancements] Pruned $strippedHeaders obsolete telemetry/support header(s) from root settings.")
+            println("[Keyboard Settings] Pruned $strippedHeaders obsolete telemetry/support header(s) from root settings.")
         }
 
-        println("[Gboard Enhancements] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
+        println("[Keyboard Settings] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
     }
 }
 

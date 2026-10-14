@@ -184,6 +184,6 @@ val gboardResourceSlimmerPatch = resourcePatch(
         }
 
         val totalMb = String.format(java.util.Locale.US, "%.2f", totalSavedBytes.toDouble() / (1024 * 1024))
-        println("[Gboard Resource Slimmer] Cleaned $junkFilesCount junk files, $lottieCount animations, $gifCount GIFs, $licenseCount licenses ($skippedCount skipped) -> Saved $totalMb MB")
+        println("[Remove Extra Files] Cleaned $junkFilesCount junk files, $lottieCount animations, $gifCount GIFs, $licenseCount licenses ($skippedCount skipped) -> Saved $totalMb MB")
     }
 }

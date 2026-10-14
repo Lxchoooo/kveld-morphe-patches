@@ -54,7 +54,7 @@ private val gboardRemoveWebDebugBridgePatch = resourcePatch {
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Hardened Intent Security] Skipped provider removal: AndroidManifest.xml not found.")
+            println("[Block App Hijacking] Skipped provider removal: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -156,14 +156,14 @@ private val gboardRemoveWebDebugBridgePatch = resourcePatch {
         }
 
         if (removedWebDebugBridge == 0) {
-            println("[Hardened Intent Security] Skipped provider removal: WebDebugBridgeContentProvider not declared.")
+            println("[Block App Hijacking] Skipped provider removal: WebDebugBridgeContentProvider not declared.")
         } else {
-            println("[Hardened Intent Security] Removed $removedWebDebugBridge exported WebDebugBridgeContentProvider declaration(s).")
+            println("[Block App Hijacking] Removed $removedWebDebugBridge exported WebDebugBridgeContentProvider declaration(s).")
         }
 
         val skippedComponents = BRELLA_COMPONENTS_TO_REMOVE.size - foundComponentNames.size
-        println("[Hardened Intent Security] Removed $removedComponents Brella components ($skippedComponents skipped/absent), $removedQueries queries, $removedMetaData metadata entries.")
-        println("[Hardened Intent Security] Hardened manifest: set EnableTelemetry=false, disabled $disabledMetricsServices metrics service(s), removed $removedInitializers telemetry initializer(s) and $removedRegistrars discovery registrar(s).")
+        println("[Block App Hijacking] Removed $removedComponents Brella components ($skippedComponents skipped/absent), $removedQueries queries, $removedMetaData metadata entries.")
+        println("[Block App Hijacking] Hardened manifest: set EnableTelemetry=false, disabled $disabledMetricsServices metrics service(s), removed $removedInitializers telemetry initializer(s) and $removedRegistrars discovery registrar(s).")
     }
 }
 
@@ -190,6 +190,6 @@ val gboardHardenedIntentSecurityPatch = bytecodePatch(
         )
 
         val targetClass = cleanClassName(fingerprint.originalClassDef.type)
-        println("[Hardened Intent Security] Injected flag override into $targetClass.<clinit>() at opcode index ${matchIndex + 2}")
+        println("[Block App Hijacking] Injected flag override into $targetClass.<clinit>() at opcode index ${matchIndex + 2}")
     }
 }

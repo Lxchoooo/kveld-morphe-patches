@@ -164,10 +164,10 @@ val gboardBlockTelemetryPatch = bytecodePatch(
         if (blockAdwordsHost == true) {
             blockAdwordsHostInDex()
         } else {
-            println("[Block Telemetry] Skipped blockAdwordsHost: option is disabled.")
+            println("[Block Trackers] Skipped blockAdwordsHost: option is disabled.")
         }
 
-        println("[Block Telemetry] Injected Smali hooks into ${hookedMethods.size} telemetry & diagnostic methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
+        println("[Block Trackers] Injected Smali hooks into ${hookedMethods.size} telemetry & diagnostic methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
     }
 }
 
@@ -203,9 +203,9 @@ private fun BytecodePatchContext.blockAdwordsHostInDex() {
 
 private fun logAdwordsResult(rewrittenStrings: Int, touchedClasses: Int) {
     if (rewrittenStrings == 0) {
-        println("[Block Telemetry] No adwords.google.com or reportingwidget.google.com literals found.")
+        println("[Block Trackers] No adwords.google.com or reportingwidget.google.com literals found.")
     } else {
-        println("[Block Telemetry] Rewrote $rewrittenStrings adwords.google.com / reportingwidget.google.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
+        println("[Block Trackers] Rewrote $rewrittenStrings adwords.google.com / reportingwidget.google.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
     }
 }
 
