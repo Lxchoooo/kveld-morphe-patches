@@ -6,7 +6,6 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
@@ -17,7 +16,7 @@ private const val LOG_CLASS = "Landroid/util/Log;"
 
 private val DEBUG_VERBOSE_LEVELS = setOf("d", "v")
 private val NO_ERROR_LEVELS = setOf("d", "v", "i", "w")
-private val ALL_LEVELS = setOf("d", "v", "i", "w", "e", "println")
+private val ALL_LEVELS = setOf("d", "v", "i", "w", "e", "println", "wtf")
 
 @Suppress("unused")
 val universalSilenceSystemLogsPatch = bytecodePatch(
@@ -56,17 +55,18 @@ val universalSilenceSystemLogsPatch = bytecodePatch(
                 return@classDefForEach
             }
 
-            if (!hasAnyTargetInstruction(classDef, targetMethods)) return@classDefForEach
-
-            val mutableClass = mutableClassDefBy(classDef)
+            var mutableMethods: List<MutableMethod>? = null
             var classModified = false
 
-            mutableClass.methods.forEach { method ->
+            for ((methodIndex, method) in classDef.methods.withIndex()) {
                 val mutations = scanMethodMutations(method, targetMethods)
                 if (mutations.isNotEmpty()) {
-                    classModified = true
-                    applyMutations(method, mutations)
+                    val methods = mutableMethods ?: mutableClassDefBy(classDef).methods.toList().also {
+                        mutableMethods = it
+                    }
+                    applyMutations(methods[methodIndex], mutations)
                     patched += mutations.size
+                    classModified = true
                 }
             }
 
@@ -92,17 +92,6 @@ private data class LogMutation(
     val moveResultIndex: Int? = null,
 )
 
-private fun hasAnyTargetInstruction(classDef: ClassDef, targetNames: Set<String>): Boolean {
-    for (method in classDef.methods) {
-        val instructions = method.instructionsOrNull ?: continue
-        for (inst in instructions) {
-            val ref = (inst as? ReferenceInstruction)?.reference as? MethodReference ?: continue
-            if (ref.definingClass == LOG_CLASS && ref.name in targetNames) return true
-        }
-    }
-    return false
-}
-
 private fun scanMethodMutations(
     method: Method,
     targetNames: Set<String>,
@@ -113,8 +102,14 @@ private fun scanMethodMutations(
     var i = 0
     while (i < instructions.size) {
         val inst = instructions[i]
+        val opcode = inst.opcode
+        if (opcode != Opcode.INVOKE_STATIC && opcode != Opcode.INVOKE_STATIC_RANGE) {
+            i++
+            continue
+        }
+
         val ref = (inst as? ReferenceInstruction)?.reference as? MethodReference
-        if (ref == null || ref.definingClass != LOG_CLASS || ref.name !in targetNames) {
+        if (ref == null || ref.name !in targetNames || ref.definingClass != LOG_CLASS) {
             i++
             continue
         }

@@ -70,7 +70,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
-| **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e` and `println`) with configurable level filtering. |
+| **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e/wtf` and `println`) with configurable level filtering. |
 
 ---
 
@@ -519,7 +519,7 @@ The **`Spoof Reinstall IDs`** patch neutralizes persistent installation and app-
 > ### Identifier Constant Folding
 > Applications use identifier frameworks (such as Google Play Services AppSet and Firebase Instance ID) to correlate user accounts and track repeat installations even after application data and cache have been wiped.
 >
-> `Spoof Reinstall IDs` intercepts identifier getters (`getId`, `getToken`, and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
+> `Spoof Reinstall IDs` intercepts identifier getters (`getId` and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
 
 ### Configuration in Morphe Manager
 
@@ -535,13 +535,13 @@ The **`Silence System Logs`** patch neutralizes diagnostic logging invocations t
 
 > [!NOTE]
 > ### Log Call Site Neutralization
-> Production Android applications often retain verbose debug and diagnostic logging statements (`Log.d`, `Log.v`, `Log.i`, `Log.w`, `Log.e`, and `Log.println`) across their codebase and embedded third-party libraries.
+> Production Android applications often retain verbose debug and diagnostic logging statements (`Log.d`, `Log.v`, `Log.i`, `Log.w`, `Log.e`, `Log.wtf`, and `Log.println`) across their codebase and embedded third-party libraries.
 >
 > `Silence System Logs` executes a single union pass across application bytecode, identifying logging invocations matching the configured verbosity threshold. The patch safely replaces the invoke instruction with `nop` (or neutral zero constants when the caller captures the returned integer value via `move-result`), eliminating log message construction overhead and logcat buffer emission without triggering bytecode verification errors.
 
 ### Configuration in Morphe Manager
 
-- **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
+- **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, wtf, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
 
 
 

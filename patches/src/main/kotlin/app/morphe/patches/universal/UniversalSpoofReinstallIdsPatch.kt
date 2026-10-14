@@ -47,8 +47,8 @@ val universalSpoofReinstallIdsPatch = bytecodePatch(
     )
 
     execute {
-        val targetAppSetId = appSetId?.trim()?.takeIf { it.isNotEmpty() }?.replace("\"", "") ?: DEFAULT_APP_SET_ID
-        val targetInstallId = installId?.trim()?.takeIf { it.isNotEmpty() }?.replace("\"", "") ?: DEFAULT_INSTALL_ID
+        val targetAppSetId = appSetId?.trim()?.let(::escapeSmaliString)?.takeIf { it.isNotEmpty() } ?: DEFAULT_APP_SET_ID
+        val targetInstallId = installId?.trim()?.let(::escapeSmaliString)?.takeIf { it.isNotEmpty() } ?: DEFAULT_INSTALL_ID
         val shouldSpoofScope = spoofScope != false
 
         var patched = 0
@@ -83,7 +83,7 @@ val universalSpoofReinstallIdsPatch = bytecodePatch(
                 }
 
                 if (isFirebase) {
-                    if ((method.name == "getId" || method.name == "getToken") && method.returnType == "Ljava/lang/String;") {
+                    if (method.name == "getId" && method.returnType == "Ljava/lang/String;") {
                         method.replaceWithConstString(targetInstallId)
                         patched++
                         classModified = true
@@ -131,4 +131,13 @@ private fun MutableMethod.replaceWithConstInt(value: Int) {
             return v0
         """.trimIndent(),
     )
+}
+
+private fun escapeSmaliString(value: String): String {
+    return value
+        .replace("\\", "\\\\")
+        .replace("\"", "")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
 }
