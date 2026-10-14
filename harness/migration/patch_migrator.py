@@ -49,14 +49,30 @@ class PatchMigrator:
         if new_content != content:
             changes.append(f"Updated BRAVE_TARGET_VERSION to '{new_version}'")
 
-        # 2. description = "Download Bravemonoarm64.apk or BraveMonoarm.apk (v...) from github.com/brave/brave-browser/releases"
-        new_content2 = re.sub(
-            r'description = "Download (?:Bravemonoarm64\.apk or BraveMonoarm\.apk \(v[^"]+\)|Bravemonoarm64\.apk \(v[^"]+\)|v[^"]+) from github\.com/brave/brave-browser/releases"',
-            f'description = "Download Bravemonoarm64.apk or BraveMonoarm.apk (v{new_version}) from github.com/brave/brave-browser/releases"',
-            new_content
-        )
+        # 2. Update description while preserving variant tokens (arch, dpi, versionCode)
+        # Note: at bump time the new versionCode is unknown (researched per release on APKMirror).
+        # A human refreshes the versionCode during the bump.
+        # Handle both APKMirror style with variant tokens and legacy github style.
+        def _replace_desc(match: re.Match) -> str:
+            prefix = match.group(1)
+            old_desc = match.group(2)
+            # If already using $BRAVE_TARGET_VERSION variable interpolation, keep it
+            if "$BRAVE_TARGET_VERSION" in old_desc:
+                new_desc = old_desc
+            elif re.search(r'v[0-9.]+', old_desc):
+                new_desc = re.sub(r'v[0-9.]+', f'v{new_version}', old_desc)
+            else:
+                new_desc = old_desc
+            return f'{prefix}"{new_desc}"'
+
+        # Match description inside COMPATIBILITY_BRAVE block
+        # E.g.: description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror"
+        # Or: description = "Download com.brave.browser v1.95.100 (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror"
+        # Or legacy github format.
+        desc_pattern = r'(description\s*=\s*)"(Download com\.brave\.browser v[^"]+ from APKMirror|Download (?:Bravemonoarm64\.apk or BraveMonoarm\.apk \(v[^"]+\)|Bravemonoarm64\.apk \(v[^"]+\)|v[^"]+) from github\.com/brave/brave-browser/releases)"'
+        new_content2 = re.sub(desc_pattern, _replace_desc, new_content)
         if new_content2 != new_content:
-            changes.append(f"Updated AppTarget description to 'Bravemonoarm64.apk or BraveMonoarm.apk (v{new_version})'")
+            changes.append(f"Updated AppTarget description for Brave")
 
         return MigrationPlan(self.constants_file, content, new_content2, changes)
 
