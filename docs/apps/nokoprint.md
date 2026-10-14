@@ -37,18 +37,31 @@ Technical documentation and patch catalog for NokoPrint on Android.
 ## 3. Technical Breakdown
 
 ### A. Ad Removal & Premium Unlock
-- **Ad Manifest Purge**: Strips AdMob and mediation activities, receivers, and initialization providers from `AndroidManifest.xml`.
-- **Bytecode Ad Neutralization**: Forces ad-free status flags to true and short-circuits full-screen and banner ad dispatchers.
-- **Asset Debloating**: Deletes embedded ad SDK HTML assets, web tracking templates, and mediation configuration files.
+- **Block Ads**:
+  - *Objective*: Remove all banner, interstitial, and rewarded advertisements and bypass Google Play anti-tamper exit checks.
+  - *How*: Disables ad components and startup initializers in the manifest, forces ad-free status flags to true, short-circuits banner and interstitial dispatchers, and stubs license validation.
+- **Remove Extra Files**:
+  - *Objective*: Reduce package size and remove leftover tracker assets.
+  - *How*: Purges ad SDK HTML assets, web tracking templates, and mediation configuration files from application resources.
 
 ### B. Telemetry & Background Sync
-- **Block Trackers**: Strips advertising identifier permissions (`AD_ID`), disables Firebase and Google Analytics providers, and neutralizes runtime event tracking calls.
-- **Background Sync Optimization**: Disables periodic worker jobs, wake locks, and update check services in the manifest and runtime schedulers.
+- **Block Trackers**:
+  - *Objective*: Prevent analytics tracking and advertising identifier data collection.
+  - *How*: Strips advertising identifier permissions and stubs Firebase, Google Analytics, and ad attribution tracking methods.
+- **Stop Background Sync**:
+  - *Objective*: Stop background tasks and wake locks from consuming system resources and battery.
+  - *How*: Disables periodic worker jobs, alarm schedulers, and update check services in the manifest and runtime schedulers.
 
 ### C. Network Hardening & UX Cleanups
-- **Remove Extra Stores**: Strips alternative app store billing frameworks (Huawei AppGallery, Samsung Galaxy Store, Amazon Appstore), keeping only Google Play billing interfaces intact.
-- **Safer Connections**: Configures network security configuration to enforce secure transport while ensuring local network printer discovery and online driver downloads function normally.
-- **Skip Welcome Screen**: Suppresses initial welcome and setup modals upon first launch while preserving manual access through settings.
+- **Remove Extra Stores**:
+  - *Objective*: Remove unneeded payment libraries for alternative app stores.
+  - *How*: Strips billing frameworks for Huawei AppGallery, Samsung Galaxy Store, and Amazon Appstore from the manifest.
+- **Safer Connections**:
+  - *Objective*: Enforce secure network transport while maintaining network printer discovery and driver downloads.
+  - *How*: Updates the network security configuration to trust user certificates while preserving necessary local cleartext traffic.
+- **Skip Welcome Screen**:
+  - *Objective*: Open directly to the main printer workspace without displaying first-launch welcome dialogs.
+  - *How*: Suppresses the initial welcome popup dialog while keeping the About screen accessible through settings.
 
 ---
 

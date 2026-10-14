@@ -40,24 +40,55 @@ Technical documentation and patch catalog for Gboard Lite on Android.
 
 ### A. Modular Settings Sub-Patches
 The `Keyboard Settings` patch incorporates several internal bytecode and resource layers:
-- **Pure Black (AMOLED)**: Replaces default dark theme background definitions with pure black (`#000000`) color values.
-- **Zero Bottom Inset & Custom Padding**: Bypasses system navigation bar insets and provides user-configurable bottom padding.
-- **Force Incognito Mode**: Enforces incognito keyboard input mode, hides the incognito indicator icon, and guards clipboard capture during private sessions.
-- **Voice Typing Incognito**: Forces speech recognition to run in private mode without remote transcript logging.
-- **Clipboard Enhancements**: Extends clipboard retention time limits, raises unpinned item counts, enables grid layout mode, and expands character limits.
-- **Modern Haptics & Decoupled Feedback**: Separates keyboard haptics from system touch vibration toggles and unlocks modern haptic feedback patterns.
-- **Top Toolbar Customization**: Adjusts the number of visible items on the top access points bar.
+- **Pure Black (AMOLED)**:
+  - *Objective*: Provide a true black keyboard theme for OLED screens to conserve battery and reduce glare.
+  - *How*: Replaces default dark theme background definitions with pure black color values.
+- **Zero Bottom Inset & Custom Padding**:
+  - *Objective*: Eliminate unnecessary blank space below the keyboard when using gesture navigation and allow adjusting bottom padding.
+  - *How*: Bypasses system navigation bar insets and injects custom bottom padding controls.
+- **Force Incognito Mode**:
+  - *Objective*: Prevent learning from typed text and protect private sessions.
+  - *How*: Enforces incognito keyboard input mode, hides the incognito indicator icon, and prevents clipboard capture during private sessions.
+- **Voice Typing Incognito**:
+  - *Objective*: Dictate text without sending voice transcripts to remote servers.
+  - *How*: Configures speech recognition to operate in private mode without remote transcript logging.
+- **Clipboard Enhancements**:
+  - *Objective*: Keep copied snippets longer, save more unpinned clips, and display clips in a grid.
+  - *How*: Extends clipboard retention time limits, raises unpinned item count caps, enables grid layout mode, and expands character length limits.
+- **Modern Haptics & Decoupled Feedback**:
+  - *Objective*: Customize vibration strength independently of system settings.
+  - *How*: Decouples keyboard haptics from system touch vibration toggles and enables modern haptic patterns.
+- **Top Toolbar Customization**:
+  - *Objective*: Adjust the number of visible utility icons on the top toolbar.
+  - *How*: Overrides the maximum item count cap on the top access points bar.
 
 ### B. Telemetry & Remote Control Suppression
-- **Block Trackers**: Disables event logging, Clearcut metrics, and crash reporting services.
-- **Stop Remote Updates**: Neutralizes Google Phenotype configuration synchronization, preventing server-driven experiment flag overwrites.
-- **Disable Cloud Backup**: Strips cloud backup transport agents from the application manifest.
-- **Block App Hijacking**: Restricts exported broadcast receivers and purges debugging bridge components.
+- **Block Trackers**:
+  - *Objective*: Stop background metric uploads and crash telemetry.
+  - *How*: Disables event logging, Clearcut metrics, and crash reporting services.
+- **Stop Remote Updates**:
+  - *Objective*: Prevent server-side experiment flags from changing keyboard configuration remotely.
+  - *How*: Neutralizes Google Phenotype configuration synchronization and broadcast receivers.
+- **Disable Cloud Backup**:
+  - *Objective*: Keep dictionary and keyboard history strictly on the local device.
+  - *How*: Removes cloud backup transport agents and attributes from the application manifest.
+- **Block App Hijacking**:
+  - *Objective*: Protect keyboard input from inter-app interception and remove debugging interfaces.
+  - *How*: Restricts exported broadcast receivers and purges web debugging bridge components.
 
 ### C. Offline Operation & Permission Stripping
-- **Offline Only**: Strips network permissions (`INTERNET`, `ACCESS_WIFI_STATE`), disables background sync services, and forces network monitors to report offline state.
-- **Disable Play Services**: Bypasses Google Play Services availability checks; inline Google Translate is disabled as a result.
-- **Remove Permissions**: Opt-in removal of sensitive permissions including Contacts, Microphone, Storage, and Notifications.
+- **Offline Only**:
+  - *Objective*: Run Gboard completely isolated from the internet.
+  - *How*: Strips network permissions from the manifest, disables background sync services, and forces connectivity monitors to report offline state.
+- **Disable Play Services**:
+  - *Objective*: Allow Gboard to function on devices without Google Play services installed.
+  - *How*: Stubs Google Play services availability checks to report service disabled without retry loops.
+- **Remove Permissions**:
+  - *Objective*: Reduce attack surface by dropping unused sensitive device permissions.
+  - *How*: Provides configurable options to remove Contacts, Microphone, Storage, and System Dictionary permissions.
+- **Remove Extra Files**:
+  - *Objective*: Reduce application size.
+  - *How*: Purges build properties, tutorial animations, uncompressed GIFs, and embedded open-source license texts.
 
 ---
 

@@ -33,19 +33,24 @@ Technical documentation and patch catalog for Hevy Gym Log Workout Tracker on An
 ## 3. Technical Breakdown
 
 ### A. Background Sync & Battery Optimization
-- **Manifest Component Disabling**: Disables billing services, background work managers, and job schedulers in `AndroidManifest.xml`.
-- **Bytecode Alarms & Sync Neutralization**: Neutralizes periodic synchronization alarms and background worker dispatchers.
+- **Stop Background Sync**:
+  - *Objective*: Prevent background alarms and billing connections from draining the battery.
+  - *How*: Disables background worker services, alarm receivers, and billing components in the manifest, and neutralizes background billing connection startup routines.
 
 ### B. Telemetry & Tracking Elimination
-- **Permission Stripping**: Removes ad and tracking permissions (`ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_ATTRIBUTION`, `BIND_GET_INSTALL_REFERRER_SERVICE`).
-- **Provider & Dispatcher Neutralization**: Disables third-party crash analytics initialization providers, AppsFlyer referral tracking, and event loggers.
+- **Block Trackers**:
+  - *Objective*: Prevent transmission of usage logs, crash events, and advertising attribution data.
+  - *How*: Strips advertising identifier and attribution permissions from the manifest, and stubs third-party crash reporting and event tracking methods.
 
 ### C. Pro Subscription & Feature Gating
-- **Unlock Pro**: Modifies compiled JavaScript bundles (`index.android.bundle`) in-situ to force Pro entitlements (`isPro = true`, `hasActiveSubscription = true`).
-- Enables client-side Pro capabilities such as unlimited routines, custom workout folders, advanced statistics, and charts.
+- **Unlock Pro**:
+  - *Objective*: Unlock offline workout tracking features such as unlimited routines, custom folders, and workout charts.
+  - *How*: Modifies the compiled JavaScript bundle in place to force client-side subscription checks to report active Pro status.
 
 ### D. Asset Debloating
-- **Remove Extra Files**: Purges bundled tutorial media, uncompressed promotional videos, and unused graphic assets from application resources.
+- **Remove Extra Files**:
+  - *Objective*: Shrink the installed application footprint by removing unneeded media assets.
+  - *How*: Purges bundled onboarding tutorial videos, editor stickers, and unused asset fonts from application resources.
 
 ---
 
