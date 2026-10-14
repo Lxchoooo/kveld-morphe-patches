@@ -30,30 +30,29 @@ val videoFitPatch = bytecodePatch(
     )
 
     execute {
-        val mode = fitMode ?: "fit"
+        val rawMode = fitMode?.trim()?.lowercase() ?: "fit"
+        val mode = if (rawMode.contains("fill")) "fill" else "fit"
 
         var patched = 0
 
         // 1. Configure runtime fitMode on TikTokVideoFitHook
-        try {
-            val clinit = Fingerprint(
-                definingClass = Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK,
-                name = "<clinit>",
-            ).method
-            val instructions = clinit.implementation!!.instructions
-            val returnIdx = instructions.indexOfLast { it.opcode == Opcode.RETURN_VOID }
-            val insertIdx = if (returnIdx != -1) returnIdx else 0
-            clinit.addInstructions(
-                insertIdx,
-                """
-                    const-string v0, "$mode"
-                    sput-object v0, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitMode:Ljava/lang/String;
-                """.trimIndent(),
-            )
-            println("[Video Fit] Configured fit mode: $mode")
-        } catch (e: Exception) {
-            println("[Video Fit] TikTokVideoFitHook clinit note: ${e.message}")
-        }
+        val clinitFp = Fingerprint(
+            definingClass = Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK,
+            name = "<clinit>",
+        )
+        val clinit = clinitFp.method
+        val instructions = clinit.implementation!!.instructions
+        val returnIdx = instructions.indexOfLast { it.opcode == Opcode.RETURN_VOID }
+        val insertIdx = if (returnIdx != -1) returnIdx else 0
+        clinit.addInstructions(
+            insertIdx,
+            """
+                const-string v0, "$mode"
+                sput-object v0, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitMode:Ljava/lang/String;
+            """.trimIndent(),
+        )
+        println("[Video Fit] Configured runtime fitMode: $mode.")
+        patched++
 
         val resultClass = "Lcom/ss/android/ugc/aweme/videoadaption/adaptionparams/VideoAdaptionResult;"
 
@@ -98,8 +97,8 @@ val videoFitPatch = bytecodePatch(
         val saveInnerMethod = saveInnerFp.method
         // In saveResultInner(View): instance method -> p0 is VideoAdaptionResult, p1 is View
         val saveIsStatic = AccessFlags.STATIC.isSet(saveInnerMethod.accessFlags)
-        val saveThisReg = if (saveIsStatic) "p0" else "p0"
-        val saveViewReg = if (saveIsStatic) "p1" else "p1"
+        val saveThisReg = if (saveIsStatic) "p1" else "p0"
+        val saveViewReg = if (saveIsStatic) "p0" else "p1"
         saveInnerMethod.addInstructions(
             0,
             """
