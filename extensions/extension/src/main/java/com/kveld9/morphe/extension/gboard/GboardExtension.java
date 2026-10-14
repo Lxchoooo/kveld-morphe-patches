@@ -284,25 +284,22 @@ public class GboardExtension {
         if (context == null || !(listObj instanceof java.util.List)) return;
         try {
             ClassLoader cl = context.getClassLoader();
-            // 18.5.1 theme stack: nhz factories build themes, ngy rows go in the list.
+            // 18.5.1 theme stack: yam spec for color_black asset, nhz factory builds theme, ngy row.
+            Class<?> clsYam = Class.forName("yam", false, cl);
+            Constructor<?> ctorYam = clsYam.getDeclaredConstructor(String.class);
+            ctorYam.setAccessible(true);
+            Object yam = ctorYam.newInstance("assets:theme_package_metadata_color_black.binarypb");
+
             Class<?> clsNhz = Class.forName("nhz", false, cl);
-            Method mD = clsNhz.getDeclaredMethod("d", Context.class, String.class);
-            mD.setAccessible(true);
-            Object theme = mD.invoke(null, context, "color_black");
+            Method mE = clsNhz.getDeclaredMethod("e", Context.class, clsYam);
+            mE.setAccessible(true);
+            Object theme = mE.invoke(null, context, yam);
             if (theme == null) return;
 
             Class<?> clsNgy = Class.forName("ngy", false, cl);
             Constructor<?> ctorNgy = clsNgy.getDeclaredConstructor(String.class, clsNhz, String.class);
             ctorNgy.setAccessible(true);
-            String desc;
-            try {
-                Method mL = clsNhz.getDeclaredMethod("l");
-                mL.setAccessible(true);
-                desc = String.valueOf(mL.invoke(theme));
-            } catch (Throwable ignored) {
-                desc = "AMOLED";
-            }
-            Object row = ctorNgy.newInstance("AMOLED", theme, desc);
+            Object row = ctorNgy.newInstance("AMOLED", theme, "AMOLED");
 
             @SuppressWarnings("unchecked")
             java.util.List<Object> list = (java.util.List<Object>) listObj;
