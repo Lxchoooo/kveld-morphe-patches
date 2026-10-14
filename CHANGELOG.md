@@ -1,3 +1,9 @@
+## [2.7.0-experimental.22](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.21...v2.7.0-experimental.22) (2026-10-14)
+
+### Bug Fixes
+
+* **universal:** support Android 8.1 and below in Play Store update guard ([a6d7fec](https://github.com/kveld9/kveld-morphe-patches/commit/a6d7fec84680d53ac99ed691b4716aa159c4b571))
+
 ## [2.7.0-experimental.21](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.20...v2.7.0-experimental.21) (2026-10-14)
 
 ### Bug Fixes
