@@ -41,22 +41,42 @@ Technical documentation and patch catalog for Brave Private Web Browser on Andro
 ## 3. Technical Breakdown
 
 ### A. Telemetry & Background Sync Neutralization
-- **Stop Background Sync**: Forces background sync check to return true (disabled), preventing periodic background tasks.
-- **Block Trackers & Hosts**: Disables analytics preference toggles in settings resources, neutralizes crash dump uploads, experiment synchronization, and redirects telemetry server endpoints to `0.0.0.0`.
+- **Stop Background Sync**:
+  - *Objective*: Stop periodic background wakeups and conserve battery.
+  - *How*: Modifies the background sync check to return true, preventing scheduled sync tasks from running.
+- **Block Trackers & Hosts**:
+  - *Objective*: Prevent transmission of telemetry, crash reports, and remote experiment metrics.
+  - *How*: Disables analytics preference toggles in settings resources, neutralizes crash dump uploads and experiment synchronization, and redirects telemetry server endpoints to 0.0.0.0. Provides the option to also block shopping offer servers.
 
 ### B. Interface & Promo Suppression
-- **Clean Start Page**: Disables sponsored background images, Brave News, and marketing cards by modifying default XML preferences and feed view models. Supports the `hideTopSites` option (`default = false`) to hide top site tiles.
-- **Silence Promo Notifications**: Neutralizes scheduling and dispatch of promotional notifications, Brave Rewards onboarding tips, and marketing alerts.
-- **Block Popups & Rating Requests**: Disables in-app rating eligibility checks, Play Store rating prompt dialogs, and promotional sign-up modals.
+- **Clean Start Page**:
+  - *Objective*: Provide a distraction-free start page free of ads, sponsored cards, and unwanted news.
+  - *How*: Disables sponsored background wallpapers, Brave News feeds, and marketing cards by updating default preference resources and feed view models. Includes an option to hide top site tiles.
+- **Silence Promo Notifications**:
+  - *Objective*: Eliminate unsolicited marketing reminders, rewards tips, and onboarding notifications.
+  - *How*: Intercepts and neutralizes the scheduling and dispatch routines for promotional alerts and rewards onboarding tips.
+- **Block Popups & Rating Requests**:
+  - *Objective*: Prevent rating prompts, review nag dialogs, and promotional modal interruptions.
+  - *How*: Disables in-app review eligibility checks, Play Store rating dialogs, and promotional sign-up modals.
 
 ### C. Browser Navigation & Performance
-- **Keep Tabs Open**: Disables inactive tab suspension and automatic tab minimization.
-- **Select Previous Tab on Close**: Preselects the predecessor tab within the same tab group when the active tab is closed.
-- **Faster Startup**: Disables asynchronous partner browser customization checks during startup, forces native library extraction in the manifest, and applies AArch64 Branch Target Identification compatibility adjustments to native binaries.
-- **Brave Origin**: Unlocks Brave Origin feature switches and internal policy gatekeepers across Rewards, News, Wallet, and VPN surfaces.
+- **Keep Tabs Open**:
+  - *Objective*: Prevent the browser from discarding or minimizing background tabs unexpectedly.
+  - *How*: Disables inactive tab suspension and automatic tab minimization logic.
+- **Select Previous Tab on Close**:
+  - *Objective*: Return directly to the previously viewed tab inside a tab group when closing the active tab.
+  - *How*: Alters tab closure selection logic to preselect the predecessor tab within the active tab group.
+- **Faster Startup**:
+  - *Objective*: Accelerate cold browser startup and ensure smooth native execution.
+  - *How*: Disables partner customization checks during startup, forces native library extraction in the app manifest, and applies branch target identification adjustments to native binaries.
+- **Brave Origin**:
+  - *Objective*: Provide access to internal Brave Origin feature switches and experimental settings.
+  - *How*: Unlocks Origin preference toggles and bypasses internal feature gatekeepers across Rewards, News, Wallet, and VPN settings.
 
 ### D. Resource Debloating
-- **Remove Extra Files**: Zeroes unused native companion libraries in-situ, including Leo AI assets, VPN libraries, and AR components across target ABIs.
+- **Remove Extra Files**:
+  - *Objective*: Reduce overall application size on device storage.
+  - *How*: Overwrites unused companion native libraries in place with empty stubs, targeting AI assistants, WireGuard VPN, and augmented reality binaries.
 
 ---
 

@@ -76,18 +76,43 @@ Technical documentation and patch catalog for TikTok on Android.
 ## 3. Technical Breakdown
 
 ### A. Privacy, Ad Filtering & Tracking
-- **Feed & Tracker Neutralization**: Filters sponsored feed ads, shopping anchors, survey popups, and live commerce cards. Neutralizes ByteDance AppLog dispatchers and strips tracking permissions from the manifest.
-- **Privacy Protections**: Blocks device fingerprinting (SIM identifiers, clipboard snooping, installed package queries) and strips tracking query parameters from outgoing share URLs.
-- **Browser & Login Guard**: Intercepts in-app browser requests to open them in external browsers and bypasses mandatory login hurdles.
+- **Feed Ads & Content Filter**:
+  - *Objective*: Provide a clean feed without promotional interruptions, sponsored product links, or commerce anchors.
+  - *How*: Filters sponsored feed items, live cards, and shopping anchors during feed model parsing.
+- **Block Trackers**:
+  - *Objective*: Prevent analytics tracking, event logging, and advertising profiling.
+  - *How*: Neutralizes internal event dispatchers and strips tracking permissions from the manifest.
+- **Device Privacy Guard**:
+  - *Objective*: Prevent device fingerprinting and unauthorized hardware or clipboard access.
+  - *How*: Blocks queries for installed packages, SIM identifiers, sensor monitoring, and clipboard snooping.
+- **In-App Browser Privacy Guard**:
+  - *Objective*: Avoid tracking inside embedded web views and open web links in the user's preferred browser.
+  - *How*: Intercepts link navigation to launch the external browser and neutralizes script injection in remaining web views.
+- **Login Compatibility Fix & Mandatory Login Bypass**:
+  - *Objective*: Enable video browsing without an account and fix third-party login providers on modified packages.
+  - *How*: Bypasses mandatory login interceptors and adjusts authentication callbacks for external providers.
 
 ### B. Usability & Playback Enhancements
-- **Playback Controls**: Restores video scrubbing seekbars on all posts, enables persistent playback speed memory, auto-scroll, and pause on launch.
-- **Clean Interface**: Declutters feed UI overlay buttons, direct message banners, inbox promotional carousels, and navigation bar tabs.
-- **Media Tools**: Unlocks high-definition video downloads without watermarks and allows screenshots in secure views.
+- **Playback Controls**:
+  - *Objective*: Give full control over video scrubbing, auto-scrolling, launch behavior, and playback speed.
+  - *How*: Enables seekbar display across all video posts, auto-scrolling to subsequent items, and persistent playback speed settings.
+- **Interface Decluttering**:
+  - *Objective*: Maximize viewing area by removing non-essential UI buttons, prompts, and carousels.
+  - *How*: Hides feed overlay widgets, story trays, direct message banners, and navigation bar tabs.
+- **Media Enhancements & Screenshot Protection Bypass**:
+  - *Objective*: Save media cleanly and allow screen capture in restricted views.
+  - *How*: Removes watermark overlays from download flows and clears secure window flags to permit screenshots.
 
 ### C. Resource Governance & Slimming
-- **P2P Relay & Performance**: Zeroes native peer-to-peer relay libraries (`libttquic.so`) to stop background bandwidth leeching.
-- **Slimmer Axes**: Supports optional removal of creator tools, live streaming modules, speech synthesis engines, and extra localization tables.
+- **Block P2P Video Relay**:
+  - *Objective*: Prevent TikTok from using local device bandwidth to serve content to other users.
+  - *How*: Stubs native peer-to-peer relay libraries to halt upload relaying.
+- **Battery & Resource Saver**:
+  - *Objective*: Save battery life and reduce mobile data consumption.
+  - *How*: Neutralizes 3D ad sensor listeners and limits aggressive background video preloading.
+- **Slimmer Axes**:
+  - *Objective*: Shrink application size on device storage.
+  - *How*: Provides opt-in stripping of creator tools, live broadcast engines, voice synthesis models, and unused language packs.
 
 ---
 

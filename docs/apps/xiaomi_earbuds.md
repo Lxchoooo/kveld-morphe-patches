@@ -43,19 +43,40 @@ Technical documentation and patch catalog for Xiaomi Earbuds on Android.
 ## 3. Technical Breakdown
 
 ### A. OEM & Feature Unlocks
-- **Unlock for Other Phones**: Bypasses MIUI/HyperOS device checks, spoofing Xiaomi system properties to unlock advanced settings on non-Xiaomi devices.
-- **Unlock Sound Features**: Enables spatial audio, dimensional sound, low latency mode, and custom equalizer profiles across all connected hardware models.
-- **Show All Models**: Unlocks the full device pairing catalog regardless of market region or regional carrier locks.
-- **Update Without Account**: Bypasses mandatory Xiaomi account login requirements when querying and flashing firmware OTA updates.
+- **Unlock for Other Phones**:
+  - *Objective*: Enable complete feature settings and prevent warning dialogs on non-Xiaomi devices.
+  - *How*: Bypasses brand checks by spoofing Xiaomi device attributes and removing account requirements for smart settings.
+- **Unlock Sound Features**:
+  - *Objective*: Enable spatial audio, dimensional sound, and low-latency audio options regardless of device restrictions.
+  - *How*: Lifts device restriction checks and forces audio setting feature flags to return supported.
+- **Show All Models**:
+  - *Objective*: Display the full pairing catalog for all earbud models without region filtering.
+  - *How*: Forces product visibility checks to always return true during device discovery.
+- **Update Without Account**:
+  - *Objective*: Allow checking and downloading firmware updates without requiring a Xiaomi account login.
+  - *How*: Bypasses account authentication checks during OTA update requests.
 
 ### B. Security, Root & Privacy Guards
-- **Run on Rooted Devices**: Neutralizes root detection heuristics, Magisk/KernelSU checks, and debugger detection routines.
-- **Device Privacy Guard**: Spoofs device hardware identifiers (IMEI, MAC address, Android ID) and decouples Bluetooth scanning from fine location permissions.
-- **Safer Connections**: Disables SSL certificate pinning and inserts network security configurations permitting trusted certificate authorities.
+- **Run on Rooted Devices**:
+  - *Objective*: Allow the app to run on rooted devices or alongside debugging tools without crashing.
+  - *How*: Neutralizes root detection checks, Magisk and KernelSU heuristic scans, and debugger detection routines.
+- **Device Privacy Guard**:
+  - *Objective*: Prevent tracking through persistent device identifiers and remove unnecessary location permissions.
+  - *How*: Spoofs hardware IDs such as IMEI and MAC addresses, strips location permissions, and allows Bluetooth scanning without fine location access.
+- **Safer Connections**:
+  - *Objective*: Support custom certificates and protect against unencrypted transmission.
+  - *How*: Disables SSL certificate pinning and inserts network security configurations permitting user-installed certificates.
+- **Skip Popups & Tutorials**:
+  - *Objective*: Suppress initial privacy agreements, tutorial carousels, and promotional prompts.
+  - *How*: Forces startup agreement and tutorial completion flags to true and suppresses permission nag dialogs.
 
 ### C. Background Optimization & Offline Mode
-- **Stop Background Activity**: Disables foreground service keep-alives, sticky notifications, and battery-consuming background listeners.
-- **Offline Only**: Strips network permissions from `AndroidManifest.xml` and neutralizes HTTP clients to run entirely offline once earbuds are paired.
+- **Stop Background Activity**:
+  - *Objective*: Eliminate persistent background notifications and reduce standby battery drain.
+  - *How*: Disables foreground service keep-alives and background listener components in both the manifest and bytecode.
+- **Offline Only**:
+  - *Objective*: Run the application completely severed from the internet.
+  - *How*: Strips network permissions from the manifest and stubs HTTP clients and DNS resolvers to prevent network calls.
 
 ---
 
