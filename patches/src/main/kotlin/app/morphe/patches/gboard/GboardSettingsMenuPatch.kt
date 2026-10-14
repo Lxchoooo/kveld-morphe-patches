@@ -62,7 +62,7 @@ private val gboardSeekBarEnhancementsPatch = bytecodePatch(
         val fpPrefBind = Fingerprint(
             definingClass = "Landroidx/preference/Preference;",
             name = "a",
-            parameters = listOf("Lbjo;"),
+            parameters = listOf("Lbol;"),
             returnType = "V",
         )
         fpPrefBind.method.addInstructions(
