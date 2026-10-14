@@ -8,7 +8,7 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
-    name = "Battery Saver (Setup)",
+    name = "Stop Background Sync (Setup)",
     description = "Turns off background alarms and schedulers.",
     default = false,
 ) {
@@ -17,7 +17,7 @@ private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Background Sync Optimizer] AndroidManifest.xml not found - skipping.")
+            println("[Stop Background Sync] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -68,7 +68,7 @@ private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
             metaToRemove.forEach { it.parentNode?.removeChild(it) }
         }
 
-        println("[Background Sync Optimizer] Neutralized $neutralizedCount background sync components.")
+        println("[Stop Background Sync] Neutralized $neutralizedCount background sync components.")
     }
 }
 
@@ -90,7 +90,7 @@ val nokoPrintBackgroundSyncOptimizerPatch = bytecodePatch(
             returnType = "Ljava/lang/Object;",
         ).method.apply {
             addInstructions(0, "const/4 v0, 0\nreturn-object v0")
-            println("[Background Sync Optimizer] Neutralized WorkManagerInitializer.create")
+            println("[Stop Background Sync] Neutralized WorkManagerInitializer.create")
         }
     }
 }

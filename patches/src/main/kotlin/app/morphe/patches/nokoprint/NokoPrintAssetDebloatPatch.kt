@@ -10,7 +10,7 @@ private val EMPTY_BYTES = byteArrayOf()
 
 @Suppress("unused")
 val nokoPrintAssetDebloatPatch = rawResourcePatch(
-    name = "Remove Ad Files",
+    name = "Remove Extra Files",
     description = "Deletes hidden ad files and trackers to shrink the app.",
     default = true,
 ) {
@@ -159,6 +159,6 @@ val nokoPrintAssetDebloatPatch = rawResourcePatch(
         }
 
         val savedMb = String.format(Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-        println("[Asset Debloat] Cleaned $count files, saved $savedMb MB in assets.")
+        println("[Remove Extra Files] Cleaned $count files, saved $savedMb MB in assets.")
     }
 }

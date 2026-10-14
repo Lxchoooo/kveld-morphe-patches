@@ -15,7 +15,7 @@ val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Multi-Store Debridger] AndroidManifest.xml not found - skipping.")
+            println("[Remove Extra Stores] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -123,6 +123,6 @@ val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
             }
         }
 
-        println("[Multi-Store Debridger] Disabled $disabledComponents OEM store components, stripped $removedPermissions permissions.")
+        println("[Remove Extra Stores] Disabled $disabledComponents OEM store components, stripped $removedPermissions permissions.")
     }
 }
