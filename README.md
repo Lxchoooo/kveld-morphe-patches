@@ -121,85 +121,55 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
-| **Always Show Publish Date** | Forces video publish/upload date to remain visible in video author information across all feed types. |  |
+| **Allow Screenshots** | Removes screenshot and screen recording blocking. |  |
+| **Always Show Publish Date** | Shows the upload date on all videos. |  |
 | **Auto-Pause First Video** | Pauses the first video on launch so it plays without lag. |  |
-| **Bypass Mandatory Login** | Neutralizes mandatory login walls, dynamic regional forced login gates, and guest browsing restrictions. |  |
-| **Bypass Screen Capture Detection** | Removes screenshot and screen recording blocking. |  |
+| **Battery & Resource Saver** | Stops 3D ad sensors and aggressive video preloading to save battery and data. |  |
+| **Block P2P Video Relay** | Stops your device from uploading videos to other users. |  |
+| **Block Popups & Prompts** | Blocks popups, nags and promo dialogs across the app. | • Suppress Account & Permission Nags<br>• Suppress Sticker Recommendations<br>• Filter PopLayer Prompts & Nags<br>• Suppress Live Teaser Bubbles<br>• Suppress DM Streak Reminders<br>• Disable Post-Download Share Dialog<br>• Update Prompt Suppressor<br>• Skip First-Launch Onboarding<br>• Skip Content Warnings |
+| **Block Trackers** | Neutralizes ByteDance AppLog tracking, crash monitors, and analytics. |  |
+| **Block Trackers (Setup)** | Removes tracking permissions and disables telemetry components. |  |
+| **Bypass Mandatory Login** | Lets you browse videos and feeds without creating an account or logging in. |  |
 | **Camera & Microphone Indicator** | Shows a corner mark while TikTok holds camera/mic open. |  |
-| **Clean Share URL** | Strips tracking parameters, user IDs, device fingerprints, and marketing tokens from shared TikTok links, with optional custom host redirection. | • Custom Share Host |
-| **Client-Side AI & Behavioral Profiling Governor** | Turns off on-device AI, the chatbot and AI search. |  |
+| **Clean Share Links** | Removes tracking parameters from shared links. | • Custom Share Host |
 | **Comment Customizer** | Takes control of comments: sort, copy, translate and hide clutter. | • Comment Sort Controls<br>• Fix Silent Comment Drops<br>• Copy Comments Without Username<br>• Disable Suggested Emojis<br>• Hide Comment Quick Actions<br>• Hide Comment Surveys & Feedback Cards<br>• Hide Comment Story Rings<br>• Enable Voice Comments<br>• Hide Comment Popup Ads<br>• Show Community-Flagged Comments<br>• Auto-Translate Comments<br>• Do-Not-Translate Languages |
-| **Core Asset De-bloat** | Removes card scanners, AI engines and extra fonts to save space. |  |
-| **Custom Offline Videos Limit** | Customizes the maximum number of videos available for offline download caching. | • Custom Offline Videos Limit |
 | **Custom Share Sheet** | Lets you hide share menu entries you do not use. | • Hide WhatsApp<br>• Hide Instagram<br>• Hide Facebook & Messenger<br>• Hide Telegram<br>• Hide X / Twitter<br>• Hide Snapchat<br>• Hide Reddit & Discord<br>• Hide SMS & Messages<br>• Hide Secondary Networks<br>• Hide 'Repost' Button<br>• Hide QR Code<br>• Hide 'Copy Link'<br>• Hide System Share ('More')<br>• Hide Friends / Direct Messages Row<br>• Hide Quick Emojis<br>• Hide 'Send to New Group'<br>• Hide 'Promote' Action<br>• Hide 'Why This Video'<br>• Hide 'Create Group' Action<br>• Hide 'Add to Story'<br>• Hide 'Create Sticker'<br>• Hide 'Duet' Action<br>• Hide 'Stitch' Action<br>• Hide 'Picture-in-Picture' (PiP)<br>• Hide 'Clear Display'<br>• Hide 'Background Audio'<br>• Hide Live Wallpaper & GIF<br>• Hide 'Not Interested'<br>• Hide 'Report' |
+| **Customize Search** | Customizes search suggestions, live recommendations, and autoplay. | • Hide Suggested Searches<br>• Hide Popular Lives<br>• Disable Search Autoplay<br>• Non-Personalized Search<br>• Enable Live Search |
+| **Declutter Direct Messages** | Cleans up chat and DM screens by hiding extra buttons. | • Hide Chat List Camera Button<br>• Hide Header Call Button<br>• Hide Message Forward Button<br>• Hide Reaction and Streak Bar<br>• Hide Input Bar Camera Button<br>• Hide Gallery Button<br>• Hide Emoji/Stickers Button<br>• Hide Voice Recording Button<br>• Hide Try Effect Button<br>• Hide Sticker Reply Suggestions |
+| **Declutter Navigation Bar** | Removes extra tabs and buttons from navigation bars. | • Hide Shop Navigation Tab<br>• Hide Nearby Feed Tab<br>• Hide Community Tab<br>• Hide Top-Left LIVE Button<br>• Hide Feed Search Bar<br>• Hide Create / Publish Button<br>• Hide Friends Tab Avatar Preview<br>• Hide Inbox Notification Badge |
+| **Declutter Video Interface** | Cleans up the buttons and overlays on top of videos. | • Hide Repost Badge<br>• Hide Video Descriptions<br>• Hide Profile Photo Follow Button<br>• Disable Story Feed Indicators<br>• Hide Playlist Bottom Bar<br>• Hide Save Button<br>• Hide Music Cover Disc<br>• Hide Full Screen Button<br>• Hide Feedback Buttons<br>• Disable Double Tap to Like<br>• Disable Profile Photo LIVE Status<br>• Disable Long-Press Like (Repost)<br>• Disable Long-Press Share (Quick DMs)<br>• Disable Long-Press Comment (Quick Emojis)<br>• Long Press Video Action |
 | **Device Privacy Guard** | Blocks access to your contacts, location, apps and sensors. |  |
-| **Direct Message Declutter** | Cleans up chat and DM screens by hiding extra buttons. | • Hide Chat List Camera Button<br>• Hide Header Call Button<br>• Hide Message Forward Button<br>• Hide Reaction and Streak Bar<br>• Hide Input Bar Camera Button<br>• Hide Gallery Button<br>• Hide Emoji/Stickers Button<br>• Hide Voice Recording Button<br>• Hide Try Effect Button<br>• Hide Sticker Reply Suggestions |
+| **Disable History Recording** | Prevents TikTok from recording your watch history and search queries. | • Disable Watch History<br>• Disable Search History |
+| **Disable Live Gift Effects** | Disables 3D gift animations in live streams to prevent frame drops. |  |
+| **Disable On-Device AI** | Turns off on-device AI, the chatbot and AI search. |  |
 | **Disable Push Notifications** | Stops background push notifications. |  |
+| **Download Without Watermark** | Unlocks downloading and saves videos without watermarks. | • Remove Watermark<br>• Saved-Video Quality Preference |
 | **Enable Profile Banner** | Unlocks the profile banner and its editing tools. |  |
-| **Feed Ads & Content Filter** | Filters ads, bloat cards, shop anchors, live cards, AI-tagged and seen videos from feeds, plus view/like-range and stories/photos filters, via per-content toggles. | • Filter Feed Ads<br>• Filter Feed Bloat<br>• Hide Video Product Anchors<br>• Block Live Streams<br>• Hide AI-Generated Content<br>• Hide Seen Videos<br>• Minimum Views<br>• Maximum Views<br>• Minimum Likes<br>• Maximum Likes<br>• Hide Stories<br>• Hide Photo Posts |
-| **Feed Interface Declutter** | Cleans up the buttons and overlays on top of videos. | • Hide Repost Badge<br>• Hide Video Descriptions<br>• Hide Profile Photo Follow Button<br>• Disable Story Feed Indicators<br>• Hide Playlist Bottom Bar<br>• Hide Save Button<br>• Hide Music Cover Disc<br>• Hide Full Screen Button<br>• Hide Feedback Buttons<br>• Disable Double Tap to Like<br>• Disable Profile Photo LIVE Status<br>• Disable Long-Press Like (Repost)<br>• Disable Long-Press Share (Quick DMs)<br>• Disable Long-Press Comment (Quick Emojis)<br>• Long Press Video Action |
-| **Force Auto-Scroll** | Forces the activation of the native video auto-scroll experiment flag for accounts and regions that lack it due to A/B testing. |  |
-| **Friends & Suggestions Filter** | Keeps the Friends feed strictly mutual and removes suggested-account cards across profile, inbox and feed surfaces via per-scope toggles. | • Strict Mutual Friends Feed<br>• Filter Friends Feed Bloat<br>• Hide Suggested Accounts |
+| **Feed Ads & Content Filter** | Filters ads, shopping tags, live cards, and clutter from your feed. | • Filter Feed Ads<br>• Filter Feed Bloat<br>• Hide Video Product Anchors<br>• Block Live Streams<br>• Hide AI-Generated Content<br>• Hide Seen Videos<br>• Minimum Views<br>• Maximum Views<br>• Minimum Likes<br>• Maximum Likes<br>• Hide Stories<br>• Hide Photo Posts |
+| **Force Auto-Scroll** | Enables native auto-scrolling to the next video. |  |
+| **Friends & Suggestions Filter** | Keeps the Friends feed strictly mutual and hides suggested accounts across the app. | • Strict Mutual Friends Feed<br>• Filter Friends Feed Bloat<br>• Hide Suggested Accounts |
 | **Hide Inbox Promos & Alerts** | Hides promo banners, streak cards and suggestions in your inbox. | • Hide Top Promotional Banners<br>• Hide Contact & Friend Recommendations<br>• Hide Navigation Notices & Tooltips |
-| **Hide Inbox Story & Status Tray** | Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. Scope: Skylight story/status tray at the top of inbox and DMs only. | • Hide Suggested Stories Only |
-| **History Recording Governor** | Prevents TikTok from recording watch history and search history via per-surface toggles. | • Disable Watch History<br>• Disable Search History |
+| **Hide Inbox Story Tray** | Hides the stories and status tray at the top of the inbox. | • Hide Suggested Stories Only |
 | **In-App Browser Privacy Guard** | Opens web links in your browser and blocks tracking in the remaining web views. |  |
-| **Instant Launch & Splash Blocker** | Eliminates cold startup delays, background resume splash advertisements, real-time splash requests, and TopView ad preloading. |  |
-| **Language Pack Purger** | Strips unselected language string bundles from assets/strings#lang_* to save APK space. | • Languages to keep |
-| **Live Stream 3D Gift Optimizer** | Disables Live 3D gift particle effect engine and widget rendering lifecycle to eliminate frame drops during live streams. |  |
-| **Live Stream SDK & Minigame De-bloat** | Removes live streaming and minigame files. Breaks lives and video calls. |  |
-| **Login Compatibility Fix** | Restores Google and Spotify sign-in on the re-signed APK via Web-OAuth fallbacks, with per-provider toggles. | • Fix Google Login<br>• Fix Spotify Login |
-| **Media Usability & Watermark-Free Downloader** | Unlocks downloading and saves videos without watermark. | • Remove Watermark<br>• Saved-Video Quality Preference |
-| **Navigation & Header Declutter** | Removes extra tabs and buttons from the feed screen. | • Hide Shop Navigation Tab<br>• Hide Nearby Feed Tab<br>• Hide Community Tab<br>• Hide Top-Left LIVE Button<br>• Hide Feed Search Bar<br>• Hide Create / Publish Button<br>• Hide Friends Tab Avatar Preview<br>• Hide Inbox Notification Badge |
-| **P2P Video Relay & Mesh CDN Blocker** | Stops your device uploading videos to others. |  |
-| **Playback & Display Governor** | Caps playback resolution and dynamic range (SDR ceiling, HDR off) and locks the display refresh rate via per-feature toggles. Download quality is NOT here: it lives in the Media Usability patch (downloadQuality). | • Cap Playback Resolution<br>• Maximum Playback Resolution<br>• Avoid ByteVC2 Software Decoding<br>• Drop Undecodable Video Streams<br>• Disable HDR Video Playback<br>• Govern Display Refresh Rate<br>• Target Refresh Rate |
-| **Playback Speed Persistence** | Keeps your chosen playback speed across videos and restarts. | • Hold-And-Slide 2x Speed Lock |
-| **Popups & Prompts Suppressor** | Blocks popups, nags and promo dialogs across the app. | • Suppress Account & Permission Nags<br>• Suppress Sticker Recommendations<br>• Filter PopLayer Prompts & Nags<br>• Suppress Live Teaser Bubbles<br>• Suppress DM Streak Reminders<br>• Disable Post-Download Share Dialog<br>• Update Prompt Suppressor<br>• Skip First-Launch Onboarding<br>• Skip Content Warnings |
-| **Remember Clear Display** | Remembers TikTok's clear-display state between videos and re-applies it when new videos start. |  |
-| **Resource & Battery Governor** | Throttles background sensor polling (gyroscope/accelerometer 3D ads) and prevents aggressive video buffer preloading to conserve battery and CPU resources. |  |
-| **Resume Video After Scroll** | Remembers playback timestamp when scrolling away and resumes from where playback stopped upon returning. |  |
+| **Instant Launch** | Opens the app immediately without splash screens or ad delays. |  |
+| **Login Compatibility Fix** | Restores Google and Spotify sign-in on modified app builds. | • Fix Google Login<br>• Fix Spotify Login |
+| **Offline Video Limit** | Customizes the maximum number of videos saved for offline viewing. | • Custom Offline Videos Limit |
+| **Playback & Display Governor** | Limits playback resolution and HDR to save battery, and locks the screen refresh rate. | • Cap Playback Resolution<br>• Maximum Playback Resolution<br>• Avoid ByteVC2 Software Decoding<br>• Drop Undecodable Video Streams<br>• Disable HDR Video Playback<br>• Govern Display Refresh Rate<br>• Target Refresh Rate |
+| **Remember Clear Display** | Keeps clear-display mode active when scrolling to the next video. |  |
+| **Remember Playback Speed** | Keeps your chosen playback speed across videos and restarts. | • Hold-And-Slide 2x Speed Lock |
+| **Remove Creator Tools** | Removes video editing and effects tools to free up space. |  |
+| **Remove Extra Files** | Removes card scanners, AI engines and extra fonts to save space. |  |
+| **Remove Extra Languages** | Deletes unselected language packs. | • Languages to keep |
+| **Remove Live Stream Files** | Removes live streaming and minigame files. Breaks lives and video calls. |  |
+| **Remove Voice Tools** | Removes voice search and text-to-speech to save space. Breaks voice features. |  |
+| **Resume Video After Scroll** | Resumes playback from where you left off when returning to a video. |  |
 | **SIM Region Selector** | Locks the app to a chosen country to unlock regional content. | • Spoofed Region ISO Code<br>• Spoofed Operator Numeric Code (MCC+MNC)<br>• Spoofed Operator Name |
-| **Search Experience** | Customizes TikTok search and discovery surfaces via per-feature toggles. | • Hide Suggested Searches<br>• Hide Popular Lives In Search<br>• Disable Search Video Autoplay<br>• Non-Personalized Search<br>• Enable Live Search |
-| **Show Author Region** | Displays the creator's country or region code next to their username in video author info across feeds and deep-linked detail views. |  |
-| **Show Seekbar** | Restores TikTok's native video seekbar and scrubbing controls where normally hidden or disabled. | • Show Dragging Thumbnail Preview |
+| **Show Author Region** | Displays the creator's country code next to their username. |  |
+| **Show Seekbar** | Restores the video progress seekbar and scrubbing controls. | • Show Thumbnail Preview |
 | **Stop Video Looping** | Stops videos at the end instead of replaying them in an infinite loop. |  |
-| **Studio & Creation De-bloat** | Removes video editing and effects tools to free up space. |  |
-| **System Font** | Forces TikTok to use the Android system font instead of bundled proprietary TikTokSans fonts. |  |
-| **Telemetry Manifest Purge** | Removes tracking permissions and disables telemetry components. |  |
-| **TikTok Privacy Permissions Stripper** | Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via configurable boolean toggles. | • Strip Notification Permission<br>• Strip Camera Permission<br>• Strip Microphone Permissions<br>• Strip Storage & Media Permissions<br>• Strip Bluetooth Permissions<br>• Strip NFC Permission<br>• Strip Biometric Permissions<br>• Strip Foreground Service Permissions<br>• Strip System Alert Window Permission<br>• Strip Wake Lock Permission<br>• Strip Screenshot & Recording Detection Permissions<br>• Strip Miscellaneous Hardware & System Permissions<br>• Strip OEM Diagnostic & Background Signals<br>• Strip Push Delivery Permissions<br>• Strip In-App Billing Permission |
-| **Unified Telemetry & Tracker Silencer** | Neutralizes ByteDance AppLog user tracking, APM/Npth/Heimdallr crash monitors, AppsFlyer attribution, and Firebase analytics. |  |
-| **Video Fit** | Shows the whole video ('fit') or fills the screen ('fill'). | • Video Fit Mode |
-| **Voice & Speech Engine De-bloat** | Removes voice search and text-to-speech to save space. Breaks voice features. |  |
-
-</details>
-
-<details>
-<summary>Brave Private Web Browser, VPN&nbsp;&nbsp;•&nbsp;&nbsp;<b>16 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 1.97.56 |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Better Tab Closing** | Closing a tab picks the previous tab in the same group. |  |
-| **Block Motion Sensors** | Stops sites from reading motion sensors to identify you. |  |
-| **Block Popups & Rating Requests** | Blocks rating popups, review requests and promo dialogs. |  |
-| **Block Tracking** | Blocks usage analytics, crash uploads and experiment downloads. | • Block offers server |
-| **Brave Origin** | Unlocks Brave Origin feature switches. |  |
-| **Clean Shared Links** | Removes tracking codes from links you share or copy. |  |
-| **Clean Start Page** | Removes sponsored wallpapers, news feed and promo cards. | • Hide shortcut tiles |
-| **Faster Startup** | Speeds up launch by disabling carrier customizations. |  |
-| **Hide Battery Status** | Stops sites from reading your battery level to track you. |  |
-| **Keep Tabs Open** | Stops Brave from minimizing your tabs in the background. |  |
-| **Remove Extra Languages** | Deletes unused language packs. | • Languages to keep |
-| **Remove Unused Parts** | Deletes unused AI, VPN and AR files to shrink the app. |  |
-| **Silence Promo Notifications** | Stops tips, reward promos and marketing notifications. |  |
-| **Skip Welcome Screens** | Skips welcome, search choice and onboarding on fresh installs. |  |
-| **Stop Background Sync** | Stops background wakeups and battery drain. |  |
-| **Stop Text Sharing with System** | Stops sending page text to the Android capture service. |  |
+| **Strip Sensitive Permissions** | Removes sensitive hardware, sensor, and tracking permissions. | • Strip Notification Permission<br>• Strip Camera Permission<br>• Strip Microphone Permissions<br>• Strip Storage & Media Permissions<br>• Strip Bluetooth Permissions<br>• Strip NFC Permission<br>• Strip Biometric Permissions<br>• Strip Foreground Service Permissions<br>• Strip System Alert Window Permission<br>• Strip Wake Lock Permission<br>• Strip Screenshot & Recording Detection Permissions<br>• Strip Miscellaneous Hardware & System Permissions<br>• Strip OEM Diagnostic & Background Signals<br>• Strip Push Delivery Permissions<br>• Strip In-App Billing Permission |
+| **Use System Font** | Uses the system font instead of bundled TikTok fonts. |  |
+| **Video Fit Mode** | Lets you choose between fitting the whole video or filling the screen. | • Video Fit Mode |
 
 </details>
 
@@ -216,7 +186,7 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 |----------|----------------|-----------|
 | **Block Ads** | Blocks ad loaders and unlocks ad-free status. |  |
 | **Block Trackers** | Blocks analytics and ad tracking. |  |
-| **Remove Ad Files** | Deletes hidden ad files and trackers to shrink the app. |  |
+| **Remove Extra Files** | Deletes hidden ad files and trackers to shrink the app. |  |
 | **Remove Extra Stores** | Disables payment components for other app stores you do not use. |  |
 | **Safer Connections** | Uses trusted certificates while keeping printer downloads working. |  |
 | **Skip Welcome Screen** | Skips the first-launch popup (the About menu still works). |  |
@@ -237,15 +207,45 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 |----------|----------------|-----------|
 | **Block App Hijacking** | Protects against other apps hijacking Gboard and removes debug tools. |  |
 | **Block Trackers** | Stops background metrics, event logging and crash reporting. | • Block ad servers |
-| **Install a Copy** | Installs this Gboard next to the original one. | • Copy name ending<br>• Copy display name |
+| **Disable Cloud Backup** | Keeps keyboard data off Google Drive backups. |  |
+| **Disable Play Services** | Runs without Google Play services. Also turns off inline Translate. |  |
+| **Install a Copy** | Installs this Gboard next to the original one. | • Package name suffix<br>• App display name |
 | **Keyboard Settings** | Adds a settings screen inside Gboard: theme, vibration, clipboard and more. |  |
-| **No Cloud Backup** | Keeps keyboard data off Google Drive backups. |  |
-| **No Play Services** | Runs without Google Play services. Also turns off inline Translate. |  |
 | **Offline Only** | Fully disconnects Gboard. Download dictionaries first. |  |
 | **Remove Extra Files** | Deletes licenses, tutorial animations and junk. |  |
 | **Remove Permissions** | Removes permissions you pick below. | • Contacts<br>• Microphone<br>• Photos & files<br>• Dictionary sync<br>• Work profile link |
 | **Stop Background Sync** | Stops background downloads and sync to save battery. |  |
 | **Stop Remote Updates** | Stops Google from changing settings remotely. |  |
+
+</details>
+
+<details>
+<summary>Brave Private Web Browser, VPN&nbsp;&nbsp;•&nbsp;&nbsp;<b>16 patches</b></summary>
+<br>
+
+**Supported versions:**
+
+| 1.97.56 |
+| :---: |
+
+| Patch | Description | Options |
+|----------|----------------|-----------|
+| **Block Motion Sensors** | Stops sites from reading motion sensors to identify you. |  |
+| **Block Popups & Rating Requests** | Blocks rating popups, review requests and promo dialogs. |  |
+| **Block Trackers** | Blocks usage analytics, crash uploads and experiment downloads. | • Block offers server |
+| **Brave Origin** | Unlocks Brave Origin feature switches. |  |
+| **Clean Shared Links** | Removes tracking codes from links you share or copy. |  |
+| **Clean Start Page** | Removes sponsored wallpapers, news feed and promo cards. | • Hide shortcut tiles |
+| **Faster Startup** | Speeds up launch by disabling carrier customizations. |  |
+| **Hide Battery Status** | Stops sites from reading your battery level to track you. |  |
+| **Keep Tabs Open** | Stops Brave from minimizing your tabs in the background. |  |
+| **Remove Extra Files** | Deletes unused AI, VPN and AR files to shrink the app. |  |
+| **Remove Extra Languages** | Deletes unselected language packs. | • Languages to keep |
+| **Select Previous Tab on Close** | Selects the previous tab in the tab group when closing a tab. |  |
+| **Silence Promo Notifications** | Stops tips, reward promos and marketing notifications. |  |
+| **Skip Welcome Screens** | Skips welcome, search choice and onboarding on fresh installs. |  |
+| **Stop Background Sync** | Stops background wakeups and battery drain. |  |
+| **Stop Text Sharing with System** | Stops sending page text to the Android capture service. |  |
 
 </details>
 
@@ -279,40 +279,43 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 | Patch | Description | Options |
 |----------|----------------|-----------|
 | **Block Trackers** | Stops analytics and usage reporting. |  |
-| **Hide Device ID** | Hides hardware IDs and lets Bluetooth work without location. |  |
-| **Offline Only** | Fully disconnects the app. Pair your earbuds first, then enable. |  |
+| **Device Privacy Guard** | Hides hardware IDs and lets Bluetooth work without location. |  |
+| **Offline Only** | Fully disconnects the app from the internet. Pair your earbuds first. |  |
 | **Run on Rooted Devices** | Lets the app run on rooted phones and network tools without crashing. |  |
-| **Safer Connections** | Blocks unencrypted traffic and allows inspection. |  |
+| **Safer Connections** | Blocks unencrypted traffic and disables certificate pinning. |  |
 | **Show All Models** | Shows every earbud model for pairing. |  |
-| **Skip Popups & Tutorials** | Skips startup agreements, tutorials and promo banners. |  |
-| **Stop Background Activity** | Removes persistent notifications and background battery drain. |  |
+| **Skip Popups & Tutorials** | Skips startup agreements, tutorials, and promo banners. |  |
+| **Stop Background Activity** | Stops persistent notifications and background battery drain. |  |
 | **Unlock Sound Features** | Enables spatial audio and hearing features on all devices. |  |
-| **Unlock for Other Phones** | Enables full features on Samsung, Pixel and other non-Xiaomi phones. |  |
+| **Unlock for Other Phones** | Enables full features on Samsung, Pixel, and other non-Xiaomi phones. |  |
 | **Update Without Account** | Lets guests check and install earbud firmware updates. |  |
 
 </details>
 
 <details>
-<summary>Universal&nbsp;&nbsp;•&nbsp;&nbsp;<b>15 patches</b></summary>
+<summary>Universal&nbsp;&nbsp;•&nbsp;&nbsp;<b>18 patches</b></summary>
 <br>
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
 | **Allow Screenshots** | Removes screenshot blocking and capture detection. |  |
+| **Block Trackers** | Removes ad IDs, disables tracking components, and adds opt-out flags. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
 | **Block Tracking SDKs** | Disables analytics, crash and ad SDKs inside the app. | • Performance monitors<br>• Crash reporters<br>• Analytics<br>• Ad attribution<br>• Old Google Analytics<br>• Push SDKs (breaks push!)<br>• Screen recorders<br>• Location trackers<br>• SDKs to keep |
 | **Block Tracking Servers** | Rewrites tracking addresses to nowhere using your blocklist. | • Blocklist file<br>• Replace with<br>• Include subdomains |
 | **Clean App Packaging** | Removes build leftovers and duplicate files. |  |
+| **Disable Play Store updates** | Disables Play Store updates by setting the version code to the maximum allowed. |  |
 | **Force Screen Timeout** | Makes apps respect your screen-off timer. |  |
 | **Go Fully Offline** | Removes internet access completely. | • Network state<br>• Wi-Fi controls<br>• Push permissions<br>• Google sync<br>• Block unencrypted traffic |
 | **Lock Screen Brightness** | Stops apps from changing brightness by themselves. |  |
 | **Remove Extra Languages** | Deletes unselected translation folders. | • Languages to keep |
-| **Remove Permissions** | Removes permissions you pick below. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors<br>• Installed apps |
-| **Remove Trackers** | Removes ad IDs, disables tracking components and adds opt-outs. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
-| **Remove Tracking Code** | Deletes tracking and crash-reporting native libraries. | • Crash reporters<br>• Debuggers |
+| **Remove Tracking Libraries** | Deletes tracking and crash-reporting native libraries. | • Crash reporters<br>• Debuggers |
 | **Remove Unused Screen Sizes** | Deletes image folders for screen sizes you do not use. | • Screen sizes to keep<br>• Watch resources<br>• TV resources<br>• Car, dock and VR resources |
 | **Shrink PNG Images** | Recompresses PNGs without losing quality. |  |
 | **Shrink WebP Images** | Strips hidden metadata from WebP images. | • Camera data<br>• Editing history<br>• Color profiles |
-| **Stop Background Wakeups** | Stops boot receivers and background schedulers that wake the app. | • Strip RECEIVE_BOOT_COMPLETED Permission<br>• Disable Boot & Package Receivers<br>• Disable WorkManager & Job Schedulers<br>• Strip WAKE_LOCK Permission |
+| **Silence System Logs** | Stops apps from writing debug and diagnostic messages to the system log. | • Log level |
+| **Spoof Reinstall IDs** | Prevents apps from linking reinstalls to your device by resetting app and install IDs. | • App set ID<br>• Install ID<br>• Scope to single app |
+| **Stop Background Sync** | Stops background sync schedulers and boot wakeups. | • Strip Boot Permission<br>• Disable Boot Receivers<br>• Disable Background Schedulers<br>• Strip Wake Lock Permission |
+| **Strip Sensitive Permissions** | Removes sensitive privacy and hardware permissions you select. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors<br>• Installed apps |
 
 </details>
 

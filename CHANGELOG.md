@@ -1,3 +1,23 @@
+## [2.7.0-experimental.21](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.20...v2.7.0-experimental.21) (2026-10-14)
+
+### Bug Fixes
+
+* **canonical:** audit follow-ups on variant pins and migrator ([135ea57](https://github.com/kveld9/kveld-morphe-patches/commit/135ea57317783a2327db5c7a7759bd2c046243aa))
+* **universal:** access parameter type in consent patch ([afa9a6f](https://github.com/kveld9/kveld-morphe-patches/commit/afa9a6f5d3408bfb9da1969733d85b191ac8d507))
+* **universal:** add wtf level and streamline bytecode scan in silence system logs ([4076b6e](https://github.com/kveld9/kveld-morphe-patches/commit/4076b6e2c05b81fd9ddd1226d6f8151e5abc3890))
+* **universal:** preserve Int.MAX_VALUE when repatching already detached APK ([49e1abb](https://github.com/kveld9/kveld-morphe-patches/commit/49e1abbf9497c8eec3070724ad1f461a03ee5ff1))
+* **universal:** prevent register clobbering and handle re-patching in disable play store updates ([1aacaf0](https://github.com/kveld9/kveld-morphe-patches/commit/1aacaf05b731149c8ff89f8f52a3b47729e3d3c7))
+* **universal:** resolve helper reference in reinstall-ID and rating patches ([61cf142](https://github.com/kveld9/kveld-morphe-patches/commit/61cf142e83cbdad9d989532c1d62d00e928c26f1))
+* **universal:** sanitize smali string literals and limit identifier scope in spoof reinstall ids ([8a3c3ad](https://github.com/kveld9/kveld-morphe-patches/commit/8a3c3adfcd1f1dae9d976683618c1c65e8e9f208))
+
+### New Features
+
+* **universal:** disable Play Store updates while preserving in-app version checks ([59b65bf](https://github.com/kveld9/kveld-morphe-patches/commit/59b65bfa5ee3ef99915f6d799b6b483649e638c1))
+* **universal:** silence system logs ([cc4103c](https://github.com/kveld9/kveld-morphe-patches/commit/cc4103c72fa9fc20fa665d03e895928ba5182cfc))
+* **universal:** skip consent dialogs ([24fdb7c](https://github.com/kveld9/kveld-morphe-patches/commit/24fdb7c771e2cf94f4a2a1515faaa45e823a461a))
+* **universal:** skip rating prompts ([d7adc91](https://github.com/kveld9/kveld-morphe-patches/commit/d7adc91298ab19d4c9c79359de0c22c56feec39e))
+* **universal:** spoof reinstall IDs ([2cf53f4](https://github.com/kveld9/kveld-morphe-patches/commit/2cf53f4bda7dd07da3dda8aba33fc3517afe301b))
+
 ## [2.7.0-experimental.20](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.19...v2.7.0-experimental.20) (2026-10-14)
 
 ### Bug Fixes
