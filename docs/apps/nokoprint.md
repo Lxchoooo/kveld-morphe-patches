@@ -13,6 +13,7 @@ Technical documentation and patch catalog for NokoPrint on Android.
 | **Target Version** | `5.28.6` |
 | **Target Package Format** | XAPK bundle |
 | **Primary Architecture** | universal (`arm64-v8a` / `armeabi-v7a` / `x86` / `x86_64`) |
+| **Download Target** | [APKPure](https://d.apkpure.com/b/XAPK/com.nokoprint?versionCode=52806) |
 | **Authoritative Source** | APKPure |
 
 ---

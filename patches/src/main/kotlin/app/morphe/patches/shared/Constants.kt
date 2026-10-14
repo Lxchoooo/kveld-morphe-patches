@@ -16,7 +16,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = BRAVE_TARGET_VERSION,
-                description = "Download Bravemonoarm64.apk or BraveMonoarm.apk (v1.97.56) from github.com/brave/brave-browser/releases"
+                description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror"
             )
         )
     )
@@ -33,7 +33,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = GBOARD_TARGET_VERSION,
-                description = "Download $GBOARD_TARGET_VERSION (APK nodpi) from APKMirror"
+                description = "Download com.google.android.inputmethod.latin v$GBOARD_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 176049546 (APK) from APKMirror"
             ),
             AppTarget(
                 version = GBOARD_TARGET_VERSION_V7A,
@@ -54,7 +54,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = HEVY_TARGET_VERSION,
-                description = "Download com.hevy v$HEVY_TARGET_VERSION (APKM bundle) from APKMirror"
+                description = "Download com.hevy v$HEVY_TARGET_VERSION (APKM) arm64-v8a 120-640dpi versionCode 3308730 (BUNDLE) from APKMirror"
             )
         )
     )
@@ -70,7 +70,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = TIKTOK_TARGET_VERSION,
-                description = "Download TikTok v$TIKTOK_TARGET_VERSION (nodpi APK) from APKMirror"
+                description = "Download com.zhiliaoapp.musically v$TIKTOK_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 2024701040 (APK) from APKMirror"
             )
         )
     )

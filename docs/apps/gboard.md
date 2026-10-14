@@ -13,6 +13,7 @@ Technical documentation and patch catalog for Gboard Lite on Android.
 | **Target Version** | `18.5.1.993608717-lite_beta-arm64-v8a` / `18.5.1.993608717-lite_beta-armeabi-v7a` |
 | **Target Package Format** | standalone APK (APK nodpi) |
 | **Primary Architecture** | `arm64-v8a` / `armeabi-v7a` |
+| **Download Target** | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-5-1-993608717-beta-release/gboard-the-google-keyboard-18-5-1-993608717-lite_beta-arm64-v8a-android-apk-download/) |
 | **Authoritative Source** | APKMirror |
 
 ---

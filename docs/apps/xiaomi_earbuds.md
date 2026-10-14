@@ -13,6 +13,7 @@ Technical documentation and patch catalog for Xiaomi Earbuds on Android.
 | **Target Version** | `1.38.0i` |
 | **Target Package Format** | XAPK bundle |
 | **Primary Architecture** | universal (`arm64-v8a` / `armeabi-v7a`) |
+| **Download Target** | [APKPure](https://d.apkpure.com/b/XAPK/com.mi.earphone?versionCode=138000) |
 | **Authoritative Source** | APKPure |
 
 ---
