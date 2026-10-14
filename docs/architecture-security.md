@@ -37,8 +37,8 @@ Web applications can fingerprint device hardware variations or infer user input 
 - **JNI Receiver Stability**: Preserves the `PlatformSensorProvider` Java instance created by `PlatformSensorProvider.create()` because Chromium's native `PlatformSensorProviderAndroid` caches it as a JNI receiver; returning null would trigger a fatal `SIGSEGV` / CheckJNI abort when calling instance methods.
 - **Standard Compliant Fallback**: Follows W3C Generic Sensor specifications: sites querying sensors receive standard "NotReadableError" or sensor unavailable responses without crashing web pages.
 
-### 3. Clean Share URL (Link Tracking Sanitization)
-When sharing links via Android's native share sheet or copying URLs from the address bar and context menus, sites frequently attach tracking and attribution query tokens (`utm_*`, `fbclid`, `gclid`, `igshid`, `si`, `msclkid`, etc.). The **`Clean Share URL`** patch intercepts shared and copied data:
+### 3. Clean Shared Links (Link Tracking Sanitization)
+When sharing links via Android's native share sheet or copying URLs from the address bar and context menus, sites frequently attach tracking and attribution query tokens (`utm_*`, `fbclid`, `gclid`, `igshid`, `si`, `msclkid`, etc.). The **`Clean Shared Links`** patch intercepts shared and copied data:
 - **Android Share Sheet Dispatch (`Lcch.a`)**: Intercepts the generated `android.content.Intent` across all share entrypoints, sanitizing `Intent.EXTRA_TEXT`, `Intent.getData()`, and `ClipData` via [`BraveExtension.cleanShareIntent`](../extensions/extension/src/main/java/com/kveld9/morphe/extension/BraveExtension.java).
 - **Clipboard Sanitization (`Clipboard.setText`)**: Cleans single URLs and embedded URLs in composite text before strings enter the system clipboard.
 - **Invariant Preservation**: Functional parameters such as video identifiers (`v`), navigation anchors (`t`), and search queries (`q`) are strictly preserved while stripping profiling tokens.
