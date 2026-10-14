@@ -23,6 +23,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Lock Screen Brightness](#13-lock-screen-brightness-universalscreenbrightnessgovernorpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes direct writes to `WindowManager.LayoutParams.screenBrightness` (`iput`) | Prevents apps from overriding display brightness via window layout params |
 | **[Block Tracking Servers](#14-block-tracking-servers-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
 | **[Block Tracking SDKs](#15-block-tracking-sdks-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Block Trackers |
+| **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
 
 ---
 
@@ -65,6 +66,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Go Fully Offline** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite and Xiaomi Earbuds, pair with their companion app-specific offline patches for graceful timeout handling. |
 | **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
 | **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 
 ---
 
@@ -484,4 +486,22 @@ Tracker catalog derived from the Exodus Privacy tracker database (https://exodus
 - **Location trackers (`blockLocationTrackers`)**: Neutralize Radar, Gimbal, and Estimote beacon and location tracking methods; note OS location permission controls remain the primary gate (Toggle, default: `true`).
 - **Old Google Analytics (`blockLegacyAnalytics`)**: Neutralize pre-Firebase Google Analytics tracking, hit dispatching, and activity reporting methods across `com.google.analytics` and `com.google.android.gms.analytics` (Toggle, default: `true`).
 - **Push SDKs (breaks push!) (`blockPushEngagement`)**: Neutralize OneSignal, Airship, and Braze push engagement and tagging SDKs (Toggle, default: `false`). *WARNING: this breaks push notifications; enable only to fully silence background push engagement SDK runtimes.*
+
+---
+
+## 16. Disable Play Store updates (`universalDisablePlayStoreUpdatesPatch`)
+
+The **`Disable Play Store updates`** patch sets the manifest `versionCode` to the maximum allowed value (`2147483647` / `Int.MAX_VALUE`), detaching the application from Google Play Store update checks so the store never offers automatic or manual updates. At the bytecode layer, it intercepts `PackageInfo.versionCode` field reads and `PackageInfo.getLongVersionCode()` calls across application classes, redirecting them to runtime extension helpers that return the app's original version code recorded from `AndroidManifest.xml` before patching.
+
+> [!NOTE]
+> ### In-App Version Spoofing & Compatibility
+> Setting `versionCode` to `2147483647` in `AndroidManifest.xml` prevents the Play Store from finding higher version updates. However, many applications inspect their own version code at runtime and transmit it in API request headers or use it in local migration checks.
+>
+> If an app reads the maximum version code directly, backend APIs may reject client requests or crash. To prevent breakage, this patch scans application bytecode in a single pass for `PackageInfo.versionCode` reads and `PackageInfo.getLongVersionCode()` calls, replacing them with calls to `DisablePlayStoreUpdatesPatch` in `extension.mpe`. These helpers return the original version code (preserving `versionCodeMajor` in the upper 32 bits for long version checks) whenever the version code equals `Int.MAX_VALUE`.
+
+### Scope & Compatibility Notes
+
+- **Opt-in by default**: Disabled by default (`default = false`) because it changes package update behavior.
+- **Root mounting incompatibility**: Does not work if the application is installed via root mount.
+- **Universal applicability**: Operates across any Android application without hardcoded class fingerprints or app-specific targets.
 
