@@ -6,7 +6,6 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patches.shared.clearTryBlocks
 import app.morphe.patches.shared.ensureRegisterCount
-import app.morphe.patches.shared.numberOfParameterRegisters
 
 private const val TAG = "[Skip Rating Prompts]"
 
@@ -108,7 +107,7 @@ val universalSkipRatingPromptsPatch = bytecodePatch(
 private fun MutableMethod.replaceWithReturnFalse() {
     val impl = implementation ?: return
     clearTryBlocks()
-    ensureRegisterCount(maxOf(1, numberOfParameterRegisters))
+    ensureRegisterCount(1)
     removeInstructions(0, impl.instructions.count())
     addInstructions(
         0,

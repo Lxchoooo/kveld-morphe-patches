@@ -8,7 +8,6 @@ import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patches.shared.clearTryBlocks
 import app.morphe.patches.shared.ensureRegisterCount
-import app.morphe.patches.shared.numberOfParameterRegisters
 
 private const val TAG = "[Spoof Reinstall IDs]"
 private const val DEFAULT_APP_SET_ID = "00000000-0000-0000-0000-000000000000"
@@ -109,7 +108,7 @@ val universalSpoofReinstallIdsPatch = bytecodePatch(
 private fun MutableMethod.replaceWithConstString(value: String) {
     val impl = implementation ?: return
     clearTryBlocks()
-    ensureRegisterCount(maxOf(1, numberOfParameterRegisters))
+    ensureRegisterCount(1)
     removeInstructions(0, impl.instructions.count())
     addInstructions(
         0,
@@ -123,7 +122,7 @@ private fun MutableMethod.replaceWithConstString(value: String) {
 private fun MutableMethod.replaceWithConstInt(value: Int) {
     val impl = implementation ?: return
     clearTryBlocks()
-    ensureRegisterCount(maxOf(1, numberOfParameterRegisters))
+    ensureRegisterCount(1)
     removeInstructions(0, impl.instructions.count())
     addInstructions(
         0,
