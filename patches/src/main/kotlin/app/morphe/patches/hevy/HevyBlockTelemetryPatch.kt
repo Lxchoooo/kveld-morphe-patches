@@ -17,7 +17,7 @@ private val hevyTelemetryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Block Telemetry & Trackers] AndroidManifest.xml not found - skipping manifest purge.")
+            println("[Block Trackers] AndroidManifest.xml not found - skipping manifest purge.")
             return@execute
         }
 
@@ -101,7 +101,7 @@ private val hevyTelemetryResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.first}=${it.second}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Block Telemetry & Trackers] Stripped $removedPermissions permissions and disabled $disabledComponents tracking components$componentDetails in AndroidManifest.xml")
+        println("[Block Trackers] Stripped $removedPermissions permissions and disabled $disabledComponents tracking components$componentDetails in AndroidManifest.xml")
     }
 }
 
@@ -205,6 +205,6 @@ val hevyBlockTelemetryPatch = bytecodePatch(
         )
         hookedMethods.add("AmplitudeReactNativeModule.getLegacyEvents")
 
-        println("[Block Telemetry & Trackers] Successfully hooked ${hookedMethods.size} telemetry methods: ${hookedMethods.joinToString(", ")}")
+        println("[Block Trackers] Successfully hooked ${hookedMethods.size} telemetry methods: ${hookedMethods.joinToString(", ")}")
     }
 }

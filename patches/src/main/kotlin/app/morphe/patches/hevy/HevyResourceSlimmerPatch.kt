@@ -109,6 +109,6 @@ val hevyResourceSlimmerPatch = resourcePatch(
         }
 
         val savedFormatted = app.morphe.patches.shared.LocaleUtils.formatBytes(totalSavedBytes)
-        println("[Resource Slimmer] Pruned $junkFilesCount build junk files, stubbed $stubbedMediaCount media assets -> Saved $savedFormatted")
+        println("[Remove Extra Files] Pruned $junkFilesCount build junk files, stubbed $stubbedMediaCount media assets -> Saved $savedFormatted")
     }
 }
