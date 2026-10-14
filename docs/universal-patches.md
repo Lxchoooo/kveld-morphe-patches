@@ -27,6 +27,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
 | **[Skip Consent Dialogs](#18-skip-consent-dialogs-universalskipconsentdialogspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Stubs platform consent-form show entrypoints with return-void | Prevents blocking GDPR and consent prompts from rendering |
 | **[Silence System Logs](#19-silence-system-logs-universalsilencesystemlogspatch)** | `bytecodePatch` | Dalvik Bytecode Call Sites | Neutralizes log output invocations to prevent diagnostic log leakage | Stops application telemetry and sensitive strings leaking to logcat |
+| **[Skip Rating Prompts](#20-skip-rating-prompts-universalskipratingpromptspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Forces rating eligibility gates to false and stubs review dialog entrypoints | Prevents disruptive in-app review and rating prompts |
 
 ---
 
@@ -73,6 +74,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
 | **Skip Consent Dialogs** | ⚠️ Safe by Default | Disabled by default (`false`) due to regional regulatory signals. Stubs platform consent-form show entrypoints so prompts never render. |
 | **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e` and `println`) with configurable level filtering. |
+| **Skip Rating Prompts** | ⚠️ Safe by Default | Disabled by default (`false`) adhering to universal patch conventions. Forces rating eligibility checks to false and stubs review dialog entrypoints. |
 
 ---
 
@@ -561,6 +563,26 @@ The **`Silence System Logs`** patch neutralizes diagnostic logging invocations t
 ### Configuration in Morphe Manager
 
 - **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
+
+---
+
+## 20. Skip Rating Prompts (`universalSkipRatingPromptsPatch`)
+
+The **`Skip Rating Prompts`** patch suppresses unsolicited in-app rating requests and review dialogs by neutralizing rating eligibility checks and stubbing review presentation methods directly at the Dalvik bytecode level (`classes*.dex`). This prevents applications from interrupting workflows with modal rating dialogs, AppRate popups, and store feedback prompts.
+
+> [!NOTE]
+> ### Rating Eligibility and Dialog Neutralization
+> Applications frequently embed in-app rating libraries that track session counts, launch milestones, or completed tasks to trigger modal rating dialogs.
+>
+> `Skip Rating Prompts` targets known rating and review prompt mechanisms through a dual strategy:
+> 1. **Eligibility Gate Suppression**: Replaces boolean rating eligibility methods (`shouldShowRateDialog`, `shouldShowRatingDialog`, `canShowReviewDialog`, and related evaluation gates) with immediate `false` returns, ensuring the application decides never to present a review request.
+> 2. **Dialog Entrypoint Stubbing**: Stubs void rating prompt display methods (`showRateDialog`, `showReviewDialog`, `showRateAppDialog`, and related presentation entrypoints) with `return-void` at method entry, ensuring that even if invoked directly, no dialog window or review prompt renders.
+
+### Scope & Compatibility Notes
+
+- **Opt-in by default**: Disabled by default (`default = false`) following universal patch conventions.
+- **Universal applicability**: Operates across any Android application embedding common rating and review libraries or custom prompt implementations without requiring application-specific fingerprints.
+
 
 
 
