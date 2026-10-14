@@ -48,16 +48,20 @@ public class DisablePlayStoreUpdatesPatch {
     /**
      * Injection point.
      */
+    @android.annotation.TargetApi(28)
     public static long getVersionCodeLong(PackageInfo info) {
-        final long versionCode = info.getLongVersionCode();
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            final long versionCode = info.getLongVersionCode();
 
-        final long lowerBitMask = 0x00000000FFFFFFFFL;
-        if ((versionCode & lowerBitMask) == Integer.MAX_VALUE) {
-            // Keep the upper 32 bits (versionCodeMajor) untouched,
-            // swap in the original version code for the lower 32 bits.
-            return (versionCode & 0xFFFFFFFF00000000L)
-                    | (originalVersionCode() & lowerBitMask);
+            final long lowerBitMask = 0x00000000FFFFFFFFL;
+            if ((versionCode & lowerBitMask) == Integer.MAX_VALUE) {
+                // Keep the upper 32 bits (versionCodeMajor) untouched,
+                // swap in the original version code for the lower 32 bits.
+                return (versionCode & 0xFFFFFFFF00000000L)
+                        | (originalVersionCode() & lowerBitMask);
+            }
+            return versionCode;
         }
-        return versionCode;
+        return info.versionCode;
     }
 }
