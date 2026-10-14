@@ -127,8 +127,8 @@ private fun buildBlockedPermissions(toggleStates: Map<String, Boolean>): Set<Str
 
 @Suppress("unused")
 val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
-    name = "TikTok Privacy Permissions Stripper",
-    description = "Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via configurable boolean toggles.",
+    name = "Strip Sensitive Permissions",
+    description = "Removes sensitive hardware, sensor, and tracking permissions.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -291,11 +291,11 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
         }
 
         if (removedList.isEmpty()) {
-            println("[TikTok Privacy Permissions Stripper] AndroidManifest.xml is already clean (0 matching permissions found).")
+            println("[Strip Sensitive Permissions] AndroidManifest.xml is already clean (0 matching permissions found).")
             return@execute
         }
 
         val shortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[TikTok Privacy Permissions Stripper] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
+        println("[Strip Sensitive Permissions] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
     }
 }

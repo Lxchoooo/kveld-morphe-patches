@@ -12,7 +12,7 @@ private const val GUEST_MODE_SERVICE_IMPL = "Lcom/ss/android/ugc/aweme/account/g
 
 val mandatoryLoginBypassPatch = bytecodePatch(
     name = "Bypass Mandatory Login",
-    description = "Neutralizes mandatory login walls, dynamic regional forced login gates, and guest browsing restrictions.",
+    description = "Lets you browse videos and feeds without creating an account or logging in.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

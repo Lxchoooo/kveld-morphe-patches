@@ -21,7 +21,7 @@ import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val directMessageDeclutterPatch = bytecodePatch(
-    name = "Direct Message Declutter",
+    name = "Declutter Direct Messages",
     description = "Cleans up chat and DM screens by hiding extra buttons.",
     default = false,
 ) {
@@ -119,7 +119,7 @@ val directMessageDeclutterPatch = bytecodePatch(
             hideTryEffectButton != true &&
             hideStickerReplySuggestions != true
         ) {
-            println("[Direct Message Declutter] All toggles disabled -> nothing to patch.")
+            println("[Declutter Direct Messages] All toggles disabled -> nothing to patch.")
             return@execute
         }
 
@@ -154,7 +154,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked ${modelClass.type}.<init> -> showCameraIcon=false.")
+                println("[Declutter Direct Messages] Hooked ${modelClass.type}.<init> -> showCameraIcon=false.")
                 patched++
             }
 
@@ -172,7 +172,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                             return-void
                         """.trimIndent(),
                     )
-                    println("[Direct Message Declutter] Hooked ${modelClass.type}.setShowCameraIcon -> force false.")
+                    println("[Declutter Direct Messages] Hooked ${modelClass.type}.setShowCameraIcon -> force false.")
                     patched++
                 }
             }
@@ -218,7 +218,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         }
                     }
                 }
-                println("[Direct Message Declutter] Hooked BaseSingleChatTitleBarRightAssem.onViewCreated -> Call button GONE.")
+                println("[Declutter Direct Messages] Hooked BaseSingleChatTitleBarRightAssem.onViewCreated -> Call button GONE.")
                 patched++
             }
         }
@@ -263,7 +263,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked ${sideSlotClass.type}.${bindForwardMethod.name} -> Forward TuxIconView GONE.")
+                println("[Declutter Direct Messages] Hooked ${sideSlotClass.type}.${bindForwardMethod.name} -> Forward TuxIconView GONE.")
                 patched++
             }
         }
@@ -276,7 +276,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                 parameters = emptyList(),
                 returnType = "Z",
             ).method.replaceWithReturnBoolean(false)
-            println("[Direct Message Declutter] Hooked ActionBarServiceImpl.LJI -> false.")
+            println("[Declutter Direct Messages] Hooked ActionBarServiceImpl.LJI -> false.")
             patched++
 
             val actionBarUiAssemFp = Fingerprint(
@@ -300,7 +300,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked ActionBarUIAssem.onViewCreated -> View.GONE.")
+                println("[Declutter Direct Messages] Hooked ActionBarUIAssem.onViewCreated -> View.GONE.")
                 patched++
             }
         }
@@ -312,7 +312,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                 name = "LJII",
                 returnType = "Lkotlin/jvm/functions/Function1;",
             ).method.replaceWithReturnNull()
-            println("[Direct Message Declutter] Hooked DMCameraFeatureImpl.LJII -> return-null.")
+            println("[Declutter Direct Messages] Hooked DMCameraFeatureImpl.LJII -> return-null.")
             patched++
 
             val inputAssemFp = Fingerprint(
@@ -338,7 +338,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         :cond_skip_cam
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked IMInputAssem.onViewCreated -> Camera slot GONE.")
+                println("[Declutter Direct Messages] Hooked IMInputAssem.onViewCreated -> Camera slot GONE.")
                 patched++
             }
         }
@@ -366,7 +366,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked IMImageBtnViewAssem.Wr -> View.GONE.")
+                println("[Declutter Direct Messages] Hooked IMImageBtnViewAssem.Wr -> View.GONE.")
                 patched++
             }
 
@@ -441,7 +441,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                 }
             }
             if (hookedAlbumCount > 0) {
-                println("[Direct Message Declutter] Hooked redesigned input SCALING_ALBUM_BTN slot setup ($hookedAlbumCount targets) -> 0x0, scale 0, disabled, GONE.")
+                println("[Declutter Direct Messages] Hooked redesigned input SCALING_ALBUM_BTN slot setup ($hookedAlbumCount targets) -> 0x0, scale 0, disabled, GONE.")
                 patched++
             }
         }
@@ -469,7 +469,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked InputEmojiButtonUIAssem.onViewCreated -> View.GONE.")
+                println("[Declutter Direct Messages] Hooked InputEmojiButtonUIAssem.onViewCreated -> View.GONE.")
                 patched++
             }
 
@@ -528,16 +528,16 @@ val directMessageDeclutterPatch = bytecodePatch(
                                 invoke-virtual {p2, v0}, Landroid/view/View;->setVisibility(I)V
                             """.trimIndent(),
                         )
-                        println("[Direct Message Declutter] Hooked redesigned input EMOJI_BTN slot setup -> 0x0, scale 0, disabled, GONE.")
+                        println("[Declutter Direct Messages] Hooked redesigned input EMOJI_BTN slot setup -> 0x0, scale 0, disabled, GONE.")
                         patched++
                     } else {
-                        println("[Direct Message Declutter] Skipped redesigned EMOJI_BTN hook: Unit return anchor not found.")
+                        println("[Declutter Direct Messages] Skipped redesigned EMOJI_BTN hook: Unit return anchor not found.")
                     }
                 } else {
-                    println("[Direct Message Declutter] Skipped redesigned EMOJI_BTN hook: setId anchor not found.")
+                    println("[Declutter Direct Messages] Skipped redesigned EMOJI_BTN hook: setId anchor not found.")
                 }
             } else {
-                println("[Direct Message Declutter] Skipped redesigned EMOJI_BTN hook: no implementation.")
+                println("[Declutter Direct Messages] Skipped redesigned EMOJI_BTN hook: no implementation.")
             }
         }
 
@@ -564,7 +564,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked RecordBtnAssem.onViewCreated -> View.GONE.")
+                println("[Declutter Direct Messages] Hooked RecordBtnAssem.onViewCreated -> View.GONE.")
                 patched++
             }
         }
@@ -599,11 +599,11 @@ val directMessageDeclutterPatch = bytecodePatch(
             val method4Arg = gateClass.methods.first(isTryEffectSiblingGate)
 
             method5Arg.replaceWithReturnBoolean(false)
-            println("[Direct Message Declutter] Hooked ${gateClass.type}.${method5Arg.name} -> Try effect CTA disabled.")
+            println("[Declutter Direct Messages] Hooked ${gateClass.type}.${method5Arg.name} -> Try effect CTA disabled.")
             patched++
 
             method4Arg.replaceWithReturnBoolean(false)
-            println("[Direct Message Declutter] Hooked ${gateClass.type}.${method4Arg.name} -> Try effect CTA disabled.")
+            println("[Declutter Direct Messages] Hooked ${gateClass.type}.${method4Arg.name} -> Try effect CTA disabled.")
             patched++
         }
 
@@ -630,7 +630,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                     :keep_sticker_reply
                 """.trimIndent(),
             )
-            println("[Direct Message Declutter] Hooked ReplyToStickerRecommendationViewModel.${stickerMethod.name} -> automatic sticker reply suggestions disabled.")
+            println("[Declutter Direct Messages] Hooked ReplyToStickerRecommendationViewModel.${stickerMethod.name} -> automatic sticker reply suggestions disabled.")
             patched++
 
             Fingerprint(
@@ -639,7 +639,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = emptyList(),
             ).method.replaceWithReturnBoolean(false)
-            println("[Direct Message Declutter] Hooked PreshownStickerBannerProtocol.isEnabled -> preshown sticker reply banner disabled.")
+            println("[Declutter Direct Messages] Hooked PreshownStickerBannerProtocol.isEnabled -> preshown sticker reply banner disabled.")
             patched++
 
             val interceptFp = Fingerprint(
@@ -659,7 +659,7 @@ val directMessageDeclutterPatch = bytecodePatch(
                         return-object p1
                     """.trimIndent(),
                 )
-                println("[Direct Message Declutter] Hooked PreshownStickerBannerProtocol.intercept -> passthrough message list.")
+                println("[Declutter Direct Messages] Hooked PreshownStickerBannerProtocol.intercept -> passthrough message list.")
                 patched++
             }
 
@@ -691,11 +691,11 @@ val directMessageDeclutterPatch = bytecodePatch(
             }
 
             if (typingHooks > 0) {
-                println("[Direct Message Declutter] Hooked TypingRecommendationPanelAssem ($typingHooks dynamic methods) -> typing sticker recommendations disabled.")
+                println("[Declutter Direct Messages] Hooked TypingRecommendationPanelAssem ($typingHooks dynamic methods) -> typing sticker recommendations disabled.")
                 patched++
             }
         }
 
-        println("[Direct Message Declutter] Applied $patched hooks -> direct messages decluttered.")
+        println("[Declutter Direct Messages] Applied $patched hooks -> direct messages decluttered.")
     }
 }

@@ -8,8 +8,8 @@ import app.morphe.patches.shared.replaceWithReturnNull
 import app.morphe.patches.shared.replaceWithReturnVoid
 
 val historyRecordingGovernorPatch = bytecodePatch(
-    name = "History Recording Governor",
-    description = "Prevents TikTok from recording watch history and search history via per-surface toggles.",
+    name = "Disable History Recording",
+    description = "Prevents TikTok from recording your watch history and search queries.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -32,7 +32,7 @@ val historyRecordingGovernorPatch = bytecodePatch(
 
     execute {
         if (disableWatchHistory != true && disableSearchHistory != true) {
-            println("[History Recording Governor] Both toggles disabled -> nothing to patch.")
+            println("[Disable History Recording] Both toggles disabled -> nothing to patch.")
             return@execute
         }
 
@@ -80,7 +80,7 @@ val historyRecordingGovernorPatch = bytecodePatch(
             ).method.replaceWithReturnVoid()
             patched++
 
-            println("[History Recording Governor] Applied watch history suppression hooks -> Video watch history recording neutralized.")
+            println("[Disable History Recording] Applied watch history suppression hooks -> Video watch history recording neutralized.")
         }
 
         if (disableSearchHistory == true) {
@@ -113,9 +113,9 @@ val historyRecordingGovernorPatch = bytecodePatch(
             ).method.replaceWithReturnNull()
             patched++
 
-            println("[History Recording Governor] Applied search history suppression hooks -> Search history recording neutralized.")
+            println("[Disable History Recording] Applied search history suppression hooks -> Search history recording neutralized.")
         }
 
-        println("[History Recording Governor] Applied $patched history suppression hook(s).")
+        println("[Disable History Recording] Applied $patched history suppression hook(s).")
     }
 }

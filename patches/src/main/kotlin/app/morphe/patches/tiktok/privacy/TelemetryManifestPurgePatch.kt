@@ -48,7 +48,7 @@ private val OPT_OUT_METADATA = listOf(
 )
 
 val telemetryManifestPurgePatch = resourcePatch(
-    name = "Telemetry Manifest Purge",
+    name = "Block Trackers (Setup)",
     description = "Removes tracking permissions and disables telemetry components.",
     default = true,
 ) {
@@ -57,7 +57,7 @@ val telemetryManifestPurgePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Telemetry Manifest Purge] Skipped: AndroidManifest.xml not found.")
+            println("[Block Trackers (Setup)] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -89,6 +89,6 @@ val telemetryManifestPurgePatch = resourcePatch(
             }
         }
 
-        println("[Telemetry Manifest Purge] Stripped $strippedPermsCount permission(s), disabled $disabledComponentsCount component(s), removed $removedRegistrarsCount discovery registrar(s), injected $injectedFlagsCount opt-out metadata flag(s).")
+        println("[Block Trackers (Setup)] Stripped $strippedPermsCount permission(s), disabled $disabledComponentsCount component(s), removed $removedRegistrarsCount discovery registrar(s), injected $injectedFlagsCount opt-out metadata flag(s).")
     }
 }

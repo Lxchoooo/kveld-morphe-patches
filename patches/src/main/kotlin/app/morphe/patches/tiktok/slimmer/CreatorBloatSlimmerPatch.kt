@@ -7,7 +7,7 @@ import java.io.File
 private val EMPTY_BYTES = byteArrayOf()
 
 val creatorBloatSlimmerPatch = rawResourcePatch(
-    name = "Studio & Creation De-bloat",
+    name = "Remove Creator Tools",
     description = "Removes video editing and effects tools to free up space.",
     default = false,
 ) {
@@ -76,9 +76,9 @@ val creatorBloatSlimmerPatch = rawResourcePatch(
 
         if (count > 0) {
             val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-            println("[Studio & Creation De-bloat] Stripped $count creator/editor binaries and models -> Saved $savedMb MB uncompressed")
+            println("[Remove Creator Tools] Stripped $count creator/editor binaries and models -> Saved $savedMb MB uncompressed")
         } else {
-            println("[Studio & Creation De-bloat] Target creator binaries not present.")
+            println("[Remove Creator Tools] Target creator binaries not present.")
         }
     }
 }

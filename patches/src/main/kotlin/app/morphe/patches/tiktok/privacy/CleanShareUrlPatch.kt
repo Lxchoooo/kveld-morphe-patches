@@ -10,8 +10,8 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val cleanShareUrlPatch = bytecodePatch(
-    name = "Clean Share URL",
-    description = "Strips tracking parameters, user IDs, device fingerprints, and marketing tokens from shared TikTok links, with optional custom host redirection.",
+    name = "Clean Share Links",
+    description = "Removes tracking parameters from shared links.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -46,9 +46,9 @@ val cleanShareUrlPatch = bytecodePatch(
                         sput-object v0, ${Constants.TIKTOK_EXTENSION_SHARE_HOST_HOOK}->customHost:Ljava/lang/String;
                     """.trimIndent(),
                 )
-                println("[Clean Share URL] Configured custom share host: $host")
+                println("[Clean Share Links] Configured custom share host: $host")
             } catch (e: Exception) {
-                println("[Clean Share URL] TikTokShareHostHook clinit note: ${e.message}")
+                println("[Clean Share Links] TikTokShareHostHook clinit note: ${e.message}")
             }
         }
 
@@ -74,10 +74,10 @@ val cleanShareUrlPatch = bytecodePatch(
             )
         }
         if (returnIndices.isNotEmpty()) {
-            println("[Clean Share URL] Hooked Aweme.getShareUrl() (${returnIndices.size} return point(s)) -> Link sanitization with host replacement active.")
+            println("[Clean Share Links] Hooked Aweme.getShareUrl() (${returnIndices.size} return point(s)) -> Link sanitization with host replacement active.")
             patched++
         }
 
-        println("[Clean Share URL] Applied $patched link tracking sanitizer hook(s).")
+        println("[Clean Share Links] Applied $patched link tracking sanitizer hook(s).")
     }
 }

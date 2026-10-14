@@ -6,8 +6,8 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
 
 val liveGiftEffectOptimizerPatch = bytecodePatch(
-    name = "Live Stream 3D Gift Optimizer",
-    description = "Disables Live 3D gift particle effect engine and widget rendering lifecycle to eliminate frame drops during live streams.",
+    name = "Disable Live Gift Effects",
+    description = "Disables 3D gift animations in live streams to prevent frame drops.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -27,10 +27,10 @@ val liveGiftEffectOptimizerPatch = bytecodePatch(
                     return-void
                 """,
             )
-            println("[Live Stream 3D Gift Optimizer] Neutralized LiveGiftEffectWidget.initView() -> 3D gift particle overhead eliminated.")
+            println("[Disable Live Gift Effects] Neutralized LiveGiftEffectWidget.initView() -> 3D gift particle overhead eliminated.")
             patched++
         } catch (e: Exception) {
-            println("[Live Stream 3D Gift Optimizer] LiveGiftEffectWidget.initView note: ${e.message}")
+            println("[Disable Live Gift Effects] LiveGiftEffectWidget.initView note: ${e.message}")
         }
 
         // 2. LiveGiftEffectWidget.onCreate()
@@ -45,12 +45,12 @@ val liveGiftEffectOptimizerPatch = bytecodePatch(
                     return-void
                 """,
             )
-            println("[Live Stream 3D Gift Optimizer] Neutralized LiveGiftEffectWidget.onCreate() -> Gift engine lifecycle suppressed.")
+            println("[Disable Live Gift Effects] Neutralized LiveGiftEffectWidget.onCreate() -> Gift engine lifecycle suppressed.")
             patched++
         } catch (e: Exception) {
-            println("[Live Stream 3D Gift Optimizer] LiveGiftEffectWidget.onCreate note: ${e.message}")
+            println("[Disable Live Gift Effects] LiveGiftEffectWidget.onCreate note: ${e.message}")
         }
 
-        println("[Live Stream 3D Gift Optimizer] Applied $patched live gift engine hook(s).")
+        println("[Disable Live Gift Effects] Applied $patched live gift engine hook(s).")
     }
 }

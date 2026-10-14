@@ -24,7 +24,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val feedInterfaceDeclutterPatch = bytecodePatch(
-    name = "Feed Interface Declutter",
+    name = "Declutter Video Interface",
     description = "Cleans up the buttons and overlays on top of videos.",
     default = false,
 ) {
@@ -169,7 +169,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             disableCommentReactions != true &&
             (longPressVideo == null || longPressVideo == "nothing")
         ) {
-            println("[Feed Interface Declutter] Skipped: All declutter options are disabled.")
+            println("[Declutter Video Interface] Skipped: All declutter options are disabled.")
             return@execute
         }
 
@@ -183,7 +183,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked UpvoteVideoTrigger.yr() -> return false.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoTrigger.yr() -> return false.")
             patched++
 
             val assemClass = "Lcom/ss/android/ugc/aweme/upvote/detail/whitebar/UpvoteVideoAssemNew;"
@@ -194,7 +194,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.tr() -> return false.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.tr() -> return false.")
             patched++
 
             Fingerprint(
@@ -203,7 +203,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.hb() -> return false.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.hb() -> return false.")
             patched++
 
             Fingerprint(
@@ -212,7 +212,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("I"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.LLLLIILL() -> return-void.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.LLLLIILL() -> return-void.")
             patched++
 
             Fingerprint(
@@ -221,7 +221,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("I"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.LLILZ() -> return-void.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.LLILZ() -> return-void.")
             patched++
 
             val onViewCreatedMethod = Fingerprint(
@@ -242,7 +242,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.onViewCreated() -> setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.onViewCreated() -> setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -251,7 +251,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked UpvoteVideoAssemNew.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked UpvoteVideoAssemNew.z4() -> return-void.")
             patched++
         }
 
@@ -279,7 +279,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     """.trimIndent(),
                 )
             }
-            println("[Feed Interface Declutter] Hooked VideoDescAssem.onViewCreated() -> appended setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked VideoDescAssem.onViewCreated() -> appended setVisibility(GONE).")
             patched++
 
             val descJs = Fingerprint(
@@ -302,7 +302,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     """.trimIndent(),
                 )
             }
-            println("[Feed Interface Declutter] Hooked VideoDescAssem.js() -> appended GONE enforcement.")
+            println("[Declutter Video Interface] Hooked VideoDescAssem.js() -> appended GONE enforcement.")
             patched++
 
             // 2b. Redirect feed desc visibility calls to always-GONE wrappers
@@ -364,10 +364,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
             }
             val redirectedCalls = redirectedCallsDescAssem + redirectedCalls09Ce
             if (redirectedCallsDescAssem == 0) {
-                println("[Feed Interface Declutter] WARNING: VideoDescAssem contributed 0 redirects")
+                println("[Declutter Video Interface] WARNING: VideoDescAssem contributed 0 redirects")
             }
             require(redirectedCalls > 0) { "VideoDescAssem/09Ce desc redirect: no visibility helper call found" }
-            println("[Feed Interface Declutter] Hooked desc visibility calls -> $redirectedCalls call(s) (VideoDescAssem: $redirectedCallsDescAssem, LX/09Ce: $redirectedCalls09Ce, skippedShapes: $skippedShapes) across $redirectedMethods method(s) forced GONE.")
+            println("[Declutter Video Interface] Hooked desc visibility calls -> $redirectedCalls call(s) (VideoDescAssem: $redirectedCallsDescAssem, LX/09Ce: $redirectedCalls09Ce, skippedShapes: $skippedShapes) across $redirectedMethods method(s) forced GONE.")
             patched++
 
             // 2c. Direct prologue guards on LX/00kn visibility helpers
@@ -390,13 +390,13 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         0,
                         "invoke-static {$viewReg}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideDescViewIfDesc(Landroid/view/View;)V",
                     )
-                    println("[Feed Interface Declutter] Hooked LX/00kn.$name() prologue -> hideDescViewIfDesc($viewReg).")
+                    println("[Declutter Video Interface] Hooked LX/00kn.$name() prologue -> hideDescViewIfDesc($viewReg).")
                     installedHelpers++
                 } catch (e: Exception) {
-                    println("[Feed Interface Declutter] WARNING: helper $name signature not found, skipped")
+                    println("[Declutter Video Interface] WARNING: helper $name signature not found, skipped")
                 }
             }
-            println("[Feed Interface Declutter] Installed desc prologue guards on $installedHelpers / ${descHelpers.size} helper(s).")
+            println("[Declutter Video Interface] Installed desc prologue guards on $installedHelpers / ${descHelpers.size} helper(s).")
             require(installedHelpers == descHelpers.size) { "LX/00kn desc visibility helpers: expected ${descHelpers.size}, installed $installedHelpers" }
             patched++
 
@@ -408,7 +408,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked FriendsV3DescAssem.tr() -> return false.")
+            println("[Declutter Video Interface] Hooked FriendsV3DescAssem.tr() -> return false.")
             patched++
 
             Fingerprint(
@@ -417,7 +417,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked FriendsV3DescAssem.hb() -> return false.")
+            println("[Declutter Video Interface] Hooked FriendsV3DescAssem.hb() -> return false.")
             patched++
 
             val friendsOnViewCreated = Fingerprint(
@@ -441,7 +441,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     """.trimIndent(),
                 )
             }
-            println("[Feed Interface Declutter] Hooked FriendsV3DescAssem.onViewCreated() -> appended setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked FriendsV3DescAssem.onViewCreated() -> appended setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -450,7 +450,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FriendsV3DescAssem.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked FriendsV3DescAssem.z4() -> return-void.")
             patched++
 
             Fingerprint(
@@ -459,7 +459,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FriendsV3DescAssem.js() -> return-void.")
+            println("[Declutter Video Interface] Hooked FriendsV3DescAssem.js() -> return-void.")
             patched++
 
             val translationClasses = listOf(
@@ -489,7 +489,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         """.trimIndent(),
                     )
                 }
-                println("[Feed Interface Declutter] Hooked $transClass onViewCreated() -> appended setVisibility(GONE).")
+                println("[Declutter Video Interface] Hooked $transClass onViewCreated() -> appended setVisibility(GONE).")
                 patched++
 
                 Fingerprint(
@@ -498,7 +498,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     returnType = "V",
                     parameters = listOf("Ljava/lang/Object;"),
                 ).method.replaceWithReturnVoid()
-                println("[Feed Interface Declutter] Hooked $transClass z4() -> return-void.")
+                println("[Declutter Video Interface] Hooked $transClass z4() -> return-void.")
                 patched++
             }
         }
@@ -527,7 +527,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked FeedAvatarDefaultAssem.${qrMethod.name}() -> Permanently GONE (0x8) and non-clickable.")
+            println("[Declutter Video Interface] Hooked FeedAvatarDefaultAssem.${qrMethod.name}() -> Permanently GONE (0x8) and non-clickable.")
             patched++
 
             val onViewCreatedMethod = Fingerprint(
@@ -551,7 +551,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         invoke-static {v$regA}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFollowButton(Landroid/view/View;)V
                     """.trimIndent(),
                 )
-                println("[Feed Interface Declutter] Hooked FeedAvatarDefaultAssem.onViewCreated() -> Immediate GONE initialization on v$regA.")
+                println("[Declutter Video Interface] Hooked FeedAvatarDefaultAssem.onViewCreated() -> Immediate GONE initialization on v$regA.")
                 patched++
             }
         }
@@ -563,7 +563,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 name = "getStoryStatus",
                 returnType = "I",
             ).method.replaceWithReturnInt(0)
-            println("[Feed Interface Declutter] Hooked User.getStoryStatus() -> 0.")
+            println("[Declutter Video Interface] Hooked User.getStoryStatus() -> 0.")
             patched++
 
             val socialPublishClass = "Lcom/ss/android/ugc/aweme/feed/assem/avatar/FeedAvatarSocialPublishAssem;"
@@ -573,7 +573,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Landroid/view/View;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FeedAvatarSocialPublishAssem.onViewCreated() -> return-void.")
+            println("[Declutter Video Interface] Hooked FeedAvatarSocialPublishAssem.onViewCreated() -> return-void.")
             patched++
 
             Fingerprint(
@@ -581,7 +581,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FeedAvatarSocialPublishAssem.(Object)V -> return-void.")
+            println("[Declutter Video Interface] Hooked FeedAvatarSocialPublishAssem.(Object)V -> return-void.")
             patched++
 
             Fingerprint(
@@ -589,7 +589,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FeedAvatarSocialPublishAssem.(VideoItemParams)V -> return-void.")
+            println("[Declutter Video Interface] Hooked FeedAvatarSocialPublishAssem.(VideoItemParams)V -> return-void.")
             patched++
 
             Fingerprint(
@@ -597,7 +597,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/profile/model/User;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked SocPubDistributeServiceImpl.(User)Z -> false.")
+            println("[Declutter Video Interface] Hooked SocPubDistributeServiceImpl.(User)Z -> false.")
             patched++
         }
 
@@ -610,7 +610,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked PlayListBottomBarAssemTrigger.yr() -> return false.")
+            println("[Declutter Video Interface] Hooked PlayListBottomBarAssemTrigger.yr() -> return false.")
             patched++
 
             val bottomBarClass = "Lcom/ss/android/ugc/feed/platform/cell/interact/bottom/bar/InteractPlayListBottomBarAssem;"
@@ -633,7 +633,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked InteractPlayListBottomBarAssem.onViewCreated() -> setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked InteractPlayListBottomBarAssem.onViewCreated() -> setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -642,7 +642,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked InteractPlayListBottomBarAssem.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked InteractPlayListBottomBarAssem.z4() -> return-void.")
             patched++
 
             Fingerprint(
@@ -650,7 +650,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 name = "getPlaylist_info",
                 returnType = "Lcom/ss/android/ugc/aweme/feed/model/PlayListInfo;",
             ).method.replaceWithReturnNull()
-            println("[Feed Interface Declutter] Hooked Aweme.getPlaylist_info() -> return null.")
+            println("[Declutter Video Interface] Hooked Aweme.getPlaylist_info() -> return null.")
             patched++
         }
 
@@ -677,7 +677,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked VideoFavoriteAssem.onViewCreated() -> setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked VideoFavoriteAssem.onViewCreated() -> setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -686,7 +686,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked VideoFavoriteAssem.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked VideoFavoriteAssem.z4() -> return-void.")
             patched++
         }
 
@@ -714,7 +714,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked VideoMusicCoverAssem.onViewCreated() -> setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked VideoMusicCoverAssem.onViewCreated() -> setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -723,7 +723,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked VideoMusicCoverAssem.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked VideoMusicCoverAssem.z4() -> return-void.")
             patched++
 
             Fingerprint(
@@ -732,7 +732,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = emptyList(),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked VideoMusicCoverAssem.Tr() -> return-void.")
+            println("[Declutter Video Interface] Hooked VideoMusicCoverAssem.Tr() -> return-void.")
             patched++
 
             Fingerprint(
@@ -741,7 +741,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = emptyList(),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked VideoMusicCoverAssem.Wr() -> return-void.")
+            println("[Declutter Video Interface] Hooked VideoMusicCoverAssem.Wr() -> return-void.")
             patched++
         }
 
@@ -755,7 +755,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = emptyList(),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.Kr() -> return false.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.Kr() -> return false.")
             patched++
 
             Fingerprint(
@@ -764,7 +764,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = emptyList(),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.Aa() -> return false.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.Aa() -> return false.")
             patched++
 
             Fingerprint(
@@ -773,7 +773,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = emptyList(),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.bf() -> return false.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.bf() -> return false.")
             patched++
 
             val entranceOnViewCreated = Fingerprint(
@@ -795,7 +795,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.onViewCreated() -> setVisibility(GONE).")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.onViewCreated() -> setVisibility(GONE).")
             patched++
 
             Fingerprint(
@@ -804,7 +804,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.z4() -> return-void.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.z4() -> return-void.")
             patched++
 
             Fingerprint(
@@ -813,7 +813,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("I"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.LLLLIILL() -> return-void.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.LLLLIILL() -> return-void.")
             patched++
 
             Fingerprint(
@@ -822,7 +822,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("I"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked LandscapeEntranceAssem.LLILZ() -> return-void.")
+            println("[Declutter Video Interface] Hooked LandscapeEntranceAssem.LLILZ() -> return-void.")
             patched++
         }
 
@@ -834,7 +834,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked EarlyFeedbackButtonTrigger.yr() -> return false.")
+            println("[Declutter Video Interface] Hooked EarlyFeedbackButtonTrigger.yr() -> return false.")
             patched++
 
             val feedbackAssems = listOf(
@@ -861,7 +861,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Feed Interface Declutter] Hooked $assemClass onViewCreated() -> setVisibility(GONE).")
+                println("[Declutter Video Interface] Hooked $assemClass onViewCreated() -> setVisibility(GONE).")
                 patched++
 
                 Fingerprint(
@@ -870,7 +870,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     returnType = "V",
                     parameters = listOf("Ljava/lang/Object;"),
                 ).method.replaceWithReturnVoid()
-                println("[Feed Interface Declutter] Hooked $assemClass z4() -> return-void.")
+                println("[Declutter Video Interface] Hooked $assemClass z4() -> return-void.")
                 patched++
             }
 
@@ -880,7 +880,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked EarlyFeedbackStandardButtonAssem.Mr() -> return-void.")
+            println("[Declutter Video Interface] Hooked EarlyFeedbackStandardButtonAssem.Mr() -> return-void.")
             patched++
         }
 
@@ -895,10 +895,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     returnType = "V",
                 ).method
                 method.replaceWithReturnVoid()
-                println("[Feed Interface Declutter] Hooked DiggPanelComponent.handleDoubleClick -> Main feed double tap like neutralized.")
+                println("[Declutter Video Interface] Hooked DiggPanelComponent.handleDoubleClick -> Main feed double tap like neutralized.")
                 patched++
             } catch (e: Exception) {
-                println("[Feed Interface Declutter] DiggPanelComponent note: ${e.message}")
+                println("[Declutter Video Interface] DiggPanelComponent note: ${e.message}")
             }
 
             // Hook LandscapeFragmentPanel.handleDoubleClick(MotionEvent) in landscape feed
@@ -910,10 +910,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     returnType = "V",
                 ).method
                 method.replaceWithReturnVoid()
-                println("[Feed Interface Declutter] Hooked LandscapeFragmentPanel.handleDoubleClick -> Landscape feed double tap like neutralized.")
+                println("[Declutter Video Interface] Hooked LandscapeFragmentPanel.handleDoubleClick -> Landscape feed double tap like neutralized.")
                 patched++
             } catch (e: Exception) {
-                println("[Feed Interface Declutter] LandscapeFragmentPanel note: ${e.message}")
+                println("[Declutter Video Interface] LandscapeFragmentPanel note: ${e.message}")
             }
 
             // Hook FriendsV3GestureDetectorAssem.onDoubleTap(MotionEvent) in friends tab feed
@@ -925,10 +925,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     returnType = "V",
                 ).method
                 method.replaceWithReturnVoid()
-                println("[Feed Interface Declutter] Hooked FriendsV3GestureDetectorAssem.onDoubleTap -> Friends tab double tap like neutralized.")
+                println("[Declutter Video Interface] Hooked FriendsV3GestureDetectorAssem.onDoubleTap -> Friends tab double tap like neutralized.")
                 patched++
             } catch (e: Exception) {
-                println("[Feed Interface Declutter] FriendsV3GestureDetectorAssem note: ${e.message}")
+                println("[Declutter Video Interface] FriendsV3GestureDetectorAssem note: ${e.message}")
             }
         }
 
@@ -967,7 +967,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     "Lcom/ss/android/ugc/aweme/profile/model/User;",
                 ),
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked $liveCheckClass->$liveCheckMethod() -> false (all authors treated as non-live).")
+            println("[Declutter Video Interface] Hooked $liveCheckClass->$liveCheckMethod() -> false (all authors treated as non-live).")
             patched++
 
             // Hook FeedAvatarAssemWrap.Yr()Z -> return false (prevents attaching FeedAvatarLiveAssem)
@@ -981,7 +981,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     } ?: false
                 },
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked FeedAvatarAssemWrap room check -> false.")
+            println("[Declutter Video Interface] Hooked FeedAvatarAssemWrap room check -> false.")
             patched++
 
             // Hook FeedAvatarLiveAssem.ur()Z -> return false
@@ -995,7 +995,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                     } ?: false
                 },
             ).method.replaceWithReturnBoolean(false)
-            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.ur() -> false.")
+            println("[Declutter Video Interface] Hooked FeedAvatarLiveAssem.ur() -> false.")
             patched++
 
             // Hook FeedAvatarLiveAssem.Ar(ZZ)V -> return-void (suppresses live entrance animations)
@@ -1004,7 +1004,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Z", "Z"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.Ar(ZZ) -> return-void.")
+            println("[Declutter Video Interface] Hooked FeedAvatarLiveAssem.Ar(ZZ) -> return-void.")
             patched++
 
             // Hook FeedAvatarLiveAssem.onBind/z4(Object)V -> return-void (suppresses live UI binding and click redirection)
@@ -1013,7 +1013,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 returnType = "V",
                 parameters = listOf("Ljava/lang/Object;"),
             ).method.replaceWithReturnVoid()
-            println("[Feed Interface Declutter] Hooked FeedAvatarLiveAssem.(Object)V -> return-void.")
+            println("[Declutter Video Interface] Hooked FeedAvatarLiveAssem.(Object)V -> return-void.")
             patched++
         }
 
@@ -1041,10 +1041,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         return v0
                     """.trimIndent(),
                 )
-                println("[Feed Interface Declutter] Hooked VideoDiggAssem.Sr() -> redirected long-press to $lpMode.")
+                println("[Declutter Video Interface] Hooked VideoDiggAssem.Sr() -> redirected long-press to $lpMode.")
             } else {
                 likeRepostFingerprint.method.replaceWithReturnBoolean(true)
-                println("[Feed Interface Declutter] Hooked VideoDiggAssem.Sr() -> consumed long-press, like repost disabled.")
+                println("[Declutter Video Interface] Hooked VideoDiggAssem.Sr() -> consumed long-press, like repost disabled.")
             }
             patched++
         }
@@ -1057,7 +1057,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 strings = listOf("im_long_press_share_button_to_quick_share"),
             ).method
             shareConfigMethod.replaceWithReturnIntegerObject(0)
-            println("[Feed Interface Declutter] Hooked long-press quick share config lambda -> returns 0.")
+            println("[Declutter Video Interface] Hooked long-press quick share config lambda -> returns 0.")
             patched++
 
             val shareTriggerFingerprint = Fingerprint(
@@ -1075,10 +1075,10 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                         return v0
                     """.trimIndent(),
                 )
-                println("[Feed Interface Declutter] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> redirected to $lpMode.")
+                println("[Declutter Video Interface] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> redirected to $lpMode.")
             } else {
                 shareTriggerFingerprint.method.replaceWithReturnBoolean(false)
-                println("[Feed Interface Declutter] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> return false.")
+                println("[Declutter Video Interface] Hooked ShareUnreadVideoQuickDMTrigger trigger check -> return false.")
             }
             patched++
         }
@@ -1091,11 +1091,11 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 strings = listOf("long_press_quick_comment"),
             ).method
             commentConfigMethod.replaceWithReturnIntegerObject(0)
-            println("[Feed Interface Declutter] Hooked long-press quick comment config lambda -> returns 0.")
+            println("[Declutter Video Interface] Hooked long-press quick comment config lambda -> returns 0.")
             patched++
         }
 
-        println("[Feed Interface Declutter] Successfully applied $patched hook(s) across selected feed interface options.")
+        println("[Declutter Video Interface] Successfully applied $patched hook(s) across selected feed interface options.")
     }
 }
 

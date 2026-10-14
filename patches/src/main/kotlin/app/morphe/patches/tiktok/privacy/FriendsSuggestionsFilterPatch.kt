@@ -26,7 +26,7 @@ private val suggestedAccountInjectors = listOf(
 
 val friendsSuggestionsFilterPatch = bytecodePatch(
     name = "Friends & Suggestions Filter",
-    description = "Keeps the Friends feed strictly mutual and removes suggested-account cards across profile, inbox and feed surfaces via per-scope toggles.",
+    description = "Keeps the Friends feed strictly mutual and hides suggested accounts across the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

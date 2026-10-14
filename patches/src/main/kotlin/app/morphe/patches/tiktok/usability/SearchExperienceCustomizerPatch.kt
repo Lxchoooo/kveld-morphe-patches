@@ -36,8 +36,8 @@ private fun forceBooleanGateTrue(method: MutableMethod, tag: String): Int {
 }
 
 val searchExperienceCustomizerPatch = bytecodePatch(
-    name = "Search Experience",
-    description = "Customizes TikTok search and discovery surfaces via per-feature toggles.",
+    name = "Customize Search",
+    description = "Customizes search suggestions, live recommendations, and autoplay.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -47,23 +47,23 @@ val searchExperienceCustomizerPatch = bytecodePatch(
         key = "hideSuggestedSearches",
         default = true,
         title = "Hide Suggested Searches",
-        description = "Removes the suggested search keywords section ('You may like' / 'Search suggestions') from the search discovery page.",
+        description = "Removes suggested searches and 'You may like' cards from search discovery.",
         required = false,
     )
 
     val hidePopularLives by booleanOption(
         key = "hidePopularLives",
         default = true,
-        title = "Hide Popular Lives In Search",
-        description = "Removes the Popular LIVEs recommendation card and live stream broadcasts from the search discovery page.",
+        title = "Hide Popular Lives",
+        description = "Removes popular live stream cards from search discovery.",
         required = false,
     )
 
     val disableSearchAutoplay by booleanOption(
         key = "disableSearchAutoplay",
         default = true,
-        title = "Disable Search Video Autoplay",
-        description = "Disables automatic video playback in search results. Videos only play when tapped to view in detail.",
+        title = "Disable Search Autoplay",
+        description = "Stops videos and photos from playing automatically in search results.",
         required = false,
     )
 
@@ -71,7 +71,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
         key = "forceNonPersonalized",
         default = true,
         title = "Non-Personalized Search",
-        description = "Forces TikTok's non-personalized search mode instead of the saved account choice.",
+        description = "Forces non-personalized search results.",
         required = false,
     )
 
@@ -79,7 +79,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
         key = "enableLiveSearch",
         default = false,
         title = "Enable Live Search",
-        description = "Shows TikTok's search entry in the Live drawer where supported.",
+        description = "Enables search within the Live drawer.",
         required = false,
     )
 
@@ -90,7 +90,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
             forceNonPersonalized != true &&
             enableLiveSearch != true
         ) {
-            println("[Search Experience] All toggles disabled -> nothing to patch.")
+            println("[Customize Search] All toggles disabled -> nothing to patch.")
             return@execute
         }
 
@@ -223,7 +223,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
             }
             patched++
 
-            println("[Search Experience] Applied $patched suggested search suppression hook(s) -> 'You may like' neutralized.")
+            println("[Customize Search] Applied $patched suggested search suppression hook(s) -> 'You may like' neutralized.")
         }
 
         // 2. Hide Popular Lives In Search
@@ -294,7 +294,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
             }
             patched++
 
-            println("[Search Experience] Applied $patched popular lives suppression hook(s) -> 'LIVE populares' neutralized.")
+            println("[Customize Search] Applied $patched popular lives suppression hook(s) -> 'LIVE populares' neutralized.")
         }
 
         // 3. Disable Search Video Autoplay
@@ -402,7 +402,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
             )
             patched++
 
-            println("[Search Experience] Applied $patched search autoplay hook(s) -> Search video autoplay disabled.")
+            println("[Customize Search] Applied $patched search autoplay hook(s) -> Search video autoplay disabled.")
         }
 
         // 4. Force Non-Personalized Search
@@ -413,9 +413,9 @@ val searchExperienceCustomizerPatch = bytecodePatch(
                     parameters = emptyList(),
                     strings = listOf("enable_non_personalized_search"),
                 ).method
-                patched += forceBooleanGateTrue(gate, "Search Experience")
+                patched += forceBooleanGateTrue(gate, "Customize Search")
             } catch (e: Exception) {
-                println("[Search Experience] Search gate note: ${e.message}")
+                println("[Customize Search] Search gate note: ${e.message}")
             }
 
             try {
@@ -424,12 +424,12 @@ val searchExperienceCustomizerPatch = bytecodePatch(
                     parameters = emptyList(),
                     strings = listOf("non_personalized_search_state_"),
                 ).method
-                patched += forceBooleanGateTrue(state, "Search Experience")
+                patched += forceBooleanGateTrue(state, "Customize Search")
             } catch (e: Exception) {
-                println("[Search Experience] Search state note: ${e.message}")
+                println("[Customize Search] Search state note: ${e.message}")
             }
 
-            println("[Search Experience] Applied non-personalized search hook(s).")
+            println("[Customize Search] Applied non-personalized search hook(s).")
         }
 
         // 5. Enable Live Search
@@ -441,7 +441,7 @@ val searchExperienceCustomizerPatch = bytecodePatch(
                 ).method
                 val returnType = gate.returnType.toString()
                 if (returnType != "Z" && returnType != "I") {
-                    println("[Search Experience] Note: getValue returns $returnType, skipped.")
+                    println("[Customize Search] Note: getValue returns $returnType, skipped.")
                 } else {
                     val returnIndices = gate.implementation?.instructions?.withIndex()
                         ?.filter { it.value.opcode == Opcode.RETURN }
@@ -454,17 +454,17 @@ val searchExperienceCustomizerPatch = bytecodePatch(
                         )
                     }
                     if (returnIndices.isNotEmpty()) {
-                        println("[Search Experience] Forced LiveDrawerSearchEnableSetting.getValue (${returnIndices.size} return(s)) -> enabled.")
+                        println("[Customize Search] Forced LiveDrawerSearchEnableSetting.getValue (${returnIndices.size} return(s)) -> enabled.")
                         patched++
                     }
                 }
             } catch (e: Exception) {
-                println("[Search Experience] Live drawer search gate note: ${e.message}")
+                println("[Customize Search] Live drawer search gate note: ${e.message}")
             }
 
-            println("[Search Experience] Applied live search hook(s).")
+            println("[Customize Search] Applied live search hook(s).")
         }
 
-        println("[Search Experience] Applied $patched hooks -> search experience customized.")
+        println("[Customize Search] Applied $patched hooks -> search experience customized.")
     }
 }

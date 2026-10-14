@@ -17,8 +17,8 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 val feedNavigationDeclutterPatch = bytecodePatch(
-    name = "Navigation & Header Declutter",
-    description = "Removes extra tabs and buttons from the feed screen.",
+    name = "Declutter Navigation Bar",
+    description = "Removes extra tabs and buttons from navigation bars.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -97,7 +97,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             hideFriendsAvatarPreview != true &&
             hideInboxBadge != true
         ) {
-            println("[Navigation & Header Declutter] Skipped: All declutter options are disabled.")
+            println("[Declutter Navigation Bar] Skipped: All declutter options are disabled.")
             return@execute
         }
 
@@ -150,7 +150,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             )
             patched++
 
-            println("[Navigation & Header Declutter] TikTok Shop / Mall navigation tabs eliminated.")
+            println("[Declutter Navigation Bar] TikTok Shop / Mall navigation tabs eliminated.")
         }
 
         // 1. Feature: Hide Nearby Feed Tab
@@ -226,7 +226,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             ).method.replaceWithReturnBoolean(false)
             patched++
 
-            println("[Navigation & Header Declutter] Nearby feed tab eliminated.")
+            println("[Declutter Navigation Bar] Nearby feed tab eliminated.")
         }
 
         // 2. Feature: Hide Community Tab
@@ -315,7 +315,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             ).method.replaceWithReturnBoolean(false)
             patched++
 
-            println("[Navigation & Header Declutter] Community (Explore) tab eliminated.")
+            println("[Declutter Navigation Bar] Community (Explore) tab eliminated.")
         }
 
         // 3. Feature: Hide Top-Left LIVE Button
@@ -354,7 +354,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             ).method.replaceWithReturnBoolean(false)
             patched++
 
-            println("[Navigation & Header Declutter] Top-Left LIVE button and tab eliminated.")
+            println("[Declutter Navigation Bar] Top-Left LIVE button and tab eliminated.")
         }
 
         // 4. Feature: Hide Feed Search Bar
@@ -443,7 +443,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             ).method.replaceWithReturnNull()
             patched++
 
-            println("[Navigation & Header Declutter] Feed search suggestion and trending bars neutralized.")
+            println("[Declutter Navigation Bar] Feed search suggestion and trending bars neutralized.")
         }
 
         // 5. Feature: Hide Create / Publish Button
@@ -478,7 +478,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
                 }
             }
 
-            println("[Navigation & Header Declutter] Bottom publish (+) button eliminated.")
+            println("[Declutter Navigation Bar] Bottom publish (+) button eliminated.")
         }
 
         val tabManagerClasses by lazy {
@@ -603,7 +603,7 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             ).method.replaceWithReturnBoolean(false)
             patched++
 
-            println("[Navigation & Header Declutter] Friends tab avatar preview neutralized.")
+            println("[Declutter Navigation Bar] Friends tab avatar preview neutralized.")
         }
 
         // 7. Feature: Hide Inbox Notification Badge
@@ -659,13 +659,13 @@ val feedNavigationDeclutterPatch = bytecodePatch(
             }
 
             if (guardedMethods > 0) {
-                println("[Navigation & Header Declutter] Inbox bottom tab guarded on $guardedMethods method(s) across ${guardedManagers.size} manager(s).")
+                println("[Declutter Navigation Bar] Inbox bottom tab guarded on $guardedMethods method(s) across ${guardedManagers.size} manager(s).")
             } else {
-                println("[Navigation & Header Declutter] Inbox bottom tab badge guard failed: Feature became no-op (no methods found with locals).")
+                println("[Declutter Navigation Bar] Inbox bottom tab badge guard failed: Feature became no-op (no methods found with locals).")
                 require(guardedMethods > 0) { "No inbox badge guard target resolved for NOTIFICATION tab" }
             }
         }
 
-        println("[Navigation & Header Declutter] Applied $patched navigation & header declutter hook(s).")
+        println("[Declutter Navigation Bar] Applied $patched navigation & header declutter hook(s).")
     }
 }

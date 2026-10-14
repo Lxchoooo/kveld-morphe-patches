@@ -11,7 +11,7 @@ import com.android.tools.smali.dexlib2.AccessFlags
 
 val loginCompatibilityPatch = bytecodePatch(
     name = "Login Compatibility Fix",
-    description = "Restores Google and Spotify sign-in on the re-signed APK via Web-OAuth fallbacks, with per-provider toggles.",
+    description = "Restores Google and Spotify sign-in on modified app builds.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val playbackDisplayGovernorPatch = bytecodePatch(
     name = "Playback & Display Governor",
-    description = "Caps playback resolution and dynamic range (SDR ceiling, HDR off) and locks the display refresh rate via per-feature toggles. Download quality is NOT here: it lives in the Media Usability patch (downloadQuality).",
+    description = "Limits playback resolution and HDR to save battery, and locks the screen refresh rate.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

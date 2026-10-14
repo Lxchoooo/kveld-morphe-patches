@@ -13,8 +13,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val videoFitPatch = bytecodePatch(
-    name = "Video Fit",
-    description = "Shows the whole video ('fit') or fills the screen ('fill').",
+    name = "Video Fit Mode",
+    description = "Lets you choose between fitting the whole video or filling the screen.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -23,7 +23,7 @@ val videoFitPatch = bytecodePatch(
     val fitMode by stringOption(
         key = "fitMode",
         title = "Video Fit Mode",
-        description = "Aspect ratio mode for feed and story videos: 'fit' (entire video visible without crop), or 'fill' (crop to fill screen).",
+        description = "Choose 'fit' to see the whole video or 'fill' to crop and fill the screen.",
         default = "fit",
         values = mapOf("Fit video" to "fit", "Fill screen" to "fill"),
         required = false,
@@ -51,7 +51,7 @@ val videoFitPatch = bytecodePatch(
                 sput-object v0, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitMode:Ljava/lang/String;
             """.trimIndent(),
         )
-        println("[Video Fit] Configured runtime fitMode: $mode.")
+        println("[Video Fit Mode] Configured runtime fitMode: $mode.")
         patched++
 
         val resultClass = "Lcom/ss/android/ugc/aweme/videoadaption/adaptionparams/VideoAdaptionResult;"
@@ -85,7 +85,7 @@ val videoFitPatch = bytecodePatch(
         if (!hasCopyMethod) {
             throw PatchException("Method copy(I,I,Ljava/lang/Float;,Ljava/lang/Float;,...) not found in $resultClass")
         }
-        println("[Video Fit] Validated VideoAdaptionResult structure (width, height, translateX, translateY, copy).")
+        println("[Video Fit Mode] Validated VideoAdaptionResult structure (width, height, translateX, translateY, copy).")
 
         // 3. Hook VideoAdaptionResult.saveResultInner(View)V
         val saveInnerFp = Fingerprint(
@@ -107,7 +107,7 @@ val videoFitPatch = bytecodePatch(
                 check-cast $saveThisReg, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked VideoAdaptionResult.saveResultInner(View)V.")
+        println("[Video Fit Mode] Hooked VideoAdaptionResult.saveResultInner(View)V.")
         patched++
 
         // 4. Locate and hook static helper (View, VideoAdaptionResult, Function0)V
@@ -141,7 +141,7 @@ val videoFitPatch = bytecodePatch(
                 check-cast p1, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked static helper (View,Result,Function0)V -> prepended fitted() swap.")
+        println("[Video Fit Mode] Hooked static helper (View,Result,Function0)V -> prepended fitted() swap.")
         patched++
 
         // 5. Locate and hook static helper (View, VideoAdaptionResult)Z
@@ -174,9 +174,9 @@ val videoFitPatch = bytecodePatch(
                 check-cast p1, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked static helper (View,Result)Z -> prepended fitted() swap.")
+        println("[Video Fit Mode] Hooked static helper (View,Result)Z -> prepended fitted() swap.")
         patched++
 
-        println("[Video Fit] Applied $patched video fit hook(s) -> fitMode=$mode.")
+        println("[Video Fit Mode] Applied $patched video fit hook(s) -> fitMode=$mode.")
     }
 }

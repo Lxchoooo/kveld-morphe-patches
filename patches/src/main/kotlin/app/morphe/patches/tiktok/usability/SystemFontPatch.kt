@@ -56,7 +56,7 @@ private fun BytecodePatchContext.hookStandardFontProvider(): Int {
         )
     }
 
-    println("[System Font] Hooked standard font provider (${standardProviderFp.classDef.type}) -> System font redirection active.")
+    println("[Use System Font] Hooked standard font provider (${standardProviderFp.classDef.type}) -> System font redirection active.")
     return 1 + (if (pathMethods.isNotEmpty()) 1 else 0)
 }
 
@@ -105,7 +105,7 @@ private fun BytecodePatchContext.hookDynamicFontProvider(): Int {
         )
     }
 
-    println("[System Font] Hooked dynamic font provider (${dynamicProviderFp.classDef.type}) -> System font redirection active.")
+    println("[Use System Font] Hooked dynamic font provider (${dynamicProviderFp.classDef.type}) -> System font redirection active.")
     return 1 + (if (pathMethods.isNotEmpty()) 1 else 0)
 }
 
@@ -130,7 +130,7 @@ private fun BytecodePatchContext.hookAssetFontLoader(): Int {
             :cond_orig
         """.trimIndent(),
     )
-    println("[System Font] Hooked asset font loader (${assetFontFp.classDef.type}->${assetMethod.name}) -> Asset font redirection active.")
+    println("[Use System Font] Hooked asset font loader (${assetFontFp.classDef.type}->${assetMethod.name}) -> Asset font redirection active.")
     return 1
 }
 
@@ -150,13 +150,13 @@ private fun BytecodePatchContext.hookWebViewFontLoader(): Int {
             :cond_web_orig
         """.trimIndent(),
     )
-    println("[System Font] Hooked WebView font interceptor -> WebView fallback active.")
+    println("[Use System Font] Hooked WebView font interceptor -> WebView fallback active.")
     return 1
 }
 
 val systemFontPatch = bytecodePatch(
-    name = "System Font",
-    description = "Forces TikTok to use the Android system font instead of bundled proprietary TikTokSans fonts.",
+    name = "Use System Font",
+    description = "Uses the system font instead of bundled TikTok fonts.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -168,6 +168,6 @@ val systemFontPatch = bytecodePatch(
         patched += hookDynamicFontProvider()
         patched += hookAssetFontLoader()
         patched += hookWebViewFontLoader()
-        println("[System Font] Applied $patched system font hook(s) -> System font active.")
+        println("[Use System Font] Applied $patched system font hook(s) -> System font active.")
     }
 }

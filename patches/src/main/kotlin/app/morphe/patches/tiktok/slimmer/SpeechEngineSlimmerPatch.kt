@@ -6,7 +6,7 @@ import app.morphe.patches.shared.Constants
 private val EMPTY_BYTES = byteArrayOf()
 
 val speechEngineSlimmerPatch = rawResourcePatch(
-    name = "Voice & Speech Engine De-bloat",
+    name = "Remove Voice Tools",
     description = "Removes voice search and text-to-speech to save space. Breaks voice features.",
     default = false,
 ) {
@@ -40,9 +40,9 @@ val speechEngineSlimmerPatch = rawResourcePatch(
 
         if (count > 0) {
             val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-            println("[Voice & Speech Engine De-bloat] Stripped $count voice/speech engine binaries -> Saved $savedMb MB uncompressed")
+            println("[Remove Voice Tools] Stripped $count voice/speech engine binaries -> Saved $savedMb MB uncompressed")
         } else {
-            println("[Voice & Speech Engine De-bloat] Target speech engines not present.")
+            println("[Remove Voice Tools] Target speech engines not present.")
         }
     }
 }

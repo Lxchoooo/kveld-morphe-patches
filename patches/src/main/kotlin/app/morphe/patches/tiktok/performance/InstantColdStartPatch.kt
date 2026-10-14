@@ -10,8 +10,8 @@ import app.morphe.patches.shared.replaceWithReturnNull
 import app.morphe.patches.shared.replaceWithReturnVoid
 
 val instantColdStartPatch = bytecodePatch(
-    name = "Instant Launch & Splash Blocker",
-    description = "Eliminates cold startup delays, background resume splash advertisements, real-time splash requests, and TopView ad preloading.",
+    name = "Instant Launch",
+    description = "Opens the app immediately without splash screens or ad delays.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -25,7 +25,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "run",
             returnType = "V",
         ).method.replaceWithReturnVoid()
-        println("[InstantColdStart] Neutralized SplashAdManagerPreloadTask.run() -> Splash preloading delay removed.")
+        println("[Instant Launch] Neutralized SplashAdManagerPreloadTask.run() -> Splash preloading delay removed.")
         patched++
 
         // 2. Neutralize SplashAdManagerPreloadTaskEntry
@@ -34,7 +34,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "run",
             returnType = "V",
         ).method.replaceWithReturnVoid()
-        println("[InstantColdStart] Neutralized SplashAdManagerPreloadTaskEntry.run().")
+        println("[Instant Launch] Neutralized SplashAdManagerPreloadTaskEntry.run().")
         patched++
 
         // 3. Neutralize TopViewPreloadTask.run()
@@ -43,7 +43,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "run",
             returnType = "V",
         ).method.replaceWithReturnVoid()
-        println("[InstantColdStart] Neutralized TopViewPreloadTask.run() -> Background TopView video caching disabled.")
+        println("[Instant Launch] Neutralized TopViewPreloadTask.run() -> Background TopView video caching disabled.")
         patched++
 
         // 4. Neutralize TopViewPreloadJsonTask.run()
@@ -52,7 +52,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "run",
             returnType = "V",
         ).method.replaceWithReturnVoid()
-        println("[InstantColdStart] Neutralized TopViewPreloadJsonTask.run() -> TopView JSON preloading disabled.")
+        println("[Instant Launch] Neutralized TopViewPreloadJsonTask.run() -> TopView JSON preloading disabled.")
         patched++
 
         // 5. Neutralize RealTimeSplashTask.run()
@@ -61,7 +61,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "run",
             returnType = "V",
         ).method.replaceWithReturnVoid()
-        println("[InstantColdStart] Neutralized RealTimeSplashTask.run() -> Real-time splash background tasks disabled.")
+        println("[Instant Launch] Neutralized RealTimeSplashTask.run() -> Real-time splash background tasks disabled.")
         patched++
 
         // 6. Force enable_force_skip_topview in SplashSettingServiceImpl.LIZ()
@@ -70,7 +70,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LIZ",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(true)
-        println("[InstantColdStart] Forced SplashSettingServiceImpl.LIZ() -> Force skip TopView enabled.")
+        println("[Instant Launch] Forced SplashSettingServiceImpl.LIZ() -> Force skip TopView enabled.")
         patched++
 
         // 7. Disable RealTimeSplashManagerImpl real-time splash gate (LIZLLL in v47.1.3)
@@ -79,7 +79,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LIZLLL",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(false)
-        println("[InstantColdStart] Disabled RealTimeSplashManagerImpl splash gate -> Real-time splash execution disabled.")
+        println("[Instant Launch] Disabled RealTimeSplashManagerImpl splash gate -> Real-time splash execution disabled.")
         patched++
 
         // 8. Disable SplashAdServiceImpl methods (LJ, LJIILIIL, LJJIFFI, LJJIJIIJIL in v47.1.3)
@@ -89,7 +89,7 @@ val instantColdStartPatch = bytecodePatch(
                 name = mName,
                 returnType = "Z",
             ).method.replaceWithReturnBoolean(false)
-            println("[InstantColdStart] Disabled SplashAdServiceImpl.$mName() -> Splash ad service disabled.")
+            println("[Instant Launch] Disabled SplashAdServiceImpl.$mName() -> Splash ad service disabled.")
             patched++
         }
 
@@ -99,7 +99,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LJIILJJIL",
             returnType = "Lcom/ss/android/ugc/aweme/feed/model/Aweme;",
         ).method.replaceWithReturnNull()
-        println("[InstantColdStart] Neutralized SplashAdServiceImpl.LJIILJJIL() -> TopView Aweme retrieval returns null.")
+        println("[Instant Launch] Neutralized SplashAdServiceImpl.LJIILJJIL() -> TopView Aweme retrieval returns null.")
         patched++
 
         // 10. Neutralize TopViewJsonManager.LIZIZ() -> Returns null Aweme
@@ -108,7 +108,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LIZIZ",
             returnType = "Lcom/ss/android/ugc/aweme/feed/model/Aweme;",
         ).method.replaceWithReturnNull()
-        println("[InstantColdStart] Neutralized TopViewJsonManager.LIZIZ() -> TopView cache parsed Aweme returns null.")
+        println("[Instant Launch] Neutralized TopViewJsonManager.LIZIZ() -> TopView cache parsed Aweme returns null.")
         patched++
 
         // 11. Disable SplashAdManager global splash check (LX/03fR.LJFF() in v47.1.4, was LX/03fN;)
@@ -117,7 +117,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LJFF",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(false)
-        println("[InstantColdStart] Disabled LX/03fR.LJFF() -> Global splash enable flag neutralized.")
+        println("[Instant Launch] Disabled LX/03fR.LJFF() -> Global splash enable flag neutralized.")
         patched++
 
         // 12. Disable SplashAdShowManager (LX/05W5.LJI() in v47.1.4, was LX/05W1;) - blocks both cold (1) and warm (2) splash
@@ -126,7 +126,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LJI",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(false)
-        println("[InstantColdStart] Disabled LX/05W5.LJI() -> Cold and warm background resume splash show blocked.")
+        println("[Instant Launch] Disabled LX/05W5.LJI() -> Cold and warm background resume splash show blocked.")
         patched++
 
         // 13. Disable CommercializeSplashManager dispatch (LX/03nM.LJFF() in v47.1.4, was LX/03nI;)
@@ -135,7 +135,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LJFF",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(false)
-        println("[InstantColdStart] Disabled LX/03nM.LJFF() -> Resume activity splash trigger neutralized.")
+        println("[Instant Launch] Disabled LX/03nM.LJFF() -> Resume activity splash trigger neutralized.")
         patched++
 
         // 14. Neutralize TopView Feed Inserter (LX/07nR.LJIJJ() in v47.1.4, was LX/07nN;)
@@ -144,7 +144,7 @@ val instantColdStartPatch = bytecodePatch(
             name = "LJIJJ",
             returnType = "Z",
         ).method.replaceWithReturnBoolean(false)
-        println("[InstantColdStart] Disabled LX/07nR.LJIJJ() -> FeedRecommendFragment TopView insertion blocked.")
+        println("[Instant Launch] Disabled LX/07nR.LJIJJ() -> FeedRecommendFragment TopView insertion blocked.")
         patched++
 
         // 15. Fail-safe instant finish for NormalSplashAdActivity
@@ -162,9 +162,9 @@ val instantColdStartPatch = bytecodePatch(
                 return-void
             """.trimIndent(),
         )
-        println("[InstantColdStart] Injected instant finish into NormalSplashAdActivity.onCreate().")
+        println("[Instant Launch] Injected instant finish into NormalSplashAdActivity.onCreate().")
         patched++
 
-        println("[InstantColdStart] Applied $patched startup optimizations -> Instant cold/warm start and zero splash/TopView ads achieved.")
+        println("[Instant Launch] Applied $patched startup optimizations -> Instant cold/warm start and zero splash/TopView ads achieved.")
     }
 }

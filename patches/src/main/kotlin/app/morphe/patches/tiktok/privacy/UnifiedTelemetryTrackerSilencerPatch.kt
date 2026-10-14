@@ -6,8 +6,8 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
 
 val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
-    name = "Unified Telemetry & Tracker Silencer",
-    description = "Neutralizes ByteDance AppLog user tracking, APM/Npth/Heimdallr crash monitors, AppsFlyer attribution, and Firebase analytics.",
+    name = "Block Trackers",
+    description = "Neutralizes ByteDance AppLog tracking, crash monitors, and analytics.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -26,7 +26,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Successfully neutralized AppLog.onEvent() entrypoint.")
+        println("[Block Trackers] Successfully neutralized AppLog.onEvent() entrypoint.")
         patched++
 
         // 2. AppLog onEventV3 (modern bytedance package)
@@ -40,7 +40,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Successfully neutralized AppLog.onEventV3() modern analytics tracker.")
+        println("[Block Trackers] Successfully neutralized AppLog.onEventV3() modern analytics tracker.")
         patched++
 
         // 3. Npth Core Init Task
@@ -54,7 +54,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Successfully neutralized NpthCoreInitTask (primary crash & stack trace reporter).")
+        println("[Block Trackers] Successfully neutralized NpthCoreInitTask (primary crash & stack trace reporter).")
         patched++
 
         // 4. Npth Second Init Task
@@ -68,7 +68,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Successfully neutralized NpthSecondInitTask (secondary telemetry monitor).")
+        println("[Block Trackers] Successfully neutralized NpthSecondInitTask (secondary telemetry monitor).")
         patched++
 
         // 5. InitAppsFlyer.run()
@@ -83,7 +83,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Neutralized InitAppsFlyer.run() -> AppsFlyer attribution disabled.")
+        println("[Block Trackers] Neutralized InitAppsFlyer.run() -> AppsFlyer attribution disabled.")
         patched++
 
         // 6. InitAppsFlyerHolder$Background.run()
@@ -98,7 +98,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Neutralized InitAppsFlyerHolder\$Background.run().")
+        println("[Block Trackers] Neutralized InitAppsFlyerHolder\$Background.run().")
         patched++
 
         // 7. InitAppsFlyerHolder$Main.run()
@@ -113,7 +113,7 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Neutralized InitAppsFlyerHolder\$Main.run().")
+        println("[Block Trackers] Neutralized InitAppsFlyerHolder\$Main.run().")
         patched++
 
         // 8. FirebaseAnalytics.setCurrentScreen()
@@ -127,9 +127,9 @@ val unifiedTelemetryTrackerSilencerPatch = bytecodePatch(
                 return-void
             """,
         )
-        println("[Unified Telemetry & Tracker Silencer] Neutralized FirebaseAnalytics.setCurrentScreen() -> Firebase screen tracking suppressed.")
+        println("[Block Trackers] Neutralized FirebaseAnalytics.setCurrentScreen() -> Firebase screen tracking suppressed.")
         patched++
 
-        println("[Unified Telemetry & Tracker Silencer] Applied $patched telemetry and tracking suppression hooks.")
+        println("[Block Trackers] Applied $patched telemetry and tracking suppression hooks.")
     }
 }

@@ -6,7 +6,7 @@ import app.morphe.patches.shared.Constants
 private val EMPTY_BYTES = byteArrayOf()
 
 val liveStreamSuiteOptimizerPatch = rawResourcePatch(
-    name = "Live Stream SDK & Minigame De-bloat",
+    name = "Remove Live Stream Files",
     description = "Removes live streaming and minigame files. Breaks lives and video calls.",
     default = false,
 ) {
@@ -65,9 +65,9 @@ val liveStreamSuiteOptimizerPatch = rawResourcePatch(
 
         if (count > 0) {
             val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-            println("[Live Stream SDK & Minigame De-bloat] Stripped $count live stream SDK binaries, Lyrax RTC engines & minigame assets -> Saved $savedMb MB uncompressed")
+            println("[Remove Live Stream Files] Stripped $count live stream SDK binaries, Lyrax RTC engines & minigame assets -> Saved $savedMb MB uncompressed")
         } else {
-            println("[Live Stream SDK & Minigame De-bloat] Target live stream bloat not present.")
+            println("[Remove Live Stream Files] Target live stream bloat not present.")
         }
     }
 }

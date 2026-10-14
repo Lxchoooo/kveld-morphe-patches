@@ -14,7 +14,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 val feedAdsContentFilterPatch = bytecodePatch(
     name = "Feed Ads & Content Filter",
-    description = "Filters ads, bloat cards, shop anchors, live cards, AI-tagged and seen videos from feeds, plus view/like-range and stories/photos filters, via per-content toggles.",
+    description = "Filters ads, shopping tags, live cards, and clutter from your feed.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

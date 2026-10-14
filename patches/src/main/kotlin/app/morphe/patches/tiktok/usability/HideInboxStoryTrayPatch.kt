@@ -10,8 +10,8 @@ import app.morphe.patches.shared.replaceWithReturnEmptyList
 import app.morphe.patches.shared.sharedExtensionPatch
 
 val hideInboxStoryTrayPatch = bytecodePatch(
-    name = "Hide Inbox Story & Status Tray",
-    description = "Hides the horizontal story, notes, and status tray (Skylight) displayed at the top of direct messages and the inbox. Scope: Skylight story/status tray at the top of inbox and DMs only.",
+    name = "Hide Inbox Story Tray",
+    description = "Hides the stories and status tray at the top of the inbox.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -36,7 +36,7 @@ val hideInboxStoryTrayPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = emptyList(),
             ).method.replaceWithReturnBoolean(false)
-            println("[Hide Inbox Story & Status Tray] Hooked InboxSkylightWidgetV2Injector.enable() -> return false.")
+            println("[Hide Inbox Story Tray] Hooked InboxSkylightWidgetV2Injector.enable() -> return false.")
             patched++
 
             // 2. Hook InboxSkylightWidgetV2 pod provider -> return emptyList()
@@ -47,7 +47,7 @@ val hideInboxStoryTrayPatch = bytecodePatch(
                 returnType = "Ljava/util/List;",
                 parameters = emptyList(),
             ).method.replaceWithReturnEmptyList()
-            println("[Hide Inbox Story & Status Tray] Hooked InboxSkylightWidgetV2 pod provider -> return emptyList().")
+            println("[Hide Inbox Story Tray] Hooked InboxSkylightWidgetV2 pod provider -> return emptyList().")
             patched++
 
             // 3. Hook InboxSkylightWidgetV2 display eligibility check -> return false
@@ -57,10 +57,10 @@ val hideInboxStoryTrayPatch = bytecodePatch(
                 returnType = "Z",
                 parameters = listOf("Ljava/util/List;"),
             ).method.replaceWithReturnBoolean(false)
-            println("[Hide Inbox Story & Status Tray] Hooked InboxSkylightWidgetV2 display eligibility -> return false.")
+            println("[Hide Inbox Story Tray] Hooked InboxSkylightWidgetV2 display eligibility -> return false.")
             patched++
 
-            println("[Hide Inbox Story & Status Tray] Applied $patched hook(s) -> Inbox story and status tray hidden.")
+            println("[Hide Inbox Story Tray] Applied $patched hook(s) -> Inbox story and status tray hidden.")
             return@execute
         }
 
@@ -93,9 +93,9 @@ val hideInboxStoryTrayPatch = bytecodePatch(
                 move-result-object p1
             """.trimIndent(),
         )
-        println("[Hide Inbox Story & Status Tray] Hooked StoryGetFeedByPageResponse.<init> -> suggested stories filtered from tray.")
+        println("[Hide Inbox Story Tray] Hooked StoryGetFeedByPageResponse.<init> -> suggested stories filtered from tray.")
         patched++
 
-        println("[Hide Inbox Story & Status Tray] Applied $patched hook(s) -> non-followed stories filtered from inbox tray.")
+        println("[Hide Inbox Story Tray] Applied $patched hook(s) -> non-followed stories filtered from inbox tray.")
     }
 }

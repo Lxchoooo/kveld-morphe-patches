@@ -15,8 +15,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 val mediaEnhancementsPatch = bytecodePatch(
-    name = "Media Usability & Watermark-Free Downloader",
-    description = "Unlocks downloading and saves videos without watermark.",
+    name = "Download Without Watermark",
+    description = "Unlocks downloading and saves videos without watermarks.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -26,14 +26,14 @@ val mediaEnhancementsPatch = bytecodePatch(
         key = "removeWatermark",
         default = true,
         title = "Remove Watermark",
-        description = "Routes downloads to clean unwatermarked streams and strips client-side watermark overlays. Disable to keep stock watermarked downloads while retaining the unblocked download button.",
+        description = "Saves clean videos without watermark overlays.",
         required = false,
     )
 
     val downloadQuality by stringOption(
         key = "downloadQuality",
         title = "Saved-Video Quality Preference",
-        description = "Download quality control (the single place for download quality; the Video Quality Governor only caps playback): 'high' (best available stream), 'medium', 'low' (smallest stream), or a fixed resolution ceiling in p (1080, 720, 540, 480, 360 - best stream within the ceiling). Anything else falls back to 'high'.",
+        description = "Select download quality: 'high', 'medium', 'low', or a resolution ceiling (e.g. 1080, 720).",
         default = "high",
         required = false,
     )
@@ -66,10 +66,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     sput-boolean v0, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->forceWatermarkFreeDownload:Z
                 """.trimIndent(),
             )
-            println("[Media Usability] Pushed download configuration (quality=$quality, watermarkFree=$watermarkFree).")
+            println("[Download Without Watermark] Pushed download configuration (quality=$quality, watermarkFree=$watermarkFree).")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] Download configuration note: ${e.message}")
+            println("[Download Without Watermark] Download configuration note: ${e.message}")
         }
 
         // 1. Force Aweme download permission flags
@@ -85,10 +85,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Media Usability] Forced Aweme.isPreventDownload() -> false.")
+            println("[Download Without Watermark] Forced Aweme.isPreventDownload() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] Aweme.isPreventDownload note: ${e.message}")
+            println("[Download Without Watermark] Aweme.isPreventDownload note: ${e.message}")
         }
 
         try {
@@ -103,10 +103,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Media Usability] Forced Aweme.getDownloadWithoutWatermark() -> true.")
+            println("[Download Without Watermark] Forced Aweme.getDownloadWithoutWatermark() -> true.")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] Aweme.getDownloadWithoutWatermark note: ${e.message}")
+            println("[Download Without Watermark] Aweme.getDownloadWithoutWatermark note: ${e.message}")
         }
 
         try {
@@ -121,10 +121,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Media Usability] Forced Aweme.needTTSWatermarkWhenDownload() -> false.")
+            println("[Download Without Watermark] Forced Aweme.needTTSWatermarkWhenDownload() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] Aweme.needTTSWatermarkWhenDownload note: ${e.message}")
+            println("[Download Without Watermark] Aweme.needTTSWatermarkWhenDownload note: ${e.message}")
         }
 
         try {
@@ -139,10 +139,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Media Usability] Forced Aweme.getIsCommentPostVideo() -> false.")
+            println("[Download Without Watermark] Forced Aweme.getIsCommentPostVideo() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] Aweme.getIsCommentPostVideo note: ${e.message}")
+            println("[Download Without Watermark] Aweme.getIsCommentPostVideo note: ${e.message}")
         }
 
         // 2. ACLCommonShare invariants (Unblocks restricted downloads & activates watermark-free mode)
@@ -163,10 +163,10 @@ val mediaEnhancementsPatch = bytecodePatch(
                     name = methodName,
                     returnType = retType,
                 ).method.addInstructions(0, smaliCode.trimIndent())
-                println("[Media Usability] Forced ACLCommonShare.$methodName() -> unblocked/watermark-free.")
+                println("[Download Without Watermark] Forced ACLCommonShare.$methodName() -> unblocked/watermark-free.")
                 patched++
             } catch (e: Exception) {
-                println("[Media Usability] ACLCommonShare.$methodName note: ${e.message}")
+                println("[Download Without Watermark] ACLCommonShare.$methodName note: ${e.message}")
             }
         }
 
@@ -192,11 +192,11 @@ val mediaEnhancementsPatch = bytecodePatch(
                 )
             }
             if (returnIndices.isNotEmpty()) {
-                println("[Media Usability] Hooked Aweme.getVideo() (${returnIndices.size} return point(s)) -> Video object unwatermarked stream injector active.")
+                println("[Download Without Watermark] Hooked Aweme.getVideo() (${returnIndices.size} return point(s)) -> Video object unwatermarked stream injector active.")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Media Usability] Aweme.getVideo note: ${e.message}")
+            println("[Download Without Watermark] Aweme.getVideo note: ${e.message}")
         }
 
         // 4. Hook Video.getDownloadNoWatermarkAddr() to guarantee non-null clean stream
@@ -223,11 +223,11 @@ val mediaEnhancementsPatch = bytecodePatch(
                 )
             }
             if (returnIndices.isNotEmpty()) {
-                println("[Media Usability] Hooked Video.getDownloadNoWatermarkAddr() (${returnIndices.size} return point(s)) -> Clean stream redirection active.")
+                println("[Download Without Watermark] Hooked Video.getDownloadNoWatermarkAddr() (${returnIndices.size} return point(s)) -> Clean stream redirection active.")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Media Usability] Video.getDownloadNoWatermarkAddr note: ${e.message}")
+            println("[Download Without Watermark] Video.getDownloadNoWatermarkAddr note: ${e.message}")
         }
 
         // 5. Hook Video.getDownloadAddr() to route legacy download requests to clean unwatermarked playAddr stream
@@ -254,11 +254,11 @@ val mediaEnhancementsPatch = bytecodePatch(
                 )
             }
             if (returnIndices.isNotEmpty()) {
-                println("[Media Usability] Hooked Video.getDownloadAddr() (${returnIndices.size} return point(s)) -> Clean stream redirection active.")
+                println("[Download Without Watermark] Hooked Video.getDownloadAddr() (${returnIndices.size} return point(s)) -> Clean stream redirection active.")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Media Usability] Video.getDownloadAddr note: ${e.message}")
+            println("[Download Without Watermark] Video.getDownloadAddr note: ${e.message}")
         }
 
         // 6. Neutralize AwemeVideoWaterMarkAbilityProtocol watermark triggers
@@ -289,9 +289,9 @@ val mediaEnhancementsPatch = bytecodePatch(
                 }
             }
         }
-        println("[Media Usability] Neutralized WaterMarkAbilityProtocol & AwemeVideoWaterMarkAbilityProtocol watermark flags.")
+        println("[Download Without Watermark] Neutralized WaterMarkAbilityProtocol & AwemeVideoWaterMarkAbilityProtocol watermark flags.")
         } else {
-            println("[Media Usability] Watermark removal disabled -> protocol flags kept stock.")
+            println("[Download Without Watermark] Watermark removal disabled -> protocol flags kept stock.")
         }
 
         // 7. Strip client-side drawn watermark on saved image posts & comment pictures
@@ -316,14 +316,14 @@ val mediaEnhancementsPatch = bytecodePatch(
                 method.replaceInstruction(idx, "nop")
             }
             if (drawIndices.isNotEmpty()) {
-                println("[Media Usability] Neutralized client-side image watermark overlay (${drawIndices.size} draw point(s)).")
+                println("[Download Without Watermark] Neutralized client-side image watermark overlay (${drawIndices.size} draw point(s)).")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Media Usability] CommentImageWatermark note: ${e.message}")
+            println("[Download Without Watermark] CommentImageWatermark note: ${e.message}")
         }
         } else {
-            println("[Media Usability] Watermark removal disabled -> image overlays kept stock.")
+            println("[Download Without Watermark] Watermark removal disabled -> image overlays kept stock.")
         }
 
         // 8. Safe client-side WaterMarkServiceImpl bypass
@@ -343,13 +343,13 @@ val mediaEnhancementsPatch = bytecodePatch(
                     nop
                 """.trimIndent(),
             )
-            println("[Media Usability] Injected smart lossless bypass into WaterMarkServiceImpl.waterMark().")
+            println("[Download Without Watermark] Injected smart lossless bypass into WaterMarkServiceImpl.waterMark().")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] WaterMarkServiceImpl note: ${e.message}")
+            println("[Download Without Watermark] WaterMarkServiceImpl note: ${e.message}")
         }
         } else {
-            println("[Media Usability] Watermark removal disabled -> WaterMarkService kept stock.")
+            println("[Download Without Watermark] Watermark removal disabled -> WaterMarkService kept stock.")
         }
 
         // 9. Redirect watermarked downloader spec (LIZIZ) to unwatermarked downloader spec (LIZ)
@@ -380,16 +380,16 @@ val mediaEnhancementsPatch = bytecodePatch(
                     nop
                 """.trimIndent(),
             )
-            println("[Media Usability] Redirected downloader spec ($targetMethod) -> unwatermarked mode (photo mode preserved).")
+            println("[Download Without Watermark] Redirected downloader spec ($targetMethod) -> unwatermarked mode (photo mode preserved).")
             patched++
         } catch (e: Exception) {
-            println("[Media Usability] DownloaderSpec redirect note: ${e.message}")
+            println("[Download Without Watermark] DownloaderSpec redirect note: ${e.message}")
         }
         } else {
-            println("[Media Usability] Watermark removal disabled -> downloader spec kept stock.")
+            println("[Download Without Watermark] Watermark removal disabled -> downloader spec kept stock.")
         }
 
-        println("[Media Usability & Watermark-Free Downloader] Applied $patched media usability and watermark-free download hook(s).")
+        println("[Download Without Watermark] Applied $patched media usability and watermark-free download hook(s).")
     }
 }
 
