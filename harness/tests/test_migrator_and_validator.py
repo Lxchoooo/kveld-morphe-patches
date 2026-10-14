@@ -3,6 +3,7 @@ Unit Tests for Migrator, Symbols, and Validator.
 Verifies version bump updates, no-op identical version handling, symbol mappings, and patch status.
 """
 
+import re
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -22,7 +23,22 @@ class TestMigratorAndValidator(unittest.TestCase):
         plan = self.migrator.plan_constants_update("1.95.100")
         self.assertTrue(plan.has_changes)
         self.assertIn('const val BRAVE_TARGET_VERSION = "1.95.100"', plan.modified_content)
-        self.assertIn('Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror', plan.modified_content)
+        self.assertIn('Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (APK) from APKMirror', plan.modified_content)
+
+    def test_version_description_no_match_warns_and_leaves_untouched(self):
+        import io
+        from unittest.mock import patch
+        stale_desc = 'description = "Unrecognized custom upstream download description format"'
+        orig_content = self.migrator.constants_file.read_text(encoding="utf-8")
+        custom_content = re.sub(r'description\s*=\s*"Download [^"]+"', stale_desc, orig_content, count=1)
+
+        with patch.object(Path, "read_text", return_value=custom_content):
+            with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+                plan = self.migrator.plan_constants_update("1.95.100")
+                self.assertIn("[WARN] AppTarget description pattern did not match; leaving description untouched.", mock_stdout.getvalue())
+                self.assertIn(stale_desc, plan.modified_content)
+                self.assertIn('const val BRAVE_TARGET_VERSION = "1.95.100"', plan.modified_content)
+                self.assertNotIn("Updated AppTarget description for Brave", plan.changes)
 
     # 11. identical version -> NO-OP
     def test_version_identical_noop(self):

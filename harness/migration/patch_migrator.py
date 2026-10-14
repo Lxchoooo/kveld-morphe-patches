@@ -66,13 +66,17 @@ class PatchMigrator:
             return f'{prefix}"{new_desc}"'
 
         # Match description inside COMPATIBILITY_BRAVE block
-        # E.g.: description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror"
-        # Or: description = "Download com.brave.browser v1.95.100 (APK) arm64-v8a nodpi versionCode 429705604 (BUNDLE) from APKMirror"
+        # E.g.: description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (APK) from APKMirror"
+        # Or: description = "Download com.brave.browser v1.95.100 (APK) arm64-v8a nodpi versionCode 429705604 (APK) from APKMirror"
         # Or legacy github format.
         desc_pattern = r'(description\s*=\s*)"(Download com\.brave\.browser v[^"]+ from APKMirror|Download (?:Bravemonoarm64\.apk or BraveMonoarm\.apk \(v[^"]+\)|Bravemonoarm64\.apk \(v[^"]+\)|v[^"]+) from github\.com/brave/brave-browser/releases)"'
-        new_content2 = re.sub(desc_pattern, _replace_desc, new_content)
-        if new_content2 != new_content:
-            changes.append(f"Updated AppTarget description for Brave")
+        if re.search(desc_pattern, new_content):
+            new_content2 = re.sub(desc_pattern, _replace_desc, new_content)
+            if new_content2 != new_content:
+                changes.append(f"Updated AppTarget description for Brave")
+        else:
+            print("[WARN] AppTarget description pattern did not match; leaving description untouched.")
+            new_content2 = new_content
 
         return MigrationPlan(self.constants_file, content, new_content2, changes)
 
