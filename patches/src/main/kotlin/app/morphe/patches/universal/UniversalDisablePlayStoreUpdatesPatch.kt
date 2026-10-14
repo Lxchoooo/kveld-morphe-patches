@@ -39,7 +39,6 @@ import app.morphe.patches.shared.clearTryBlocks
 import app.morphe.patches.shared.ensureRegisterCount
 import app.morphe.patches.shared.sharedExtensionPatch
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
@@ -52,10 +51,14 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 private const val EXTENSION_CLASS = "Lcom/kveld9/morphe/extension/DisablePlayStoreUpdatesPatch;"
 
 private var originalVersionCode: Int = 0
+private var alreadyDetached: Boolean = false
 
 @Suppress("unused")
 private val disablePlayStoreUpdatesResourcePatch = resourcePatch {
     execute {
+        originalVersionCode = 0
+        alreadyDetached = false
+
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
             println("[Disable Play Store updates] Skipped: AndroidManifest.xml not found.")
@@ -69,7 +72,14 @@ private val disablePlayStoreUpdatesResourcePatch = resourcePatch {
                 ?: manifest.getAttribute("versionCode").takeIf { it.isNotBlank() }
                 ?: "0"
 
-            originalVersionCode = raw.toIntOrNull() ?: 0
+            val parsed = raw.toIntOrNull() ?: 0
+            if (parsed == Int.MAX_VALUE) {
+                alreadyDetached = true
+                println("[Disable Play Store updates] APK was already detached (manifest versionCode is already Int.MAX_VALUE).")
+                return@use
+            }
+
+            originalVersionCode = parsed
             if (originalVersionCode == 0) {
                 println("[Disable Play Store updates] Warning: manifest versionCode missing or unparsable, using 0.")
             }
@@ -77,6 +87,10 @@ private val disablePlayStoreUpdatesResourcePatch = resourcePatch {
     }
 
     finalize {
+        if (alreadyDetached) {
+            return@finalize
+        }
+
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
             return@finalize
@@ -99,15 +113,17 @@ val universalDisablePlayStoreUpdatesPatch = bytecodePatch(
     dependsOn(sharedExtensionPatch)
 
     finalize {
-        val extClass = mutableClassDefByOrNull(EXTENSION_CLASS)
-        val originalVersionMethod = extClass?.methods?.firstOrNull { it.name == "originalVersionCode" }
-        if (originalVersionMethod != null) {
-            val impl = originalVersionMethod.implementation
-            if (impl != null) {
-                originalVersionMethod.clearTryBlocks()
-                originalVersionMethod.ensureRegisterCount(1)
-                originalVersionMethod.removeInstructions(0, impl.instructions.count())
-                originalVersionMethod.addInstructions(0, "const v0, $originalVersionCode\nreturn v0")
+        if (!alreadyDetached) {
+            val extClass = mutableClassDefByOrNull(EXTENSION_CLASS)
+            val originalVersionMethod = extClass?.methods?.firstOrNull { it.name == "originalVersionCode" }
+            if (originalVersionMethod != null) {
+                val impl = originalVersionMethod.implementation
+                if (impl != null) {
+                    originalVersionMethod.clearTryBlocks()
+                    originalVersionMethod.ensureRegisterCount(1)
+                    originalVersionMethod.removeInstructions(0, impl.instructions.count())
+                    originalVersionMethod.addInstructions(0, "const v0, $originalVersionCode\nreturn v0")
+                }
             }
         }
 
@@ -115,6 +131,7 @@ val universalDisablePlayStoreUpdatesPatch = bytecodePatch(
         var versionCodeFieldHooks = 0
         var longVersionCodeHooks = 0
         var touchedClasses = 0
+        var skippedHighRegisters = 0
 
         classDefForEach { classDef ->
             if (classDef.type.startsWith("Lcom/kveld9/morphe/extension") ||
@@ -122,22 +139,31 @@ val universalDisablePlayStoreUpdatesPatch = bytecodePatch(
             ) {
                 return@classDefForEach
             }
-            if (!hasAnyTargetInstruction(classDef)) return@classDefForEach
 
-            val mutableClass = mutableClassDefBy(classDef)
+            var mutableMethods: List<MutableMethod>? = null
             var classModified = false
 
-            mutableClass.methods.forEach { method ->
+            for ((methodIndex, method) in classDef.methods.withIndex()) {
                 val mutations = scanMethodMutations(method)
                 if (mutations.isNotEmpty()) {
-                    classModified = true
-                    applyMutations(method, mutations) { type ->
-                        when (type) {
-                            MutationType.FIELD_ACCESS -> versionCodeFieldHooks++
-                            MutationType.LONG_METHOD_CALL -> longVersionCodeHooks++
-                        }
-                        patched++
+                    val methods = mutableMethods ?: mutableClassDefBy(classDef).methods.toList().also {
+                        mutableMethods = it
                     }
+                    applyMutations(
+                        methods[methodIndex],
+                        mutations,
+                        onApplied = { type ->
+                            classModified = true
+                            when (type) {
+                                MutationType.FIELD_ACCESS -> versionCodeFieldHooks++
+                                MutationType.LONG_METHOD_CALL -> longVersionCodeHooks++
+                            }
+                            patched++
+                        },
+                        onSkippedHighRegister = {
+                            skippedHighRegisters++
+                        },
+                    )
                 }
             }
 
@@ -146,18 +172,28 @@ val universalDisablePlayStoreUpdatesPatch = bytecodePatch(
             }
         }
 
+        val highRegMsg = if (skippedHighRegisters > 0) " ($skippedHighRegisters high-register call site(s) left unhooked)" else ""
+
         if (patched == 0) {
+            val statusMsg = if (alreadyDetached) {
+                "Manifest versionCode was already ${Int.MAX_VALUE}"
+            } else {
+                "Set manifest versionCode to $originalVersionCode -> ${Int.MAX_VALUE}"
+            }
             println(
-                "[Disable Play Store updates] Set manifest versionCode to $originalVersionCode -> ${Int.MAX_VALUE} " +
-                    "(0 bytecode version check calls found)."
+                "[Disable Play Store updates] $statusMsg (0 bytecode version check calls found)$highRegMsg."
             )
             return@finalize
         }
 
+        val statusMsg = if (alreadyDetached) {
+            "Manifest versionCode was already ${Int.MAX_VALUE}"
+        } else {
+            "Set manifest versionCode to $originalVersionCode -> ${Int.MAX_VALUE}"
+        }
         println(
-            "[Disable Play Store updates] Set manifest versionCode to $originalVersionCode -> ${Int.MAX_VALUE} " +
-                "and applied $patched version check hook(s) across $touchedClasses class(es) " +
-                "($versionCodeFieldHooks versionCode field reads, $longVersionCodeHooks getLongVersionCode calls)."
+            "[Disable Play Store updates] $statusMsg and applied $patched version check hook(s) across $touchedClasses class(es) " +
+                "($versionCodeFieldHooks versionCode field reads, $longVersionCodeHooks getLongVersionCode calls)$highRegMsg."
         )
     }
 }
@@ -178,20 +214,6 @@ private sealed class VersionCodeMutation(val instructionIndex: Int) {
         index: Int,
         val register: Int,
     ) : VersionCodeMutation(index)
-}
-
-private fun hasAnyTargetInstruction(classDef: ClassDef): Boolean {
-    for (method in classDef.methods) {
-        val instructions = method.instructionsOrNull ?: continue
-        for (inst in instructions) {
-            if (isTargetInstruction(inst)) return true
-        }
-    }
-    return false
-}
-
-private fun isTargetInstruction(inst: Instruction): Boolean {
-    return isVersionCodeFieldAccess(inst) || isGetLongVersionCodeCall(inst)
 }
 
 private fun isVersionCodeFieldAccess(inst: Instruction): Boolean {
@@ -252,31 +274,26 @@ private fun applyMutations(
     method: MutableMethod,
     mutations: List<VersionCodeMutation>,
     onApplied: (MutationType) -> Unit,
+    onSkippedHighRegister: () -> Unit,
 ) {
     val sortedMutations = mutations.sortedByDescending { it.instructionIndex }
 
     for (mutation in sortedMutations) {
         when (mutation) {
             is VersionCodeMutation.FieldAccess -> {
+                if (mutation.moveResultRegister >= 16) {
+                    onSkippedHighRegister()
+                    continue
+                }
                 method.replaceInstruction(
                     mutation.instructionIndex,
                     "invoke-static/range { v${mutation.packageInfoRegister} .. v${mutation.packageInfoRegister} }, " +
                         "$EXTENSION_CLASS->getVersionCode(Landroid/content/pm/PackageInfo;)I"
                 )
-                if (mutation.moveResultRegister >= 16) {
-                    method.addInstructions(
-                        mutation.instructionIndex + 1,
-                        """
-                            move-result v0
-                            move/from16 v${mutation.moveResultRegister}, v0
-                        """.trimIndent()
-                    )
-                } else {
-                    method.addInstruction(
-                        mutation.instructionIndex + 1,
-                        "move-result v${mutation.moveResultRegister}"
-                    )
-                }
+                method.addInstruction(
+                    mutation.instructionIndex + 1,
+                    "move-result v${mutation.moveResultRegister}"
+                )
                 onApplied(MutationType.FIELD_ACCESS)
             }
             is VersionCodeMutation.LongMethodCall -> {
