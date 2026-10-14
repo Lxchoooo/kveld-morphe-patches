@@ -31,7 +31,7 @@ val videoFitPatch = bytecodePatch(
 
     execute {
         val rawMode = fitMode?.trim()?.lowercase() ?: "fit"
-        val mode = if (rawMode.contains("fill")) "fill" else "fit"
+        val mode = if (rawMode == "fill") "fill" else "fit"
 
         var patched = 0
 
