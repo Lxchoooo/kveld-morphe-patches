@@ -67,6 +67,10 @@ tools is reflected by `./venv/bin/python harness/update.py --doctor`.
    Use `jnitrace` for the Java-to-native boundary (e.g. telemetry paths
    reaching into `libchrome.so`). Requires root or Gadget on the attached
    lab device; the repacked APK smoke test stays the faithful verdict.
+3. **core/protobuf.py**: schema-less protobuf wire decoder for RE triage; prints
+   every interpretation consistent with the bytes with per-candidate confidence
+   (no .proto needed). Run: `python harness/core/protobuf.py --help`
+   (self-check: `python harness/core/protobuf.py --selftest`).
 
 ### 1. Audit a Target APK / APKM (Non-destructive inspection)
 Run this command to inspect fingerprints, obfuscated symbol changes, and invariants without modifying code.
