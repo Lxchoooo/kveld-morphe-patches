@@ -1,3 +1,22 @@
+## [2.7.0-experimental.19](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.18...v2.7.0-experimental.19) (2026-10-14)
+
+### Bug Fixes
+
+* **gboard:** AMOLED theme hook for Gboard 18.5.1 ([0899a1d](https://github.com/kveld9/kveld-morphe-patches/commit/0899a1d65234485ec78dc1d23bc25e5c695bd25e))
+* **gboard:** Block Trackers hooks for Gboard 18.5.1 ([263c8bf](https://github.com/kveld9/kveld-morphe-patches/commit/263c8bf659652e265282d57d6a8c25110f08a247))
+* **gboard:** Force Incognito hooks for Gboard 18.5.1 ([5433ec4](https://github.com/kveld9/kveld-morphe-patches/commit/5433ec4e0d4647518039f998a96565d9ee72a6b8))
+* **gboard:** Keyboard Settings hook for Gboard 18.5.1 ([ba9048e](https://github.com/kveld9/kveld-morphe-patches/commit/ba9048e0cff3bfe506ff433c45ae40b3bd364c54))
+* **gboard:** Offline Only hooks for Gboard 18.5.1 ([ce8215e](https://github.com/kveld9/kveld-morphe-patches/commit/ce8215ee42671585056175016d5baf9925bdd1b5))
+* **gboard:** Stop Background Sync hooks for Gboard 18.5.1 ([70d58cd](https://github.com/kveld9/kveld-morphe-patches/commit/70d58cdd261ca9f01df75ffb270100e088d0b514))
+* **gboard:** Stop Remote Updates hooks for Gboard 18.5.1 ([fa4ac58](https://github.com/kveld9/kveld-morphe-patches/commit/fa4ac5824a0d95d0bf1ac5f2cca5cecabb56ddbd))
+* **gboard:** support Gboard 18.5.1 ([224a594](https://github.com/kveld9/kveld-morphe-patches/commit/224a594c784bae2028c8e8d3657a42f0f40e5dad))
+* **gboard:** sync patch contracts for Gboard 18.5.1 ([58f747e](https://github.com/kveld9/kveld-morphe-patches/commit/58f747eb174828abf24905191c828ca734116862))
+* **tiktok:** disable Remember Clear Display by default ([a3fce52](https://github.com/kveld9/kveld-morphe-patches/commit/a3fce52779a9d5ff2e176856dc790fac3154329b))
+* **tiktok:** make Video Fit mode selection robust against variant option values ([3c3cf8f](https://github.com/kveld9/kveld-morphe-patches/commit/3c3cf8f438cbf59203cf0e5abc8dfc965c0018a1))
+* **tiktok:** match Video Fit fill mode by exact value ([ce503c4](https://github.com/kveld9/kveld-morphe-patches/commit/ce503c4283f3e9ab7ad3ea4459072e2b2e5e233f))
+* **tiktok:** restore correct weight and style in System Font mode ([8a14aa1](https://github.com/kveld9/kveld-morphe-patches/commit/8a14aa157eb4e5b4170d522c18edc97fe2c0dd5c))
+* **tiktok:** Video Fit fill applies to every video, not just the first ([25c51c6](https://github.com/kveld9/kveld-morphe-patches/commit/25c51c6d1dec26fb068c3ff2bf6104872fbeb8ce))
+
 ## [2.7.0-experimental.18](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.17...v2.7.0-experimental.18) (2026-10-13)
 
 ### Bug Fixes
