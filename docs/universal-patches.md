@@ -519,7 +519,7 @@ The **`Spoof Reinstall IDs`** patch neutralizes persistent installation and app-
 > ### Identifier Constant Folding
 > Applications use identifier frameworks (such as Google Play Services AppSet and Firebase Instance ID) to correlate user accounts and track repeat installations even after application data and cache have been wiped.
 >
-> `Spoof Reinstall IDs` intercepts identifier getters (`getId`, `getToken`, and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
+> `Spoof Reinstall IDs` intercepts identifier getters (`getId` and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
 
 ### Configuration in Morphe Manager
 
