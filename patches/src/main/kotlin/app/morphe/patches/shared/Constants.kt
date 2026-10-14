@@ -22,8 +22,8 @@ object Constants {
     )
 
     const val GBOARD_PACKAGE_NAME = "com.google.android.inputmethod.latin"
-    const val GBOARD_TARGET_VERSION = "18.4.1.985164140-lite_beta-arm64-v8a"
-    const val GBOARD_TARGET_VERSION_V7A = "18.4.1.985164140-lite_beta-armeabi-v7a"
+    const val GBOARD_TARGET_VERSION = "18.5.1.993608717-lite_beta-arm64-v8a"
+    const val GBOARD_TARGET_VERSION_V7A = "18.5.1.993608717-lite_beta-armeabi-v7a"
 
     val COMPATIBILITY_GBOARD = Compatibility(
         name = "Gboard Lite",
