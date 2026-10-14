@@ -1,3 +1,9 @@
+## [2.7.0-experimental.20](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.19...v2.7.0-experimental.20) (2026-10-14)
+
+### Bug Fixes
+
+* **gboard:** restore AMOLED label in theme selector ([7600bf1](https://github.com/kveld9/kveld-morphe-patches/commit/7600bf16163255d6ac89b5efa8eb7414e3f59664))
+
 ## [2.7.0-experimental.19](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.18...v2.7.0-experimental.19) (2026-10-14)
 
 ### Bug Fixes
