@@ -26,6 +26,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
 | **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
 | **[Skip Consent Dialogs](#18-skip-consent-dialogs-universalskipconsentdialogspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Stubs platform consent-form show entrypoints with return-void | Prevents blocking GDPR and consent prompts from rendering |
+| **[Silence System Logs](#19-silence-system-logs-universalsilencesystemlogspatch)** | `bytecodePatch` | Dalvik Bytecode Call Sites | Neutralizes log output invocations to prevent diagnostic log leakage | Stops application telemetry and sensitive strings leaking to logcat |
 
 ---
 
@@ -71,6 +72,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
 | **Skip Consent Dialogs** | ⚠️ Safe by Default | Disabled by default (`false`) due to regional regulatory signals. Stubs platform consent-form show entrypoints so prompts never render. |
+| **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e` and `println`) with configurable level filtering. |
 
 ---
 
@@ -543,6 +545,23 @@ The **`Skip Consent Dialogs`** patch suppresses platform consent forms and embed
 
 - **Opt-in by default**: Disabled by default (`default = false`) because consent represents a regional regulatory preference.
 - **Universal applicability**: Operates across any Android application implementing recognized platform consent or embedded consent interfaces without requiring application-specific fingerprints.
+
+---
+
+## 19. Silence System Logs (`universalSilenceSystemLogsPatch`)
+
+The **`Silence System Logs`** patch neutralizes diagnostic logging invocations targeting `android.util.Log` directly at Dalvik bytecode call sites (`classes*.dex`). This stops applications from spamming system log buffers and prevents sensitive identifiers, request URLs, and device telemetry from leaking into Android logcat buffers accessible to other applications with system log permissions.
+
+> [!NOTE]
+> ### Log Call Site Neutralization
+> Production Android applications often retain verbose debug and diagnostic logging statements (`Log.d`, `Log.v`, `Log.i`, `Log.w`, `Log.e`, and `Log.println`) across their codebase and embedded third-party libraries.
+>
+> `Silence System Logs` executes a single union pass across application bytecode, identifying logging invocations matching the configured verbosity threshold. The patch safely replaces the invoke instruction with `nop` (or neutral zero constants when the caller captures the returned integer value via `move-result`), eliminating log message construction overhead and logcat buffer emission without triggering bytecode verification errors.
+
+### Configuration in Morphe Manager
+
+- **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
+
 
 
 
