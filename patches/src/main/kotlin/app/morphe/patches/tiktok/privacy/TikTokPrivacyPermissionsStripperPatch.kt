@@ -256,7 +256,7 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[TikTok Privacy Permissions Stripper] Skipped: AndroidManifest.xml not found.")
+            println("[Strip Sensitive Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -280,7 +280,7 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
 
         val blockedPermissions = buildBlockedPermissions(toggleStates)
         if (blockedPermissions.isEmpty()) {
-            println("[TikTok Privacy Permissions Stripper] Skipped: No permission categories selected to strip.")
+            println("[Strip Sensitive Permissions] Skipped: No permission categories selected to strip.")
             return@execute
         }
 
