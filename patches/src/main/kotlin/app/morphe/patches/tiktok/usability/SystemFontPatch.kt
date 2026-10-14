@@ -20,12 +20,16 @@ private fun BytecodePatchContext.hookStandardFontProvider(): Int {
             it.returnType == "Landroid/graphics/Typeface;"
     } ?: error("Could not find standard font provider LIZLLL method")
 
+    val isStatic = AccessFlags.STATIC.isSet(axisMethod.accessFlags)
+    val weightReg = if (isStatic) "p1" else "p2"
+    val italicReg = if (isStatic) "p2" else "p3"
+
     axisMethod.removeInstructions(0, axisMethod.implementation!!.instructions.count())
     axisMethod.addInstructions(
         0,
         """
-            move/from16 v0, p2
-            move/from16 v1, p3
+            move/from16 v0, $weightReg
+            move/from16 v1, $italicReg
             invoke-static {v0, v1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->getSystemTypeface(IZ)Landroid/graphics/Typeface;
             move-result-object v0
             return-object v0
@@ -66,12 +70,16 @@ private fun BytecodePatchContext.hookDynamicFontProvider(): Int {
             it.returnType == "Landroid/graphics/Typeface;"
     } ?: error("Could not find dynamic font provider LIZLLL method")
 
+    val isStatic = AccessFlags.STATIC.isSet(axisMethod.accessFlags)
+    val weightReg = if (isStatic) "p1" else "p2"
+    val italicReg = if (isStatic) "p2" else "p3"
+
     axisMethod.removeInstructions(0, axisMethod.implementation!!.instructions.count())
     axisMethod.addInstructions(
         0,
         """
-            move/from16 v0, p2
-            move/from16 v1, p3
+            move/from16 v0, $weightReg
+            move/from16 v1, $italicReg
             invoke-static {v0, v1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->getSystemTypeface(IZ)Landroid/graphics/Typeface;
             move-result-object v0
             return-object v0
@@ -109,10 +117,13 @@ private fun BytecodePatchContext.hookAssetFontLoader(): Int {
         returnType = "Landroid/graphics/Typeface;",
     )
     val assetMethod = assetFontFp.method
+    val isStatic = AccessFlags.STATIC.isSet(assetMethod.accessFlags)
+    val assetReg = if (isStatic) "p0" else "p1"
+    val pathReg = if (isStatic) "p1" else "p2"
     assetMethod.addInstructions(
         0,
         """
-            invoke-static {p0, p1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->interceptAssetTypeface(Landroid/content/res/AssetManager;Ljava/lang/String;)Landroid/graphics/Typeface;
+            invoke-static {$assetReg, $pathReg}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->interceptAssetTypeface(Landroid/content/res/AssetManager;Ljava/lang/String;)Landroid/graphics/Typeface;
             move-result-object v0
             if-eqz v0, :cond_orig
             return-object v0
