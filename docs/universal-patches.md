@@ -24,6 +24,10 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Block Tracking Servers](#14-block-tracking-servers-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
 | **[Block Tracking SDKs](#15-block-tracking-sdks-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Block Trackers |
 | **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
+| **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
+| **[Skip Consent Dialogs](#18-skip-consent-dialogs-universalskipconsentdialogspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Stubs platform consent-form show entrypoints with return-void | Prevents blocking GDPR and consent prompts from rendering |
+| **[Silence System Logs](#19-silence-system-logs-universalsilencesystemlogspatch)** | `bytecodePatch` | Dalvik Bytecode Call Sites | Neutralizes log output invocations to prevent diagnostic log leakage | Stops application telemetry and sensitive strings leaking to logcat |
+| **[Skip Rating Prompts](#20-skip-rating-prompts-universalskipratingpromptspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Forces rating eligibility gates to false and stubs review dialog entrypoints | Prevents disruptive in-app review and rating prompts |
 
 ---
 
@@ -67,6 +71,10 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
 | **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
+| **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
+| **Skip Consent Dialogs** | ⚠️ Safe by Default | Disabled by default (`false`) due to regional regulatory signals. Stubs platform consent-form show entrypoints so prompts never render. |
+| **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e` and `println`) with configurable level filtering. |
+| **Skip Rating Prompts** | ⚠️ Safe by Default | Disabled by default (`false`) adhering to universal patch conventions. Forces rating eligibility checks to false and stubs review dialog entrypoints. |
 
 ---
 
@@ -504,4 +512,78 @@ The **`Disable Play Store updates`** patch sets the manifest `versionCode` to th
 - **Opt-in by default**: Disabled by default (`default = false`) because it changes package update behavior.
 - **Root mounting incompatibility**: Does not work if the application is installed via root mount.
 - **Universal applicability**: Operates across any Android application without hardcoded class fingerprints or app-specific targets.
+
+---
+
+## 17. Spoof Reinstall IDs (`universalSpoofReinstallIdsPatch`)
+
+The **`Spoof Reinstall IDs`** patch neutralizes persistent installation and app-set tracking identifiers by replacing identifier getters directly at the Dalvik bytecode level (`classes*.dex`) with neutral constants. This prevents applications and integrated analytics libraries from correlating reinstalls or linking activity across applications from the same developer family.
+
+> [!NOTE]
+> ### Identifier Constant Folding
+> Applications use identifier frameworks (such as Google Play Services AppSet and Firebase Instance ID) to correlate user accounts and track repeat installations even after application data and cache have been wiped.
+>
+> `Spoof Reinstall IDs` intercepts identifier getters (`getId`, `getToken`, and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
+
+### Configuration in Morphe Manager
+
+- **App set ID (`appSetId`)**: Fixed identifier reported when querying the app-set ID (Text, default: `00000000-0000-0000-0000-000000000000`).
+- **Install ID (`installId`)**: Fixed identifier reported for installation and instance ID lookups (Text, default: `0000000000000000000000`).
+- **Scope to single app (`spoofScope`)**: Report app-set ID scope as single-application (`1`) instead of developer-wide (`2`) (Toggle, default: `true`).
+
+---
+
+## 18. Skip Consent Dialogs (`universalSkipConsentDialogsPatch`)
+
+The **`Skip Consent Dialogs`** patch suppresses platform consent forms and embedded consent dialogs at application launch by stubbing dialog display entrypoints directly at the Dalvik bytecode level (`classes*.dex`) with immediate returns. This prevents applications from blocking access behind mandatory data collection or advertising consent popups.
+
+> [!NOTE]
+> ### Platform and Embedded Consent Stubbing
+> Many applications display modal consent dialogues on initial launch to solicit advertising and tracking permissions before rendering the user interface.
+>
+> `Skip Consent Dialogs` locates platform consent form show methods (interfaces accepting an activity and completion listener) and embedded consent SDK flow entrypoints, injecting a `return-void` instruction at entrypoint offset zero. The method returns immediately when called without initializing popup windows, background web views, or user interaction prompts.
+
+### Scope & Compatibility Notes
+
+- **Opt-in by default**: Disabled by default (`default = false`) because consent represents a regional regulatory preference.
+- **Universal applicability**: Operates across any Android application implementing recognized platform consent or embedded consent interfaces without requiring application-specific fingerprints.
+
+---
+
+## 19. Silence System Logs (`universalSilenceSystemLogsPatch`)
+
+The **`Silence System Logs`** patch neutralizes diagnostic logging invocations targeting `android.util.Log` directly at Dalvik bytecode call sites (`classes*.dex`). This stops applications from spamming system log buffers and prevents sensitive identifiers, request URLs, and device telemetry from leaking into Android logcat buffers accessible to other applications with system log permissions.
+
+> [!NOTE]
+> ### Log Call Site Neutralization
+> Production Android applications often retain verbose debug and diagnostic logging statements (`Log.d`, `Log.v`, `Log.i`, `Log.w`, `Log.e`, and `Log.println`) across their codebase and embedded third-party libraries.
+>
+> `Silence System Logs` executes a single union pass across application bytecode, identifying logging invocations matching the configured verbosity threshold. The patch safely replaces the invoke instruction with `nop` (or neutral zero constants when the caller captures the returned integer value via `move-result`), eliminating log message construction overhead and logcat buffer emission without triggering bytecode verification errors.
+
+### Configuration in Morphe Manager
+
+- **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
+
+---
+
+## 20. Skip Rating Prompts (`universalSkipRatingPromptsPatch`)
+
+The **`Skip Rating Prompts`** patch suppresses unsolicited in-app rating requests and review dialogs by neutralizing rating eligibility checks and stubbing review presentation methods directly at the Dalvik bytecode level (`classes*.dex`). This prevents applications from interrupting workflows with modal rating dialogs, AppRate popups, and store feedback prompts.
+
+> [!NOTE]
+> ### Rating Eligibility and Dialog Neutralization
+> Applications frequently embed in-app rating libraries that track session counts, launch milestones, or completed tasks to trigger modal rating dialogs.
+>
+> `Skip Rating Prompts` targets known rating and review prompt mechanisms through a dual strategy:
+> 1. **Eligibility Gate Suppression**: Replaces boolean rating eligibility methods (`shouldShowRateDialog`, `shouldShowRatingDialog`, `canShowReviewDialog`, and related evaluation gates) with immediate `false` returns, ensuring the application decides never to present a review request.
+> 2. **Dialog Entrypoint Stubbing**: Stubs void rating prompt display methods (`showRateDialog`, `showReviewDialog`, `showRateAppDialog`, and related presentation entrypoints) with `return-void` at method entry, ensuring that even if invoked directly, no dialog window or review prompt renders.
+
+### Scope & Compatibility Notes
+
+- **Opt-in by default**: Disabled by default (`default = false`) following universal patch conventions.
+- **Universal applicability**: Operates across any Android application embedding common rating and review libraries or custom prompt implementations without requiring application-specific fingerprints.
+
+
+
+
 
