@@ -75,7 +75,8 @@ private val disablePlayStoreUpdatesResourcePatch = resourcePatch {
             val parsed = raw.toIntOrNull() ?: 0
             if (parsed == Int.MAX_VALUE) {
                 alreadyDetached = true
-                println("[Disable Play Store updates] APK was already detached (manifest versionCode is already Int.MAX_VALUE).")
+                originalVersionCode = Int.MAX_VALUE
+                println("[Disable Play Store updates] APK was already detached (manifest versionCode is already Int.MAX_VALUE); in-app checks will keep seeing Int.MAX_VALUE.")
                 return@use
             }
 
