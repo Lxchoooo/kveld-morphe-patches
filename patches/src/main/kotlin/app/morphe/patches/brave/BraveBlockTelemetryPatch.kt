@@ -26,7 +26,7 @@ import java.io.RandomAccessFile
 
 // ── Resource Patch: Sets defaultValue="false" on telemetry switches in XML ─────
 private val braveTelemetryResourcePatch = resourcePatch(
-    name = "Privacy Defaults (Setup)",
+    name = "Block Trackers (Setup)",
     description = "Turns off analytics switches by default.",
     default = false,
 ) {
@@ -71,7 +71,7 @@ private val braveTelemetryResourcePatch = resourcePatch(
             if (fileTouched) modifiedFiles++
         }
 
-        println("[Block Telemetry] Set $modifiedAttrs preference defaults to false across $modifiedFiles XML layout files")
+        println("[Block Trackers] Set $modifiedAttrs preference defaults to false across $modifiedFiles XML layout files")
     }
 }
 
@@ -157,7 +157,7 @@ private fun writeHostEntries(
 
 private val braveHostsBlockerPatch = rawResourcePatch(
     name = "Block Tracking Servers",
-    description = "Redirects tracking servers to nowhere.",
+    description = "Redirects tracking servers to 0.0.0.0.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -188,7 +188,7 @@ private val braveHostsBlockerPatch = rawResourcePatch(
             .filter { (_, file, _) -> file.exists() && file.isFile }
 
         if (existingTargets.isEmpty()) {
-            println("[Block Telemetry] Skipped: no arm64-v8a or armeabi-v7a libchrome.so found.")
+            println("[Block Trackers] Skipped: no arm64-v8a or armeabi-v7a libchrome.so found.")
             return@execute
         }
 
@@ -207,7 +207,7 @@ private val braveHostsBlockerPatch = rawResourcePatch(
                 writeHostEntries(raf, relPath, hostEntries, offsetSelector, redirectionIp)
             }
 
-            println("[Block Telemetry] $relPath: Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
+            println("[Block Trackers] $relPath: Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
         }
     }
 }
@@ -220,7 +220,7 @@ internal const val BRAVE_UNSUPPORTED_VARIANT_MESSAGE =
 
 @Suppress("unused")
 val braveBlockTelemetryPatch = bytecodePatch(
-    name = "Block Tracking",
+    name = "Block Trackers",
     description = "Blocks usage analytics, crash uploads and experiment downloads.",
     default = true,
 ) {
@@ -321,13 +321,13 @@ val braveBlockTelemetryPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Block Telemetry] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
+        println("[Block Trackers] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
 
         // 5. Offers host: Rewrite const-string literals containing offers.brave.com to 0.0.0.0
         if (blockOffersHost == true) {
             blockOffersHostInDex()
         } else {
-            println("[Block Telemetry] Offers host blocking disabled by option.")
+            println("[Block Trackers] Offers host blocking disabled by option.")
         }
     }
 }
@@ -367,9 +367,9 @@ private fun BytecodePatchContext.blockOffersHostInDex() {
 
 private fun logOffersResult(rewrittenStrings: Int, touchedClasses: Int) {
     if (rewrittenStrings == 0) {
-        println("[Block Telemetry] No offers.brave.com literals found.")
+        println("[Block Trackers] No offers.brave.com literals found.")
     } else {
-        println("[Block Telemetry] Rewrote $rewrittenStrings offers.brave.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
+        println("[Block Trackers] Rewrote $rewrittenStrings offers.brave.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
     }
 }
 

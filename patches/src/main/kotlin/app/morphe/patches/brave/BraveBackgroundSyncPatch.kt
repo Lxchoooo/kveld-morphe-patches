@@ -60,6 +60,6 @@ val braveBackgroundSyncPatch = bytecodePatch(
         val c3 = fp3.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
         hookedMethods.add("$c3.${fp3.method.name}()")
 
-        println("[Disable Background Sync] Injected Smali hooks into ${hookedMethods.size} methods (${hookedMethods.joinToString(", ")})")
+        println("[Stop Background Sync] Injected Smali hooks into ${hookedMethods.size} methods (${hookedMethods.joinToString(", ")})")
     }
 }

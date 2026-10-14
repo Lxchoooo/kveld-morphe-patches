@@ -289,6 +289,6 @@ val bravePerformanceOptimizationPatch = bytecodePatch(
         )
 
         val targetClass = fp.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
-        println("[Startup Performance] Neutralized async OEM initialization in $targetClass (field $boolField)")
+        println("[Faster Startup] Neutralized async OEM initialization in $targetClass (field $boolField)")
     }
 }

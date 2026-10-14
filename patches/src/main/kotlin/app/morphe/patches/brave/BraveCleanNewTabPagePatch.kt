@@ -63,7 +63,7 @@ private val braveCleanNtpXmlPatch = resourcePatch(
             if (fileTouched) modifiedFiles++
         }
 
-        println("[Clean New Tab Page] Set $modifiedAttrs NTP marketing preference defaults to false across $modifiedFiles XML layout files")
+        println("[Clean Start Page] Set $modifiedAttrs NTP marketing preference defaults to false across $modifiedFiles XML layout files")
     }
 }
 
@@ -149,7 +149,7 @@ val braveCleanNewTabPagePatch = bytecodePatch(
                     hookedMethods.add("PrefService.$methodName (NTP gates)")
                 }
             } catch (e: Exception) {
-                println("[Clean New Tab Page] PrefService.$methodName hook note: ${e.message}")
+                println("[Clean Start Page] PrefService.$methodName hook note: ${e.message}")
             }
         }
 
@@ -170,7 +170,7 @@ val braveCleanNewTabPagePatch = bytecodePatch(
             )
             injectPrefGuards(statsInitFp.method, prefTargets, hookedMethods)
         } catch (e: Exception) {
-            println("[Clean New Tab Page] Stats init hook note: ${e.message}")
+            println("[Clean Start Page] Stats init hook note: ${e.message}")
         }
 
         // 3. Force preference listener guards
@@ -182,10 +182,10 @@ val braveCleanNewTabPagePatch = bytecodePatch(
             )
             injectPrefGuards(statsListenerFp.method, prefTargets, hookedMethods)
         } catch (e: Exception) {
-            println("[Clean New Tab Page] Stats listener hook note: ${e.message}")
+            println("[Clean Start Page] Stats listener hook note: ${e.message}")
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Clean New Tab Page] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
+        println("[Clean Start Page] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
     }
 }

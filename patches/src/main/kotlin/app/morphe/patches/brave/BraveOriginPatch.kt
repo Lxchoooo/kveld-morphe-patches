@@ -122,7 +122,7 @@ private fun buildLeoFeatureFlagHook(): String = """
 // ════════════════════════════════════════════════════════════════════════════════
 
 private val braveOriginResourcePatch = resourcePatch(
-    name = "Origin Switches (Setup)",
+    name = "Brave Origin (Setup)",
     description = "Turns on Origin preference switches by default.",
     default = false,
 ) {

@@ -17,7 +17,7 @@ private val BLOAT_NATIVE_LIBS = listOf(
 
 @Suppress("unused")
 val braveNativeBloatSlimmerPatch = rawResourcePatch(
-    name = "Remove Unused Parts",
+    name = "Remove Extra Files",
     description = "Deletes unused AI, VPN and AR files to shrink the app.",
     default = false,
 ) {
@@ -47,6 +47,6 @@ val braveNativeBloatSlimmerPatch = rawResourcePatch(
         }
 
         val totalSavedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-        println("[Native Bloat Slimmer] Stripped ${strippedLibs.size} bloat binaries (${strippedLibs.joinToString(", ")}) -> Saved $totalSavedMb MB")
+        println("[Remove Extra Files] Stripped ${strippedLibs.size} bloat binaries (${strippedLibs.joinToString(", ")}) -> Saved $totalSavedMb MB")
     }
 }

@@ -9,8 +9,8 @@ import app.morphe.patches.shared.sharedExtensionPatch
 
 @Suppress("unused")
 val braveTabGroupCloseSelectionPatch = bytecodePatch(
-    name = "Better Tab Closing",
-    description = "Closing a tab picks the previous tab in the same group.",
+    name = "Select Previous Tab on Close",
+    description = "Selects the previous tab in the tab group when closing a tab.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -56,6 +56,6 @@ val braveTabGroupCloseSelectionPatch = bytecodePatch(
             throw PatchException(BRAVE_UNSUPPORTED_VARIANT_MESSAGE)
         }
 
-        println("[Tab Group Close Selection] Applied $patched hook in TabCollectionTabModelImpl.${closeSelectionFp.method.name} -> previous tab selection in tab group enabled.")
+        println("[Select Previous Tab on Close] Applied $patched hook in TabCollectionTabModelImpl.${closeSelectionFp.method.name} -> previous tab selection in tab group enabled.")
     }
 }

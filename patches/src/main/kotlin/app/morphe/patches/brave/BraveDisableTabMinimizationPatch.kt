@@ -40,6 +40,6 @@ val braveDisableTabMinimizationPatch = bytecodePatch(
             """.trimIndent(),
         )
 
-        println("[Disable Tab Auto-Minimization] Applied 1 hook in ChromeTabbedActivity.${openingScreenFp.method.name} -> opening screen tab backgrounding disabled.")
+        println("[Keep Tabs Open] Applied 1 hook in ChromeTabbedActivity.${openingScreenFp.method.name} -> opening screen tab backgrounding disabled.")
     }
 }
