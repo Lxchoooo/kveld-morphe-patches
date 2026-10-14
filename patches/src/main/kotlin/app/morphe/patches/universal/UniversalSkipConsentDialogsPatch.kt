@@ -39,7 +39,7 @@ val universalSkipConsentDialogsPatch = bytecodePatch(
                     if (method.name == "show" &&
                         method.returnType == "V" &&
                         method.parameters.size == 2 &&
-                        method.parameters[0] == "Landroid/app/Activity;"
+                        method.parameters[0].type == "Landroid/app/Activity;"
                     ) {
                         method.clearTryBlocks()
                         method.addInstruction(0, "return-void")
