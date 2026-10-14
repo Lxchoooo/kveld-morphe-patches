@@ -70,7 +70,7 @@ val apkJunkCleanerPatch = rawResourcePatch(
         }
 
         if (!apkRoot.exists() || !apkRoot.isDirectory) {
-            println("[APK Junk Cleaner] APK root directory not found - skipping safely.")
+            println("[Clean App Packaging] APK root directory not found - skipping safely.")
             return@execute
         }
 
@@ -109,11 +109,11 @@ val apkJunkCleanerPatch = rawResourcePatch(
         } catch (_: Throwable) {}
 
         if (junkFilesCount == 0) {
-            println("[APK Junk Cleaner] APK root and META-INF are already clean (0 junk files found).")
+            println("[Clean App Packaging] APK root and META-INF are already clean (0 junk files found).")
             return@execute
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
-        println("[APK Junk Cleaner] Purged $junkFilesCount non-functional build/metadata files -> Saved $savedFormatted")
+        println("[Clean App Packaging] Purged $junkFilesCount non-functional build/metadata files -> Saved $savedFormatted")
     }
 }

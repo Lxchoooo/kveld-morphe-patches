@@ -132,8 +132,8 @@ private fun stripPermissionsFromManifest(
 
 @Suppress("unused")
 val universalPrivacyPermissionsPatch = resourcePatch(
-    name = "Remove Permissions",
-    description = "Removes permissions you pick below.",
+    name = "Strip Sensitive Permissions",
+    description = "Removes sensitive privacy and hardware permissions you select.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
@@ -142,7 +142,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripNotifications",
         default = false,
         title = "Notifications",
-        description = "Remove POST_NOTIFICATIONS permission (Android 13+) from AndroidManifest.xml.",
+        description = "Removes notification permissions (Android 13+).",
         required = false,
     )
 
@@ -150,7 +150,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripCamera",
         default = false,
         title = "Camera",
-        description = "Remove CAMERA permission from AndroidManifest.xml.",
+        description = "Removes camera access permissions.",
         required = false,
     )
 
@@ -158,7 +158,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripMicrophone",
         default = false,
         title = "Microphone",
-        description = "Remove RECORD_AUDIO and audio capture permissions from AndroidManifest.xml.",
+        description = "Removes audio recording and microphone permissions.",
         required = false,
     )
 
@@ -166,7 +166,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripMediaAndStorage",
         default = false,
         title = "Photos & files",
-        description = "Remove external storage (READ/WRITE/MANAGE_EXTERNAL_STORAGE) and media permissions (READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, ACCESS_MEDIA_LOCATION) from AndroidManifest.xml.",
+        description = "Removes photo, video, and storage access permissions.",
         required = false,
     )
 
@@ -174,7 +174,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripLocation",
         default = false,
         title = "Location",
-        description = "Remove ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, and ACCESS_BACKGROUND_LOCATION permissions from AndroidManifest.xml.",
+        description = "Removes fine, coarse, and background location permissions.",
         required = false,
     )
 
@@ -182,7 +182,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripContacts",
         default = false,
         title = "Contacts",
-        description = "Remove READ_CONTACTS, WRITE_CONTACTS, and GET_ACCOUNTS permissions from AndroidManifest.xml.",
+        description = "Removes contacts and account reading permissions.",
         required = false,
     )
 
@@ -190,7 +190,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripCalendar",
         default = false,
         title = "Calendar",
-        description = "Remove READ_CALENDAR and WRITE_CALENDAR permissions from AndroidManifest.xml.",
+        description = "Removes calendar reading and writing permissions.",
         required = false,
     )
 
@@ -198,7 +198,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripNearbyDevices",
         default = false,
         title = "Nearby devices",
-        description = "Remove Bluetooth scanning/connection and nearby Wi-Fi permissions (BLUETOOTH_SCAN, BLUETOOTH_CONNECT, BLUETOOTH_ADVERTISE, NEARBY_WIFI_DEVICES, UWB_RANGING) from AndroidManifest.xml.",
+        description = "Removes Bluetooth scanning and nearby device permissions.",
         required = false,
     )
 
@@ -206,7 +206,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripSensors",
         default = false,
         title = "Body sensors",
-        description = "Remove BODY_SENSORS, BODY_SENSORS_BACKGROUND, and ACTIVITY_RECOGNITION permissions from AndroidManifest.xml.",
+        description = "Removes body sensor and activity recognition permissions.",
         required = false,
     )
 
@@ -214,14 +214,14 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         key = "stripInstalledApps",
         default = false,
         title = "Installed apps",
-        description = "Remove QUERY_ALL_PACKAGES so Android 11+ hides your other installed apps from this app. May break launchers, app managers and share menus that list apps.",
+        description = "Hides other installed apps from this app (QUERY_ALL_PACKAGES).",
         required = false,
     )
 
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Universal Privacy Permissions Stripper] Skipped: AndroidManifest.xml not found.")
+            println("[Strip Sensitive Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -250,7 +250,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         )
 
         if (blockedPermissions.isEmpty()) {
-            println("[Universal Privacy Permissions Stripper] Skipped: No privacy permission categories selected to strip.")
+            println("[Strip Sensitive Permissions] Skipped: No privacy permission categories selected to strip.")
             return@execute
         }
 
@@ -260,11 +260,11 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         }
 
         if (removedList.isEmpty()) {
-            println("[Universal Privacy Permissions Stripper] No matching permissions found in AndroidManifest.xml.")
+            println("[Strip Sensitive Permissions] No matching permissions found in AndroidManifest.xml.")
             return@execute
         }
 
         val shortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[Universal Privacy Permissions Stripper] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
+        println("[Strip Sensitive Permissions] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
     }
 }

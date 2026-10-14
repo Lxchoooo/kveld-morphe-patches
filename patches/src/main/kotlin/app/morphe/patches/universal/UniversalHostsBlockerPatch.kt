@@ -16,7 +16,7 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import java.io.File
 import java.util.Locale
 
-private const val TAG = "[Universal Hosts Blocker]"
+private const val TAG = "[Block Tracking Servers]"
 private const val DEFAULT_SINK_IP = "0.0.0.0"
 
 private val RESERVED_HOSTS = setOf(

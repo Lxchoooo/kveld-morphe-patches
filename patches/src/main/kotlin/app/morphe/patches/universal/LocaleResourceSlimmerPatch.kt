@@ -23,7 +23,7 @@ val localeResourceSlimmerPatch = resourcePatch(
         val mainRes = get("res")
         val resDirs = LocaleUtils.resolveResourceDirectories(mainRes)
         if (resDirs.isEmpty()) {
-            println("[Locale Resource Slimmer] res/ directory not found - skipping safely.")
+            println("[Remove Extra Languages] res/ directory not found - skipping safely.")
             return@execute
         }
 
@@ -58,12 +58,12 @@ val localeResourceSlimmerPatch = resourcePatch(
 
         if (removedDirs == 0) {
             val packageSuffix = if (resDirs.size > 1) " across ${resDirs.size} resource packages" else ""
-            println("[Locale Resource Slimmer] No non-target localization directories found to strip$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}).")
+            println("[Remove Extra Languages] No non-target localization directories found to strip$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}).")
             return@execute
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
         val packageSuffix = if (resDirs.size > 1) " across ${resDirs.size} resource packages" else ""
-        println("[Locale Resource Slimmer] Stripped $removedDirs localization dirs$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
+        println("[Remove Extra Languages] Stripped $removedDirs localization dirs$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
     }
 }

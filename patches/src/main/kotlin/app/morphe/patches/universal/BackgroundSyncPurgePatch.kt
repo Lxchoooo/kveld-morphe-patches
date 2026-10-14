@@ -123,47 +123,47 @@ private fun disableServices(doc: Document): Int {
 
 @Suppress("unused")
 val backgroundSyncPurgePatch = resourcePatch(
-    name = "Stop Background Wakeups",
-    description = "Stops boot receivers and background schedulers that wake the app.",
+    name = "Stop Background Sync",
+    description = "Stops background sync schedulers and boot wakeups.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val stripBootPermission by booleanOption(
         key = "stripBootPermission",
         default = true,
-        title = "Strip RECEIVE_BOOT_COMPLETED Permission",
-        description = "Remove android.permission.RECEIVE_BOOT_COMPLETED from AndroidManifest.xml.",
+        title = "Strip Boot Permission",
+        description = "Removes startup boot permissions from the manifest.",
         required = false,
     )
 
     val disableBootReceivers by booleanOption(
         key = "disableBootReceivers",
         default = true,
-        title = "Disable Boot & Package Receivers",
-        description = "Set android:enabled='false' on broadcast receivers listening for BOOT_COMPLETED, LOCKED_BOOT_COMPLETED, or MY_PACKAGE_REPLACED.",
+        title = "Disable Boot Receivers",
+        description = "Disables broadcast receivers that launch the app on device startup.",
         required = false,
     )
 
     val disableWorkManager by booleanOption(
         key = "disableWorkManager",
         default = true,
-        title = "Disable WorkManager & Job Schedulers",
-        description = "Disable AndroidX WorkManager, Google DataTransport, and ProfileInstaller background services and receivers.",
+        title = "Disable Background Schedulers",
+        description = "Disables WorkManager and background job scheduler services.",
         required = false,
     )
 
     val stripWakeLock by booleanOption(
         key = "stripWakeLock",
         default = false,
-        title = "Strip WAKE_LOCK Permission",
-        description = "Remove android.permission.WAKE_LOCK. Default is false to prevent interrupting background audio playback or active downloads.",
+        title = "Strip Wake Lock Permission",
+        description = "Removes wake-lock permissions (may interrupt background downloads).",
         required = false,
     )
 
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Background Sync Purge] Skipped: AndroidManifest.xml not found.")
+            println("[Stop Background Sync] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -195,12 +195,12 @@ val backgroundSyncPurgePatch = resourcePatch(
         }
 
         if (removedPerms.isEmpty() && disabledReceiversCount == 0 && disabledServicesCount == 0) {
-            println("[Background Sync Purge] AndroidManifest.xml has no background wakeups or boot receivers.")
+            println("[Stop Background Sync] AndroidManifest.xml has no background wakeups or boot receivers.")
             return@execute
         }
 
         val permNames = removedPerms.map { it.substringAfterLast('.') }.distinct()
         val permNote = if (removedPerms.isNotEmpty()) "revoked ${removedPerms.size} permission(s) (${permNames.joinToString(", ")})" else "0 permissions revoked"
-        println("[Background Sync Purge] $permNote, disabled $disabledReceiversCount receiver(s) and $disabledServicesCount service(s).")
+        println("[Stop Background Sync] $permNote, disabled $disabledReceiversCount receiver(s) and $disabledServicesCount service(s).")
     }
 }

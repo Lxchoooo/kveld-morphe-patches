@@ -26,8 +26,8 @@ private sealed class PendingMutation(val instructionIndex: Int) {
 }
 
 private val screenshotProtectionBypassResourcePatch = resourcePatch(
-    name = "Allow Screen Capture (Setup)",
-    description = "Enables allowAudioPlaybackCapture on the application tag in AndroidManifest.xml.",
+    name = "Allow Screenshots (Setup)",
+    description = "Enables audio and screen capture in the manifest.",
     default = false,
 ) {
     execute {
@@ -50,7 +50,7 @@ private val screenshotProtectionBypassResourcePatch = resourcePatch(
                 if (currentSetting != "true") {
                     appElem.removeAttribute("android:allowAudioPlaybackCapture")
                     appElem.setAttributeNS(ANDROID_XML_NAMESPACE, "android:allowAudioPlaybackCapture", "true")
-                    println("[Universal Screenshot Protection Bypass] Set android:allowAudioPlaybackCapture=\"true\" in AndroidManifest.xml.")
+                    println("[Allow Screenshots (Setup)] Set android:allowAudioPlaybackCapture=\"true\" in AndroidManifest.xml.")
                 }
             }
         }
@@ -154,16 +154,16 @@ val universalScreenshotProtectionBypassPatch = bytecodePatch(
 
         val totalHooks = windowHooks + surfaceHooks + audioHooks + detectionHooks
         if (totalHooks == 0) {
-            println("[Universal Screenshot Protection Bypass] Target APK does not invoke FLAG_SECURE, audio capture, or screenshot detection APIs (0 components found).")
+            println("[Allow Screenshots] Target APK does not invoke FLAG_SECURE, audio capture, or screenshot detection APIs (0 components found).")
             return@execute
         }
 
         println(
-            "[Universal Screenshot Protection Bypass] Applied $totalHooks bypass hook(s) across $touchedClasses class(es) " +
+            "[Allow Screenshots] Applied $totalHooks bypass hook(s) across $touchedClasses class(es) " +
                 "($windowHooks window/layout flags, $surfaceHooks SurfaceView, $audioHooks audio capture, $detectionHooks detection/recents)."
         )
         if (skippedFlags > 0) {
-            println("[Universal Screenshot Protection Bypass] Skipped $skippedFlags flag site(s) with registers >= 16 (assembler addressing limit).")
+            println("[Allow Screenshots] Skipped $skippedFlags flag site(s) with registers >= 16 (assembler addressing limit).")
         }
     }
 }

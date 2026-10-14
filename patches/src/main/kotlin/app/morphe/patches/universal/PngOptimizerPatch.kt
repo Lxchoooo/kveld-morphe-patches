@@ -168,9 +168,9 @@ val pngOptimizerPatch = rawResourcePatch(
 
         if (rootDirs.isEmpty()) {
             if (resNotDecoded) {
-                println("[PNG Asset Optimizer] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+                println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
             }
-            println("[PNG Asset Optimizer] Neither res/ nor assets/ directory found - skipping safely.")
+            println("[Shrink PNG Images] Neither res/ nor assets/ directory found - skipping safely.")
             return@execute
         }
 
@@ -182,10 +182,10 @@ val pngOptimizerPatch = rawResourcePatch(
 
         if (pngFiles.isEmpty()) {
             if (resNotDecoded) {
-                println("[PNG Asset Optimizer] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+                println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
             }
             val scopeDesc = if (resNotDecoded) "assets/" else "res/ or assets/"
-            println("[PNG Asset Optimizer] No candidate PNG assets found in $scopeDesc - skipping.")
+            println("[Shrink PNG Images] No candidate PNG assets found in $scopeDesc - skipping.")
             return@execute
         }
 
@@ -212,11 +212,11 @@ val pngOptimizerPatch = rawResourcePatch(
         }
 
         if (resNotDecoded) {
-            println("[PNG Asset Optimizer] Skipped res/: resources not decoded in current pipeline mode (processed ${pngFiles.size} file(s) in assets/).")
+            println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed ${pngFiles.size} file(s) in assets/).")
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
         val scopeLabel = if (resNotDecoded) "assets/ PNGs" else "PNGs"
-        println("[PNG Asset Optimizer] Recompressed ${optimizedCount.get()} / ${pngFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
+        println("[Shrink PNG Images] Recompressed ${optimizedCount.get()} / ${pngFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }

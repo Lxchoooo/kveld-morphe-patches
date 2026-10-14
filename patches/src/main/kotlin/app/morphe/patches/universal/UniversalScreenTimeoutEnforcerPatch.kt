@@ -75,16 +75,16 @@ val universalScreenTimeoutEnforcerPatch = bytecodePatch(
 
         val totalHooks = viewHooks + windowHooks + layoutParamHooks
         if (totalHooks == 0) {
-            println("[Universal Screen Timeout Enforcer] Target APK does not invoke keepScreenOn or FLAG_KEEP_SCREEN_ON APIs (0 components found).")
+            println("[Force Screen Timeout] Target APK does not invoke keepScreenOn or FLAG_KEEP_SCREEN_ON APIs (0 components found).")
             return@execute
         }
 
         println(
-            "[Universal Screen Timeout Enforcer] Applied $totalHooks screen timeout hook(s) across $touchedClasses class(es) " +
+            "[Force Screen Timeout] Applied $totalHooks screen timeout hook(s) across $touchedClasses class(es) " +
                 "($viewHooks View/SurfaceHolder setKeepScreenOn, $windowHooks Window addFlags/setFlags, $layoutParamHooks LayoutParams flags)."
         )
         if (skippedFlags > 0) {
-            println("[Universal Screen Timeout Enforcer] Skipped $skippedFlags flag site(s) with registers >= 16 (assembler addressing limit).")
+            println("[Force Screen Timeout] Skipped $skippedFlags flag site(s) with registers >= 16 (assembler addressing limit).")
         }
     }
 }

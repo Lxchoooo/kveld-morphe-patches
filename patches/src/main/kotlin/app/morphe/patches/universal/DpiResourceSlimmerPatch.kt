@@ -251,7 +251,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
     val targetDpis by stringOption(
         key = "dpis",
         title = "Screen sizes to keep",
-        description = "Comma-separated screen densities to preserve (e.g. 'xxhdpi', 'xhdpi, xxhdpi', 'xxxhdpi'). Density-independent resources (nodpi, anydpi) and unquantified base directories are always preserved.",
+        description = "Screen densities to preserve (e.g. 'xxhdpi', 'xhdpi'). Base resources are always kept.",
         default = "xxhdpi",
         required = false,
     )
@@ -259,7 +259,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
     val stripSmartwatch by booleanOption(
         key = "stripSmartwatch",
         title = "Watch resources",
-        description = "Removes graphic and non-values layout resources qualified for Wear OS smartwatches (e.g. watch qualifiers).",
+        description = "Removes resources qualified for Wear OS smartwatches.",
         default = true,
         required = false,
     )
@@ -267,7 +267,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
     val stripTelevision by booleanOption(
         key = "stripTelevision",
         title = "TV resources",
-        description = "Removes graphic and non-values layout resources qualified for Android TV / Leanback (e.g. television qualifiers).",
+        description = "Removes resources qualified for Android TV.",
         default = true,
         required = false,
     )
@@ -275,7 +275,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
     val stripOtherFormFactors by booleanOption(
         key = "stripOtherFormFactors",
         title = "Car, dock and VR resources",
-        description = "Removes graphic and non-values layout resources qualified for car head units, desk docks, appliances, or VR headsets.",
+        description = "Removes resources for car head units, docks, appliances, or VR headsets.",
         default = true,
         required = false,
     )
@@ -284,7 +284,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
         val mainRes = get("res")
         val resDirs = LocaleUtils.resolveResourceDirectories(mainRes)
         if (resDirs.isEmpty()) {
-            println("[DPI Resource Slimmer] Skipped: res directory not found.")
+            println("[Remove Unused Screen Sizes] Skipped: res directory not found.")
             return@execute
         }
 
@@ -303,9 +303,9 @@ val dpiResourceSlimmerPatch = resourcePatch(
         val stats = SlimmerStats()
         var totalRemovedDirs = 0
 
-        println("[DPI Resource Slimmer] Target densities: ${keepSet.sorted().joinToString(", ")}")
+        println("[Remove Unused Screen Sizes] Target densities: ${keepSet.sorted().joinToString(", ")}")
         if (uiModeStripSet.isNotEmpty()) {
-            println("[DPI Resource Slimmer] Stripping non-phone UI mode qualifiers: ${uiModeStripSet.sorted().joinToString(", ")}")
+            println("[Remove Unused Screen Sizes] Stripping non-phone UI mode qualifiers: ${uiModeStripSet.sorted().joinToString(", ")}")
         }
 
         for (resDir in resDirs) {
@@ -322,7 +322,7 @@ val dpiResourceSlimmerPatch = resourcePatch(
                     .distinct()
                     .sorted()
                 val pkgName = resDir.parentFile?.name ?: "package"
-                println("[DPI Resource Slimmer] $pkgName: No matching density directories found for target $keepSet (available: $available) - skipping density trimming safely.")
+                println("[Remove Unused Screen Sizes] $pkgName: No matching density directories found for target $keepSet (available: $available) - skipping density trimming safely.")
                 continue
             }
 
@@ -347,10 +347,10 @@ val dpiResourceSlimmerPatch = resourcePatch(
         val packageSuffix = if (resDirs.size > 1) " across ${resDirs.size} resource packages" else ""
 
         if (stats.preservedInSitu > 0) {
-            println("[DPI Resource Slimmer] Preserved ${stats.preservedInSitu} single-density orphan asset(s) in-situ.")
+            println("[Remove Unused Screen Sizes] Preserved ${stats.preservedInSitu} single-density orphan asset(s) in-situ.")
         }
 
-        println("[DPI Resource Slimmer] Stripped ${stats.removedFiles} files across $totalRemovedDirs density/device dirs$packageSuffix (${stats.preservedInSitu} orphan resources preserved in-situ, kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
+        println("[Remove Unused Screen Sizes] Stripped ${stats.removedFiles} files across $totalRemovedDirs density/device dirs$packageSuffix (${stats.preservedInSitu} orphan resources preserved in-situ, kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
     }
 }
 

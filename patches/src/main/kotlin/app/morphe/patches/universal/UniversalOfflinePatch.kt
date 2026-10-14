@@ -109,7 +109,7 @@ val universalOfflinePatch = resourcePatch(
         key = "stripNetworkState",
         default = false,
         title = "Network state",
-        description = "Also remove ACCESS_NETWORK_STATE and ACCESS_WIFI_STATE permissions. Default is false to prevent SecurityException crashes in apps that query network status without error handling.",
+        description = "Also removes network and Wi-Fi state permissions.",
         required = false,
     )
 
@@ -117,7 +117,7 @@ val universalOfflinePatch = resourcePatch(
         key = "stripWifiControls",
         default = true,
         title = "Wi-Fi controls",
-        description = "Remove CHANGE_NETWORK_STATE, CHANGE_WIFI_STATE, CHANGE_WIFI_MULTICAST_STATE, and NEARBY_WIFI_DEVICES permissions.",
+        description = "Removes Wi-Fi management and nearby device permissions.",
         required = false,
     )
 
@@ -125,7 +125,7 @@ val universalOfflinePatch = resourcePatch(
         key = "stripPush",
         default = false,
         title = "Push permissions",
-        description = "Remove Google Cloud Messaging and Firebase Cloud Messaging push receiver permissions (com.google.android.c2dm.permission.RECEIVE).",
+        description = "Removes push notification permissions.",
         required = false,
     )
 
@@ -133,7 +133,7 @@ val universalOfflinePatch = resourcePatch(
         key = "stripGoogleServices",
         default = false,
         title = "Google sync",
-        description = "Remove Google Services Framework and account sync permissions (com.google.android.providers.gsf.permission.READ_GSERVICES, android.permission.GET_ACCOUNTS).",
+        description = "Removes Google Services and account sync permissions.",
         required = false,
     )
 
@@ -141,14 +141,14 @@ val universalOfflinePatch = resourcePatch(
         key = "blockCleartext",
         default = true,
         title = "Block unencrypted traffic",
-        description = "Enforce android:usesCleartextTraffic='false' on the application tag in AndroidManifest.xml.",
+        description = "Enforces encrypted traffic in the manifest.",
         required = false,
     )
 
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Universal Offline Mode] Skipped: AndroidManifest.xml not found.")
+            println("[Go Fully Offline] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -176,17 +176,17 @@ val universalOfflinePatch = resourcePatch(
         }
 
         if (removedList.isEmpty() && !cleartextBlocked) {
-            println("[Universal Offline Mode] No target network permissions found in AndroidManifest.xml (already offline).")
+            println("[Go Fully Offline] No target network permissions found in AndroidManifest.xml (already offline).")
             return@execute
         }
 
         if (removedList.isEmpty()) {
-            println("[Universal Offline Mode] Blocked cleartext HTTP traffic (0 network permissions present).")
+            println("[Go Fully Offline] Blocked cleartext HTTP traffic (0 network permissions present).")
             return@execute
         }
 
         val shortNames = removedList.map { it.substringAfterLast('.') }.distinct()
         val cleartextNote = if (cleartextBlocked) " + blocked cleartext HTTP" else ""
-        println("[Universal Offline Mode] Stripped ${removedList.size} permission(s) (${shortNames.joinToString(", ")})$cleartextNote.")
+        println("[Go Fully Offline] Stripped ${removedList.size} permission(s) (${shortNames.joinToString(", ")})$cleartextNote.")
     }
 }

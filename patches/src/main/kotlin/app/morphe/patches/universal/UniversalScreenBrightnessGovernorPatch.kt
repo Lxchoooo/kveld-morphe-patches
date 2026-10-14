@@ -44,12 +44,12 @@ val universalScreenBrightnessGovernorPatch = bytecodePatch(
         }
 
         if (brightnessHooks == 0) {
-            println("[Universal Screen Brightness Governor] Target APK does not write to screenBrightness (0 components found).")
+            println("[Lock Screen Brightness] Target APK does not write to screenBrightness (0 components found).")
             return@execute
         }
 
         println(
-            "[Universal Screen Brightness Governor] Applied $brightnessHooks screen brightness hook(s) across $touchedClasses class(es)."
+            "[Lock Screen Brightness] Applied $brightnessHooks screen brightness hook(s) across $touchedClasses class(es)."
         )
     }
 }
