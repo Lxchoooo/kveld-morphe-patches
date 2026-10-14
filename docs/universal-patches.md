@@ -24,6 +24,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Block Tracking Servers](#14-block-tracking-servers-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
 | **[Block Tracking SDKs](#15-block-tracking-sdks-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Block Trackers |
 | **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
+| **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
 
 ---
 
@@ -67,6 +68,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
 | **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
+| **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
 
 ---
 
@@ -504,4 +506,23 @@ The **`Disable Play Store updates`** patch sets the manifest `versionCode` to th
 - **Opt-in by default**: Disabled by default (`default = false`) because it changes package update behavior.
 - **Root mounting incompatibility**: Does not work if the application is installed via root mount.
 - **Universal applicability**: Operates across any Android application without hardcoded class fingerprints or app-specific targets.
+
+---
+
+## 17. Spoof Reinstall IDs (`universalSpoofReinstallIdsPatch`)
+
+The **`Spoof Reinstall IDs`** patch neutralizes persistent installation and app-set tracking identifiers by replacing identifier getters directly at the Dalvik bytecode level (`classes*.dex`) with neutral constants. This prevents applications and integrated analytics libraries from correlating reinstalls or linking activity across applications from the same developer family.
+
+> [!NOTE]
+> ### Identifier Constant Folding
+> Applications use identifier frameworks (such as Google Play Services AppSet and Firebase Instance ID) to correlate user accounts and track repeat installations even after application data and cache have been wiped.
+>
+> `Spoof Reinstall IDs` intercepts identifier getters (`getId`, `getToken`, and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
+
+### Configuration in Morphe Manager
+
+- **App set ID (`appSetId`)**: Fixed identifier reported when querying the app-set ID (Text, default: `00000000-0000-0000-0000-000000000000`).
+- **Install ID (`installId`)**: Fixed identifier reported for installation and instance ID lookups (Text, default: `0000000000000000000000`).
+- **Scope to single app (`spoofScope`)**: Report app-set ID scope as single-application (`1`) instead of developer-wide (`2`) (Toggle, default: `true`).
+
 
