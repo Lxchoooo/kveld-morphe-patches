@@ -205,6 +205,5 @@ validation/combined/
 AGENTS.md
 CLAUDE.md
 CLAUDE.local.md
-docs/apps/
 scripts/sync_shared_skills.sh
 scripts/hooks/
