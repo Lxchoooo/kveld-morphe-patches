@@ -20,7 +20,7 @@ val gboardForceIncognitoPatch: BytecodePatch = bytecodePatch(
 
     execute {
         val fp1 = Fingerprint(
-            definingClass = "Lsmn;",
+            definingClass = "Lssp;",
             name = "z",
             parameters = listOf("Landroid/view/inputmethod/EditorInfo;"),
             returnType = "Z",
@@ -30,15 +30,15 @@ val gboardForceIncognitoPatch: BytecodePatch = bytecodePatch(
             """
                 invoke-static {}, ${Constants.GBOARD_EXTENSION_CLASS}->isForceIncognitoEnabled()Z
                 move-result v0
-                if-eqz v0, :cond_skip_morphe_incognito_smn
+                if-eqz v0, :cond_skip_morphe_incognito_ssp
                 const/4 v0, 0x1
                 return v0
-                :cond_skip_morphe_incognito_smn
+                :cond_skip_morphe_incognito_ssp
             """.trimIndent(),
         )
 
         val fp2 = Fingerprint(
-            definingClass = "Lfoy;",
+            definingClass = "Lftu;",
             name = "G",
             parameters = emptyList(),
             returnType = "Z",
@@ -48,7 +48,7 @@ val gboardForceIncognitoPatch: BytecodePatch = bytecodePatch(
             """
                 invoke-static {}, ${Constants.GBOARD_EXTENSION_CLASS}->isForceIncognitoEnabled()Z
                 move-result v0
-                if-eqz v0, :cond_skip_morphe_incognito_foy
+                if-eqz v0, :cond_skip_morphe_incognito_ftu
                 invoke-static {}, ${Constants.GBOARD_EXTENSION_CLASS}->isHideIncognitoIconEnabled()Z
                 move-result v0
                 if-eqz v0, :cond_show_incognito_mask
@@ -57,7 +57,7 @@ val gboardForceIncognitoPatch: BytecodePatch = bytecodePatch(
                 :cond_show_incognito_mask
                 const/4 v0, 1
                 return v0
-                :cond_skip_morphe_incognito_foy
+                :cond_skip_morphe_incognito_ftu
             """.trimIndent(),
         )
 
