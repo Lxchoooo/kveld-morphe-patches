@@ -21,7 +21,7 @@ class PatchContract:
 XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     PatchContract(
         patch_id="anti_tamper_bypass",
-        name="Anti-Tamper Bypass",
+        name="Run on Rooted Devices",
         target_type="bytecode",
         description="Neutralizes anti-tamper, hook detection (Xposed/maps), VPN/ADB detection, and root/emulator checks.",
         required_classes=["Lg9/a;", "Lg9/b;", "Lg9/c;", "Lg9/d;", "Lg9/e;"],
@@ -30,7 +30,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="background_optimizer",
-        name="Background Optimizer",
+        name="Stop Background Activity",
         target_type="composite",
         description="Neutralizes persistent foreground keepalive, nearby BLE scanning, and companion services.",
         required_classes=[
@@ -43,7 +43,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="block_telemetry",
-        name="Block Telemetry & Trackers",
+        name="Block Trackers",
         target_type="composite",
         description="Disables Xiaomi OneTrack, crash dump providers, bug reports, and analytics dispatchers.",
         required_classes=[
@@ -71,7 +71,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="disable_promos_and_nags",
-        name="Disable Promos & Nags",
+        name="Skip Popups & Tutorials",
         target_type="bytecode",
         description="Bypasses startup agreements, onboarding guides, region prompts, banners, and Bluetooth permission modal nags.",
         required_classes=[
@@ -86,7 +86,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="guest_ota_unlock",
-        name="Guest OTA Unlock",
+        name="Update Without Account",
         target_type="bytecode",
         description="Bypasses mandatory Xiaomi account login checks for firmware updates.",
         required_classes=[
@@ -98,7 +98,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="network_security",
-        name="Network Security & TLS Inspection",
+        name="Safer Connections",
         target_type="composite",
         description="Configures network security config for HTTPS and neutralizes OkHttp CertificatePinner.",
         required_classes=[
@@ -122,7 +122,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="model_catalog_unlock",
-        name="Model Catalog Unlock",
+        name="Show All Models",
         target_type="bytecode",
         description="Forces DeviceInfoListCache.isShowProduct to return true, preventing version gating from hiding device models.",
         required_classes=[
@@ -133,7 +133,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="sound_features_unlock",
-        name="Sound Features Unlock",
+        name="Unlock Sound Features",
         target_type="bytecode",
         description="Unlocks Spatial Audio on aptX Adaptive 96kHz and bypasses server restriction items.",
         required_classes=[
@@ -146,7 +146,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="surgical_oem_unlock",
-        name="Surgical OEM Unlock",
+        name="Unlock for Other Phones",
         target_type="bytecode",
         description="Bypasses Xiaomi OEM hardware gating for SuperAivs (5009) and suppresses MIUI Spatial Audio dialog nags.",
         required_classes=[

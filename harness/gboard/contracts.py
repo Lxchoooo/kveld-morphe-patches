@@ -93,7 +93,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_block_telemetry",
-            name="Block Telemetry",
+            name="Block Trackers: usage telemetry",
             description="Disables background metrics dispatch, daily pings, and crash reporting.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardBlockTelemetryPatch.kt",
             queries=[
@@ -108,7 +108,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
                     name_id="daily_ping_worker",
                     defining_class="Lcom/google/android/libraries/inputmethod/dailyping/DailyPingWorker;",
                     method_name="c",
-                    return_type="Lahlo;",
+                    return_type="Lahcv;",
                     parameters=[],
                 ),
             ],
@@ -122,7 +122,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_diagnostics",
-            name="Disable Diagnostics",
+            name="Block Trackers: diagnostics",
             description="Disables Google's diagnostic and recovery telemetry.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardBlockTelemetryPatch.kt",
             queries=[
@@ -143,7 +143,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_primes",
-            name="Disable Google Primes",
+            name="Block Trackers: Google Primes",
             description="Neutralizes Google Primes performance profiling and crash monitoring.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardBlockTelemetryPatch.kt",
             queries=[
@@ -171,7 +171,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_mdd_sync",
-            name="Disable MDD Background Sync",
+            name="Stop Background Sync: MDD",
             description="Neutralizes Mobile Data Download automated background polling.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardDisableBackgroundSyncPatch.kt",
             queries=[
@@ -179,21 +179,21 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
                     name_id="mdd_task_scheduler_worker",
                     defining_class="Lcom/google/android/libraries/inputmethod/mdd/MDDTaskScheduler$Worker;",
                     method_name="c",
-                    return_type="Lahlo;",
+                    return_type="Lahcv;",
                     parameters=[],
                 ),
                 FingerprintQuery(
                     name_id="mdd_metadata_cleanup_worker",
                     defining_class="Lcom/google/android/libraries/inputmethod/mdd/cleanup/MddMetadataCleanupWorker;",
                     method_name="k",
-                    return_type="Lcnj;",
+                    return_type="Lcin;",
                     parameters=[],
                 ),
                 FingerprintQuery(
                     name_id="mdd_foreground_download_worker",
                     defining_class="Lcom/google/android/libraries/inputmethod/mdd/ForegroundDownloadTaskWorker;",
                     method_name="c",
-                    return_type="Lahlo;",
+                    return_type="Lahcv;",
                     parameters=[],
                 ),
             ],
@@ -206,7 +206,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_phenotype",
-            name="Disable Remote Configuration",
+            name="Stop Remote Updates",
             description="Disables periodic remote experiment flag synchronization.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardDisablePhenotypeSyncPatch.kt",
             queries=[
@@ -234,27 +234,27 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_superpacks_eager_sync",
-            name="Disable Superpacks Eager Sync",
-            description="Neutralizes Superpacks/MDD background scheduling on startup via the task scheduler.",
+            name="Stop Background Sync: Superpacks",
+            description="Neutralizes eager Superpacks background sync on startup.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardDisableBackgroundSyncPatch.kt",
             queries=[
                 FingerprintQuery(
-                    name_id="superpacks_scheduler_hook",
-                    defining_class="Labcx;",
-                    method_name="a",
-                    return_type="Lahlo;",
-                    parameters=["Ljava/lang/String;"],
+                    name_id="superpacks_sync_task_1",
+                    defining_class="Lgvp;",
+                    method_name="n",
+                    return_type="V",
+                    parameters=[],
                 ),
                 FingerprintQuery(
-                    name_id="superpacks_frontend_hook",
-                    defining_class="Lvut;",
-                    method_name="g",
-                    return_type="Lahlo;",
-                    parameters=["Lvuv;"],
+                    name_id="superpacks_sync_task_2",
+                    defining_class="Lgsp;",
+                    method_name="n",
+                    return_type="V",
+                    parameters=[],
                 ),
             ],
             semantic_invariants=[
-                "Scheduler and frontend entry points return immediate success without dispatch",
+                "Eager synchronization tasks return early on startup",
             ],
             forbidden_regressions=[
                 "Disabling Superpacks pack unpacking when explicitly requested",
@@ -262,15 +262,15 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_tenor_tracking",
-            name="Disable Tenor Share Tracking",
+            name="Block Trackers: Tenor sharing",
             description="Disables Tenor GIF selection and share tracking telemetry.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardBlockTelemetryPatch.kt",
             queries=[
                 FingerprintQuery(
                     name_id="tenor_share_tracker",
-                    defining_class="Lita;",
+                    defining_class="Lioe;",
                     method_name="F",
-                    parameters=["Laguf;"],
+                    parameters=["Laglm;"],
                     return_type="V",
                 ),
             ],
@@ -283,7 +283,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_disable_workmanager",
-            name="Disable WorkManager",
+            name="Stop Background Sync: WorkManager",
             description="Neutralizes background WorkManager initialization and workers.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardDisableBackgroundSyncPatch.kt",
             queries=[
@@ -323,10 +323,10 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
                 ),
                 FingerprintQuery(
                     name_id="key_shape_predicate",
-                    defining_class="Lyad;",
-                    method_name="<clinit>",
-                    return_type="V",
-                    strings=["more_pill_keys"],
+                    defining_class="Lxsj;",
+                    method_name="i",
+                    return_type="Z",
+                    parameters=["Landroid/content/Context;"],
                 ),
             ],
             semantic_invariants=[
@@ -346,14 +346,14 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
             queries=[
                 FingerprintQuery(
                     name_id="incognito_editor_check",
-                    defining_class="Lssp;",
+                    defining_class="Lsmn;",
                     method_name="z",
                     return_type="Z",
                     parameters=["Landroid/view/inputmethod/EditorInfo;"],
                 ),
                 FingerprintQuery(
                     name_id="incognito_flag_check",
-                    defining_class="Lftu;",
+                    defining_class="Lfoy;",
                     method_name="G",
                     return_type="Z",
                     parameters=[],
@@ -368,7 +368,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_hardened_intent_security",
-            name="Hardened Intent Security",
+            name="Block App Hijacking",
             description="Enables internal external intent protection against unauthorized hijacking.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardHardenedIntentSecurityPatch.kt",
             queries=[
@@ -388,7 +388,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_clone",
-            name="Clone Gboard",
+            name="Install a Copy",
             description="Changes the package name to allow installing Gboard alongside the original application.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardClonePatch.kt",
             queries=[],
@@ -404,7 +404,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_resource_slimmer",
-            name="Resource Slimmer",
+            name="Remove Extra Files",
             description="Strips embedded third-party license text, onboarding tutorial Lottie animations, and promotional GIFs.",
             source_file="patches/src/main/kotlin/app/morphe/patches/gboard/GboardResourceSlimmerPatch.kt",
             queries=[],
@@ -418,7 +418,7 @@ def get_all_gboard_contracts() -> List[GboardPatchContract]:
         ),
         GboardPatchContract(
             patch_id="gboard_locale_slimmer",
-            name="Locale Resource Slimmer",
+            name="Remove Extra Languages",
             description="Strips unselected language translation directories from res/.",
             source_file="patches/src/main/kotlin/app/morphe/patches/universal/LocaleResourceSlimmerPatch.kt",
             queries=[],

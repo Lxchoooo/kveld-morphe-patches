@@ -10,7 +10,8 @@ import re
 import unittest
 from pathlib import Path
 
-PATCH_ROOT = Path(__file__).resolve().parents[2] / "patches/src/main/kotlin/app/morphe/patches"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PATCH_ROOT = REPO_ROOT / "patches/src/main/kotlin/app/morphe/patches"
 
 CTOR = re.compile(r"\b(bytecodePatch|resourcePatch|rawResourcePatch)\s*\(")
 NAME = re.compile(r'^\s*name = "([^"]+)"')
@@ -88,6 +89,55 @@ class TestPatchMetadataReadability(unittest.TestCase):
             if not name.strip() or re.fullmatch(r"[\d\s]+", name):
                 offenders.append(repr(name))
         self.assertEqual(offenders, [])
+
+
+class TestContractNamesMatchRealPatches(unittest.TestCase):
+    """The audit report has to name patches a person can actually find.
+
+    Most contracts name a patch directly. A few name a sub-feature of a patch
+    ("Block Trackers: diagnostics"), which is fine as long as the patch name is
+    part of it. Contracts for patches that do not give themselves a name in the
+    UI are skipped: those are plain descriptions, not searchable names.
+    """
+
+    CONTRACTS = {
+        app: REPO_ROOT / f"harness/{app}/contracts.py"
+        for app in ("tiktok", "xiaomi", "gboard")
+    }
+
+    def test_contract_names_are_real_patch_names(self):
+        by_file = {}
+        known = set()
+        for path, name in _visible_patches():
+            by_file.setdefault(path, set()).add(name)
+            known.add(name)
+        # Floor, not a census: the consolidation waves keep changing the
+        # corpus size (95 at the time of writing). This only guards the
+        # scanner against returning nothing at all.
+        self.assertGreater(len(known), 50)
+
+        stale = []
+        checked = 0
+        for app, path in self.CONTRACTS.items():
+            src = path.read_text(encoding="utf-8")
+            for block in re.split(r"\w*PatchContract\(", src)[1:]:
+                name = re.search(r'name="([^"]+)"', block)
+                source = re.search(r'source_file="([^"]+)"', block)
+                if not name:
+                    continue
+                name = name.group(1)
+                if source:
+                    declared = by_file.get(REPO_ROOT / source.group(1))
+                    if not declared:
+                        continue
+                    if not any(real in name for real in declared):
+                        stale.append(f"{app}: {name}")
+                elif name not in known:
+                    # No way to tell which file this is, so demand an exact hit.
+                    stale.append(f"{app}: {name}")
+                checked += 1
+        self.assertGreater(checked, 40, "the contract scan stopped finding contracts")
+        self.assertEqual(stale, [], "contract names with no matching patch: " + "; ".join(stale))
 
 
 if __name__ == "__main__":
