@@ -305,7 +305,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="fix_google_login",
-        name="Fix Google login",
+        name="Fix Google Login",
         target_type="bytecode",
         description="Restores Google account sign-in after patching by forcing fallback to Web-based OAuth when Google Play Services rejects the modified APK signature.",
         required_classes=["Lcom/bytedance/lobby/google/GoogleAuth;"],
@@ -314,7 +314,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="show_seekbar",
-        name="Show seekbar",
+        name="Show Seekbar",
         target_type="bytecode",
         description="Restores TikTok's native video seekbar and scrubbing controls where normally hidden or disabled.",
         required_classes=["Lcom/ss/android/ugc/aweme/feed/model/Aweme;"],
@@ -323,7 +323,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="always_show_publish_date",
-        name="Always show publish date",
+        name="Always Show Publish Date",
         target_type="bytecode",
         description="Forces video publish/upload date to remain visible in video author information across all feed types.",
         required_classes=["Lcom/ss/android/ugc/aweme/feed/assem/videoauthorinfo/VideoAuthorInfoVM;"],
@@ -368,7 +368,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
 
     PatchContract(
         patch_id="disable_story_feed_indicators",
-        name="Disable Story Feed Indicators",
+        name="Disable Profile Photo LIVE Status",
         target_type="bytecode",
         description="Removes creator profile photo story rings from feed videos, ensuring avatar photos remain clean without blue story rings.",
         required_classes=[
@@ -395,7 +395,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="force_auto_scroll",
-        name="Force auto-scroll",
+        name="Force Auto-Scroll",
         target_type="bytecode",
         description="Forces the activation of the native video auto-scroll experiment flag for accounts and regions that lack it due to A/B testing.",
         required_classes=[
@@ -437,7 +437,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="disable_double_tap_to_like",
-        name="Disable double tap to like",
+        name="Disable Double Tap to Like",
         target_type="bytecode",
         description="Disables the double tap gesture to like videos in the feed, preventing accidental likes while scrolling or pausing. Videos can still be liked using the like button.",
         required_classes=[
@@ -509,7 +509,7 @@ TIKTOK_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="hide_avatar_follow_button",
-        name="Hide Profile Photo Follow Button",
+        name="Feed Interface Declutter",
         target_type="bytecode",
         description="Hides the plus (+) follow badge on creator profile avatars in the feed.",
         required_classes=[
