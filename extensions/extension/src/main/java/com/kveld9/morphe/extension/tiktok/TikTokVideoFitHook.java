@@ -23,6 +23,30 @@ public final class TikTokVideoFitHook {
     }
 
     /**
+     * Swaps an existing VideoAdaptionResult with a recalculation based on fitMode and system display metrics.
+     *
+     * @param originalResult VideoAdaptionResult instance from feed / adapt cell.
+     * @return Transformed VideoAdaptionResult or originalResult if mode is off or dimensions invalid.
+     */
+    public static Object fitted(Object originalResult) {
+        if (originalResult == null || fitMode == null || "off".equals(fitMode)) {
+            return originalResult;
+        }
+
+        try {
+            android.util.DisplayMetrics metrics = android.content.res.Resources.getSystem().getDisplayMetrics();
+            if (metrics == null || metrics.widthPixels <= 0 || metrics.heightPixels <= 0) {
+                Log.w(TAG, "[Video Fit] skip: unmeasured system display metrics");
+                return originalResult;
+            }
+            return fittedInner(originalResult, metrics.widthPixels, metrics.heightPixels);
+        } catch (Throwable t) {
+            Log.w(TAG, "[Video Fit] display metrics resolution failed: " + t.getMessage());
+            return originalResult;
+        }
+    }
+
+    /**
      * Swaps an existing VideoAdaptionResult with a recalculation based on fitMode and target View bounds.
      *
      * @param originalResult VideoAdaptionResult instance from feed / adapt cell.
@@ -42,7 +66,19 @@ public final class TikTokVideoFitHook {
                 Log.w(TAG, "[Video Fit] skip: unmeasured container");
                 return originalResult;
             }
+            return fittedInner(originalResult, containerW, containerH);
+        } catch (Throwable t) {
+            Log.w(TAG, "[Video Fit] container resolution failed: " + t.getMessage());
+            return originalResult;
+        }
+    }
 
+    private static Object fittedInner(Object originalResult, int containerW, int containerH) {
+        if (containerW <= 0 || containerH <= 0) {
+            return originalResult;
+        }
+
+        try {
             Class<?> clazz = originalResult.getClass();
             Field widthField = clazz.getDeclaredField("width");
             widthField.setAccessible(true);
@@ -95,9 +131,14 @@ public final class TikTokVideoFitHook {
                 return originalResult;
             }
 
-            // Prefer Kotlin data-class copy(...) returning a NEW instance: feed
-            // components reuse cached VideoAdaptionResult objects across videos,
-            // so mutating in place leaks one video's dimensions into the next.
+            // Always mutate fields in place first so callers that do not reassign
+            // the returned instance still see the fitted dimensions.
+            widthField.setInt(originalResult, newW);
+            heightField.setInt(originalResult, newH);
+            setFloatField(transXField, originalResult, newTransX);
+            setFloatField(transYField, originalResult, newTransY);
+
+            // Attempt copy(...) for callers that rely on a new instance
             try {
                 for (Method m : clazz.getMethods()) {
                     if (!"copy".equals(m.getName())) {
@@ -129,23 +170,17 @@ public final class TikTokVideoFitHook {
                     }
                     Object out = m.invoke(originalResult, args);
                     if (out != null) {
-                        Log.d(TAG, "[Video Fit] " + fitMode + " " + origW + "x" + origH
+                        Log.i(TAG, "[Video Fit] " + fitMode + " " + origW + "x" + origH
                                 + " -> " + newW + "x" + newH
                                 + " container=" + containerW + "x" + containerH);
                         return out;
                     }
                 }
             } catch (Throwable t) {
-                Log.w(TAG, "[Video Fit] copy failed, mutating in place: " + t.getMessage());
+                Log.w(TAG, "[Video Fit] copy failed, returning mutated original: " + t.getMessage());
             }
 
-            // Fallback: reflectively mutate fields in place
-            widthField.setInt(originalResult, newW);
-            heightField.setInt(originalResult, newH);
-            setFloatField(transXField, originalResult, newTransX);
-            setFloatField(transYField, originalResult, newTransY);
-
-            Log.d(TAG, "[Video Fit] " + fitMode + " (in place) " + origW + "x" + origH
+            Log.i(TAG, "[Video Fit] " + fitMode + " (in place) " + origW + "x" + origH
                     + " -> " + newW + "x" + newH
                     + " container=" + containerW + "x" + containerH);
             return originalResult;

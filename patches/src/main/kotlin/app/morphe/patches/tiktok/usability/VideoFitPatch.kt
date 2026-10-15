@@ -177,6 +177,44 @@ val videoFitPatch = bytecodePatch(
         println("[Video Fit Mode] Hooked static helper (View,Result)Z -> prepended fitted() swap.")
         patched++
 
+        // 6. Hook CellAdaptionComponentV2.Kr(VideoAdaptionResult)V
+        val cellAdaptionFp = Fingerprint(
+            definingClass = "Lcom/ss/android/ugc/feed/platform/cell/component/adaption/CellAdaptionComponentV2;",
+            name = "Kr",
+            parameters = listOf(resultClass),
+            returnType = "V",
+        )
+        val cellAdaptionMethod = cellAdaptionFp.method
+        cellAdaptionMethod.addInstructions(
+            0,
+            """
+                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitted(Ljava/lang/Object;)Ljava/lang/Object;
+                move-result-object p1
+                check-cast p1, $resultClass
+            """.trimIndent(),
+        )
+        println("[Video Fit Mode] Hooked CellAdaptionComponentV2.Kr(Result)V -> prepended fitted() swap.")
+        patched++
+
+        // 7. Hook FeedCellAdaptionComponentV2.Kr(VideoAdaptionResult)V
+        val feedCellAdaptionFp = Fingerprint(
+            definingClass = "Lcom/ss/android/ugc/feed/platform/cell/component/adaption/FeedCellAdaptionComponentV2;",
+            name = "Kr",
+            parameters = listOf(resultClass),
+            returnType = "V",
+        )
+        val feedCellAdaptionMethod = feedCellAdaptionFp.method
+        feedCellAdaptionMethod.addInstructions(
+            0,
+            """
+                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitted(Ljava/lang/Object;)Ljava/lang/Object;
+                move-result-object p1
+                check-cast p1, $resultClass
+            """.trimIndent(),
+        )
+        println("[Video Fit Mode] Hooked FeedCellAdaptionComponentV2.Kr(Result)V -> prepended fitted() swap.")
+        patched++
+
         println("[Video Fit Mode] Applied $patched video fit hook(s) -> fitMode=$mode.")
     }
 }
