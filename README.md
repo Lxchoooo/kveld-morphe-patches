@@ -200,7 +200,7 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 **Supported versions:**
 
-| 18.5.1.993608717-lite_beta-arm64-v8a | 18.5.1.993608717-lite_beta-armeabi-v7a |
+| 18.5.1.993608717-lite_beta-armeabi-v7a | 18.5.1.993608717-lite_beta-arm64-v8a |
 | :---: | :---: |
 
 | Patch | Description | Options |

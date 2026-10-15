@@ -1,3 +1,13 @@
+## [2.7.0-experimental.25](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.24...v2.7.0-experimental.25) (2026-10-15)
+
+### Bug Fixes
+
+* **gboard:** list arm64 target last so Manager stops suggesting v7a ([b6b1374](https://github.com/kveld9/kveld-morphe-patches/commit/b6b137499aef8d5a6bb297e706eb59af03457c32))
+
+### Improvements
+
+* **tiktok:** resolve both VideoFit static helpers in one scan ([616e6b9](https://github.com/kveld9/kveld-morphe-patches/commit/616e6b9057d1c9183a7c55b626d42aab0f2d7aef))
+
 ## [2.7.0-experimental.24](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.23...v2.7.0-experimental.24) (2026-10-15)
 
 ### Bug Fixes
