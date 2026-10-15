@@ -43,7 +43,7 @@ XIAOMI_EARBUDS_PATCH_CONTRACTS: List[PatchContract] = [
     ),
     PatchContract(
         patch_id="block_telemetry",
-        name="Block Tracking",
+        name="Block Trackers",
         target_type="composite",
         description="Disables Xiaomi OneTrack, crash dump providers, bug reports, and analytics dispatchers.",
         required_classes=[
