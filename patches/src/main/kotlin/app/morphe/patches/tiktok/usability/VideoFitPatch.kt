@@ -110,12 +110,18 @@ val videoFitPatch = bytecodePatch(
         println("[Video Fit Mode] Hooked VideoAdaptionResult.saveResultInner(View)V.")
         patched++
 
-        // 4. Locate and hook static helper (View, VideoAdaptionResult, Function0)V
-        val helper1Fp = Fingerprint(
-            returnType = "V",
-            parameters = listOf("Landroid/view/View;", resultClass, "Lkotlin/jvm/functions/Function0;"),
+        // 4 & 5. Locate both static helpers in a SINGLE scan.
+        // matchAll() walks every class in the APK (TikTok: ~475k classes, ~2M methods), so the two
+        // near-identical predicates are merged into one union scan and only partitioned afterwards.
+        // The union predicate is the exact disjunction of the two previous ones, so the resulting
+        // candidate set (and therefore the emitted DEX) is unchanged.
+        val helper1Params = listOf("Landroid/view/View;", resultClass, "Lkotlin/jvm/functions/Function0;")
+        val helper2Params = listOf("Landroid/view/View;", resultClass)
+        val helperScanFp = Fingerprint(
             custom = { method, _ ->
                 AccessFlags.STATIC.isSet(method.accessFlags) &&
+                    ((method.returnType == "V" && method.parameterTypes == helper1Params) ||
+                        (method.returnType == "Z" && method.parameterTypes == helper2Params)) &&
                     method.implementation?.instructions?.any { ins ->
                         val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
                         ref?.name == "getWidth"
@@ -126,7 +132,11 @@ val videoFitPatch = bytecodePatch(
                     } == true
             },
         )
-        val helper1Methods = helper1Fp.matchAll().map { it.method }
+        val helperCandidates = helperScanFp.matchAll().map { it.method }
+        val helper1Methods = helperCandidates.filter { it.returnType == "V" && it.parameterTypes == helper1Params }
+        val helper2Methods = helperCandidates.filter { it.returnType == "Z" && it.parameterTypes == helper2Params }
+
+        // 4. Hook static helper (View, VideoAdaptionResult, Function0)V
         if (helper1Methods.size != 1) {
             throw PatchException("Expected exactly 1 static helper (View,Result,Function0)V, found ${helper1Methods.size}")
         }
@@ -144,23 +154,7 @@ val videoFitPatch = bytecodePatch(
         println("[Video Fit Mode] Hooked static helper (View,Result,Function0)V -> prepended fitted() swap.")
         patched++
 
-        // 5. Locate and hook static helper (View, VideoAdaptionResult)Z
-        val helper2Fp = Fingerprint(
-            returnType = "Z",
-            parameters = listOf("Landroid/view/View;", resultClass),
-            custom = { method, _ ->
-                AccessFlags.STATIC.isSet(method.accessFlags) &&
-                    method.implementation?.instructions?.any { ins ->
-                        val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
-                        ref?.name == "getWidth"
-                    } == true &&
-                    method.implementation?.instructions?.any { ins ->
-                        val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
-                        ref?.name == "getHeight"
-                    } == true
-            },
-        )
-        val helper2Methods = helper2Fp.matchAll().map { it.method }
+        // 5. Hook static helper (View, VideoAdaptionResult)Z
         if (helper2Methods.size != 1) {
             throw PatchException("Expected exactly 1 static helper (View,Result)Z, found ${helper2Methods.size}")
         }
