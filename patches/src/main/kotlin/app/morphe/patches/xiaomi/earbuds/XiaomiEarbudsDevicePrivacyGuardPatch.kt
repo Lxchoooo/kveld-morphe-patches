@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsDevicePrivacyGuardResourcePatch = resourcePatch(
-    name = "Xiaomi Earbuds Device Privacy Guard Manifest Purge",
-    description = "Removes location permissions from AndroidManifest.xml.",
+    name = "Device Privacy Guard (Setup)",
+    description = "Removes location permissions in the manifest.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsDevicePrivacyGuardResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Device Privacy Guard] AndroidManifest.xml not found - skipping.")
+            println("[Device Privacy Guard (Setup)] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -43,14 +43,14 @@ private val xiaomiEarbudsDevicePrivacyGuardResourcePatch = resourcePatch(
             }
         }
 
-        println("[Device Privacy Guard] Stripped $removedPermissions location permissions from AndroidManifest.xml.")
+        println("[Device Privacy Guard (Setup)] Stripped $removedPermissions location permissions from AndroidManifest.xml.")
     }
 }
 
 @Suppress("unused")
 val xiaomiEarbudsDevicePrivacyGuardPatch = bytecodePatch(
     name = "Device Privacy Guard",
-    description = "Blinds hardware device IDs, anonymizes device identifiers, neutralizes environment info leakage, and bypasses location checks for Bluetooth scanning.",
+    description = "Hides hardware IDs and lets Bluetooth work without location.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)

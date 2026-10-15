@@ -8,8 +8,8 @@ import app.morphe.patches.shared.replaceWithReturnNull
 
 @Suppress("unused")
 val sensorPrivacyPatch = bytecodePatch(
-    name = "Sensor Privacy Guard",
-    description = "Neutralizes motion, ambient, and orientation sensor providers to prevent hardware fingerprinting and tracking via Generic Sensor APIs.",
+    name = "Block Motion Sensors",
+    description = "Stops sites from reading motion sensors to identify you.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -31,7 +31,7 @@ val sensorPrivacyPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Sensor Privacy Guard] PlatformSensorProvider.hasSensorType hook note: ${e.message}")
+            println("[Block Motion Sensors] PlatformSensorProvider.hasSensorType hook note: ${e.message}")
         }
 
         // 2. Neutralize PlatformSensor.create(PlatformSensorProvider, int, long) -> return null
@@ -48,9 +48,9 @@ val sensorPrivacyPatch = bytecodePatch(
                 patched++
             }
         } catch (e: Exception) {
-            println("[Sensor Privacy Guard] PlatformSensor.create hook note: ${e.message}")
+            println("[Block Motion Sensors] PlatformSensor.create hook note: ${e.message}")
         }
 
-        println("[Sensor Privacy Guard] Neutralized $patched sensor provider hooks (${hookedMethods.joinToString(", ")}) -> motion/ambient sensor fingerprinting disabled.")
+        println("[Block Motion Sensors] Neutralized $patched sensor provider hooks (${hookedMethods.joinToString(", ")}) -> motion/ambient sensor fingerprinting disabled.")
     }
 }

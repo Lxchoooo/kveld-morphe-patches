@@ -156,7 +156,7 @@ private val LIBCHROME_TRAP_HOOKS = listOf(
     // Constructor 2: Brave Promo banner & histogram static initialization calling atomic helpers via range extension thunks.
     // Neutralizing to RET bypasses the thunk pool, eliminating startup SIGILL.
     NativeTrapHook(
-        offset = 0x08d79388L,
+        offset = 0x08d621f8L,
         expected = byteArrayOf(0x3f, 0x23, 0x03, 0xd5.toByte()),
         replacement = ARM64_RET,
         description = "Promo banner static initialization constructor",
@@ -164,7 +164,7 @@ private val LIBCHROME_TRAP_HOOKS = listOf(
     // Constructor 11: Brave wallet/rewards fee static initialization calling atomic helpers via range extension thunks.
     // Neutralizing to RET bypasses the thunk pool, eliminating startup SIGILL.
     NativeTrapHook(
-        offset = 0x0afb2fe4L,
+        offset = 0x0afbb6bcL,
         expected = byteArrayOf(0x3f, 0x23, 0x03, 0xd5.toByte()),
         replacement = ARM64_RET,
         description = "Brave wallet fee static initialization constructor",
@@ -257,8 +257,8 @@ internal val braveNativeExtractionPatch = resourcePatch {
 
 @Suppress("unused")
 val bravePerformanceOptimizationPatch = bytecodePatch(
-    name = "Brave Startup Performance Optimization",
-    description = "Optimizes startup time and eliminates background CPU/disk overhead by disabling unused OEM carrier partner customizations.",
+    name = "Faster Startup",
+    description = "Speeds up launch by disabling carrier customizations.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -289,6 +289,6 @@ val bravePerformanceOptimizationPatch = bytecodePatch(
         )
 
         val targetClass = fp.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
-        println("[Startup Performance] Neutralized async OEM initialization in $targetClass (field $boolField)")
+        println("[Faster Startup] Neutralized async OEM initialization in $targetClass (field $boolField)")
     }
 }

@@ -5,6 +5,7 @@ import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patches.shared.ANDROID_XML_NAMESPACE
 import app.morphe.patches.shared.childrenNamed
 import app.morphe.patches.shared.disableComponentsWhere
+import app.morphe.patches.shared.getAttributeValue
 import app.morphe.patches.shared.removeChildren
 import app.morphe.patches.shared.removeComponentDiscoveryRegistrarsWhere
 import app.morphe.patches.shared.setApplicationMetaData
@@ -163,6 +164,17 @@ private val AD_STARTUP_INITIALIZERS = setOf(
 
 private const val STARTUP_INIT_PROVIDER = "androidx.startup.InitializationProvider"
 
+// AdServices residual config (issue #162):
+// <property> and <meta-data> entries whose android:name starts with android.adservices.
+private const val AD_SERVICES_PREFIX = "android.adservices."
+
+private fun Element.removeAdServicesConfigWhere(): Int {
+    val matches = childrenNamed("property", "meta-data")
+        .filter { getAttributeValue(it, "name").startsWith(AD_SERVICES_PREFIX) }
+    removeChildren(matches)
+    return matches.size
+}
+
 private fun Element.removeStartupInitializersWhere(predicate: (String) -> Boolean): Int {
     var removed = 0
     childrenNamed("provider")
@@ -202,119 +214,135 @@ private val OPT_OUT_METADATA = listOf(
 
 @Suppress("unused")
 val universalTelemetryNeutralizerPatch = resourcePatch(
-    name = "Universal Telemetry Neutralizer",
-    description = "Strips advertising and Privacy Sandbox permissions, disables analytics ContentProviders and telemetry background services (Firebase, Sentry, Adjust, AppsFlyer, DataTransport), prunes ComponentDiscovery registrars, and injects telemetry opt-out metadata. Includes an optional toggle to disable push notification services.",
+    name = "Block Trackers",
+    description = "Removes ad IDs, disables tracking components, and adds opt-out flags.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val revokePermissions by booleanOption(
         key = "revokePermissions",
         default = true,
-        title = "Revoke Advertising & Tracking Permissions",
-        description = "Remove AD_ID, Privacy Sandbox attribution/topics/audiences, and Play Install Referrer permissions from AndroidManifest.xml.",
+        title = "Ad permissions",
+        description = "Removes advertising ID and Privacy Sandbox permissions.",
         required = false,
     )
 
     val disableProviders by booleanOption(
         key = "disableProviders",
         default = true,
-        title = "Disable Telemetry ContentProviders",
-        description = "Disable analytics ContentProviders (Google Measurement, Sentry, Facebook, Flurry, Branch, AppsFlyer).",
+        title = "Tracking providers",
+        description = "Disables analytics and measurement content providers.",
         required = false,
     )
 
     val disableServices by booleanOption(
         key = "disableServices",
         default = true,
-        title = "Disable Telemetry Background Services",
-        description = "Disable Google Measurement, Google DataTransport, Firebase Sessions, and AppsFlyer background job services.",
+        title = "Tracking services",
+        description = "Disables background analytics and measurement services.",
         required = false,
     )
 
     val disableReceivers by booleanOption(
         key = "disableReceivers",
         default = true,
-        title = "Disable Telemetry Receivers",
-        description = "Disable install referrer and analytics measurement broadcast receivers (Adjust, AppsFlyer, Google Measurement).",
+        title = "Tracking receivers",
+        description = "Disables install referrer and measurement receivers.",
         required = false,
     )
 
     val injectOptOutFlags by booleanOption(
         key = "injectOptOutFlags",
         default = true,
-        title = "Inject Telemetry Opt-Out Flags & Prune Registrars",
-        description = "Inject meta-data opt-out entries into application tag (Firebase Analytics, Crashlytics, Performance, AppsFlyer, Sentry, Facebook SDK) and prune Firebase discovery registrars.",
+        title = "Opt-out flags",
+        description = "Injects opt-out flags for analytics and crash reporting SDKs.",
         required = false,
     )
 
     val disableFirebaseInit by booleanOption(
         key = "disableFirebaseInit",
         default = false,
-        title = "Disable Firebase Init Provider",
-        description = "Disable com.google.firebase.provider.FirebaseInitProvider. Default is false to prevent issues in apps that depend on Firebase Auth or push notifications.",
+        title = "Firebase init (may break apps)",
+        description = "Disables Firebase initialization provider.",
         required = false,
     )
 
     val disablePushServices by booleanOption(
         key = "disablePushServices",
         default = false,
-        title = "Disable Push Notification Services",
-        description = "Disable Meta Fbns, PushLite, and Firebase Cloud Messaging services plus push receivers (Firebase IID, Braze). WARNING: this breaks push notifications; enable only to fully silence background push delivery.",
+        title = "Push services (breaks push!)",
+        description = "Disables push delivery services and receivers (breaks push notifications).",
         required = false,
     )
 
     val disableGoogleAnalytics by booleanOption(
         key = "disableGoogleAnalytics",
         default = true,
-        title = "Disable Google Analytics Services",
-        description = "Disable legacy Google Analytics background services and receivers (distinct from Firebase AppMeasurement, which is covered by the telemetry toggles above).",
+        title = "Google Analytics",
+        description = "Disables legacy Google Analytics services and receivers.",
         required = false,
     )
 
     val disableMetaAnalytics by booleanOption(
         key = "disableMetaAnalytics",
         default = true,
-        title = "Disable Meta Analytics Upload Pipeline",
-        description = "Disable Meta Analytics2/OneFabric upload services, Instagram upload scheduler receiver, and deferred analytics worker components.",
+        title = "Meta analytics",
+        description = "Disables Meta analytics and upload services.",
         required = false,
     )
 
     val disableCrashDetectors by booleanOption(
         key = "disableCrashDetectors",
         default = true,
-        title = "Disable Crash Detectors & Dump Upload",
-        description = "Disable Lacrima lock-screen/shutdown crash detectors, crash-loop state trackers, and background crash-dump upload services. User-initiated bug reports are untouched.",
+        title = "Crash uploaders",
+        description = "Disables crash detection and dump upload services.",
         required = false,
     )
 
     val disableDeviceIdProviders by booleanOption(
         key = "disableDeviceIdProviders",
         default = false,
-        title = "Disable Device-ID & Cross-App Identity Providers",
-        description = "Disable attribution, FDID/PhoneId/USDiD, and FamilyApps cross-app identity providers plus referrer and cross-signing components. WARNING: may break login, account switching, and deferred deep links; enable only to fully silence device-identity collection.",
+        title = "Device ID (may break login!)",
+        description = "Disables device ID and cross-app identity providers.",
         required = false,
     )
 
     val disableMlKit by booleanOption(
         key = "disableMlKit",
         default = false,
-        title = "Disable ML Kit On-Device Vision",
-        description = "Disable Google ML Kit InitProvider, ComponentDiscoveryService, and prune related registrars. WARNING: Breaks on-device barcode scanning, face detection, and text recognition.",
+        title = "ML Kit vision (breaks scanner!)",
+        description = "Disables ML Kit vision and scanner components.",
+        required = false,
+    )
+
+    val disableRemoteConfig by booleanOption(
+        key = "disableRemoteConfig",
+        default = false,
+        title = "Remote config (may break app!)",
+        description = "Disables remote config and dynamic feature flag registrars.",
+        required = false,
+    )
+
+    val disableCrashlyticsRegistrars by booleanOption(
+        key = "disableCrashlyticsRegistrars",
+        default = false,
+        title = "Crashlytics (may break app!)",
+        description = "Disables Firebase Crashlytics startup registrars.",
         required = false,
     )
 
     val disableAdStartupInitializers by booleanOption(
         key = "disableAdStartupInitializers",
         default = false,
-        title = "Disable Ad SDK Startup Initializers",
-        description = "Remove ad SDK auto-init entries (e.g. Unity Ads) from the androidx.startup InitializationProvider. WARNING: may break rewarded ads and ad-gated features; enable only to block SDK auto-initialization.",
+        title = "Ad auto-start",
+        description = "Removes ad SDK entries from androidx startup initializers.",
         required = false,
     )
 
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Universal Telemetry Neutralizer] Skipped: AndroidManifest.xml not found.")
+            println("[Block Trackers] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -330,6 +358,8 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
         val shouldDisableCrashDetectors = disableCrashDetectors ?: true
         val shouldDisableDeviceIds = disableDeviceIdProviders ?: false
         val shouldDisableMlKit = disableMlKit ?: false
+        val shouldDisableRemoteConfig = disableRemoteConfig ?: false
+        val shouldDisableCrashlyticsRegistrars = disableCrashlyticsRegistrars ?: false
         val shouldDisableAdStartup = disableAdStartupInitializers ?: false
 
         var removedPerms: List<String> = emptyList()
@@ -350,6 +380,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
         var removedStartupInitCount = 0
         var injectedFlagsCount = 0
         var removedRegistrarsCount = 0
+        var removedAdServicesConfigCount = 0
 
         document(manifestFile.absolutePath).use { doc ->
             val root = doc.documentElement
@@ -357,6 +388,9 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
 
             if (shouldRevoke) {
                 removedPerms = root.stripPermissionsWhere { it in TRACKING_PERMISSIONS }
+                if (application != null) {
+                    removedAdServicesConfigCount = application.removeAdServicesConfigWhere()
+                }
             }
 
             if (application != null) {
@@ -380,6 +414,11 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
                 if (shouldDisablePush) {
                     disabledPushCount = application.disableComponentsWhere("service") { it in PUSH_SERVICES }
                     disabledPushReceiversCount = application.disableComponentsWhere("receiver") { it in PUSH_RECEIVERS }
+                    removedRegistrarsCount += application.removeComponentDiscoveryRegistrarsWhere { name ->
+                        name.contains("Installations", ignoreCase = true) ||
+                            name.contains("Transport", ignoreCase = true) ||
+                            name.contains("Iid", ignoreCase = true)
+                    }
                 }
 
                 if (shouldDisableGoogleAnalytics) {
@@ -415,35 +454,49 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
                     }
                 }
 
+                if (shouldDisableRemoteConfig) {
+                    removedRegistrarsCount += application.removeComponentDiscoveryRegistrarsWhere { name ->
+                        name.contains("RemoteConfig", ignoreCase = true) ||
+                            name.contains("Abt", ignoreCase = true) ||
+                            name.contains("DynamicLoading", ignoreCase = true)
+                    }
+                }
+
+                if (shouldDisableCrashlyticsRegistrars) {
+                    removedRegistrarsCount += application.removeComponentDiscoveryRegistrarsWhere { name ->
+                        name.contains("Crashlytics", ignoreCase = true)
+                    }
+                }
+
                 if (shouldDisableAdStartup) {
                     removedStartupInitCount = application.removeStartupInitializersWhere { it in AD_STARTUP_INITIALIZERS }
                 }
 
                 if (shouldInjectOptOut) {
+                    val existingMetaData = application.childrenNamed("meta-data")
                     OPT_OUT_METADATA.forEach { (name, value) ->
-                        application.setApplicationMetaData(name, value)
+                        val existing = existingMetaData.firstOrNull {
+                            getAttributeValue(it, "name") == name
+                        }
+                        if (existing == null || getAttributeValue(existing, "value") != value) {
+                            application.setApplicationMetaData(name, value)
+                            injectedFlagsCount++
+                        }
                     }
-                    injectedFlagsCount = OPT_OUT_METADATA.size
 
                     removedRegistrarsCount += application.removeComponentDiscoveryRegistrarsWhere { name ->
                         name.contains("Analytics", ignoreCase = true) ||
-                            name.contains("Crashlytics", ignoreCase = true) ||
                             name.contains("Perf", ignoreCase = true) ||
                             name.contains("Sessions", ignoreCase = true) ||
-                            name.contains("Iid", ignoreCase = true) ||
-                            name.contains("DynamicLoading", ignoreCase = true) ||
-                            name.contains("Transport", ignoreCase = true) ||
-                            name.contains("Installations", ignoreCase = true) ||
-                            name.contains("RemoteConfig", ignoreCase = true) ||
-                            name.contains("Abt", ignoreCase = true)
+                            name.contains("Measurement", ignoreCase = true)
                     }
                 }
             }
         }
 
         val totalDisabled = disabledProvidersCount + disabledServicesCount + disabledReceiversCount + disabledPushCount + disabledPushReceiversCount + disabledGaServicesCount + disabledGaReceiversCount + disabledMetaServicesCount + disabledMetaReceiversCount + disabledCrashServicesCount + disabledCrashReceiversCount + disabledDeviceIdProvidersCount + disabledDeviceIdServicesCount + disabledDeviceIdReceiversCount
-        if (removedPerms.isEmpty() && totalDisabled == 0 && injectedFlagsCount == 0 && removedRegistrarsCount == 0 && removedStartupInitCount == 0) {
-            println("[Universal Telemetry Neutralizer] AndroidManifest.xml is already clean (0 tracking elements found).")
+        if (removedPerms.isEmpty() && totalDisabled == 0 && injectedFlagsCount == 0 && removedRegistrarsCount == 0 && removedStartupInitCount == 0 && removedAdServicesConfigCount == 0) {
+            println("[Block Trackers] AndroidManifest.xml is already clean (0 tracking elements found).")
             return@execute
         }
 
@@ -468,6 +521,7 @@ val universalTelemetryNeutralizerPatch = resourcePatch(
             .joinToString(", ") { "${it.first}=${it.second}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Universal Telemetry Neutralizer] $permNote, disabled $totalDisabled component(s)$componentDetails, injected $injectedFlagsCount opt-out flag(s)$regNote.")
+        val adServicesNote = if (removedAdServicesConfigCount > 0) ", removed $removedAdServicesConfigCount AdServices config entries" else ""
+        println("[Block Trackers] $permNote, disabled $totalDisabled component(s)$componentDetails, injected $injectedFlagsCount opt-out flag(s)$regNote$adServicesNote.")
     }
 }

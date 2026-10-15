@@ -30,48 +30,48 @@ private fun removeManifestPermissions(doc: Document, blocked: Set<String>): List
 
 @Suppress("unused")
 val gboardStripPermissionsPatch = resourcePatch(
-    name = "Strip Permissions",
-    description = "Selectively revokes sensitive hardware, privacy, and system permissions from AndroidManifest.xml.",
+    name = "Remove Permissions",
+    description = "Removes permissions you pick below.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
 
     val stripContacts by booleanOption(
         key = "stripContacts",
-        title = "Strip Contacts Permission",
-        description = "Revokes READ_CONTACTS permission from AndroidManifest.xml (disables contact name suggestions).",
+        title = "Contacts",
+        description = "Removes contact access (no contact name suggestions).",
         default = false,
         required = false,
     )
 
     val stripAudio by booleanOption(
         key = "stripAudio",
-        title = "Strip Microphone Permission",
-        description = "Revokes RECORD_AUDIO permission from AndroidManifest.xml (disables voice dictation).",
+        title = "Microphone",
+        description = "Removes microphone access (no voice dictation).",
         default = false,
         required = false,
     )
 
     val stripMedia by booleanOption(
         key = "stripMedia",
-        title = "Strip Media & Storage Permissions",
-        description = "Revokes photo and media permissions (READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED, READ_EXTERNAL_STORAGE) from AndroidManifest.xml (disables custom image background themes).",
+        title = "Photos & files",
+        description = "Removes photo access (no custom image themes).",
         default = false,
         required = false,
     )
 
     val stripUserDictionary by booleanOption(
         key = "stripUserDictionary",
-        title = "Strip System Dictionary Permissions",
-        description = "Revokes system personal dictionary sync permissions (READ_USER_DICTIONARY, WRITE_USER_DICTIONARY) from AndroidManifest.xml.",
+        title = "Dictionary sync",
+        description = "Removes system dictionary access.",
         default = false,
         required = false,
     )
 
     val stripCrossProfile by booleanOption(
         key = "stripCrossProfile",
-        title = "Strip Cross-Profile Permission",
-        description = "Revokes INTERACT_ACROSS_PROFILES permission from AndroidManifest.xml to isolate work and personal profiles.",
+        title = "Work profile link",
+        description = "Separates work and personal profiles.",
         default = false,
         required = false,
     )
@@ -79,7 +79,7 @@ val gboardStripPermissionsPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Strip Permissions] Skipped: AndroidManifest.xml not found.")
+            println("[Remove Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -104,7 +104,7 @@ val gboardStripPermissionsPatch = resourcePatch(
         }
 
         if (blocked.isEmpty()) {
-            println("[Strip Permissions] Skipped: No permissions selected to strip.")
+            println("[Remove Permissions] Skipped: No permissions selected to strip.")
             return@execute
         }
 
@@ -114,6 +114,6 @@ val gboardStripPermissionsPatch = resourcePatch(
         }
 
         val removedShortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[Strip Permissions] Revoked ${removedList.size} permission(s) from AndroidManifest.xml: ${removedShortNames.joinToString(", ")}")
+        println("[Remove Permissions] Revoked ${removedList.size} permission(s) from AndroidManifest.xml: ${removedShortNames.joinToString(", ")}")
     }
 }

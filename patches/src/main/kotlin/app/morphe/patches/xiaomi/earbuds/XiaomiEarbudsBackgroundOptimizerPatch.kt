@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsBackgroundResourcePatch = resourcePatch(
-    name = "Xiaomi Earbuds Background Services Manifest Purge",
-    description = "Disables persistent foreground, nearby discovery, and companion device keepalive services in AndroidManifest.xml.",
+    name = "Stop Background Activity (Setup)",
+    description = "Turns off background services in the manifest.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsBackgroundResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Background Optimizer] AndroidManifest.xml not found - skipping manifest purge.")
+            println("[Stop Background Activity (Setup)] AndroidManifest.xml not found - skipping manifest purge.")
             return@execute
         }
 
@@ -73,14 +73,14 @@ private val xiaomiEarbudsBackgroundResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.key}=${it.value}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Background Optimizer] Stripped $removedPermissions permissions, disabled $disabledComponents keepalive components in manifest$componentDetails.")
+        println("[Stop Background Activity (Setup)] Stripped $removedPermissions permissions, disabled $disabledComponents keepalive components in manifest$componentDetails.")
     }
 }
 
 @Suppress("unused")
 val xiaomiEarbudsBackgroundOptimizerPatch = bytecodePatch(
-    name = "Background Optimizer",
-    description = "Neutralizes KeepAliveForegroundService, background BLE observation, companion device manager, and MIUI Nearby discovery to eliminate persistent notifications, wakelocks, and background battery drain.",
+    name = "Stop Background Activity",
+    description = "Stops persistent notifications and background battery drain.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -222,6 +222,6 @@ val xiaomiEarbudsBackgroundOptimizerPatch = bytecodePatch(
             hookedMethods.add("ConnectivityCompanionDeviceService.onDeviceAppeared(AssociationInfo)")
         }
 
-        println("[Background Optimizer] Neutralized ${hookedMethods.size} background keep-alive, foreground service, and BLE discovery hooks.")
+        println("[Stop Background Activity] Neutralized ${hookedMethods.size} background keep-alive, foreground service, and BLE discovery hooks.")
     }
 }

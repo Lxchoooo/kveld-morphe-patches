@@ -436,6 +436,30 @@ private fun BytecodePatchContext.applyHideCommentQuickActions(): Int {
     return patched
 }
 
+private fun BytecodePatchContext.applyShowFlaggedComments(): Int {
+    var patched = 0
+
+    val foldCellFp = Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/commentv2/commentlist/powercell/FoldFooterCell;",
+        name = "onViewAttachedToWindow",
+        returnType = "V",
+        parameters = emptyList(),
+    )
+    val method = foldCellFp.method
+    method.ensureRegisterCount(1)
+    method.addInstructions(
+        0,
+        """
+            iget-object v0, p0, Landroidx/recyclerview/widget/RecyclerView${'$'}ViewHolder;->itemView:Landroid/view/View;
+            invoke-static {v0}, ${Constants.TIKTOK_EXTENSION_COMMENT_HOOK}->autoExpandFoldEntrance(Landroid/view/View;)V
+        """.trimIndent(),
+    )
+    patched++
+
+    println("[Comment Customizer] Community-flagged comments auto-expand active.")
+    return patched
+}
+
 private fun BytecodePatchContext.applyHideCommentSurveys(): Int {
     var patched = 0
 
@@ -1042,7 +1066,7 @@ private fun BytecodePatchContext.applyHideCommentPopupAds(): Int {
 
 val commentCustomizerPatch = bytecodePatch(
     name = "Comment Customizer",
-    description = "Customizes TikTok's comment section, including native sort controls, clean text copying, disabling suggested emojis bar, hiding comment quick actions, hiding in-comment surveys and feedback cards, hiding profile photo story rings, enabling voice comments, automatic comment translation, fixing silent comment drops, and hiding comment popup ads.",
+    description = "Takes control of comments: sort, copy, translate and hide clutter.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -1120,6 +1144,14 @@ val commentCustomizerPatch = bytecodePatch(
         required = false,
     )
 
+    val showFlaggedComments by booleanOption(
+        key = "showFlaggedComments",
+        default = true,
+        title = "Show Community-Flagged Comments",
+        description = "Automatically expands community-flagged comments inline as normal comments, without showing the warning banner or requiring a tap.",
+        required = false,
+    )
+
     val autoTranslate by booleanOption(
         key = "autoTranslate",
         default = false,
@@ -1146,7 +1178,8 @@ val commentCustomizerPatch = bytecodePatch(
             enableVoiceComments != true &&
             autoTranslate != true &&
             commentSendFix != true &&
-            hideCommentPopupAds != true
+            hideCommentPopupAds != true &&
+            showFlaggedComments != true
         ) {
             println("[Comment Customizer] Skipped: All comment customization options are disabled.")
             return@execute
@@ -1172,6 +1205,10 @@ val commentCustomizerPatch = bytecodePatch(
 
         if (hideCommentQuickActions == true) {
             patched += applyHideCommentQuickActions()
+        }
+
+        if (showFlaggedComments == true) {
+            patched += applyShowFlaggedComments()
         }
 
         if (hideCommentSurveys == true) {

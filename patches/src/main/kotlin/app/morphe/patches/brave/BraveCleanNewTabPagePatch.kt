@@ -18,8 +18,8 @@ import org.w3c.dom.Element
 
 // ── Resource Patch: Sets defaultValue="false" for NTP marketing switches in XML ──────────
 private val braveCleanNtpXmlPatch = resourcePatch(
-    name = "Clean NTP Resource Defaults",
-    description = "Sets default values of NTP sponsored images, Brave News, and stats switches to false in XML preferences.",
+    name = "Clean Start Page (Setup)",
+    description = "Turns off ads and news switches by default.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -63,7 +63,7 @@ private val braveCleanNtpXmlPatch = resourcePatch(
             if (fileTouched) modifiedFiles++
         }
 
-        println("[Clean New Tab Page] Set $modifiedAttrs NTP marketing preference defaults to false across $modifiedFiles XML layout files")
+        println("[Clean Start Page] Set $modifiedAttrs NTP marketing preference defaults to false across $modifiedFiles XML layout files")
     }
 }
 
@@ -101,8 +101,8 @@ private fun injectPrefGuards(
 // ── Bytecode Patch: Suppresses sponsored wallpaper & news preferences at runtime ────────
 @Suppress("unused")
 val braveCleanNewTabPagePatch = bytecodePatch(
-    name = "Clean New Tab Page",
-    description = "Removes sponsored wallpaper images, Brave News/Today feeds, marketing widgets, and promo cards from the New Tab Page.",
+    name = "Clean Start Page",
+    description = "Removes sponsored wallpapers, news feed and promo cards.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -111,8 +111,8 @@ val braveCleanNewTabPagePatch = bytecodePatch(
     val hideTopSites by booleanOption(
         key = "hideTopSites",
         default = false,
-        title = "Hide Top Sites & Shortcuts",
-        description = "Removes top sites shortcuts and most visited tiles from the New Tab Page for a completely blank home screen.",
+        title = "Hide shortcut tiles",
+        description = "Removes most-visited tiles for a blank start page.",
         required = false,
     )
 
@@ -149,7 +149,7 @@ val braveCleanNewTabPagePatch = bytecodePatch(
                     hookedMethods.add("PrefService.$methodName (NTP gates)")
                 }
             } catch (e: Exception) {
-                println("[Clean New Tab Page] PrefService.$methodName hook note: ${e.message}")
+                println("[Clean Start Page] PrefService.$methodName hook note: ${e.message}")
             }
         }
 
@@ -170,7 +170,7 @@ val braveCleanNewTabPagePatch = bytecodePatch(
             )
             injectPrefGuards(statsInitFp.method, prefTargets, hookedMethods)
         } catch (e: Exception) {
-            println("[Clean New Tab Page] Stats init hook note: ${e.message}")
+            println("[Clean Start Page] Stats init hook note: ${e.message}")
         }
 
         // 3. Force preference listener guards
@@ -182,10 +182,10 @@ val braveCleanNewTabPagePatch = bytecodePatch(
             )
             injectPrefGuards(statsListenerFp.method, prefTargets, hookedMethods)
         } catch (e: Exception) {
-            println("[Clean New Tab Page] Stats listener hook note: ${e.message}")
+            println("[Clean Start Page] Stats listener hook note: ${e.message}")
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Clean New Tab Page] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
+        println("[Clean Start Page] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
     }
 }

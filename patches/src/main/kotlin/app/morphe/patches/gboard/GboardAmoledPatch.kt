@@ -1,12 +1,13 @@
 package app.morphe.patches.gboard
 
 import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.OpcodesFilter
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.methodCall
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.rawResourcePatch
 import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.sharedExtensionPatch
+import com.android.tools.smali.dexlib2.Opcode
 import java.util.Base64
 
 private val COLOR_BLACK_BYTES by lazy {
@@ -52,21 +53,23 @@ val gboardAmoledPatch = bytecodePatch(
     dependsOn(gboardAmoledResourcePatch)
 
     execute {
+        // Theme gate flag (Lyad;->b) is read right after the built-in list is
+        // allocated: new-instance ArrayList, <init>, sget-boolean, if-eqz.
+        // Inject the AMOLED row before the flag branch so it is added always.
         val themeListingFragmentFingerprint = Fingerprint(
             definingClass = "Lcom/google/android/apps/inputmethod/libs/theme/listing/ThemeListingFragment;",
             name = "f",
             parameters = listOf("Landroid/os/Bundle;"),
             returnType = "V",
-            filters = listOf(
-                methodCall(
-                    definingClass = "Lxsj;",
-                    name = "e",
-                    returnType = "Z",
-                ),
+            filters = OpcodesFilter.opcodesToFilters(
+                Opcode.NEW_INSTANCE,
+                Opcode.INVOKE_DIRECT,
+                Opcode.SGET_BOOLEAN,
+                Opcode.IF_EQZ,
             ),
         )
 
-        val matchIndex = themeListingFragmentFingerprint.instructionMatches.first().index
+        val matchIndex = themeListingFragmentFingerprint.instructionMatches[2].index
         themeListingFragmentFingerprint.method.addInstructions(
             matchIndex,
             """

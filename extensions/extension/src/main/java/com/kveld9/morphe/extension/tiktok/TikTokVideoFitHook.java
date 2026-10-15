@@ -2,9 +2,9 @@ package com.kveld9.morphe.extension.tiktok;
 
 import android.util.Log;
 import android.view.View;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Pure runtime extension helper for the Video Fit patch.
@@ -17,10 +17,37 @@ public final class TikTokVideoFitHook {
 
     public static volatile String fitMode = "off";
 
+    // Bounded diagnostics: which video views reach fitted() per process (avoids log spam).
+    private static final AtomicInteger diagCount = new AtomicInteger(0);
+
     private TikTokVideoFitHook() {}
 
     public static Object fitted(View view, Object originalResult) {
         return fitted(originalResult, view);
+    }
+
+    /**
+     * Swaps an existing VideoAdaptionResult with a recalculation based on fitMode and system display metrics.
+     *
+     * @param originalResult VideoAdaptionResult instance from feed / adapt cell.
+     * @return Transformed VideoAdaptionResult or originalResult if mode is off or dimensions invalid.
+     */
+    public static Object fitted(Object originalResult) {
+        if (originalResult == null || fitMode == null || "off".equals(fitMode)) {
+            return originalResult;
+        }
+
+        try {
+            android.util.DisplayMetrics metrics = android.content.res.Resources.getSystem().getDisplayMetrics();
+            if (metrics == null || metrics.widthPixels <= 0 || metrics.heightPixels <= 0) {
+                Log.w(TAG, "[Video Fit] skip: unmeasured system display metrics");
+                return originalResult;
+            }
+            return fittedInner(originalResult, metrics.widthPixels, metrics.heightPixels);
+        } catch (Throwable t) {
+            Log.w(TAG, "[Video Fit] display metrics resolution failed: " + t.getMessage());
+            return originalResult;
+        }
     }
 
     /**
@@ -31,8 +58,11 @@ public final class TikTokVideoFitHook {
      * @return Transformed VideoAdaptionResult or originalResult if mode is off or dimensions invalid.
      */
     public static Object fitted(Object originalResult, View view) {
-        if (originalResult == null || view == null || "off".equals(fitMode) || fitMode == null) {
+        if (originalResult == null || view == null || fitMode == null || "off".equals(fitMode)) {
             return originalResult;
+        }
+        if (diagCount.getAndIncrement() < 5) {
+            Log.d(TAG, "[Video Fit] call mode=" + fitMode + " view=" + view.getClass().getName());
         }
 
         try {
@@ -40,9 +70,22 @@ public final class TikTokVideoFitHook {
             int containerW = container[0];
             int containerH = container[1];
             if (containerW <= 0 || containerH <= 0) {
+                Log.w(TAG, "[Video Fit] skip: unmeasured container");
                 return originalResult;
             }
+            return fittedInner(originalResult, containerW, containerH);
+        } catch (Throwable t) {
+            Log.w(TAG, "[Video Fit] container resolution failed: " + t.getMessage());
+            return originalResult;
+        }
+    }
 
+    private static Object fittedInner(Object originalResult, int containerW, int containerH) {
+        if (containerW <= 0 || containerH <= 0) {
+            return originalResult;
+        }
+
+        try {
             Class<?> clazz = originalResult.getClass();
             Field widthField = clazz.getDeclaredField("width");
             widthField.setAccessible(true);
@@ -56,8 +99,18 @@ public final class TikTokVideoFitHook {
                 return originalResult;
             }
 
+            Field transXField = clazz.getDeclaredField("translateX");
+            transXField.setAccessible(true);
+            Object origTransX = transXField.get(originalResult);
+
+            Field transYField = clazz.getDeclaredField("translateY");
+            transYField.setAccessible(true);
+            Object origTransY = transYField.get(originalResult);
+
             int newW;
             int newH;
+            Float newTransX;
+            Float newTransY;
 
             if ("fit".equals(fitMode)) {
                 // Entire video visible inside container (pillarbox / letterbox)
@@ -67,6 +120,8 @@ public final class TikTokVideoFitHook {
                 if (!isValidFit(newW, newH, containerW, containerH)) {
                     return originalResult;
                 }
+                newTransX = toFloat(origTransX);
+                newTransY = toFloat(origTransY);
             } else if ("fill".equals(fitMode)) {
                 // Video fills container completely (center crop)
                 float scale = Math.max((float) containerW / origW, (float) containerH / origH);
@@ -75,44 +130,66 @@ public final class TikTokVideoFitHook {
                 if (!isValidFill(newW, newH, containerW, containerH)) {
                     return originalResult;
                 }
+                // Center the oversized view: translations from "fit" geometry
+                // would leave the filled video off-center on later videos.
+                newTransX = (containerW - newW) / 2f;
+                newTransY = (containerH - newH) / 2f;
             } else {
                 return originalResult;
             }
 
-            Field transXField = clazz.getDeclaredField("translateX");
-            transXField.setAccessible(true);
-            Object origTransX = transXField.get(originalResult);
-
-            Field transYField = clazz.getDeclaredField("translateY");
-            transYField.setAccessible(true);
-            Object origTransY = transYField.get(originalResult);
-
-            // Attempt copy method first (Kotlin data class copy)
-            try {
-                for (Method m : clazz.getMethods()) {
-                    if ("copy".equals(m.getName()) && m.getParameterTypes().length >= 4) {
-                        Class<?>[] pts = m.getParameterTypes();
-                        boolean isBoxed = pts[0] == int.class && pts[1] == int.class
-                                && pts[2] == Float.class && pts[3] == Float.class;
-                        boolean isPrimitive = pts[0] == int.class && pts[1] == int.class
-                                && pts[2] == float.class && pts[3] == float.class;
-                        if (isBoxed || isPrimitive) {
-                            if (pts.length == 4) {
-                                return m.invoke(originalResult, newW, newH, origTransX, origTransY);
-                            } else if (pts.length == 6) {
-                                // Default args copy(width, height, transX, transY, mask, marker)
-                                return m.invoke(originalResult, newW, newH, origTransX, origTransY, 0, null);
-                            }
-                        }
-                    }
-                }
-            } catch (Throwable ignored) {}
-
-            // Fallback: reflectively mutate fields in place
+            // Always mutate fields in place first so callers that do not reassign
+            // the returned instance still see the fitted dimensions.
             widthField.setInt(originalResult, newW);
             heightField.setInt(originalResult, newH);
+            setFloatField(transXField, originalResult, newTransX);
+            setFloatField(transYField, originalResult, newTransY);
 
-            Log.d(TAG, "[Video Fit] Fitted result: " + newW + "x" + newH + " (translations preserved)");
+            // Attempt copy(...) for callers that rely on a new instance
+            try {
+                for (Method m : clazz.getMethods()) {
+                    if (!"copy".equals(m.getName())) {
+                        continue;
+                    }
+                    Class<?>[] pts = m.getParameterTypes();
+                    if (pts.length < 4 || pts[0] != int.class || pts[1] != int.class
+                            || !isFloatLike(pts[2]) || !isFloatLike(pts[3])) {
+                        continue;
+                    }
+                    Object[] args = new Object[pts.length];
+                    args[0] = newW;
+                    args[1] = newH;
+                    args[2] = coerceFloat(pts[2], newTransX);
+                    args[3] = coerceFloat(pts[3], newTransY);
+                    boolean ok = true;
+                    for (int i = 4; i < pts.length; i++) {
+                        args[i] = defaultCopyArg(clazz, originalResult, pts[i]);
+                        if (args[i] == INVALID_ARG) {
+                            if (pts[i].isPrimitive()) {
+                                ok = false;
+                                break;
+                            }
+                            args[i] = null;
+                        }
+                    }
+                    if (!ok) {
+                        continue;
+                    }
+                    Object out = m.invoke(originalResult, args);
+                    if (out != null) {
+                        Log.i(TAG, "[Video Fit] " + fitMode + " " + origW + "x" + origH
+                                + " -> " + newW + "x" + newH
+                                + " container=" + containerW + "x" + containerH);
+                        return out;
+                    }
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "[Video Fit] copy failed, returning mutated original: " + t.getMessage());
+            }
+
+            Log.i(TAG, "[Video Fit] " + fitMode + " (in place) " + origW + "x" + origH
+                    + " -> " + newW + "x" + newH
+                    + " container=" + containerW + "x" + containerH);
             return originalResult;
         } catch (Throwable t) {
             Log.w(TAG, "[Video Fit] fitted swap failed: " + t.getMessage());
@@ -120,60 +197,72 @@ public final class TikTokVideoFitHook {
         }
     }
 
-    /**
-     * Computes fitted width for story/feed cell layout.
-     * Returns negative value if inputs are unmeasurable or mode is off.
-     */
-    public static int fitWidthFor(int width, int height, View view) {
-        if (width <= 0 || height <= 0 || view == null || "off".equals(fitMode)) {
-            return -1;
-        }
-        int viewW = view.getWidth();
-        int viewH = view.getHeight();
-        if (viewW <= 0 || viewH <= 0) return -1;
 
-        if ("fit".equals(fitMode)) {
-            float scale = Math.min((float) viewW / width, (float) viewH / height);
-            return Math.round(width * scale);
-        } else if ("fill".equals(fitMode)) {
-            float scale = Math.max((float) viewW / width, (float) viewH / height);
-            return Math.round(width * scale);
+    private static final Object INVALID_ARG = new Object();
+
+    private static boolean isFloatLike(Class<?> c) {
+        return c == Float.class || c == float.class;
+    }
+
+    private static Float toFloat(Object o) {
+        if (o instanceof Number) {
+            return ((Number) o).floatValue();
         }
-        return -1;
+        return null;
+    }
+
+    private static Object coerceFloat(Class<?> target, Float value) {
+        if (target == float.class) {
+            return value == null ? 0f : value;
+        }
+        return value;
+    }
+
+    private static void setFloatField(Field f, Object obj, Float value) throws IllegalAccessException {
+        if (f.getType() == float.class) {
+            f.setFloat(obj, value == null ? 0f : value);
+        } else {
+            f.set(obj, value);
+        }
     }
 
     /**
-     * Computes fitted height for story/feed cell layout.
-     * Returns negative value if inputs are unmeasurable or mode is off.
+     * Default value for extra copy(...) parameters (e.g. resultOperator):
+     * reuse the matching field value when types align, else JVM defaults.
      */
-    public static int fittedHeightFor(int width, int height, View view) {
-        if (width <= 0 || height <= 0 || view == null || "off".equals(fitMode)) {
-            return -1;
+    private static Object defaultCopyArg(Class<?> clazz, Object obj, Class<?> paramType) {
+        try {
+            boolean hasOperator = hasField(clazz, "resultOperator");
+            for (Field f : clazz.getDeclaredFields()) {
+                if (paramType.isAssignableFrom(f.getType())) {
+                    if (!hasOperator || "resultOperator".equals(f.getName())) {
+                        f.setAccessible(true);
+                        return f.get(obj);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
         }
-        int viewW = view.getWidth();
-        int viewH = view.getHeight();
-        if (viewW <= 0 || viewH <= 0) return -1;
-
-        if ("fit".equals(fitMode)) {
-            float scale = Math.min((float) viewW / width, (float) viewH / height);
-            return Math.round(height * scale);
-        } else if ("fill".equals(fitMode)) {
-            float scale = Math.max((float) viewW / width, (float) viewH / height);
-            return Math.round(height * scale);
+        if (!paramType.isPrimitive()) {
+            return null;
         }
-        return -1;
+        if (paramType == boolean.class) {
+            return false;
+        }
+        if (paramType == int.class) {
+            return 0;
+        }
+        return INVALID_ARG;
     }
 
-    /**
-     * Computes fitted translation offset.
-     */
-    public static float fittedTranslation(float translation, View view) {
-        if (view == null || "off".equals(fitMode)) {
-            return translation;
+    private static boolean hasField(Class<?> clazz, String name) {
+        try {
+            clazz.getDeclaredField(name);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
-        return translation;
     }
-
     private static int[] resolveContainerSize(View view) {
         int[] maxParent = getLargestParentSize(view);
         if (maxParent[0] > 0 && maxParent[1] > 0) {

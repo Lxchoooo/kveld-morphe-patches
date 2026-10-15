@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsNetworkSecurityConfigResourcePatch = resourcePatch(
-    name = "Network Security Config",
-    description = "Configures network_security_config.xml to disable cleartext traffic and trust user-installed CA certificates.",
+    name = "Safer Connections (Setup)",
+    description = "Blocks unencrypted traffic and trusts user certificates.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsNetworkSecurityConfigResourcePatch = resourcePatch(
     execute {
         val configFile = get("res/xml/network_security_config.xml")
         if (!configFile.exists()) {
-            println("[Network Security Config] res/xml/network_security_config.xml not found - skipping config patch.")
+            println("[Safer Connections (Setup)] res/xml/network_security_config.xml not found - skipping config patch.")
             return@execute
         }
 
@@ -57,14 +57,14 @@ private val xiaomiEarbudsNetworkSecurityConfigResourcePatch = resourcePatch(
             }
         }
 
-        println("[Network Security Config] Configured network_security_config.xml: cleartextTrafficPermitted=false, user CA certificates trusted.")
+        println("[Safer Connections (Setup)] Configured network_security_config.xml: cleartextTrafficPermitted=false, user CA certificates trusted.")
     }
 }
 
 @Suppress("unused")
 val xiaomiEarbudsNetworkSecurityPatch = bytecodePatch(
-    name = "Network Security & TLS Inspection",
-    description = "Disables cleartext traffic, trusts user-installed certificates, and bypasses OkHttp certificate pinning.",
+    name = "Safer Connections",
+    description = "Blocks unencrypted traffic and disables certificate pinning.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -104,6 +104,6 @@ val xiaomiEarbudsNetworkSecurityPatch = bytecodePatch(
             hookedMethods.add("CertificatePinner.check\$okhttp(String, Function0)")
         }
 
-        println("[Network Security & TLS Inspection] Neutralized OkHttp CertificatePinner across ${hookedMethods.size} targets.")
+        println("[Safer Connections] Neutralized OkHttp CertificatePinner across ${hookedMethods.size} targets.")
     }
 }

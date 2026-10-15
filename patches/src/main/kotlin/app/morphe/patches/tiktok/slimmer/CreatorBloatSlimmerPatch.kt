@@ -7,8 +7,8 @@ import java.io.File
 private val EMPTY_BYTES = byteArrayOf()
 
 val creatorBloatSlimmerPatch = rawResourcePatch(
-    name = "Studio & Creation De-bloat",
-    description = "Strips heavy video creation plugins, CapCut NLE editor SDKs, effect plugins, camera dynamic features, upload video encoders, on-device AI runtimes (LiteRT), and AR camera face models to significantly reduce APK size.",
+    name = "Remove Creator Tools",
+    description = "Removes video editing and effects tools to free up space.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -76,9 +76,9 @@ val creatorBloatSlimmerPatch = rawResourcePatch(
 
         if (count > 0) {
             val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-            println("[Studio & Creation De-bloat] Stripped $count creator/editor binaries and models -> Saved $savedMb MB uncompressed")
+            println("[Remove Creator Tools] Stripped $count creator/editor binaries and models -> Saved $savedMb MB uncompressed")
         } else {
-            println("[Studio & Creation De-bloat] Target creator binaries not present.")
+            println("[Remove Creator Tools] Target creator binaries not present.")
         }
     }
 }

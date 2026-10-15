@@ -42,6 +42,7 @@ Feature requests that fall into any of the following categories will be closed a
 * **What is requested**: Bypassing server-side subscription paywalls, unlocking cloud-restricted content, accessing private accounts, or defeating DRM protections.
 * **Why it is out of scope**:
   Patches operate exclusively on client-side bytecode and local application assets. Features enforced, calculated, or authorized on remote backend servers cannot be manipulated via client APK modification.
+  Checks whose final decision runs inside the APK (local entitlement getters, local license or integrity checks, client-side login walls and content gates) are not covered by this exclusion: they are in scope and are patched client-side.
 
 ---
 

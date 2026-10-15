@@ -9,7 +9,7 @@ import app.morphe.patches.shared.sharedExtensionPatch
 
 val inAppBrowserPrivacyGuardPatch = bytecodePatch(
     name = "In-App Browser Privacy Guard",
-    description = "Redirects external and third-party web links to the default system browser and neutralizes inline JavaScript tracking, DOM monitoring, and AJAX hooking in residual in-app WebViews.",
+    description = "Opens web links in your browser and blocks tracking in the remaining web views.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

@@ -81,7 +81,7 @@ def save_contributors_data(path: Path, data: dict) -> None:
 def format_avatar(username: str) -> str:
     return (
         f'<a href="https://github.com/{username}">'
-        f'<img src="https://github.com/{username}.png" width="48" height="48" style="border-radius: 50%;" />'
+        f'<img src="https://github.com/{username}.png" alt="@{username}" width="48" height="48" style="border-radius: 50%;" />'
         f"<br><b>@{username}</b></a>"
     )
 
@@ -92,7 +92,7 @@ def format_contribution_items(items: list, repo: str) -> str:
 
     if len(items) == 1:
         it = items[0]
-        return f'💡 Proposed {it["title"]} feature request ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]})).'
+        return f'Feature request: Proposed {it["title"]} feature request ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]})).'
 
     links = [
         f'{it["title"]} ([#{it["issue"]}](https://github.com/{repo}/issues/{it["issue"]}))'
@@ -100,10 +100,10 @@ def format_contribution_items(items: list, repo: str) -> str:
     ]
 
     if len(links) == 2:
-        return f"💡 Proposed {links[0]} and {links[1]} feature requests."
+        return f"Feature request: Proposed {links[0]} and {links[1]} feature requests."
 
     head = ", ".join(links[:-1])
-    return f"💡 Proposed {head}, and {links[-1]} feature requests."
+    return f"Feature request: Proposed {head}, and {links[-1]} feature requests."
 
 
 def format_contributor_row(entry: dict, repo: str) -> str:
@@ -138,8 +138,10 @@ def inject_table_into_readme(readme_path: Path, table_content: str) -> bool:
             re.escape(START_MARKER) + r".*?" + re.escape(END_MARKER),
             re.DOTALL,
         )
+        # A function replacement keeps the table literal: issue titles are user
+        # written and a backslash in one used to abort the whole README sync.
         replacement = f"{START_MARKER}\n{table_content}\n{END_MARKER}"
-        new_content = pattern.sub(replacement, content)
+        new_content = pattern.sub(lambda _match: replacement, content)
     else:
         # Fallback: locate ## Credits & Contributors and wrap existing table
         credits_pattern = re.compile(
@@ -149,8 +151,8 @@ def inject_table_into_readme(readme_path: Path, table_content: str) -> bool:
         if not credits_pattern.search(content):
             print("[FAIL] Could not find Credits & Contributors section in README.md")
             return False
-        replacement = r"\g<1>" + f"{START_MARKER}\n{table_content}\n{END_MARKER}\n\n"
-        new_content = credits_pattern.sub(replacement, content)
+        block = f"{START_MARKER}\n{table_content}\n{END_MARKER}\n\n"
+        new_content = credits_pattern.sub(lambda m: m.group(1) + block, content)
 
     if content != new_content:
         readme_path.write_text(new_content, encoding="utf-8")
@@ -166,7 +168,8 @@ def sanitize_issue_title(title: str) -> str:
     clean = clean.rstrip(".")
     if clean and clean[0].islower():
         clean = clean[0].upper() + clean[1:]
-    return clean
+    # Titles land inside a markdown table cell, so a pipe would split the row.
+    return clean.replace("|", "\\|")
 
 
 def collect_credited_and_ignored_issues(data: dict) -> set:

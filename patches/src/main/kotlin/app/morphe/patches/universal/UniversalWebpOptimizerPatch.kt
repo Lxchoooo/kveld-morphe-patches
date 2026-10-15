@@ -1,5 +1,6 @@
 package app.morphe.patches.universal
 
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.rawResourcePatch
 import app.morphe.patches.shared.LocaleUtils
@@ -133,32 +134,32 @@ private fun optimizeWebpBytes(
 
 @Suppress("unused")
 val universalWebpOptimizerPatch = rawResourcePatch(
-    name = "Universal WebP Asset Optimizer",
-    description = "Losslessly strips non-rendering metadata and ancillary chunks (EXIF, XMP, ICCP) from WebP assets across res/ and assets/ to reduce APK size.",
+    name = "Shrink WebP Images",
+    description = "Strips hidden metadata from WebP images.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val stripExifOption by booleanOption(
         key = "stripExif",
         default = true,
-        title = "Strip EXIF Metadata",
-        description = "Remove camera parameters, geolocation, and creator metadata chunks from WebP images.",
+        title = "Camera data",
+        description = "Removes camera parameters, geolocation, and creator metadata.",
         required = false,
     )
 
     val stripXmpOption by booleanOption(
         key = "stripXmp",
         default = true,
-        title = "Strip XMP Metadata",
-        description = "Remove Adobe XMP XML metadata chunks from WebP images.",
+        title = "Editing history",
+        description = "Removes Adobe XMP metadata from WebP images.",
         required = false,
     )
 
     val stripIccOption by booleanOption(
         key = "stripIcc",
         default = false,
-        title = "Strip ICC Color Profiles",
-        description = "Remove ICCP color profile chunks. Default is false to preserve color profile fidelity on wide-gamut displays.",
+        title = "Color profiles",
+        description = "Removes color profiles (may affect wide-gamut displays).",
         required = false,
     )
 
@@ -170,13 +171,19 @@ val universalWebpOptimizerPatch = rawResourcePatch(
             if (assetsDir.exists() && assetsDir.isDirectory) rootDirs.add(assetsDir)
         } catch (_: Throwable) {}
 
+        var resNotDecoded = false
         try {
             val resDir = get("res")
             if (resDir.exists() && resDir.isDirectory) rootDirs.add(resDir)
+        } catch (e: PatchException) {
+            resNotDecoded = true
         } catch (_: Throwable) {}
 
         if (rootDirs.isEmpty()) {
-            println("[Universal WebP Asset Optimizer] Neither res/ nor assets/ directory found - skipping safely.")
+            if (resNotDecoded) {
+                println("[Shrink WebP Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+            }
+            println("[Shrink WebP Images] Neither res/ nor assets/ directory found - skipping safely.")
             return@execute
         }
 
@@ -187,7 +194,11 @@ val universalWebpOptimizerPatch = rawResourcePatch(
         }
 
         if (webpFiles.isEmpty()) {
-            println("[Universal WebP Asset Optimizer] No candidate WebP assets found in res/ or assets/ - skipping.")
+            if (resNotDecoded) {
+                println("[Shrink WebP Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+            }
+            val scopeDesc = if (resNotDecoded) "assets/" else "res/ or assets/"
+            println("[Shrink WebP Images] No candidate WebP assets found in $scopeDesc - skipping.")
             return@execute
         }
 
@@ -197,6 +208,7 @@ val universalWebpOptimizerPatch = rawResourcePatch(
 
         val optimizedCount = AtomicInteger(0)
         val alreadyOptimalCount = AtomicInteger(0)
+        val skippedCount = AtomicInteger(0)
         val savedBytes = AtomicLong(0L)
 
         webpFiles.parallelStream().forEach { file ->
@@ -217,10 +229,16 @@ val universalWebpOptimizerPatch = rawResourcePatch(
                 }
             } catch (_: Exception) {
                 // Keep original file intact on any I/O or parsing exception
+                skippedCount.incrementAndGet()
             }
         }
 
+        if (resNotDecoded) {
+            println("[Shrink WebP Images] Skipped res/: resources not decoded in current pipeline mode (processed ${webpFiles.size} file(s) in assets/).")
+        }
+
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
-        println("[Universal WebP Asset Optimizer] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} WebP assets (${alreadyOptimalCount.get()} already optimal) -> Saved $savedFormatted")
+        val scopeLabel = if (resNotDecoded) "assets/ WebPs" else "WebP assets"
+        println("[Shrink WebP Images] Stripped metadata from ${optimizedCount.get()} / ${webpFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }

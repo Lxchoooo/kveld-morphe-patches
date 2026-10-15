@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintTelemetryResourcePatch = resourcePatch(
-    name = "Telemetry Manifest Purge",
-    description = "Strips advertising and install referrer permissions, and disables Google Firebase/Measurement components in AndroidManifest.xml.",
+    name = "Block Trackers (Setup)",
+    description = "Removes ad permissions and disables tracking components.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -17,7 +17,7 @@ private val nokoPrintTelemetryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Block Telemetry] AndroidManifest.xml not found - skipping.")
+            println("[Block Trackers] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -74,14 +74,14 @@ private val nokoPrintTelemetryResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.key}=${it.value}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Block Telemetry] Stripped $removedPermissions permissions, disabled $disabledComponents analytics components$componentDetails.")
+        println("[Block Trackers] Stripped $removedPermissions permissions, disabled $disabledComponents analytics components$componentDetails.")
     }
 }
 
 @Suppress("unused")
 val nokoPrintBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Firebase Analytics, Google Measurement, TikTok Business SDK, and crashlytics tracking.",
+    name = "Block Trackers",
+    description = "Blocks analytics and ad tracking.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -167,6 +167,6 @@ val nokoPrintBlockTelemetryPatch = bytecodePatch(
             hookedMethods.add("zzez.zzL")
         }
 
-        println("[Block Telemetry] Neutralized ${hookedMethods.size} telemetry dispatch methods.")
+        println("[Block Trackers] Neutralized ${hookedMethods.size} telemetry dispatch methods.")
     }
 }

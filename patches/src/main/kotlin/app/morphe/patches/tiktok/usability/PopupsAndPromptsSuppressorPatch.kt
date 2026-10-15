@@ -3,6 +3,7 @@ package app.morphe.patches.tiktok.usability
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatchContext
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
@@ -12,9 +13,11 @@ import app.morphe.patches.shared.replaceWithReturnVoid
 import app.morphe.patches.shared.sharedExtensionPatch
 import com.android.tools.smali.dexlib2.AccessFlags
 
+private const val NEW_USER_JOURNEY_SERVICE = "Lcom/ss/android/ugc/aweme/NewUserJourneyService;"
+
 val popupsAndPromptsSuppressorPatch = bytecodePatch(
-    name = "Popups & Prompts Suppressor",
-    description = "Suppresses intrusive popups, dialogs, and modal prompts, including 'Follow your friends' dialogs, contacts sync overlays, multi-account notification guides, 2SV security checkup modals, PopLayer promotional sheets, live stream teaser bubbles, sticker recommendations, and DM streak expiration warnings.",
+    name = "Block Popups & Prompts",
+    description = "Blocks popups, nags and promo dialogs across the app.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -60,6 +63,38 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
         required = false,
     )
 
+    val suppressPostDownloadDialog by booleanOption(
+        key = "suppressPostDownloadDialog",
+        default = false,
+        title = "Disable Post-Download Share Dialog",
+        description = "Suppresses the automatic 'Share to' and friend suggestions bottom sheet that pops up after finishing a download.",
+        required = false,
+    )
+
+    val suppressUpdateNags by booleanOption(
+        key = "suppressUpdateNags",
+        default = true,
+        title = "Update Prompt Suppressor",
+        description = "Neutralizes background update polling tasks and device ID check routines to prevent forced update popups.",
+        required = false,
+    )
+
+    val skipOnboarding by booleanOption(
+        key = "skipOnboarding",
+        default = true,
+        title = "Skip First-Launch Onboarding",
+        description = "Skips the first-launch intro, tutorials and consent screens.",
+        required = false,
+    )
+
+    val skipContentWarnings by booleanOption(
+        key = "skipContentWarnings",
+        default = false,
+        title = "Skip Content Warnings",
+        description = "Bypasses and clears sensitive content warnings, graphic media blur overlays, and age gates on feed videos.",
+        required = false,
+    )
+
     execute {
         var patched = 0
 
@@ -83,7 +118,23 @@ val popupsAndPromptsSuppressorPatch = bytecodePatch(
             patched += applyStreakReminderHook()
         }
 
-        println("[Popups & Prompts Suppressor] Applied $patched popup and prompt suppression hook(s).")
+        if (suppressPostDownloadDialog == true) {
+            patched += applyPostDownloadDialogHook()
+        }
+
+        if (suppressUpdateNags == true) {
+            patched += applyUpdateNagHooks()
+        }
+
+        if (skipOnboarding == true) {
+            patched += applySkipOnboardingHooks()
+        }
+
+        if (skipContentWarnings == true) {
+            patched += applySkipContentWarningsHook()
+        }
+
+        println("[Block Popups & Prompts] Applied $patched popup and prompt suppression hook(s).")
     }
 }
 
@@ -96,7 +147,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "LIZLLL",
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized RecUserPopupInMainActivityController.LIZLLL() -> Follow friends popup blocked.")
+    println("[Block Popups & Prompts] Neutralized RecUserPopupInMainActivityController.LIZLLL() -> Follow friends popup blocked.")
     count++
 
     // 2. "Get notifications from other accounts" multi-account push guide
@@ -105,7 +156,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "LJII",
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized LX/0YL4.LJII() -> Multi-account push guide dialog blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0YL4.LJII() -> Multi-account push guide dialog blocked.")
     count++
 
     // 3. "Find contacts" Friends tab overlay (PopLayer element)
@@ -114,7 +165,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "canShow",
         returnType = "Z",
     ).method.replaceWithReturnBoolean(false)
-    println("[Popups & Prompts Suppressor] Neutralized LX/0v6A.canShow() -> Find contacts PopLayer overlay blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0v6A.canShow() -> Find contacts PopLayer overlay blocked.")
     count++
 
     Fingerprint(
@@ -122,7 +173,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "LJII",
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized LX/0v6A.LJII() -> Find contacts dialog inflation blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0v6A.LJII() -> Find contacts dialog inflation blocked.")
     count++
 
     Fingerprint(
@@ -130,7 +181,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "LJFF",
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized RelationAuthDialogControl.LJFF() -> Relation auth trigger blocked.")
+    println("[Block Popups & Prompts] Neutralized RelationAuthDialogControl.LJFF() -> Relation auth trigger blocked.")
     count++
 
     Fingerprint(
@@ -142,7 +193,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         ),
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized LX/0v5r.LIZIZ() -> Find contacts access dialog pipeline blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0v5r.LIZIZ() -> Find contacts access dialog pipeline blocked.")
     count++
 
     // 4. "Security checkup 2SV" upsell modal
@@ -151,7 +202,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         name = "showLocalCampaign",
         returnType = "Z",
     ).method.replaceWithReturnBoolean(false)
-    println("[Popups & Prompts Suppressor] Neutralized LocalCampaignManager.showLocalCampaign() -> Local campaigns blocked.")
+    println("[Block Popups & Prompts] Neutralized LocalCampaignManager.showLocalCampaign() -> Local campaigns blocked.")
     count++
 
     val popSuiteMethod = Fingerprint(
@@ -171,7 +222,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
             :cond_orig
         """.trimIndent(),
     )
-    println("[Popups & Prompts Suppressor] Hooked PopSuiteManagerService.shouldShowPopSuitePopup() -> Generalized PopSuite suppression activated.")
+    println("[Block Popups & Prompts] Hooked PopSuiteManagerService.shouldShowPopSuitePopup() -> Generalized PopSuite suppression activated.")
     count++
 
     Fingerprint(
@@ -183,7 +234,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         ),
         returnType = "Z",
     ).method.replaceWithReturnBoolean(false)
-    println("[Popups & Prompts Suppressor] Neutralized Gpppa2svUpsellCampaign.startCampaign() -> GPPPA 2SV security checkup sheet blocked.")
+    println("[Block Popups & Prompts] Neutralized Gpppa2svUpsellCampaign.startCampaign() -> GPPPA 2SV security checkup sheet blocked.")
     count++
 
     Fingerprint(
@@ -196,7 +247,7 @@ private fun BytecodePatchContext.applyAccountPromptHooks(): Int {
         ),
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized PushPermissionPopupManager.LJI() -> Combined push permission popup blocked.")
+    println("[Block Popups & Prompts] Neutralized PushPermissionPopupManager.LJI() -> Combined push permission popup blocked.")
     count++
 
     return count
@@ -222,7 +273,7 @@ private fun BytecodePatchContext.applyStickerRecommendationHooks(): Int {
             :cond_orig
         """.trimIndent(),
     )
-    println("[Popups & Prompts Suppressor] Hooked ChatFeatureListConf.featureEnable() -> Typing recommendations disabled.")
+    println("[Block Popups & Prompts] Hooked ChatFeatureListConf.featureEnable() -> Typing recommendations disabled.")
     count++
 
     // Dynamically neutralizes the typing strip UI (catches shifted methods)
@@ -254,7 +305,7 @@ private fun BytecodePatchContext.applyStickerRecommendationHooks(): Int {
     }
 
     if (typingHooks > 0) {
-        println("[Popups & Prompts Suppressor] Hooked TypingRecommendationPanelAssem ($typingHooks dynamic methods) -> typing sticker UI blocked.")
+        println("[Block Popups & Prompts] Hooked TypingRecommendationPanelAssem ($typingHooks dynamic methods) -> typing sticker UI blocked.")
         count++
     }
 
@@ -280,7 +331,7 @@ private fun BytecodePatchContext.applyPopLayerFilterHook(): Int {
             :cond_allow
         """.trimIndent(),
     )
-    println("[Popups & Prompts Suppressor] Hooked LX/07Q5.canShow() -> PopLayer semantic label filter activated.")
+    println("[Block Popups & Prompts] Hooked LX/07Q5.canShow() -> PopLayer semantic label filter activated.")
     count++
 
     Fingerprint(
@@ -288,7 +339,7 @@ private fun BytecodePatchContext.applyPopLayerFilterHook(): Int {
         name = "LIZ",
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized LX/0P2r.LIZ() -> Profile view history turn-on sheet blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0P2r.LIZ() -> Profile view history turn-on sheet blocked.")
     count++
 
     Fingerprint(
@@ -297,7 +348,7 @@ private fun BytecodePatchContext.applyPopLayerFilterHook(): Int {
         parameters = listOf("Ljava/lang/Object;"),
         returnType = "Ljava/lang/Object;",
     ).method.replaceWithReturnNull()
-    println("[Popups & Prompts Suppressor] Neutralized LX/0OOs.invoke() -> Profile view history alternate sheet trigger blocked.")
+    println("[Block Popups & Prompts] Neutralized LX/0OOs.invoke() -> Profile view history alternate sheet trigger blocked.")
     count++
 
     return count
@@ -313,7 +364,7 @@ private fun BytecodePatchContext.applyLiveTeaserBubbleHooks(): Int {
         parameters = listOf("Lcom/bytedance/android/livesdkapi/depend/model/live/bubble/LiveBubbleData;"),
         returnType = "V",
     ).method.replaceWithReturnVoid()
-    println("[Popups & Prompts Suppressor] Neutralized LiveBubbleUtil.LIZ() -> Floating live stream teaser bubble blocked.")
+    println("[Block Popups & Prompts] Neutralized LiveBubbleUtil.LIZ() -> Floating live stream teaser bubble blocked.")
     count++
 
     // 2. LiveBubbleUtil.LJIIIIZZ() -> false
@@ -322,7 +373,7 @@ private fun BytecodePatchContext.applyLiveTeaserBubbleHooks(): Int {
         name = "LJIIIIZZ",
         returnType = "Z",
     ).method.replaceWithReturnBoolean(false)
-    println("[Popups & Prompts Suppressor] Neutralized LiveBubbleUtil.LJIIIIZZ() -> Live bubble display check forced false.")
+    println("[Block Popups & Prompts] Neutralized LiveBubbleUtil.LJIIIIZZ() -> Live bubble display check forced false.")
     count++
 
     return count
@@ -347,6 +398,143 @@ private fun BytecodePatchContext.applyStreakReminderHook(): Int {
             :cond_orig
         """.trimIndent(),
     )
-    println("[Popups & Prompts Suppressor] Hooked LX/0O2v.LIZ() -> DM streak expiration reminders blocked.")
+    println("[Block Popups & Prompts] Hooked LX/0O2v.LIZ() -> DM streak expiration reminders blocked.")
+    return 1
+}
+
+private fun BytecodePatchContext.applyPostDownloadDialogHook(): Int {
+    val showFp = Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/internalshare/impl/fragment/DownloadAndShareFragment;",
+        strings = listOf("after_video_saved_share_to_nscreen"),
+        returnType = "V",
+    )
+    val showMethod = showFp.method
+    showMethod.addInstructions(
+        0,
+        """
+            return-void
+        """.trimIndent(),
+    )
+    println("[Block Popups & Prompts] Hooked DownloadAndShareFragment.${showMethod.name} -> Suppressed post-download popup.")
+    return 1
+}
+
+private fun BytecodePatchContext.applyUpdateNagHooks(): Int {
+    var count = 0
+
+    // 1. CheckUpdateChangeDeviceIDTaskHolder$Background
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/legoImp/task/CheckUpdateChangeDeviceIDTaskHolder\$Background;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Block Popups & Prompts] Neutralized CheckUpdateChangeDeviceIDTaskHolder\$Background.run().")
+    count++
+
+    // 2. CheckUpdateChangeDeviceIDTaskHolder$BootFinish
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/legoImp/task/CheckUpdateChangeDeviceIDTaskHolder\$BootFinish;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Block Popups & Prompts] Neutralized CheckUpdateChangeDeviceIDTaskHolder\$BootFinish.run().")
+    count++
+
+    // 3. CheckUpdateChangeDeviceIDTask (cold startup update check)
+    Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/app/application/task/CheckUpdateChangeDeviceIDTask;",
+        name = "run",
+        returnType = "V",
+    ).method.replaceWithReturnVoid()
+    println("[Block Popups & Prompts] Neutralized CheckUpdateChangeDeviceIDTask.run().")
+    count++
+
+    return count
+}
+
+private fun BytecodePatchContext.applySkipOnboardingHooks(): Int {
+    var count = 0
+
+    // 1. NewUserJourneyService.LIZJ()Z -> return true (reports did_finish_nuj = true)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        strings = listOf("did_finish_nuj"),
+    ).method.replaceWithReturnBoolean(true)
+    println("[Block Popups & Prompts] Forced NewUserJourneyService.LIZJ() -> Reported did_finish_nuj = true.")
+    count++
+
+    // 2. NewUserJourneyService.LJJJI(Landroid/app/Activity;)Z -> return false (never show NUJ)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        parameters = listOf("Landroid/app/Activity;"),
+        strings = listOf("new_user_journey"),
+    ).method.replaceWithReturnBoolean(false)
+    println("[Block Popups & Prompts] Neutralized NewUserJourneyService.LJJJI() -> Should show NUJ suppressed.")
+    count++
+
+    // 3. NewUserJourneyService.LJIJI(...)V -> return-void (suppress launching NUJ Activity)
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "V",
+        strings = listOf("deeplink_intent_about_welcome_screen"),
+    ).method.replaceWithReturnVoid()
+    println("[Block Popups & Prompts] Neutralized NewUserJourneyService.LJIJI() -> Launch activity intent suppressed.")
+    count++
+
+    // 4. NewUserJourneyService.LJJJ(Landroid/app/Activity;, Landroid/content/Intent;)V -> return-void
+    Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "V",
+        parameters = listOf("Landroid/app/Activity;", "Landroid/content/Intent;"),
+        strings = listOf("reorder_new_journey_front"),
+    ).method.replaceWithReturnVoid()
+    println("[Block Popups & Prompts] Neutralized NewUserJourneyService.LJJJ() -> Reorder NUJ suppressed.")
+    count++
+
+    // 5. NewUserJourneyService.LJIJJLI(Lcom/bytedance/ies/foundation/activity/BaseActivity;)Z -> return false
+    val candidates = Fingerprint(
+        definingClass = NEW_USER_JOURNEY_SERVICE,
+        returnType = "Z",
+        parameters = listOf("Lcom/bytedance/ies/foundation/activity/BaseActivity;"),
+    ).matchAll(classDefBy(NEW_USER_JOURNEY_SERVICE)).map { it.method }
+    require(candidates.size == 1) {
+        "Ambiguous LJIJJLI overloads: ${candidates.size}"
+    }
+    val method = candidates.first()
+    method.replaceWithReturnBoolean(false)
+    println("[Block Popups & Prompts] Neutralized NewUserJourneyService.LJIJJLI() -> Container activity launch suppressed.")
+    count++
+
+    return count
+}
+
+private fun BytecodePatchContext.applySkipContentWarningsHook(): Int {
+    val fp = Fingerprint(
+        definingClass = "Lcom/ss/android/ugc/aweme/feed/assem/videoauthorinfo/VideoAuthorInfoVM;",
+        custom = { method, _ ->
+            method.name == "paramSync2StateAccept" &&
+                "Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;" in method.parameterTypes
+        },
+    )
+    val method = try {
+        fp.method
+    } catch (e: Exception) {
+        throw PatchException("Anchor VideoAuthorInfoVM.paramSync2StateAccept(VideoItemParams) not found for Skip Content Warnings", e)
+    }
+
+    val vipType = "Lcom/ss/android/ugc/aweme/feed/model/VideoItemParams;"
+    val paramTypeStrings = method.parameterTypes.map { it.toString() }
+    val vipIndex = paramTypeStrings.indexOf(vipType)
+    if (vipIndex < 0) throw PatchException("VideoItemParams parameter not found in VideoAuthorInfoVM.paramSync2StateAccept")
+    var slot = if (AccessFlags.STATIC.isSet(method.accessFlags)) 0 else 1
+    for (i in 0 until vipIndex) { slot += 1; val t = paramTypeStrings[i]; if (t == "J" || t == "D") slot += 1 }
+    val paramReg = "p$slot"
+    method.addInstructions(
+        0,
+        "invoke-static/range {$paramReg .. $paramReg}, ${Constants.TIKTOK_EXTENSION_SENSITIVE_WARNINGS_HOOK}->clear(Ljava/lang/Object;)V",
+    )
+    println("[Block Popups & Prompts] Neutralized content warnings via VideoAuthorInfoVM.paramSync2StateAccept.")
     return 1
 }

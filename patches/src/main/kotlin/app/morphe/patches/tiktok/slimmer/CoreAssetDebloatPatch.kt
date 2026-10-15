@@ -6,8 +6,8 @@ import app.morphe.patches.shared.Constants
 private val EMPTY_BYTES = byteArrayOf()
 
 val coreAssetDebloatPatch = rawResourcePatch(
-    name = "Core Asset De-bloat",
-    description = "Strips embedded Microblink/FinTech card scanner models, Pitaya AI & ByteNN LLM engines, C2PA origin verification, DLNA cast scanners, and redundant non-Latin fonts to save APK space.",
+    name = "Remove Extra Files",
+    description = "Removes card scanners, AI engines and extra fonts to save space.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -136,9 +136,9 @@ val coreAssetDebloatPatch = rawResourcePatch(
 
         if (count > 0) {
             val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-            println("[Core Asset De-bloat] Stripped $count non-essential OCR models, C2PA SDKs, AI/LLM engines, and regional fonts -> Saved $savedMb MB uncompressed")
+            println("[Remove Extra Files] Stripped $count non-essential OCR models, C2PA SDKs, AI/LLM engines, and regional fonts -> Saved $savedMb MB uncompressed")
         } else {
-            println("[Core Asset De-bloat] Target assets already clean.")
+            println("[Remove Extra Files] Target assets already clean.")
         }
     }
 }

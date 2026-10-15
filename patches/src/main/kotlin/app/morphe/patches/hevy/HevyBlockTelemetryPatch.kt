@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val hevyTelemetryResourcePatch = resourcePatch(
-    name = "Hevy Telemetry Manifest Purge",
-    description = "Strips tracking/advertising permissions and disables Sentry providers and WearOS background sync in AndroidManifest.xml.",
+    name = "Remove Trackers (Setup)",
+    description = "Removes tracking permissions and turns off crash-reporting providers.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -17,7 +17,7 @@ private val hevyTelemetryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Block Telemetry & Trackers] AndroidManifest.xml not found - skipping manifest purge.")
+            println("[Block Trackers] AndroidManifest.xml not found - skipping manifest purge.")
             return@execute
         }
 
@@ -101,14 +101,14 @@ private val hevyTelemetryResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.first}=${it.second}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Block Telemetry & Trackers] Stripped $removedPermissions permissions and disabled $disabledComponents tracking components$componentDetails in AndroidManifest.xml")
+        println("[Block Trackers] Stripped $removedPermissions permissions and disabled $disabledComponents tracking components$componentDetails in AndroidManifest.xml")
     }
 }
 
 @Suppress("unused")
 val hevyBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Sentry crash reporting, Adjust attribution, Facebook AppEvents, Branch referral tracking, and WearOS background sync.",
+    name = "Block Trackers",
+    description = "Blocks crash reporting, ad attribution and referral tracking.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -205,6 +205,6 @@ val hevyBlockTelemetryPatch = bytecodePatch(
         )
         hookedMethods.add("AmplitudeReactNativeModule.getLegacyEvents")
 
-        println("[Block Telemetry & Trackers] Successfully hooked ${hookedMethods.size} telemetry methods: ${hookedMethods.joinToString(", ")}")
+        println("[Block Trackers] Successfully hooked ${hookedMethods.size} telemetry methods: ${hookedMethods.joinToString(", ")}")
     }
 }

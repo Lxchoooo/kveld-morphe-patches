@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
-    name = "Background Sync Manifest Hardening",
-    description = "Disables WorkManager alarms, constraint proxies, diagnostic receivers, and non-essential background schedulers.",
+    name = "Stop Background Sync (Setup)",
+    description = "Turns off background alarms and schedulers.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -17,7 +17,7 @@ private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Background Sync Optimizer] AndroidManifest.xml not found - skipping.")
+            println("[Stop Background Sync] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -68,14 +68,14 @@ private val nokoPrintBackgroundSyncResourcePatch = resourcePatch(
             metaToRemove.forEach { it.parentNode?.removeChild(it) }
         }
 
-        println("[Background Sync Optimizer] Neutralized $neutralizedCount background sync components.")
+        println("[Stop Background Sync] Neutralized $neutralizedCount background sync components.")
     }
 }
 
 @Suppress("unused")
 val nokoPrintBackgroundSyncOptimizerPatch = bytecodePatch(
-    name = "Background Sync Optimizer",
-    description = "Neutralizes background WorkManager constraint tasks and diagnostic wakelocks.",
+    name = "Stop Background Sync",
+    description = "Stops background tasks that drain the battery.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -90,7 +90,7 @@ val nokoPrintBackgroundSyncOptimizerPatch = bytecodePatch(
             returnType = "Ljava/lang/Object;",
         ).method.apply {
             addInstructions(0, "const/4 v0, 0\nreturn-object v0")
-            println("[Background Sync Optimizer] Neutralized WorkManagerInitializer.create")
+            println("[Stop Background Sync] Neutralized WorkManagerInitializer.create")
         }
     }
 }

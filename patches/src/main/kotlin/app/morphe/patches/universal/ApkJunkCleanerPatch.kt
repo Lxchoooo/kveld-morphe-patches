@@ -57,8 +57,8 @@ private fun pruneEmptyDirectories(root: File) {
 
 @Suppress("unused")
 val apkJunkCleanerPatch = rawResourcePatch(
-    name = "APK Junk Cleaner",
-    description = "Strips non-functional build metadata, compiler properties, Kotlin coroutines debug tables, and duplicate license texts from META-INF and APK root while preserving kotlin/*.kotlin_builtins runtime descriptors.",
+    name = "Clean App Packaging",
+    description = "Removes build leftovers and duplicate files.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
@@ -70,7 +70,7 @@ val apkJunkCleanerPatch = rawResourcePatch(
         }
 
         if (!apkRoot.exists() || !apkRoot.isDirectory) {
-            println("[APK Junk Cleaner] APK root directory not found - skipping safely.")
+            println("[Clean App Packaging] APK root directory not found - skipping safely.")
             return@execute
         }
 
@@ -109,11 +109,11 @@ val apkJunkCleanerPatch = rawResourcePatch(
         } catch (_: Throwable) {}
 
         if (junkFilesCount == 0) {
-            println("[APK Junk Cleaner] APK root and META-INF are already clean (0 junk files found).")
+            println("[Clean App Packaging] APK root and META-INF are already clean (0 junk files found).")
             return@execute
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
-        println("[APK Junk Cleaner] Purged $junkFilesCount non-functional build/metadata files -> Saved $savedFormatted")
+        println("[Clean App Packaging] Purged $junkFilesCount non-functional build/metadata files -> Saved $savedFormatted")
     }
 }

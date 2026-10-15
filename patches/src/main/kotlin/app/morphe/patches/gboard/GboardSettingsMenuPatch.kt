@@ -62,7 +62,7 @@ private val gboardSeekBarEnhancementsPatch = bytecodePatch(
         val fpPrefBind = Fingerprint(
             definingClass = "Landroidx/preference/Preference;",
             name = "a",
-            parameters = listOf("Lbjo;"),
+            parameters = listOf("Lbol;"),
             returnType = "V",
         )
         fpPrefBind.method.addInstructions(
@@ -78,8 +78,8 @@ private val gboardSeekBarEnhancementsPatch = bytecodePatch(
 }
 
 val gboardSettingsMenuPatch = resourcePatch(
-    name = "Gboard Enhancements",
-    description = "Master customization suite bundling in-app toggleable features (AMOLED Pure Black theme, zero bottom inset, independent keyboard vibration, force incognito, voice typing in incognito, clipboard in incognito, clipboard retention, top toolbar icons count, cursor trackpad, and smart flags) managed directly from a top-level Morphe Patches category in Gboard Settings.",
+    name = "Keyboard Settings",
+    description = "Adds a settings screen inside Gboard: theme, vibration, clipboard and more.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -102,7 +102,7 @@ val gboardSettingsMenuPatch = resourcePatch(
     execute {
         val resDir = get("res")
         if (!resDir.exists() || !resDir.isDirectory) {
-            println("[Gboard Enhancements] Skipped: res directory not found.")
+            println("[Keyboard Settings] Skipped: res directory not found.")
             return@execute
         }
 
@@ -146,13 +146,13 @@ val gboardSettingsMenuPatch = resourcePatch(
             }
         }
         if (strippedEmojiSliders > 0) {
-            println("[Gboard Enhancements] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
+            println("[Keyboard Settings] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
         }
         if (strippedHeaders > 0) {
-            println("[Gboard Enhancements] Pruned $strippedHeaders obsolete telemetry/support header(s) from root settings.")
+            println("[Keyboard Settings] Pruned $strippedHeaders obsolete telemetry/support header(s) from root settings.")
         }
 
-        println("[Gboard Enhancements] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
+        println("[Keyboard Settings] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
     }
 }
 

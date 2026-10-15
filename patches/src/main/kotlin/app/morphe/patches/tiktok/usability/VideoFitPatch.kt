@@ -2,22 +2,19 @@ package app.morphe.patches.tiktok.usability
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patches.shared.Constants
-import app.morphe.patches.shared.ensureRegisterCount
 import app.morphe.patches.shared.sharedExtensionPatch
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val videoFitPatch = bytecodePatch(
-    name = "Video Fit",
-    description = "Adjusts video display aspect ratio across feeds and story cells: 'fit' ensures the entire video is visible without cropping, or 'fill' expands the video to fill the screen.",
+    name = "Video Fit Mode",
+    description = "Lets you choose between fitting the whole video or filling the screen.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -26,37 +23,36 @@ val videoFitPatch = bytecodePatch(
     val fitMode by stringOption(
         key = "fitMode",
         title = "Video Fit Mode",
-        description = "Aspect ratio mode for feed and story videos: 'fit' (entire video visible without crop), or 'fill' (crop to fill screen).",
+        description = "Choose 'fit' to see the whole video or 'fill' to crop and fill the screen.",
         default = "fit",
         values = mapOf("Fit video" to "fit", "Fill screen" to "fill"),
         required = false,
     )
 
     execute {
-        val mode = fitMode ?: "fit"
+        val rawMode = fitMode?.trim()?.lowercase() ?: "fit"
+        val mode = if (rawMode == "fill") "fill" else "fit"
 
         var patched = 0
 
         // 1. Configure runtime fitMode on TikTokVideoFitHook
-        try {
-            val clinit = Fingerprint(
-                definingClass = Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK,
-                name = "<clinit>",
-            ).method
-            val instructions = clinit.implementation!!.instructions
-            val returnIdx = instructions.indexOfLast { it.opcode == Opcode.RETURN_VOID }
-            val insertIdx = if (returnIdx != -1) returnIdx else 0
-            clinit.addInstructions(
-                insertIdx,
-                """
-                    const-string v0, "$mode"
-                    sput-object v0, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitMode:Ljava/lang/String;
-                """.trimIndent(),
-            )
-            println("[Video Fit] Configured fit mode: $mode")
-        } catch (e: Exception) {
-            println("[Video Fit] TikTokVideoFitHook clinit note: ${e.message}")
-        }
+        val clinitFp = Fingerprint(
+            definingClass = Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK,
+            name = "<clinit>",
+        )
+        val clinit = clinitFp.method
+        val instructions = clinit.implementation!!.instructions
+        val returnIdx = instructions.indexOfLast { it.opcode == Opcode.RETURN_VOID }
+        val insertIdx = if (returnIdx != -1) returnIdx else 0
+        clinit.addInstructions(
+            insertIdx,
+            """
+                const-string v0, "$mode"
+                sput-object v0, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitMode:Ljava/lang/String;
+            """.trimIndent(),
+        )
+        println("[Video Fit Mode] Configured runtime fitMode: $mode.")
+        patched++
 
         val resultClass = "Lcom/ss/android/ugc/aweme/videoadaption/adaptionparams/VideoAdaptionResult;"
 
@@ -89,7 +85,7 @@ val videoFitPatch = bytecodePatch(
         if (!hasCopyMethod) {
             throw PatchException("Method copy(I,I,Ljava/lang/Float;,Ljava/lang/Float;,...) not found in $resultClass")
         }
-        println("[Video Fit] Validated VideoAdaptionResult structure (width, height, translateX, translateY, copy).")
+        println("[Video Fit Mode] Validated VideoAdaptionResult structure (width, height, translateX, translateY, copy).")
 
         // 3. Hook VideoAdaptionResult.saveResultInner(View)V
         val saveInnerFp = Fingerprint(
@@ -101,8 +97,8 @@ val videoFitPatch = bytecodePatch(
         val saveInnerMethod = saveInnerFp.method
         // In saveResultInner(View): instance method -> p0 is VideoAdaptionResult, p1 is View
         val saveIsStatic = AccessFlags.STATIC.isSet(saveInnerMethod.accessFlags)
-        val saveThisReg = if (saveIsStatic) "p0" else "p0"
-        val saveViewReg = if (saveIsStatic) "p1" else "p1"
+        val saveThisReg = if (saveIsStatic) "p1" else "p0"
+        val saveViewReg = if (saveIsStatic) "p0" else "p1"
         saveInnerMethod.addInstructions(
             0,
             """
@@ -111,15 +107,21 @@ val videoFitPatch = bytecodePatch(
                 check-cast $saveThisReg, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked VideoAdaptionResult.saveResultInner(View)V.")
+        println("[Video Fit Mode] Hooked VideoAdaptionResult.saveResultInner(View)V.")
         patched++
 
-        // 4. Locate and hook static helper (View, VideoAdaptionResult, Function0)V
-        val helper1Fp = Fingerprint(
-            returnType = "V",
-            parameters = listOf("Landroid/view/View;", resultClass, "Lkotlin/jvm/functions/Function0;"),
+        // 4 & 5. Locate both static helpers in a SINGLE scan.
+        // matchAll() walks every class in the APK (TikTok: ~475k classes, ~2M methods), so the two
+        // near-identical predicates are merged into one union scan and only partitioned afterwards.
+        // The union predicate is the exact disjunction of the two previous ones, so the resulting
+        // candidate set (and therefore the emitted DEX) is unchanged.
+        val helper1Params = listOf("Landroid/view/View;", resultClass, "Lkotlin/jvm/functions/Function0;")
+        val helper2Params = listOf("Landroid/view/View;", resultClass)
+        val helperScanFp = Fingerprint(
             custom = { method, _ ->
                 AccessFlags.STATIC.isSet(method.accessFlags) &&
+                    ((method.returnType == "V" && method.parameterTypes == helper1Params) ||
+                        (method.returnType == "Z" && method.parameterTypes == helper2Params)) &&
                     method.implementation?.instructions?.any { ins ->
                         val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
                         ref?.name == "getWidth"
@@ -130,7 +132,11 @@ val videoFitPatch = bytecodePatch(
                     } == true
             },
         )
-        val helper1Methods = helper1Fp.matchAll().map { it.method }
+        val helperCandidates = helperScanFp.matchAll().map { it.method }
+        val helper1Methods = helperCandidates.filter { it.returnType == "V" && it.parameterTypes == helper1Params }
+        val helper2Methods = helperCandidates.filter { it.returnType == "Z" && it.parameterTypes == helper2Params }
+
+        // 4. Hook static helper (View, VideoAdaptionResult, Function0)V
         if (helper1Methods.size != 1) {
             throw PatchException("Expected exactly 1 static helper (View,Result,Function0)V, found ${helper1Methods.size}")
         }
@@ -145,26 +151,10 @@ val videoFitPatch = bytecodePatch(
                 check-cast p1, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked static helper (View,Result,Function0)V -> prepended fitted() swap.")
+        println("[Video Fit Mode] Hooked static helper (View,Result,Function0)V -> prepended fitted() swap.")
         patched++
 
-        // 5. Locate and hook static helper (View, VideoAdaptionResult)Z
-        val helper2Fp = Fingerprint(
-            returnType = "Z",
-            parameters = listOf("Landroid/view/View;", resultClass),
-            custom = { method, _ ->
-                AccessFlags.STATIC.isSet(method.accessFlags) &&
-                    method.implementation?.instructions?.any { ins ->
-                        val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
-                        ref?.name == "getWidth"
-                    } == true &&
-                    method.implementation?.instructions?.any { ins ->
-                        val ref = (ins as? ReferenceInstruction)?.reference as? MethodReference
-                        ref?.name == "getHeight"
-                    } == true
-            },
-        )
-        val helper2Methods = helper2Fp.matchAll().map { it.method }
+        // 5. Hook static helper (View, VideoAdaptionResult)Z
         if (helper2Methods.size != 1) {
             throw PatchException("Expected exactly 1 static helper (View,Result)Z, found ${helper2Methods.size}")
         }
@@ -178,9 +168,47 @@ val videoFitPatch = bytecodePatch(
                 check-cast p1, $resultClass
             """.trimIndent(),
         )
-        println("[Video Fit] Hooked static helper (View,Result)Z -> prepended fitted() swap.")
+        println("[Video Fit Mode] Hooked static helper (View,Result)Z -> prepended fitted() swap.")
         patched++
 
-        println("[Video Fit] Applied $patched video fit hook(s) -> fitMode=$mode.")
+        // 6. Hook CellAdaptionComponentV2.Kr(VideoAdaptionResult)V
+        val cellAdaptionFp = Fingerprint(
+            definingClass = "Lcom/ss/android/ugc/feed/platform/cell/component/adaption/CellAdaptionComponentV2;",
+            name = "Kr",
+            parameters = listOf(resultClass),
+            returnType = "V",
+        )
+        val cellAdaptionMethod = cellAdaptionFp.method
+        cellAdaptionMethod.addInstructions(
+            0,
+            """
+                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitted(Ljava/lang/Object;)Ljava/lang/Object;
+                move-result-object p1
+                check-cast p1, $resultClass
+            """.trimIndent(),
+        )
+        println("[Video Fit Mode] Hooked CellAdaptionComponentV2.Kr(Result)V -> prepended fitted() swap.")
+        patched++
+
+        // 7. Hook FeedCellAdaptionComponentV2.Kr(VideoAdaptionResult)V
+        val feedCellAdaptionFp = Fingerprint(
+            definingClass = "Lcom/ss/android/ugc/feed/platform/cell/component/adaption/FeedCellAdaptionComponentV2;",
+            name = "Kr",
+            parameters = listOf(resultClass),
+            returnType = "V",
+        )
+        val feedCellAdaptionMethod = feedCellAdaptionFp.method
+        feedCellAdaptionMethod.addInstructions(
+            0,
+            """
+                invoke-static {p1}, ${Constants.TIKTOK_EXTENSION_VIDEO_FIT_HOOK}->fitted(Ljava/lang/Object;)Ljava/lang/Object;
+                move-result-object p1
+                check-cast p1, $resultClass
+            """.trimIndent(),
+        )
+        println("[Video Fit Mode] Hooked FeedCellAdaptionComponentV2.Kr(Result)V -> prepended fitted() swap.")
+        patched++
+
+        println("[Video Fit Mode] Applied $patched video fit hook(s) -> fitMode=$mode.")
     }
 }

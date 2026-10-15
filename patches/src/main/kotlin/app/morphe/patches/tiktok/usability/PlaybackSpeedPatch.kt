@@ -42,8 +42,8 @@ private fun BytecodePatchContext.findAbHelperType(): String? {
 }
 
 val playbackSpeedPatch = bytecodePatch(
-    name = "Playback Speed Persistence",
-    description = "Persists selected video playback speed across all feed videos and application restarts, and optionally enables the native hold-and-slide 2x speed lock gesture.",
+    name = "Remember Playback Speed",
+    description = "Keeps your chosen playback speed across videos and restarts.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -76,10 +76,10 @@ val playbackSpeedPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Playback Speed Persistence] Hooked Aweme.getParameterizedSpeed() -> Persistent feed speed resolution active.")
+            println("[Remember Playback Speed] Hooked Aweme.getParameterizedSpeed() -> Persistent feed speed resolution active.")
             patched++
         } catch (e: Exception) {
-            println("[Playback Speed Persistence] Aweme.getParameterizedSpeed note: ${e.message}")
+            println("[Remember Playback Speed] Aweme.getParameterizedSpeed note: ${e.message}")
         }
 
         // 2. Hook UI Speed Selection Handler (User selecting speed in TuxSheet / long press / share panel)
@@ -96,7 +96,7 @@ val playbackSpeedPatch = bytecodePatch(
                     invoke-static {$speedReg}, ${Constants.TIKTOK_EXTENSION_SPEED_HOOK}->onSpeedSelected(F)V
                 """.trimIndent(),
             )
-            println("[Playback Speed Persistence] Hooked native speed selection handler (${speedSelectFp.classDef.type}->${speedSelectFp.method.name}) -> Real-time speed persistence active.")
+            println("[Remember Playback Speed] Hooked native speed selection handler (${speedSelectFp.classDef.type}->${speedSelectFp.method.name}) -> Real-time speed persistence active.")
             patched++
 
             // 3. Hook Speed Selection UI Active Indicator in the same class (ensures UI sheet radio button reflects persistent speed)
@@ -118,11 +118,11 @@ val playbackSpeedPatch = bytecodePatch(
                 )
             }
             if (queryMethods.isNotEmpty()) {
-                println("[Playback Speed Persistence] Hooked speed query methods (${queryMethods.size} method(s)) -> UI dialog synchronization active.")
+                println("[Remember Playback Speed] Hooked speed query methods (${queryMethods.size} method(s)) -> UI dialog synchronization active.")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Playback Speed Persistence] Speed selection handler note: ${e.message}")
+            println("[Remember Playback Speed] Speed selection handler note: ${e.message}")
         }
 
         // 4. Hook PlayerManager.setSpeed(F)V (Core playback engine speed dispatcher)
@@ -146,10 +146,10 @@ val playbackSpeedPatch = bytecodePatch(
                     move-result $speedParamReg
                 """.trimIndent(),
             )
-            println("[Playback Speed Persistence] Hooked core PlayerManager.setSpeed (${playerManagerFp.classDef.type}->${setSpeedMethod.name}) -> Global speed persistence across Search and Profiles active.")
+            println("[Remember Playback Speed] Hooked core PlayerManager.setSpeed (${playerManagerFp.classDef.type}->${setSpeedMethod.name}) -> Global speed persistence across Search and Profiles active.")
             patched++
         } catch (e: Exception) {
-            println("[Playback Speed Persistence] PlayerManager.setSpeed note: ${e.message}")
+            println("[Remember Playback Speed] PlayerManager.setSpeed note: ${e.message}")
         }
 
         // 5. Hold-and-slide 2x speed lock (native long-press speed-up rollout gates).
@@ -159,7 +159,7 @@ val playbackSpeedPatch = bytecodePatch(
             try {
                 val helper = findAbHelperType()
                     ?: error("AB-helper class (LJIIIZ/LIZJ/LJIIJJI) not found")
-                println("[Playback Speed Persistence] AB-helper class: $helper.")
+                println("[Remember Playback Speed] AB-helper class: $helper.")
 
                 val boolGate = Fingerprint(
                     definingClass = helper,
@@ -191,7 +191,7 @@ val playbackSpeedPatch = bytecodePatch(
                     )
                 }
                 if (boolReturns.isNotEmpty()) {
-                    println("[Playback Speed Persistence] Forced long_press_speed_up_enable gate -> true (${boolReturns.size} return(s)).")
+                    println("[Remember Playback Speed] Forced long_press_speed_up_enable gate -> true (${boolReturns.size} return(s)).")
                     patched++
                 }
 
@@ -226,14 +226,14 @@ val playbackSpeedPatch = bytecodePatch(
                     )
                 }
                 if (intReturns.isNotEmpty()) {
-                    println("[Playback Speed Persistence] Clamped long_press_speed_up_lock distance -> 140dp fallback (${intReturns.size} return(s)).")
+                    println("[Remember Playback Speed] Clamped long_press_speed_up_lock distance -> 140dp fallback (${intReturns.size} return(s)).")
                     patched++
                 }
             } catch (e: Exception) {
-                println("[Playback Speed Persistence] Long-press speed-up lock note: ${e.message}")
+                println("[Remember Playback Speed] Long-press speed-up lock note: ${e.message}")
             }
         }
 
-        println("[Playback Speed Persistence] Applied $patched playback speed hook(s) -> Persistent speed active.")
+        println("[Remember Playback Speed] Applied $patched playback speed hook(s) -> Persistent speed active.")
     }
 }

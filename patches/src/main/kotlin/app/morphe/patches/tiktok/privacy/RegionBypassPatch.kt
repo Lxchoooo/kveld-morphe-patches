@@ -12,7 +12,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val regionBypassPatch = bytecodePatch(
     name = "SIM Region Selector",
-    description = "Spoofs the detected SIM and network country ISO code, operator numeric codes, operator names, and cell identity MCC/MNC to bypass regional feed restrictions and catalog blocks.",
+    description = "Locks the app to a chosen country to unlock regional content.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

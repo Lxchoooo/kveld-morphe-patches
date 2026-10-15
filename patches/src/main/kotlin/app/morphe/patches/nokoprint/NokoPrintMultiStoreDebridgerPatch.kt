@@ -6,8 +6,8 @@ import org.w3c.dom.Element
 
 @Suppress("unused")
 val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
-    name = "Multi-Store Debridger",
-    description = "Disables orphan billing activities, services, and permissions for alternative OEM stores (Huawei, Xiaomi, Samsung).",
+    name = "Remove Extra Stores",
+    description = "Disables payment components for other app stores you do not use.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -15,7 +15,7 @@ val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Multi-Store Debridger] AndroidManifest.xml not found - skipping.")
+            println("[Remove Extra Stores] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -123,6 +123,6 @@ val nokoPrintMultiStoreDebridgerPatch = resourcePatch(
             }
         }
 
-        println("[Multi-Store Debridger] Disabled $disabledComponents OEM store components, stripped $removedPermissions permissions.")
+        println("[Remove Extra Stores] Disabled $disabledComponents OEM store components, stripped $removedPermissions permissions.")
     }
 }

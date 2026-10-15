@@ -10,7 +10,7 @@ import com.android.tools.smali.dexlib2.AccessFlags
 
 val showAuthorRegionPatch = bytecodePatch(
     name = "Show Author Region",
-    description = "Displays the creator's country or region code next to their username in video author info across feeds and deep-linked detail views.",
+    description = "Displays the creator's country code next to their username.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

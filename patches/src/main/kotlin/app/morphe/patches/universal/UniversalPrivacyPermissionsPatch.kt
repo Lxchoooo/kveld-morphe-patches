@@ -62,6 +62,10 @@ private val SENSORS_PERMISSIONS = setOf(
     "android.permission.ACTIVITY_RECOGNITION",
 )
 
+private val INSTALLED_APPS_PERMISSIONS = setOf(
+    "android.permission.QUERY_ALL_PACKAGES",
+)
+
 private fun buildBlockedPermissions(
     stripNotifications: Boolean,
     stripCamera: Boolean,
@@ -72,6 +76,7 @@ private fun buildBlockedPermissions(
     stripCalendar: Boolean,
     stripNearbyDevices: Boolean,
     stripSensors: Boolean,
+    stripInstalledApps: Boolean,
 ): Set<String> {
     val blocked = mutableSetOf<String>()
     if (stripNotifications) blocked.addAll(NOTIFICATION_PERMISSIONS)
@@ -83,6 +88,7 @@ private fun buildBlockedPermissions(
     if (stripCalendar) blocked.addAll(CALENDAR_PERMISSIONS)
     if (stripNearbyDevices) blocked.addAll(NEARBY_DEVICES_PERMISSIONS)
     if (stripSensors) blocked.addAll(SENSORS_PERMISSIONS)
+    if (stripInstalledApps) blocked.addAll(INSTALLED_APPS_PERMISSIONS)
     return blocked
 }
 
@@ -126,8 +132,8 @@ private fun stripPermissionsFromManifest(
 
 @Suppress("unused")
 val universalPrivacyPermissionsPatch = resourcePatch(
-    name = "Universal Privacy Permissions Stripper",
-    description = "Selectively strips sensitive privacy, sensor, and hardware permissions from AndroidManifest.xml via configurable boolean toggles.",
+    name = "Strip Sensitive Permissions",
+    description = "Removes sensitive privacy and hardware permissions you select.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
@@ -135,79 +141,87 @@ val universalPrivacyPermissionsPatch = resourcePatch(
     val stripNotifications by booleanOption(
         key = "stripNotifications",
         default = false,
-        title = "Strip Notification Permission",
-        description = "Remove POST_NOTIFICATIONS permission (Android 13+) from AndroidManifest.xml.",
+        title = "Notifications",
+        description = "Removes notification permissions (Android 13+).",
         required = false,
     )
 
     val stripCamera by booleanOption(
         key = "stripCamera",
         default = false,
-        title = "Strip Camera Permission",
-        description = "Remove CAMERA permission from AndroidManifest.xml.",
+        title = "Camera",
+        description = "Removes camera access permissions.",
         required = false,
     )
 
     val stripMicrophone by booleanOption(
         key = "stripMicrophone",
         default = false,
-        title = "Strip Microphone Permissions",
-        description = "Remove RECORD_AUDIO and audio capture permissions from AndroidManifest.xml.",
+        title = "Microphone",
+        description = "Removes audio recording and microphone permissions.",
         required = false,
     )
 
     val stripMediaAndStorage by booleanOption(
         key = "stripMediaAndStorage",
         default = false,
-        title = "Strip Storage & Media Permissions",
-        description = "Remove external storage (READ/WRITE/MANAGE_EXTERNAL_STORAGE) and media permissions (READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, ACCESS_MEDIA_LOCATION) from AndroidManifest.xml.",
+        title = "Photos & files",
+        description = "Removes photo, video, and storage access permissions.",
         required = false,
     )
 
     val stripLocation by booleanOption(
         key = "stripLocation",
         default = false,
-        title = "Strip Location Permissions",
-        description = "Remove ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, and ACCESS_BACKGROUND_LOCATION permissions from AndroidManifest.xml.",
+        title = "Location",
+        description = "Removes fine, coarse, and background location permissions.",
         required = false,
     )
 
     val stripContacts by booleanOption(
         key = "stripContacts",
         default = false,
-        title = "Strip Contacts & Accounts Permissions",
-        description = "Remove READ_CONTACTS, WRITE_CONTACTS, and GET_ACCOUNTS permissions from AndroidManifest.xml.",
+        title = "Contacts",
+        description = "Removes contacts and account reading permissions.",
         required = false,
     )
 
     val stripCalendar by booleanOption(
         key = "stripCalendar",
         default = false,
-        title = "Strip Calendar Permissions",
-        description = "Remove READ_CALENDAR and WRITE_CALENDAR permissions from AndroidManifest.xml.",
+        title = "Calendar",
+        description = "Removes calendar reading and writing permissions.",
         required = false,
     )
 
     val stripNearbyDevices by booleanOption(
         key = "stripNearbyDevices",
         default = false,
-        title = "Strip Nearby Devices Permissions",
-        description = "Remove Bluetooth scanning/connection and nearby Wi-Fi permissions (BLUETOOTH_SCAN, BLUETOOTH_CONNECT, BLUETOOTH_ADVERTISE, NEARBY_WIFI_DEVICES, UWB_RANGING) from AndroidManifest.xml.",
+        title = "Nearby devices",
+        description = "Removes Bluetooth scanning and nearby device permissions.",
         required = false,
     )
 
     val stripSensors by booleanOption(
         key = "stripSensors",
         default = false,
-        title = "Strip Body Sensors Permissions",
-        description = "Remove BODY_SENSORS, BODY_SENSORS_BACKGROUND, and ACTIVITY_RECOGNITION permissions from AndroidManifest.xml.",
+        title = "Body sensors",
+        description = "Removes body sensor and activity recognition permissions.",
+        required = false,
+    )
+
+    val stripInstalledApps by booleanOption(
+        key = "stripInstalledApps",
+        default = false,
+        title = "Installed apps",
+        description = "Hides other installed apps from this app (QUERY_ALL_PACKAGES).",
         required = false,
     )
 
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Universal Privacy Permissions Stripper] Skipped: AndroidManifest.xml not found.")
+            println("[Strip Sensitive Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -220,6 +234,7 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         val removeCalendar = stripCalendar ?: false
         val removeNearbyDevices = stripNearbyDevices ?: false
         val removeSensors = stripSensors ?: false
+        val removeInstalledApps = stripInstalledApps ?: false
 
         val blockedPermissions = buildBlockedPermissions(
             stripNotifications = removeNotifications,
@@ -231,10 +246,11 @@ val universalPrivacyPermissionsPatch = resourcePatch(
             stripCalendar = removeCalendar,
             stripNearbyDevices = removeNearbyDevices,
             stripSensors = removeSensors,
+            stripInstalledApps = removeInstalledApps,
         )
 
         if (blockedPermissions.isEmpty()) {
-            println("[Universal Privacy Permissions Stripper] Skipped: No privacy permission categories selected to strip.")
+            println("[Strip Sensitive Permissions] Skipped: No privacy permission categories selected to strip.")
             return@execute
         }
 
@@ -244,11 +260,11 @@ val universalPrivacyPermissionsPatch = resourcePatch(
         }
 
         if (removedList.isEmpty()) {
-            println("[Universal Privacy Permissions Stripper] No matching permissions found in AndroidManifest.xml.")
+            println("[Strip Sensitive Permissions] No matching permissions found in AndroidManifest.xml.")
             return@execute
         }
 
         val shortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[Universal Privacy Permissions Stripper] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
+        println("[Strip Sensitive Permissions] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
     }
 }

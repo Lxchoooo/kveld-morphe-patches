@@ -12,7 +12,7 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 val forceAutoScrollPatch = bytecodePatch(
     name = "Force Auto-Scroll",
-    description = "Forces the activation of the native video auto-scroll experiment flag for accounts and regions that lack it due to A/B testing.",
+    description = "Enables native auto-scrolling to the next video.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)

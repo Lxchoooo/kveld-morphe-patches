@@ -127,8 +127,8 @@ private fun buildBlockedPermissions(toggleStates: Map<String, Boolean>): Set<Str
 
 @Suppress("unused")
 val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
-    name = "TikTok Privacy Permissions Stripper",
-    description = "Selectively strips sensitive privacy, sensor, hardware, and tracking permissions from AndroidManifest.xml via configurable boolean toggles.",
+    name = "Strip Sensitive Permissions",
+    description = "Removes sensitive hardware, sensor, and tracking permissions.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -256,7 +256,7 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[TikTok Privacy Permissions Stripper] Skipped: AndroidManifest.xml not found.")
+            println("[Strip Sensitive Permissions] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -280,7 +280,7 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
 
         val blockedPermissions = buildBlockedPermissions(toggleStates)
         if (blockedPermissions.isEmpty()) {
-            println("[TikTok Privacy Permissions Stripper] Skipped: No permission categories selected to strip.")
+            println("[Strip Sensitive Permissions] Skipped: No permission categories selected to strip.")
             return@execute
         }
 
@@ -291,11 +291,11 @@ val tikTokPrivacyPermissionsStripperPatch = resourcePatch(
         }
 
         if (removedList.isEmpty()) {
-            println("[TikTok Privacy Permissions Stripper] AndroidManifest.xml is already clean (0 matching permissions found).")
+            println("[Strip Sensitive Permissions] AndroidManifest.xml is already clean (0 matching permissions found).")
             return@execute
         }
 
         val shortNames = removedList.map { it.substringAfterLast('.') }.distinct()
-        println("[TikTok Privacy Permissions Stripper] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
+        println("[Strip Sensitive Permissions] Stripped ${removedList.size} permission(s) from AndroidManifest.xml: ${shortNames.joinToString(", ")}.")
     }
 }

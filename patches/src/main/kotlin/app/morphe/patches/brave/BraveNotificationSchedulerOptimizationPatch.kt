@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val braveNotificationSchedulerOptimizationPatch = bytecodePatch(
-    name = "Brave In-Product & Commercial Notification Optimizer",
-    description = "Eliminates background wakeups and notifications from Chromium tips scheduler (Job ID 105), Brave Rewards onboarding promo, and retention marketing campaigns.",
+    name = "Silence Promo Notifications",
+    description = "Stops tips, reward promos and marketing notifications.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -109,6 +109,6 @@ val braveNotificationSchedulerOptimizationPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Notification Optimizer] Injected Smali hooks into ${hookedMethods.size} methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
+        println("[Silence Promo Notifications] Injected Smali hooks into ${hookedMethods.size} methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
     }
 }

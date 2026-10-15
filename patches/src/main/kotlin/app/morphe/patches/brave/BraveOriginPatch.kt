@@ -122,8 +122,8 @@ private fun buildLeoFeatureFlagHook(): String = """
 // ════════════════════════════════════════════════════════════════════════════════
 
 private val braveOriginResourcePatch = resourcePatch(
-    name = "Brave Origin Resource Defaults",
-    description = "Sets Origin preference switches to enabled by default in layout XMLs.",
+    name = "Brave Origin (Setup)",
+    description = "Turns on Origin preference switches by default.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -167,7 +167,7 @@ private val braveOriginResourcePatch = resourcePatch(
 @Suppress("unused")
 val braveOriginPatch = bytecodePatch(
     name = "Brave Origin",
-    description = "Unlocks Brave Origin and enables local feature toggle controls.",
+    description = "Unlocks Brave Origin feature switches.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)

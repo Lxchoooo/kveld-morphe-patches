@@ -7,6 +7,8 @@ const ignoredScopes = [
   'docs',
   'governance',
   'agents',
+  'skills',
+  'contributors',
   'readme',
   'github',
   'release',
@@ -15,6 +17,9 @@ const ignoredScopes = [
   'hygiene',
   'git',
   'changelog',
+  'skills',
+  'validation',
+  'contributors',
 ];
 
 const isIgnoredScope = (scope) => {

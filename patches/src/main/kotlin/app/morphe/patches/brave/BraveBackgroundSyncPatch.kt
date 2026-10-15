@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val braveBackgroundSyncPatch = bytecodePatch(
-    name = "Disable Background Sync & Periodic Sync",
-    description = "Eliminates background wakeups, radio modem activity, and battery drain by forcing GooglePlayServicesChecker.shouldDisableBackgroundSync() -> true and neutralizing wakeup tasks.",
+    name = "Stop Background Sync",
+    description = "Stops background wakeups and battery drain.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -60,6 +60,6 @@ val braveBackgroundSyncPatch = bytecodePatch(
         val c3 = fp3.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
         hookedMethods.add("$c3.${fp3.method.name}()")
 
-        println("[Disable Background Sync] Injected Smali hooks into ${hookedMethods.size} methods (${hookedMethods.joinToString(", ")})")
+        println("[Stop Background Sync] Injected Smali hooks into ${hookedMethods.size} methods (${hookedMethods.joinToString(", ")})")
     }
 }

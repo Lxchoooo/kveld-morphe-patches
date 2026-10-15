@@ -50,24 +50,24 @@ private fun zeroBinaryFile(file: File): Long {
 
 @Suppress("unused")
 val universalNativeBinaryTrimmerPatch = rawResourcePatch(
-    name = "Universal Native Binary Trimmer",
-    description = "Strips non-essential tracking, crash reporting, and debug companion native libraries in lib/** (e.g. libcrashlytics, libsentry, libbugly, libgwp-asan) by zeroing bytes in-situ.",
+    name = "Remove Tracking Libraries",
+    description = "Deletes tracking and crash-reporting native libraries.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val trimCrashReporters by booleanOption(
         key = "trimCrashReporters",
         default = true,
-        title = "Trim Crash Reporting Libraries",
-        description = "Zero native crash reporting and tracking libraries (Crashlytics, Sentry, Bugly, PLCrashReporter).",
+        title = "Crash reporters",
+        description = "Removes native crash reporting libraries.",
         required = false,
     )
 
     val trimDebugProfilers by booleanOption(
         key = "trimDebugProfilers",
         default = true,
-        title = "Trim Debug & Profiling Libraries",
-        description = "Zero debug memory and profiling libraries (GWP-ASan, Simpleperf, Android Studio profilers).",
+        title = "Debuggers",
+        description = "Removes debug memory and profiling libraries.",
         required = false,
     )
 
@@ -79,7 +79,7 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
         }
 
         if (libDir == null || !libDir.exists() || !libDir.isDirectory) {
-            println("[Universal Native Binary Trimmer] lib/ directory not found - skipping safely.")
+            println("[Remove Tracking Libraries] lib/ directory not found - skipping safely.")
             return@execute
         }
 
@@ -88,13 +88,13 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
         if (trimDebugProfilers ?: true) targetLibs.addAll(DEBUG_AND_PROFILER_LIBS)
 
         if (targetLibs.isEmpty()) {
-            println("[Universal Native Binary Trimmer] All trimming options disabled - skipping.")
+            println("[Remove Tracking Libraries] All trimming options disabled - skipping.")
             return@execute
         }
 
         val candidateFiles = collectCandidateFiles(libDir, targetLibs)
         if (candidateFiles.isEmpty()) {
-            println("[Universal Native Binary Trimmer] No candidate tracking or debug native libraries found in lib/ - skipping.")
+            println("[Remove Tracking Libraries] No candidate tracking or debug native libraries found in lib/ - skipping.")
             return@execute
         }
 
@@ -111,11 +111,12 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
         }
 
         if (strippedLibs.isEmpty()) {
-            println("[Universal Native Binary Trimmer] Target native libraries were already zeroed.")
+            println("[Remove Tracking Libraries] Target native libraries were already zeroed.")
             return@execute
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
-        println("[Universal Native Binary Trimmer] Trimmed ${strippedLibs.size} companion native libraries (${strippedLibs.joinToString(", ")}) -> Saved $savedFormatted")
+        println("[Remove Tracking Libraries] Trimmed ${strippedLibs.size} companion native libraries (${strippedLibs.joinToString(", ")}) -> Saved $savedFormatted")
+        println("[Remove Tracking Libraries] Warning: trimmed libs are only safe if nothing loads them eagerly; pair with Universal SDK Blocker (blockCrashReporters) or verify no System.loadLibrary references, otherwise UnsatisfiedLinkError boot crashes follow.")
     }
 }

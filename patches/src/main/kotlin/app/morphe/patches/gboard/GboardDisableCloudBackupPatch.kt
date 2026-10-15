@@ -15,7 +15,7 @@ private val BACKUP_ATTRIBUTES = listOf(
 @Suppress("unused")
 val gboardDisableCloudBackupPatch = resourcePatch(
     name = "Disable Cloud Backup",
-    description = "Disables Android backup for Gboard (allowBackup=false and backup agent removed) so keyboard settings, learned words, and personal dictionary data are never uploaded to Google Drive backups or copied by device-to-device transfer.",
+    description = "Keeps keyboard data off Google Drive backups.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)

@@ -6,8 +6,8 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.Constants
 
 val resourceGovernorPatch = bytecodePatch(
-    name = "Resource & Battery Governor",
-    description = "Throttles background sensor polling (gyroscope/accelerometer 3D ads) and prevents aggressive video buffer preloading to conserve battery and CPU resources.",
+    name = "Battery & Resource Saver",
+    description = "Stops 3D ad sensors and aggressive video preloading to save battery and data.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -32,10 +32,10 @@ val resourceGovernorPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Resource Governor] Neutralized ShakeEggService.LIZ() -> Shake ad sensor triggers disabled.")
+            println("[Battery & Resource Saver] Neutralized ShakeEggService.LIZ() -> Shake ad sensor triggers disabled.")
             patched++
         } catch (e: Exception) {
-            println("[Resource Governor] ShakeEggService.LIZ note: ${e.message}")
+            println("[Battery & Resource Saver] ShakeEggService.LIZ note: ${e.message}")
         }
 
         // 1.2 ShakeEggService.LIZIZ (shake model provider)
@@ -50,10 +50,10 @@ val resourceGovernorPatch = bytecodePatch(
                     return-object v0
                 """.trimIndent(),
             )
-            println("[Resource Governor] Neutralized ShakeEggService.LIZIZ() -> Shake model suppressed.")
+            println("[Battery & Resource Saver] Neutralized ShakeEggService.LIZIZ() -> Shake model suppressed.")
             patched++
         } catch (e: Exception) {
-            println("[Resource Governor] ShakeEggService.LIZIZ note: ${e.message}")
+            println("[Battery & Resource Saver] ShakeEggService.LIZIZ note: ${e.message}")
         }
 
 
@@ -74,12 +74,12 @@ val resourceGovernorPatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Resource Governor] Hooked PreloadStrategyConfig.isEnableBufferPreload() -> Aggressive buffer preloading throttled.")
+            println("[Battery & Resource Saver] Hooked PreloadStrategyConfig.isEnableBufferPreload() -> Aggressive buffer preloading throttled.")
             patched++
         } catch (e: Exception) {
-            println("[Resource Governor] PreloadStrategyConfig note: ${e.message}")
+            println("[Battery & Resource Saver] PreloadStrategyConfig note: ${e.message}")
         }
 
-        println("[Resource & Battery Governor] Applied $patched hardware and network governor hook(s).")
+        println("[Battery & Resource Saver] Applied $patched hardware and network governor hook(s).")
     }
 }

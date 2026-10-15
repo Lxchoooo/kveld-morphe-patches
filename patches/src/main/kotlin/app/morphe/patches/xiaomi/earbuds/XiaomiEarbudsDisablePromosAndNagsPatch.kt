@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val xiaomiEarbudsDisablePromosAndNagsPatch = bytecodePatch(
-    name = "Disable Promos & Nags",
-    description = "Bypasses startup privacy agreements, onboarding guides, region selector prompts, and Bluetooth permission nags, and disables in-app promotional banners, marketing activities, and store review nag dialogs.",
+    name = "Skip Popups & Tutorials",
+    description = "Skips startup agreements, tutorials, and promo banners.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -272,7 +272,7 @@ val xiaomiEarbudsDisablePromosAndNagsPatch = bytecodePatch(
             hookedMethods.add("DeviceListFragment.requestBluetoothPermissionForS")
         }
 
-        println("[Disable Promos & Nags] Disabled startup privacy agreements, onboarding guides, region selector prompts, promotional banners, Bluetooth permission nags, and review nags across ${hookedMethods.size} targets.")
+        println("[Skip Popups & Tutorials] Disabled startup privacy agreements, onboarding guides, region selector prompts, promotional banners, Bluetooth permission nags, and review nags across ${hookedMethods.size} targets.")
     }
 }
 

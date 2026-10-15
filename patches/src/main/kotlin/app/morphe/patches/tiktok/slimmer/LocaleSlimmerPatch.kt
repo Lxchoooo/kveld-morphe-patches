@@ -7,8 +7,8 @@ import app.morphe.patches.shared.Constants
 private val EMPTY_BYTES = byteArrayOf()
 
 val localeSlimmerPatch = rawResourcePatch(
-    name = "Language Pack Purger",
-    description = "Strips unselected language string bundles from assets/strings#lang_* to save APK space.",
+    name = "Remove Extra Languages",
+    description = "Deletes unselected language packs.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -16,7 +16,7 @@ val localeSlimmerPatch = rawResourcePatch(
     val targetLocales by stringOption(
         key = "locales",
         title = "Languages to keep",
-        description = "Comma-separated language codes to keep (e.g. 'en, es, pt, fr, de'). English ('en') is always preserved as safe fallback.",
+        description = "Comma-separated language codes to keep (e.g. en, es, pt). English is always kept.",
         default = "en",
         required = false,
     )
@@ -52,9 +52,9 @@ val localeSlimmerPatch = rawResourcePatch(
 
             if (strippedFolders > 0) {
                 val savedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-                println("[Language Pack Purger] Stripped $strippedFolders unused language packs (retained: ${selectedLangs.joinToString()}) -> Saved $savedMb MB uncompressed")
+                println("[Remove Extra Languages] Stripped $strippedFolders unused language packs (retained: ${selectedLangs.joinToString()}) -> Saved $savedMb MB uncompressed")
             } else {
-                println("[Language Pack Purger] All language packs match retained selection (${selectedLangs.joinToString()}).")
+                println("[Remove Extra Languages] All language packs match retained selection (${selectedLangs.joinToString()}).")
             }
         }
     }

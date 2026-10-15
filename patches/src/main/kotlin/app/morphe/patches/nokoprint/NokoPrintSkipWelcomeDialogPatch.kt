@@ -17,8 +17,8 @@ private const val PRIVACY_ACCEPTED_KEY = "privacy_accepted"
 
 @Suppress("unused")
 val nokoPrintSkipWelcomeDialogPatch = bytecodePatch(
-    name = "Skip Welcome Dialog",
-    description = "Suppresses the first-launch About/privacy dialog by applying the app's own accept action silently. The About entry in the menu keeps working.",
+    name = "Skip Welcome Screen",
+    description = "Skips the first-launch popup (the About menu still works).",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -32,7 +32,7 @@ val nokoPrintSkipWelcomeDialogPatch = bytecodePatch(
         ).method
 
         val acceptInstructions = acceptHandlerMethod.implementation?.instructions?.toList()
-            ?: error("[Skip Welcome Dialog] Accept handler has no instructions.")
+            ?: error("[Skip Welcome Screen] Accept handler has no instructions.")
 
         val prefsField = deriveSharedPreferencesField(acceptInstructions)
         val acceptMethod = derivePostConsentMethod(acceptInstructions)
@@ -68,19 +68,19 @@ val nokoPrintSkipWelcomeDialogPatch = bytecodePatch(
             ExternalLabel("show_dialog", builderMethod.getInstruction(0)),
         )
 
-        println("[Skip Welcome Dialog] Hooked ActivityHome first-launch dialog -> auto-accepts privacy notice via ${acceptMethod.name}().")
+        println("[Skip Welcome Screen] Hooked ActivityHome first-launch dialog -> auto-accepts privacy notice via ${acceptMethod.name}().")
     }
 }
 
 private fun requireLocalRegisters(method: Method, minLocalRegisters: Int) {
     val impl = method.implementation
-        ?: error("[Skip Welcome Dialog] Dialog builder has no implementation.")
+        ?: error("[Skip Welcome Screen] Dialog builder has no implementation.")
     val parameterRegisters = 1 + method.parameterTypes.sumOf {
         if (it.toString() == "J" || it.toString() == "D") 2 else 1
     }
     val localRegisters = impl.registerCount - parameterRegisters
     check(localRegisters >= minLocalRegisters) {
-        "[Skip Welcome Dialog] Dialog builder has only $localRegisters local registers; the hook needs v0-v2."
+        "[Skip Welcome Screen] Dialog builder has only $localRegisters local registers; the hook needs v0-v2."
     }
 }
 
@@ -92,12 +92,12 @@ private fun deriveSharedPreferencesField(instructions: List<Instruction>): Field
         } else {
             null
         }
-    } ?: error("[Skip Welcome Dialog] Failed to derive SharedPreferences FieldReference from accept handler.")
+    } ?: error("[Skip Welcome Screen] Failed to derive SharedPreferences FieldReference from accept handler.")
 
 private fun derivePostConsentMethod(instructions: List<Instruction>): MethodReference {
     val applyIndex = instructions.indexOfFirst { isSharedPreferencesApply(it) }
     if (applyIndex == -1) {
-        error("[Skip Welcome Dialog] Failed to derive post-consent MethodReference from accept handler.")
+        error("[Skip Welcome Screen] Failed to derive post-consent MethodReference from accept handler.")
     }
 
     return instructions.drop(applyIndex + 1).firstNotNullOfOrNull { instruction ->
@@ -106,7 +106,7 @@ private fun derivePostConsentMethod(instructions: List<Instruction>): MethodRefe
         } else {
             null
         }
-    } ?: error("[Skip Welcome Dialog] Failed to derive post-consent MethodReference from accept handler.")
+    } ?: error("[Skip Welcome Screen] Failed to derive post-consent MethodReference from accept handler.")
 }
 
 private fun isSharedPreferencesApply(instruction: Instruction): Boolean {

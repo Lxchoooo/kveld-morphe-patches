@@ -10,8 +10,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val nokoPrintAdManifestResourcePatch = resourcePatch(
-    name = "Ad Manifest Purge",
-    description = "Disables third-party ad mediation activities, internal web browsers, debuggers, and ad startup ContentProviders in AndroidManifest.xml.",
+    name = "Block Ads (Setup)",
+    description = "Removes ad screens and ad startup components.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -19,7 +19,7 @@ private val nokoPrintAdManifestResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Ad Dispatch Governor] AndroidManifest.xml not found - skipping manifest purge.")
+            println("[Block Ads] AndroidManifest.xml not found - skipping manifest purge.")
             return@execute
         }
 
@@ -105,14 +105,14 @@ private val nokoPrintAdManifestResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.key}=${it.value}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Ad Dispatch Governor] Disabled $disabledComponents ad components$componentDetails, $disabledProviders startup providers.")
+        println("[Block Ads] Disabled $disabledComponents ad components$componentDetails, $disabledProviders startup providers.")
     }
 }
 
 @Suppress("unused")
 val nokoPrintAdDispatchGovernorPatch = bytecodePatch(
-    name = "Ad Dispatch Governor",
-    description = "Neutralizes ad loaders, unlocks ad-free status, and strips mediation components & startup providers.",
+    name = "Block Ads",
+    description = "Blocks ad loaders and unlocks ad-free status.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_NOKOPRINT)
@@ -291,6 +291,6 @@ val nokoPrintAdDispatchGovernorPatch = bytecodePatch(
             hookedMethods.add("m4.a(trackAdRevenue)")
         }
 
-        println("[Ad Dispatch Governor] Neutralized ${hookedMethods.size} ad dispatch, promo, and telemetry hooks.")
+        println("[Block Ads] Neutralized ${hookedMethods.size} ad dispatch, promo, and telemetry hooks.")
     }
 }

@@ -1,5 +1,6 @@
 package app.morphe.patches.universal
 
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.rawResourcePatch
 import app.morphe.patches.shared.LocaleUtils
 import java.io.ByteArrayOutputStream
@@ -144,8 +145,8 @@ private fun optimizePngBytes(original: ByteArray): ByteArray? {
 }
 
 val pngOptimizerPatch = rawResourcePatch(
-    name = "PNG Asset Optimizer",
-    description = "Losslessly recompresses PNG assets with maximum zlib compression and strips non-rendering metadata chunks (pHYs, tEXt, tIME) while preserving 9-patch structures and pixel accuracy.",
+    name = "Shrink PNG Images",
+    description = "Recompresses PNGs without losing quality.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
@@ -157,13 +158,19 @@ val pngOptimizerPatch = rawResourcePatch(
             if (assetsDir.exists() && assetsDir.isDirectory) rootDirs.add(assetsDir)
         } catch (_: Throwable) {}
 
+        var resNotDecoded = false
         try {
             val resDir = get("res")
             if (resDir.exists() && resDir.isDirectory) rootDirs.add(resDir)
+        } catch (e: PatchException) {
+            resNotDecoded = true
         } catch (_: Throwable) {}
 
         if (rootDirs.isEmpty()) {
-            println("[PNG Asset Optimizer] Neither res/ nor assets/ directory found - skipping safely.")
+            if (resNotDecoded) {
+                println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+            }
+            println("[Shrink PNG Images] Neither res/ nor assets/ directory found - skipping safely.")
             return@execute
         }
 
@@ -174,12 +181,17 @@ val pngOptimizerPatch = rawResourcePatch(
         }
 
         if (pngFiles.isEmpty()) {
-            println("[PNG Asset Optimizer] No candidate PNG assets found in res/ or assets/ - skipping.")
+            if (resNotDecoded) {
+                println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed 0 file(s) in assets/).")
+            }
+            val scopeDesc = if (resNotDecoded) "assets/" else "res/ or assets/"
+            println("[Shrink PNG Images] No candidate PNG assets found in $scopeDesc - skipping.")
             return@execute
         }
 
         val optimizedCount = AtomicInteger(0)
         val alreadyOptimalCount = AtomicInteger(0)
+        val skippedCount = AtomicInteger(0)
         val savedBytes = AtomicLong(0L)
 
         pngFiles.parallelStream().forEach { file ->
@@ -195,10 +207,16 @@ val pngOptimizerPatch = rawResourcePatch(
                 }
             } catch (_: Exception) {
                 // Keep original file intact on any I/O or parsing exception
+                skippedCount.incrementAndGet()
             }
         }
 
+        if (resNotDecoded) {
+            println("[Shrink PNG Images] Skipped res/: resources not decoded in current pipeline mode (processed ${pngFiles.size} file(s) in assets/).")
+        }
+
         val savedFormatted = LocaleUtils.formatBytes(savedBytes.get())
-        println("[PNG Asset Optimizer] Recompressed ${optimizedCount.get()} / ${pngFiles.size} PNGs (${alreadyOptimalCount.get()} already optimal) -> Saved $savedFormatted")
+        val scopeLabel = if (resNotDecoded) "assets/ PNGs" else "PNGs"
+        println("[Shrink PNG Images] Recompressed ${optimizedCount.get()} / ${pngFiles.size} $scopeLabel (${alreadyOptimalCount.get()} already optimal, ${skippedCount.get()} skipped) -> Saved $savedFormatted")
     }
 }

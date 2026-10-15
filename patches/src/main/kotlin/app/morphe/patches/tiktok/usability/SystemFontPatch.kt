@@ -20,12 +20,16 @@ private fun BytecodePatchContext.hookStandardFontProvider(): Int {
             it.returnType == "Landroid/graphics/Typeface;"
     } ?: error("Could not find standard font provider LIZLLL method")
 
+    val isStatic = AccessFlags.STATIC.isSet(axisMethod.accessFlags)
+    val weightReg = if (isStatic) "p1" else "p2"
+    val italicReg = if (isStatic) "p2" else "p3"
+
     axisMethod.removeInstructions(0, axisMethod.implementation!!.instructions.count())
     axisMethod.addInstructions(
         0,
         """
-            move/from16 v0, p2
-            move/from16 v1, p3
+            move/from16 v0, $weightReg
+            move/from16 v1, $italicReg
             invoke-static {v0, v1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->getSystemTypeface(IZ)Landroid/graphics/Typeface;
             move-result-object v0
             return-object v0
@@ -52,7 +56,7 @@ private fun BytecodePatchContext.hookStandardFontProvider(): Int {
         )
     }
 
-    println("[System Font] Hooked standard font provider (${standardProviderFp.classDef.type}) -> System font redirection active.")
+    println("[Use System Font] Hooked standard font provider (${standardProviderFp.classDef.type}) -> System font redirection active.")
     return 1 + (if (pathMethods.isNotEmpty()) 1 else 0)
 }
 
@@ -66,12 +70,16 @@ private fun BytecodePatchContext.hookDynamicFontProvider(): Int {
             it.returnType == "Landroid/graphics/Typeface;"
     } ?: error("Could not find dynamic font provider LIZLLL method")
 
+    val isStatic = AccessFlags.STATIC.isSet(axisMethod.accessFlags)
+    val weightReg = if (isStatic) "p1" else "p2"
+    val italicReg = if (isStatic) "p2" else "p3"
+
     axisMethod.removeInstructions(0, axisMethod.implementation!!.instructions.count())
     axisMethod.addInstructions(
         0,
         """
-            move/from16 v0, p2
-            move/from16 v1, p3
+            move/from16 v0, $weightReg
+            move/from16 v1, $italicReg
             invoke-static {v0, v1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->getSystemTypeface(IZ)Landroid/graphics/Typeface;
             move-result-object v0
             return-object v0
@@ -97,7 +105,7 @@ private fun BytecodePatchContext.hookDynamicFontProvider(): Int {
         )
     }
 
-    println("[System Font] Hooked dynamic font provider (${dynamicProviderFp.classDef.type}) -> System font redirection active.")
+    println("[Use System Font] Hooked dynamic font provider (${dynamicProviderFp.classDef.type}) -> System font redirection active.")
     return 1 + (if (pathMethods.isNotEmpty()) 1 else 0)
 }
 
@@ -109,17 +117,20 @@ private fun BytecodePatchContext.hookAssetFontLoader(): Int {
         returnType = "Landroid/graphics/Typeface;",
     )
     val assetMethod = assetFontFp.method
+    val isStatic = AccessFlags.STATIC.isSet(assetMethod.accessFlags)
+    val assetReg = if (isStatic) "p0" else "p1"
+    val pathReg = if (isStatic) "p1" else "p2"
     assetMethod.addInstructions(
         0,
         """
-            invoke-static {p0, p1}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->interceptAssetTypeface(Landroid/content/res/AssetManager;Ljava/lang/String;)Landroid/graphics/Typeface;
+            invoke-static {$assetReg, $pathReg}, ${Constants.TIKTOK_EXTENSION_FONT_HOOK}->interceptAssetTypeface(Landroid/content/res/AssetManager;Ljava/lang/String;)Landroid/graphics/Typeface;
             move-result-object v0
             if-eqz v0, :cond_orig
             return-object v0
             :cond_orig
         """.trimIndent(),
     )
-    println("[System Font] Hooked asset font loader (${assetFontFp.classDef.type}->${assetMethod.name}) -> Asset font redirection active.")
+    println("[Use System Font] Hooked asset font loader (${assetFontFp.classDef.type}->${assetMethod.name}) -> Asset font redirection active.")
     return 1
 }
 
@@ -139,13 +150,13 @@ private fun BytecodePatchContext.hookWebViewFontLoader(): Int {
             :cond_web_orig
         """.trimIndent(),
     )
-    println("[System Font] Hooked WebView font interceptor -> WebView fallback active.")
+    println("[Use System Font] Hooked WebView font interceptor -> WebView fallback active.")
     return 1
 }
 
 val systemFontPatch = bytecodePatch(
-    name = "System Font",
-    description = "Forces TikTok to use the Android system font instead of bundled proprietary TikTokSans fonts.",
+    name = "Use System Font",
+    description = "Uses the system font instead of bundled TikTok fonts.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -157,6 +168,6 @@ val systemFontPatch = bytecodePatch(
         patched += hookDynamicFontProvider()
         patched += hookAssetFontLoader()
         patched += hookWebViewFontLoader()
-        println("[System Font] Applied $patched system font hook(s) -> System font active.")
+        println("[Use System Font] Applied $patched system font hook(s) -> System font active.")
     }
 }

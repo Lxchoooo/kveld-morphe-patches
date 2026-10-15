@@ -8,7 +8,6 @@ import app.morphe.patcher.patch.filePathOption
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
@@ -17,7 +16,7 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import java.io.File
 import java.util.Locale
 
-private const val TAG = "[Universal Hosts Blocker]"
+private const val TAG = "[Block Tracking Servers]"
 private const val DEFAULT_SINK_IP = "0.0.0.0"
 
 private val RESERVED_HOSTS = setOf(
@@ -35,30 +34,30 @@ private data class PendingRewrite(val index: Int, val register: Int, val replace
 
 @Suppress("unused")
 val universalHostsBlockerPatch = bytecodePatch(
-    name = "Universal Hosts Blocker",
-    description = "Rewrites Dalvik const-string URL/host literals matching a user-supplied hosts blocklist to a sink IP (default 0.0.0.0). The blocklist file is read at patch time, so daily DNS updates apply without patch releases.",
+    name = "Block Tracking Servers",
+    description = "Rewrites tracking addresses to nowhere using your blocklist.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val hostsFile by filePathOption(
         key = "hostsFile",
         default = null,
-        title = "Hosts blocklist file",
-        description = "Path to a hosts or plain-domain blocklist file on the patching machine (e.g. Hagezi native.tiktok-onlydomains.txt). Leave empty to skip.",
+        title = "Blocklist file",
+        description = "Blocklist file on this device. Empty skips the patch.",
         required = false,
     )
 
     val sinkIp by stringOption(
         key = "sinkIp",
-        title = "Sink IP address",
-        description = "IPv4 address replacing blocked hosts inside const-string literals (e.g. '0.0.0.0').",
+        title = "Replace with",
+        description = "Address written instead of blocked hosts.",
         default = DEFAULT_SINK_IP,
         required = false,
     )
 
     val matchSubdomains by booleanOption(
         key = "matchSubdomains",
-        title = "Match subdomains",
+        title = "Include subdomains",
         description = "When enabled, a blocklist entry also matches its subdomains (entry 'example.com' matches 'a.example.com').",
         default = true,
         required = false,
@@ -95,15 +94,16 @@ val universalHostsBlockerPatch = bytecodePatch(
         val blockedRoots = mutableSetOf<String>()
 
         classDefForEach { classDef ->
-            if (!hasAnyTargetInstruction(classDef, blocklist, useSubdomains)) return@classDefForEach
-
-            val mutableClass = mutableClassDefBy(classDef)
+            var mutableMethods: List<MutableMethod>? = null
             var classModified = false
 
-            for (method in mutableClass.methods) {
+            for ((methodIndex, method) in classDef.methods.withIndex()) {
                 val rewrites = collectConstStringRewrites(method, blocklist, sink, useSubdomains, blockedRoots)
                 if (rewrites.isNotEmpty()) {
-                    applyRewrites(method, rewrites)
+                    val methods = mutableMethods ?: mutableClassDefBy(classDef).methods.toList().also {
+                        mutableMethods = it
+                    }
+                    applyRewrites(methods[methodIndex], rewrites)
                     rewrittenStrings += rewrites.size
                     classModified = true
                 }
@@ -118,8 +118,13 @@ val universalHostsBlockerPatch = bytecodePatch(
         }
 
         println("$TAG Rewrote $rewrittenStrings const-string literal(s) across $touchedClasses class(es) covering ${blockedRoots.size} blocked host(s) -> $sink.")
-        blockedRoots.sorted().forEach { host ->
+        val sortedHosts = blockedRoots.sorted()
+        sortedHosts.take(20).forEach { host ->
             println("$TAG Blocked host: $host")
+        }
+        val remainder = sortedHosts.size - 20
+        if (remainder > 0) {
+            println("$TAG ... and $remainder more blocked host(s).")
         }
     }
 }
@@ -207,37 +212,6 @@ private fun findBlockedRoot(host: String, blocklist: Set<String>, useSubdomains:
     return null
 }
 
-private fun hasAnyTargetInstruction(
-    classDef: ClassDef,
-    blocklist: Set<String>,
-    useSubdomains: Boolean,
-): Boolean {
-    for (method in classDef.methods) {
-        if (hasMethodTargetInstruction(method, blocklist, useSubdomains)) return true
-    }
-    return false
-}
-
-private fun hasMethodTargetInstruction(
-    method: Method,
-    blocklist: Set<String>,
-    useSubdomains: Boolean,
-): Boolean {
-    val instructions = method.instructionsOrNull ?: return false
-    for (instruction in instructions) {
-        if (isTargetInstruction(instruction, blocklist, useSubdomains)) return true
-    }
-    return false
-}
-
-private fun isTargetInstruction(
-    instruction: Instruction,
-    blocklist: Set<String>,
-    useSubdomains: Boolean,
-): Boolean {
-    return resolveBlockedRoot(instruction, blocklist, useSubdomains) != null
-}
-
 private fun isConstStringOpcode(opcode: Opcode): Boolean {
     return opcode == Opcode.CONST_STRING || opcode == Opcode.CONST_STRING_JUMBO
 }
@@ -281,7 +255,7 @@ private fun findPendingRewrite(
 }
 
 private fun collectConstStringRewrites(
-    method: MutableMethod,
+    method: Method,
     blocklist: Set<String>,
     sink: String,
     useSubdomains: Boolean,

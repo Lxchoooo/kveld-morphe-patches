@@ -11,8 +11,8 @@ import com.android.tools.smali.dexlib2.AccessFlags
 
 val rememberClearDisplayPatch = bytecodePatch(
     name = "Remember Clear Display",
-    description = "Remembers TikTok's clear-display state between videos and re-applies it when new videos start.",
-    default = true,
+    description = "Keeps clear-display mode active when scrolling to the next video.",
+    default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
     dependsOn(sharedExtensionPatch)

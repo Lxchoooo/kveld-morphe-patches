@@ -5,7 +5,7 @@ import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 
 object Constants {
-    const val BRAVE_TARGET_VERSION = "1.97.56"
+    const val BRAVE_TARGET_VERSION = "1.97.57"
     const val BRAVE_PACKAGE_NAME = "com.brave.browser"
 
     val COMPATIBILITY_BRAVE = Compatibility(
@@ -16,14 +16,14 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = BRAVE_TARGET_VERSION,
-                description = "Download Bravemonoarm64.apk or BraveMonoarm.apk (v1.97.56) from github.com/brave/brave-browser/releases"
+                description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705704 (APK) from APKMirror"
             )
         )
     )
 
     const val GBOARD_PACKAGE_NAME = "com.google.android.inputmethod.latin"
-    const val GBOARD_TARGET_VERSION = "18.4.1.985164140-lite_beta-arm64-v8a"
-    const val GBOARD_TARGET_VERSION_V7A = "18.4.1.985164140-lite_beta-armeabi-v7a"
+    const val GBOARD_TARGET_VERSION = "18.5.1.993608717-lite_beta-arm64-v8a"
+    const val GBOARD_TARGET_VERSION_V7A = "18.5.1.993608717-lite_beta-armeabi-v7a"
 
     val COMPATIBILITY_GBOARD = Compatibility(
         name = "Gboard Lite",
@@ -32,12 +32,12 @@ object Constants {
         appIconColor = 0x4285F4,
         targets = listOf(
             AppTarget(
-                version = GBOARD_TARGET_VERSION,
-                description = "Download $GBOARD_TARGET_VERSION (APK nodpi) from APKMirror"
-            ),
-            AppTarget(
                 version = GBOARD_TARGET_VERSION_V7A,
                 description = "Download $GBOARD_TARGET_VERSION_V7A (APK nodpi) from APKMirror"
+            ),
+            AppTarget(
+                version = GBOARD_TARGET_VERSION,
+                description = "Download com.google.android.inputmethod.latin v$GBOARD_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 176049546 (APK) from APKMirror"
             )
         )
     )
@@ -54,7 +54,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = HEVY_TARGET_VERSION,
-                description = "Download com.hevy v$HEVY_TARGET_VERSION (APKM bundle) from APKMirror"
+                description = "Download com.hevy v$HEVY_TARGET_VERSION (APKM) arm64-v8a 120-640dpi versionCode 3308730 (BUNDLE) from APKMirror"
             )
         )
     )
@@ -70,7 +70,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = TIKTOK_TARGET_VERSION,
-                description = "Download TikTok v$TIKTOK_TARGET_VERSION (nodpi APK) from APKMirror"
+                description = "Download com.zhiliaoapp.musically v$TIKTOK_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 2024701040 (APK) from APKMirror"
             )
         )
     )

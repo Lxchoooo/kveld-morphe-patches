@@ -17,8 +17,8 @@ private val BLOAT_NATIVE_LIBS = listOf(
 
 @Suppress("unused")
 val braveNativeBloatSlimmerPatch = rawResourcePatch(
-    name = "Native Bloat Slimmer",
-    description = "Strips unused native companion binaries (Impress Vision AI, WireGuard VPN, and Android XR) to significantly reduce APK size.",
+    name = "Remove Extra Files",
+    description = "Deletes unused AI, VPN and AR files to shrink the app.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -47,6 +47,6 @@ val braveNativeBloatSlimmerPatch = rawResourcePatch(
         }
 
         val totalSavedMb = String.format(java.util.Locale.US, "%.2f", savedBytes.toDouble() / (1024 * 1024))
-        println("[Native Bloat Slimmer] Stripped ${strippedLibs.size} bloat binaries (${strippedLibs.joinToString(", ")}) -> Saved $totalSavedMb MB")
+        println("[Remove Extra Files] Stripped ${strippedLibs.size} bloat binaries (${strippedLibs.joinToString(", ")}) -> Saved $totalSavedMb MB")
     }
 }

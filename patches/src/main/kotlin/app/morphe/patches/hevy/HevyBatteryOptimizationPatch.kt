@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val hevyBatteryResourcePatch = resourcePatch(
-    name = "Hevy Battery & Memory Resource Hardening",
-    description = "Disables background wakeups, Play Billing components, removes largeHeap, and strips billing queries in AndroidManifest.xml.",
+    name = "Stop Background Sync (Setup)",
+    description = "Turns off billing components and background services.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -17,7 +17,7 @@ private val hevyBatteryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Battery & Background Sync Optimizer] AndroidManifest.xml not found - skipping component neutralization.")
+            println("[Stop Background Sync] AndroidManifest.xml not found - skipping component neutralization.")
             return@execute
         }
 
@@ -122,14 +122,14 @@ private val hevyBatteryResourcePatch = resourcePatch(
         }
 
         val largeHeapMsg = if (removedLargeHeap) ", removed android:largeHeap" else ""
-        println("[Battery & Background Sync Optimizer] Neutralized $neutralizedCount components, stripped $removedBillingPermissions billing perms, pruned $removedBillingQueries billing queries$largeHeapMsg in AndroidManifest.xml")
+        println("[Stop Background Sync] Neutralized $neutralizedCount components, stripped $removedBillingPermissions billing perms, pruned $removedBillingQueries billing queries$largeHeapMsg in AndroidManifest.xml")
     }
 }
 
 @Suppress("unused")
 val hevyBatteryOptimizationPatch = bytecodePatch(
-    name = "Battery & Background Sync Optimizer",
-    description = "Disables background WorkManager alarms, periodic job schedulers, Google Play Billing IPC (~89 MB RAM), and removes largeHeap to force aggressive Garbage Collection.",
+    name = "Stop Background Sync",
+    description = "Stops background sync tasks and alarms that drain the battery.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_HEVY)
@@ -143,6 +143,6 @@ val hevyBatteryOptimizationPatch = bytecodePatch(
             parameters = listOf("Lcom/android/billingclient/api/BillingClientStateListener;"),
         )
         billingFp.method.addInstructions(0, "return-void")
-        println("[Battery & Background Sync Optimizer] Stubbed BillingClientImpl.startConnection to eliminate Play Store background IPC.")
+        println("[Stop Background Sync] Stubbed BillingClientImpl.startConnection to eliminate Play Store background IPC.")
     }
 }

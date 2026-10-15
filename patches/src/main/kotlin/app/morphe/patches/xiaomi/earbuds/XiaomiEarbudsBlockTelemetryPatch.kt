@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
-    name = "Xiaomi Earbuds Telemetry Manifest Purge",
-    description = "Strips advertising, install referrer, and bug report permissions, and disables telemetry providers and receivers in AndroidManifest.xml.",
+    name = "Block Trackers (Setup)",
+    description = "Removes ad permissions and disables tracking components in the manifest.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -17,7 +17,7 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Block Telemetry & Trackers] AndroidManifest.xml not found - skipping.")
+            println("[Block Trackers (Setup)] AndroidManifest.xml not found - skipping.")
             return@execute
         }
 
@@ -34,6 +34,9 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
             "com.google.android.gms.measurement.AppMeasurementReceiver",
             "com.xiaomi.fitness.feedback.bugreport.FeedBackDumpLogReceiver",
             "com.miui.bugreport.logprovider.DumpLogProvider",
+            "com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService",
+            "com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver",
+            "com.google.android.datatransport.runtime.backends.TransportBackendDiscovery",
         )
 
         var removedPermissions = 0
@@ -76,14 +79,14 @@ private val xiaomiEarbudsTelemetryResourcePatch = resourcePatch(
             .joinToString(", ") { "${it.key}=${it.value}" }
         val componentDetails = if (categoryBreakdown.isNotEmpty()) " ($categoryBreakdown)" else ""
 
-        println("[Block Telemetry & Trackers] Stripped $removedPermissions permissions, disabled $disabledComponents analytics/logging components$componentDetails.")
+        println("[Block Trackers (Setup)] Stripped $removedPermissions permissions, disabled $disabledComponents analytics/logging components$componentDetails.")
     }
 }
 
 @Suppress("unused")
 val xiaomiEarbudsBlockTelemetryPatch = bytecodePatch(
-    name = "Block Telemetry & Trackers",
-    description = "Neutralizes Firebase Analytics, Xiaomi OneTrack, AutoReportHelper, and GlobalReport telemetry and event dispatching.",
+    name = "Block Trackers",
+    description = "Stops analytics and usage reporting.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_XIAOMI_EARBUDS)
@@ -180,6 +183,6 @@ val xiaomiEarbudsBlockTelemetryPatch = bytecodePatch(
             hookedMethods.add("Analytics.track")
         }
 
-        println("[Block Telemetry & Trackers] Neutralized ${hookedMethods.size} telemetry, event tracking, and auto-report hooks.")
+        println("[Block Trackers] Neutralized ${hookedMethods.size} telemetry, event tracking, and auto-report hooks.")
     }
 }

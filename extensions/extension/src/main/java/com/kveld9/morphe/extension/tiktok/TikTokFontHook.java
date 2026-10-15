@@ -97,14 +97,14 @@ public final class TikTokFontHook {
     }
 
     /**
-     * Intercepts AssetManager font loading to redirect TikTok font assets to system font.
+     * Intercepts AssetManager font loading to redirect font assets to system font.
      */
     public static Typeface interceptAssetTypeface(AssetManager assets, String fontPath) {
         if (fontPath == null) {
             return null;
         }
         String lower = fontPath.toLowerCase();
-        if (!lower.contains("tiktok") && !lower.contains("font/tiktok")) {
+        if (!lower.endsWith(".ttf") && !lower.endsWith(".otf") && !lower.endsWith(".ttc")) {
             return null;
         }
         return getSystemTypefaceForPath(fontPath);

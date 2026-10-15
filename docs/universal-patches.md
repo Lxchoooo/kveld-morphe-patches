@@ -8,21 +8,25 @@ Comprehensive reference for universal optimization and resource slimming patches
 
 | Patch | Type | Target Scope | Primary Mechanism | Space / Performance Impact |
 | :--- | :--- | :--- | :--- | :--- |
-| **[Locale Resource Slimmer](#1-locale-resource-slimmer-localeresourceslimmerpatch)** | `resourcePatch` | Android Resources (`res/values-*`) | Prunes unselected language directory trees bottom-up | **~5–25 MB** saved depending on target |
-| **[DPI Resource Slimmer](#2-dpi-resource-slimmer-dpiresourceslimmerpatch)** | `resourcePatch` | Android Drawables (`res/drawable-*`) | Retains target device screen density, safe orphan forward-copy | **~5–30 MB** saved, reduced bitmap memory footprint |
-| **[PNG Asset Optimizer](#3-png-asset-optimizer-pngoptimizerpatch)** | `rawResourcePatch` | PNG Assets (`res/**`, `assets/**`) | In-memory RGBA-verified level 9 zlib recompression + metadata strip | **~1–8 MB** saved, 0% visual degradation |
-| **[APK Junk Cleaner](#4-apk-junk-cleaner-apkjunkcleanerpatch)** | `rawResourcePatch` | Root & Metadata (`META-INF/**`, root) | Prunes compiler metadata, Kotlin debug tables, duplicate licenses | **~0.5–2 MB** saved, cleaner packaging |
-| **[Universal Offline Mode](#5-universal-offline-mode-universalofflinepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Revokes `INTERNET` & network permissions + blocks cleartext HTTP | Complete network isolation at OS kernel level |
-| **[Universal Telemetry Neutralizer](#6-universal-telemetry-neutralizer-universaltelemetryneutralizerpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips ad permissions, disables analytics providers/services, prunes discovery registrars, injects opt-out flags | Neutralizes third-party analytics & telemetry dispatch |
-| **[Universal Native Binary Trimmer](#7-universal-native-binary-trimmer-universalnativebinarytrimmerpatch)** | `rawResourcePatch` | Native Libraries (`lib/**`) | In-situ byte-level zeroing of non-essential tracking & debug `.so` files | **~1–15 MB** saved, removes resident native crash sidecars |
-| **[Universal WebP Asset Optimizer](#8-universal-webp-asset-optimizer-universalwebpoptimizerpatch)** | `rawResourcePatch` | WebP Assets (`res/**`, `assets/**`) | Lossless chunk stripping (`EXIF`, `XMP`, `ICCP`) + VP8X header recalculation | **~0.5–5 MB** saved, 0% visual degradation |
-| **[Background Sync & JobScheduler Purge](#9-background-sync--jobscheduler-purge-backgroundsyncpurgepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips boot permissions and disables boot receivers & WorkManager schedulers | Eliminates background wakeups, radio alarms, and standby battery drain |
-| **[Universal Privacy Permissions Stripper](#10-universal-privacy-permissions-stripper-universalprivacypermissionspatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Selectively revokes sensitive hardware, privacy, and sensor permissions | Eliminates OS permission grants and runtime capability access |
-| **[Universal Screenshot Protection Bypass](#11-universal-screenshot-protection-bypass-universalscreenshotprotectionbypasspatch)** | `bytecodePatch` | Dalvik Bytecode & Manifest | Neutralizes `FLAG_SECURE`, unlocks audio playback capture, and suppresses Android 14+ screenshot detection | Allows screenshots, screen recordings, and internal audio capture across protected views |
-| **[Universal Screen Timeout Enforcer](#12-universal-screen-timeout-enforcer-universalscreentimeoutenforcerpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes `keepScreenOn(Z)V` view calls and strips `FLAG_KEEP_SCREEN_ON` (`0x80`) | Enforces OS screen timeout and sleep timer during video playback |
-| **[Universal Screen Brightness Governor](#13-universal-screen-brightness-governor-universalscreenbrightnessgovernorpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes direct writes to `WindowManager.LayoutParams.screenBrightness` (`iput`) | Prevents apps from overriding display brightness via window layout params |
-| **[Universal Hosts Blocker](#14-universal-hosts-blocker-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
-| **[Universal SDK Blocker](#15-universal-sdk-blocker-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Universal Telemetry Neutralizer |
+| **[Remove Extra Languages](#1-remove-extra-languages-localeresourceslimmerpatch)** | `resourcePatch` | Android Resources (`res/values-*`) | Prunes unselected language directory trees bottom-up | **~5–25 MB** saved depending on target |
+| **[Remove Unused Screen Sizes](#2-remove-unused-screen-sizes-dpiresourceslimmerpatch)** | `resourcePatch` | Android Drawables (`res/drawable-*`) | Retains target device screen density, safe orphan forward-copy | **~5–30 MB** saved, reduced bitmap memory footprint |
+| **[Shrink PNG Images](#3-shrink-png-images-pngoptimizerpatch)** | `rawResourcePatch` | PNG Assets (`res/**`, `assets/**`) | In-memory RGBA-verified level 9 zlib recompression + metadata strip | **~1–8 MB** saved, 0% visual degradation |
+| **[Clean App Packaging](#4-clean-app-packaging-apkjunkcleanerpatch)** | `rawResourcePatch` | Root & Metadata (`META-INF/**`, root) | Prunes compiler metadata, Kotlin debug tables, duplicate licenses | **~0.5–2 MB** saved, cleaner packaging |
+| **[Go Fully Offline](#5-go-fully-offline-universalofflinepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Revokes `INTERNET` & network permissions + blocks cleartext HTTP | Complete network isolation at OS kernel level |
+| **[Block Trackers](#6-block-trackers-universaltelemetryneutralizerpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips ad permissions + `android.adservices.*` config, disables analytics providers/services, prunes discovery registrars, injects opt-out flags | Neutralizes third-party analytics & telemetry dispatch |
+| **[Remove Tracking Libraries](#7-remove-tracking-libraries-universalnativebinarytrimmerpatch)** | `rawResourcePatch` | Native Libraries (`lib/**`) | In-situ byte-level zeroing of non-essential tracking & debug `.so` files | **~1–15 MB** saved, removes resident native crash sidecars |
+| **[Shrink WebP Images](#8-shrink-webp-images-universalwebpoptimizerpatch)** | `rawResourcePatch` | WebP Assets (`res/**`, `assets/**`) | Lossless chunk stripping (`EXIF`, `XMP`, `ICCP`) + VP8X header recalculation | **~0.5–5 MB** saved, 0% visual degradation |
+| **[Stop Background Sync](#9-stop-background-sync-backgroundsyncpurgepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips boot permissions and disables boot receivers & WorkManager schedulers | Eliminates background wakeups, radio alarms, and standby battery drain |
+| **[Strip Sensitive Permissions](#10-strip-sensitive-permissions-universalprivacypermissionspatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Selectively revokes sensitive hardware, privacy, and sensor permissions | Eliminates OS permission grants and runtime capability access |
+| **[Allow Screenshots](#11-allow-screenshots-universalscreenshotprotectionbypasspatch)** | `bytecodePatch` | Dalvik Bytecode & Manifest | Neutralizes `FLAG_SECURE`, unlocks audio playback capture, and suppresses Android 14+ screenshot detection | Allows screenshots, screen recordings, and internal audio capture across protected views |
+| **[Force Screen Timeout](#12-force-screen-timeout-universalscreentimeoutenforcerpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes `keepScreenOn(Z)V` view calls and strips `FLAG_KEEP_SCREEN_ON` (`0x80`) | Enforces OS screen timeout and sleep timer during video playback |
+| **[Lock Screen Brightness](#13-lock-screen-brightness-universalscreenbrightnessgovernorpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes direct writes to `WindowManager.LayoutParams.screenBrightness` (`iput`) | Prevents apps from overriding display brightness via window layout params |
+| **[Block Tracking Servers](#14-block-tracking-servers-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
+| **[Block Tracking SDKs](#15-block-tracking-sdks-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Block Trackers |
+| **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
+| **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
+| **[Silence System Logs](#18-silence-system-logs-universalsilencesystemlogspatch)** | `bytecodePatch` | Dalvik Bytecode Call Sites | Neutralizes log output invocations to prevent diagnostic log leakage | Stops application telemetry and sensitive strings leaking to logcat |
+| **[Disable Browser File Associations](#19-disable-browser-file-associations-universalbrowserassociationpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Removes HTTP/HTTPS `data` entries from `VIEW` + `BROWSABLE` intent filters; drops filters left dataless | App no longer appears in the browser chooser for online files; local file handling untouched |
 
 ---
 
@@ -35,49 +39,53 @@ Morphe Patches uses a multi-tiered **defense-in-depth** model separating generic
 
 ### Coexistence & Pipeline Idempotency
 Applying both universal and app-specific patches simultaneously to the same target APK is **completely safe and idempotent**:
-1. **Manifest Operations**: If a universal patch (such as `Universal Telemetry Neutralizer`) and an app-specific patch (such as `NokoPrint Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
+1. **Manifest Operations**: If a universal patch (such as `Block Trackers`) and an app-specific patch (such as `NokoPrint Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
 2. **Permission Revocation**: If a permission node is pruned by an earlier patch pass, subsequent passes skip the missing node without throwing exceptions.
-3. **Binary Trimming**: Universal native trimmers zero only standard crash/telemetry libraries without colliding with app-specific bloat trimmers (such as `Brave Native Bloat Slimmer` or `TikTok Core Asset De-bloat`).
+3. **Binary Trimming**: Universal native trimmers zero only standard crash/telemetry libraries without colliding with app-specific bloat trimmers (such as Brave's `Remove Extra Files` or TikTok's `Remove Extra Files`).
 
 ### Do Not Stack Universals on Maintained Apps
-Dedicated app patches (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds) are a strict precision superset for their respective targets. Enabling Universal Telemetry Neutralizer or Universal SDK Blocker on top of dedicated patches adds no extra protection.
+Dedicated app patches (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds) are a strict precision superset for their respective targets. Enabling Block Trackers or Block Tracking SDKs on top of dedicated patches adds no extra protection.
 
 If patcher logs report components already clean or 0 methods hooked, that is the expected outcome, not a failure. Stacking these universals on maintained apps only adds patch execution time (such as expensive full-DEX scans on large targets like TikTok) and risks breaking features like login, account sync, or push notifications if optional toggles (e.g., device-ID providers, Firebase init, or push engagement) are enabled. To cover a newly discovered generic SDK in a maintained app, port the rule into that app's dedicated patch instead of enabling the universal patch.
 
-Exception: Universal Hosts Blocker remains a valid opt-in patch on maintained apps when using a curated host blocklist.
+Exception: Block Tracking Servers remains a valid opt-in patch on maintained apps when using a curated host blocklist.
 
 ### Patch Selection Matrix: Universal Suitability
 
 | Universal Patch | Safe Across Any APK? | Notes & Usage Guidelines |
 | :--- | :---: | :--- |
-| **Universal Telemetry Neutralizer** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
-| **Universal Native Binary Trimmer** | ✅ Yes | Zeroes standard crash reporting and profiler `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`). |
-| **Universal WebP Asset Optimizer** | ✅ Yes | Lossless metadata stripping adhering strictly to RFC 9649 / libwebp bitstream specification. |
-| **PNG Asset Optimizer** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
-| **APK Junk Cleaner** | ✅ Yes | Prunes compiler properties, Kotlin debug tables, and duplicate license files from the APK root. |
-| **DPI Resource Slimmer** | ✅ Yes | Safely retains target device screen density and preserves orphan resources. |
-| **Locale Resource Slimmer** | ✅ Yes | Prunes unselected translation folders from `res/values-*`. |
-| **Background Sync & JobScheduler Purge** | ⚠️ Safe by Default | Keep `stripWakeLock = false` (default) on web browsers (Brave) to prevent suspending background file downloads when the screen turns off. |
-| **Universal Privacy Permissions Stripper** | ⚠️ Safe by Default | All toggles are opt-in (default: `false`). Revoke only permissions you wish to strip for your target application to prevent runtime `SecurityException` crashes in apps that lack error handling. |
-| **Universal Screenshot Protection Bypass** | ✅ Yes | Safely neutralizes `FLAG_SECURE` bitwise and silences screenshot/screen recording callbacks across any application. |
-| **Universal Screen Timeout Enforcer** | ✅ Yes | Safely neutralizes `FLAG_KEEP_SCREEN_ON` bitwise and silences view `setKeepScreenOn` calls to enforce system sleep timeout. |
-| **Universal Screen Brightness Governor** | ✅ Yes | Safely neutralizes writes to `WindowManager.LayoutParams.screenBrightness` so display brightness remains strictly under system and user control. |
-| **Universal Offline Mode** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite and Xiaomi Earbuds, pair with their companion app-specific offline patches for graceful timeout handling. |
-| **Universal Hosts Blocker** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
-| **Universal SDK Blocker** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Block Trackers** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Remove Tracking Libraries** | ✅ Yes | Zeroes standard crash reporting and profiler `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`). |
+| **Shrink WebP Images** | ✅ Yes | Lossless metadata stripping adhering strictly to RFC 9649 / libwebp bitstream specification. |
+| **Shrink PNG Images** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
+| **Clean App Packaging** | ✅ Yes | Prunes compiler properties, Kotlin debug tables, and duplicate license files from the APK root. |
+| **Remove Unused Screen Sizes** | ✅ Yes | Safely retains target device screen density and preserves orphan resources. |
+| **Remove Extra Languages** | ✅ Yes | Prunes unselected translation folders from `res/values-*`. |
+| **Stop Background Sync** | ⚠️ Safe by Default | Keep `stripWakeLock = false` (default) on web browsers (Brave) to prevent suspending background file downloads when the screen turns off. |
+| **Strip Sensitive Permissions** | ⚠️ Safe by Default | All toggles are opt-in (default: `false`). Revoke only permissions you wish to strip for your target application to prevent runtime `SecurityException` crashes in apps that lack error handling. |
+| **Allow Screenshots** | ✅ Yes | Safely neutralizes `FLAG_SECURE` bitwise and silences screenshot/screen recording callbacks across any application. |
+| **Force Screen Timeout** | ✅ Yes | Safely neutralizes `FLAG_KEEP_SCREEN_ON` bitwise and silences view `setKeepScreenOn` calls to enforce system sleep timeout. |
+| **Lock Screen Brightness** | ✅ Yes | Safely neutralizes writes to `WindowManager.LayoutParams.screenBrightness` so display brightness remains strictly under system and user control. |
+| **Go Fully Offline** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite and Xiaomi Earbuds, pair with their companion app-specific offline patches for graceful timeout handling. |
+| **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
+| **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
+| **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
+| **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e/wtf` and `println`) with configurable level filtering. |
+| **Disable Browser File Associations** | ✅ Yes | Only touches `VIEW` + `BROWSABLE` intent filters carrying `http`/`https` data. Local file handlers (`file`/`content` schemes), launcher entries (`MAIN`) and non-browser actions are never modified. Do not apply to apps that must open web links (browsers, readers). |
 
 ---
 
-## 1. Locale Resource Slimmer (`localeResourceSlimmerPatch`)
+## 1. Remove Extra Languages (`localeResourceSlimmerPatch`)
 
-The **`Locale Resource Slimmer`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Gboard Lite, Hevy, Brave, TikTok, NokoPrint, Xiaomi Earbuds) to reduce APK size.
+The **`Remove Extra Languages`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Gboard Lite, Hevy, Brave, TikTok, NokoPrint, Xiaomi Earbuds) to reduce APK size.
 
 > [!TIP]
-> **Chromium Browsers (Brave)**: While `Locale Resource Slimmer` trims standard Android wrapper resources in `res/values-*`, Chromium browsers store over 95% of their strings (~9.64 MB in Brave 1.97.56) in native binary `.pak` files inside `assets/locales/`. For complete multilingual slimming in Brave, combine this patch with the Brave-specific [**`Locale PAK Slimmer`**](apps/brave.md#11-locale-pak-slimmer-localepakslimmerpatch).
+> **Chromium Browsers (Brave)**: While `Remove Extra Languages` trims standard Android wrapper resources in `res/values-*`, Chromium browsers store over 95% of their strings (~9.71 MB in Brave 1.97.57) in native binary `.pak` files inside `assets/locales/`. For complete multilingual slimming in Brave, combine this patch with the Brave-specific [**`Locale PAK Slimmer`**](apps/brave.md#11-locale-pak-slimmer-localepakslimmerpatch).
 
 ### Configuration in Morphe Manager
 
-When configuring the **`Locales to keep`** option (`locales`), specify a comma-separated list of language codes to preserve (e.g. `es, es-419, pt-BR, fr, de`).
+When configuring the **`Languages to keep`** option (`locales`), specify a comma-separated list of language codes to preserve (e.g. `es, es-419, pt-BR, fr, de`).
 - **Default**: `en` (English `en` and `en-US` are always retained).
 - **Base Fallback Safety**: Resource directories without language qualifiers (e.g. `res/values/`, `res/xml/`) are strictly preserved.
 - **Prefix Matching**: Specifying a base code like `es` automatically preserves both global Spanish and regional variants (`es-rUS`, `es-rES`, `es-r419`).
@@ -115,20 +123,20 @@ sw, ta, te, th, tl, tr, uk, ur, uz, vi, yo, zh, zh-rCN, zh-rHK, zh-rTW, zu
 
 ---
 
-## 2. DPI Resource Slimmer (`dpiResourceSlimmerPatch`)
+## 2. Remove Unused Screen Sizes (`dpiResourceSlimmerPatch`)
 
-The **`DPI Resource Slimmer`** patch strips unselected screen density asset directories (such as `drawable-mdpi`, `drawable-hdpi`, `drawable-xhdpi`, `mipmap-mdpi`, etc.) from `res/` across all supported target APKs to significantly reduce final APK size and RAM footprint during bitmap decoding.
+The **`Remove Unused Screen Sizes`** patch strips unselected screen density asset directories (such as `drawable-mdpi`, `drawable-hdpi`, `drawable-xhdpi`, `mipmap-mdpi`, etc.) from `res/` across all supported target APKs to significantly reduce final APK size and RAM footprint during bitmap decoding.
 
 ### Configuration in Morphe Manager
 
-- **`DPI densities to keep` (`dpis`)**: Specify a comma-separated list of densities to retain:
+- **`Screen sizes to keep` (`dpis`)**: Specify a comma-separated list of densities to retain:
   - **Default value**: `xxhdpi` (corresponds to standard 1080p displays, ~480 dpi, the most common modern smartphone resolution).
   - **Single density (maximum space savings)**: e.g. `xxhdpi` for 1080p devices, or `xxxhdpi` for 1440p / 2K devices.
   - **Multiple densities (broad device compatibility)**: e.g. `xhdpi, xxhdpi`.
   - **Friendly aliases**: Resolution aliases such as `1080p` (`xxhdpi`), `720p` (`xhdpi`), or `1440p` / `2k` (`xxxhdpi`) are supported.
-- **`Remove smartwatch (Wear OS) resources` (`stripSmartwatch`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for Wear OS smartwatches (`watch`).
-- **`Remove Android TV resources` (`stripTelevision`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for Android TV / Leanback (`television`).
-- **`Remove automotive, dock, and VR resources` (`stripOtherFormFactors`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for car head units, desk docks, appliances, or VR headsets (`car`, `desk`, `appliance`, `vrheadset`).
+- **`Watch resources` (`stripSmartwatch`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for Wear OS smartwatches (`watch`).
+- **`TV resources` (`stripTelevision`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for Android TV / Leanback (`television`).
+- **`Car, dock and VR resources` (`stripOtherFormFactors`)**: Boolean toggle (`false` by default). Safely purges non-values resources qualified for car head units, desk docks, appliances, or VR headsets (`car`, `desk`, `appliance`, `vrheadset`).
 - **Multi-Package ARSC Traversal**: Scans across all decoded package resource directories (`resources/<package>/res`) to deduplicate densities and purge device bloat across primary and modularized packages.
 
 ### Screen Density Reference Guide
@@ -149,9 +157,13 @@ The **`DPI Resource Slimmer`** patch strips unselected screen density asset dire
 
 ---
 
-## 3. PNG Asset Optimizer (`pngOptimizerPatch`)
+## 3. Shrink PNG Images (`pngOptimizerPatch`)
 
-The **`PNG Asset Optimizer`** losslessly recompresses PNG assets inside `res/` and `assets/` with maximum zlib compression (`BEST_COMPRESSION`, level 9) and strips non-rendering metadata chunks (`pHYs`, `tEXt`, `tIME`).
+The **`Shrink PNG Images`** losslessly recompresses PNG assets inside `res/` and `assets/` with maximum zlib compression (`BEST_COMPRESSION`, level 9) and strips non-rendering metadata chunks (`pHYs`, `tEXt`, `tIME`).
+
+> [!NOTE]
+> **Pipeline Scope**: In full pipeline mode (with resource decoding), optimization covers both `res/` and `assets/`.
+> In raw-only pipeline mode (where resources are not decoded), `res/` is safely skipped and optimization applies exclusively to `assets/`.
 
 ### 🛡️ Pixel Safety & 9-Patch Invariants
 - **9-Patch Protection**: Files named `*.9.png` or files containing the Android compiled 9-patch chunk `npTc` are **strictly preserved** to prevent UI stretching distortion.
@@ -160,9 +172,9 @@ The **`PNG Asset Optimizer`** losslessly recompresses PNG assets inside `res/` a
 
 ---
 
-## 4. APK Junk Cleaner (`apkJunkCleanerPatch`)
+## 4. Clean App Packaging (`apkJunkCleanerPatch`)
 
-The **`APK Junk Cleaner`** strips non-functional build metadata, compiler properties, Kotlin coroutines debug tables, and duplicate license notices from `META-INF` and APK root.
+The **`Clean App Packaging`** strips non-functional build metadata, compiler properties, Kotlin coroutines debug tables, and duplicate license notices from `META-INF` and APK root.
 
 ### 🛡️ Protected Core Invariants
 - **Critical Extensions**: `.dex`, `.arsc`, `.xml`, `.so`, `.rsa`, `.sf`, `.dsa` are strictly protected.
@@ -172,9 +184,9 @@ The **`APK Junk Cleaner`** strips non-functional build metadata, compiler proper
 
 ---
 
-## 5. Universal Offline Mode (`universalOfflinePatch`)
+## 5. Go Fully Offline (`universalOfflinePatch`)
 
-The **`Universal Offline Mode`** patch isolates any application from the network by stripping `android.permission.INTERNET` and associated network permissions from `AndroidManifest.xml` and enforcing `android:usesCleartextTraffic="false"` on the `<application>` element.
+The **`Go Fully Offline`** patch isolates any application from the network by stripping `android.permission.INTERNET` and associated network permissions from `AndroidManifest.xml` and enforcing `android:usesCleartextTraffic="false"` on the `<application>` element.
 
 > [!NOTE]
 > ### Kernel-Level Network Enforcement
@@ -182,34 +194,34 @@ The **`Universal Offline Mode`** patch isolates any application from the network
 
 > [!TIP]
 > ### Universal vs. App-Specific Offline Patches
-> - **`Universal Offline Mode`**: Operates at the Android manifest level (`AndroidManifest.xml`) by revoking `INTERNET` and enforcing `usesCleartextTraffic="false"`. It provides kernel-level socket blocking across any standard application (such as NokoPrint, Hevy, or custom tools).
-> - **App-Specific Companion Patches**: Applications managing local hardware or maintaining internal network state machines provide companion Dalvik bytecode patches that should be applied alongside `Universal Offline Mode`:
+> - **`Go Fully Offline`**: Operates at the Android manifest level (`AndroidManifest.xml`) by revoking `INTERNET` and enforcing `usesCleartextTraffic="false"`. It provides kernel-level socket blocking across any standard application (such as NokoPrint, Hevy, or custom tools).
+> - **App-Specific Companion Patches**: Applications managing local hardware or maintaining internal network state machines provide companion Dalvik bytecode patches that should be applied alongside `Go Fully Offline`:
 >   - **`Xiaomi Earbuds Offline Only`**: Hooks `NetworkExtKt.isNetworkAvailable() -> false` and network predicates so local Bluetooth controls respond instantly without waiting for cloud timeout loops or hanging on infinite loading spinners.
 >   - **`Gboard Offline Only`**: Spoofs `DeviceStatusMonitor` to `NO_CONNECTION` and forces HTTP clients (`Cronet`, `OkHttp3`, `Superpacks`) to immediately fail with graceful `IOException("Offline mode")` rather than raw socket permission errors, eliminating download queue retry storms and UI latency.
 
 > [!WARNING]
 > ### Do Not Apply to Browsers or Streaming Apps
-> Never enable **`Universal Offline Mode`** on applications that inherently require network access, such as web browsers (**Brave**) or streaming platforms (**TikTok**). Revoking `android.permission.INTERNET` causes the Linux kernel to omit the `AID_INET` supplementary group at fork time, causing all web page navigation and video buffering to fail immediately at the OS level.
+> Never enable **`Go Fully Offline`** on applications that inherently require network access, such as web browsers (**Brave**) or streaming platforms (**TikTok**). Revoking `android.permission.INTERNET` causes the Linux kernel to omit the `AID_INET` supplementary group at fork time, causing all web page navigation and video buffering to fail immediately at the OS level.
 
 ### Configuration in Morphe Manager
 
-All options in **`Universal Offline Mode`** are declared as native boolean switches (toggles) in Morphe Manager to avoid manual text entry or typing errors:
+All options in **`Go Fully Offline`** are declared as native boolean switches (toggles) in Morphe Manager to avoid manual text entry or typing errors:
 
-- **Strip Network State Permissions (`stripNetworkState`)**: Removes `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE` (Toggle, default: `false`). Keeps network queries permitted by default to prevent runtime `SecurityException` crashes in apps that check connection state without error handling, while socket creation remains blocked via `INTERNET` removal. Enable for strict manifest permission elimination.
-- **Strip Wi-Fi Control Permissions (`stripWifiControls`)**: Removes `CHANGE_NETWORK_STATE`, `CHANGE_WIFI_STATE`, `CHANGE_WIFI_MULTICAST_STATE`, and `NEARBY_WIFI_DEVICES` (Toggle, default: `true`).
-- **Strip Push Notification Permissions (`stripPush`)**: Removes `com.google.android.c2dm.permission.RECEIVE` (Toggle, default: `false`).
-- **Strip Google Services Sync Permissions (`stripGoogleServices`)**: Removes `com.google.android.providers.gsf.permission.READ_GSERVICES` and `android.permission.GET_ACCOUNTS` (Toggle, default: `false`).
-- **Block Cleartext Traffic (`blockCleartext`)**: Enforces `android:usesCleartextTraffic="false"` in `AndroidManifest.xml` (Toggle, default: `true`).
+- **Network state (`stripNetworkState`)**: Removes `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE` (Toggle, default: `false`). Keeps network queries permitted by default to prevent runtime `SecurityException` crashes in apps that check connection state without error handling, while socket creation remains blocked via `INTERNET` removal. Enable for strict manifest permission elimination.
+- **Wi-Fi controls (`stripWifiControls`)**: Removes `CHANGE_NETWORK_STATE`, `CHANGE_WIFI_STATE`, `CHANGE_WIFI_MULTICAST_STATE`, and `NEARBY_WIFI_DEVICES` (Toggle, default: `true`).
+- **Push permissions (`stripPush`)**: Removes `com.google.android.c2dm.permission.RECEIVE` (Toggle, default: `false`).
+- **Google sync (`stripGoogleServices`)**: Removes `com.google.android.providers.gsf.permission.READ_GSERVICES` and `android.permission.GET_ACCOUNTS` (Toggle, default: `false`).
+- **Block unencrypted traffic (`blockCleartext`)**: Enforces `android:usesCleartextTraffic="false"` in `AndroidManifest.xml` (Toggle, default: `true`).
 
 ---
 
-## 6. Universal Telemetry Neutralizer (`universalTelemetryNeutralizerPatch`)
+## 6. Block Trackers (`universalTelemetryNeutralizerPatch`)
 
-The **`Universal Telemetry Neutralizer`** patch neutralizes pervasive third-party tracking, ad-attribution SDKs, and crash analytics frameworks at the Android application manifest level (`AndroidManifest.xml`). It combines permission revocation, component deactivation, and declarative metadata opt-out injection. On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
+The **`Block Trackers`** patch neutralizes pervasive third-party tracking, ad-attribution SDKs, and crash analytics frameworks at the Android application manifest level (`AndroidManifest.xml`). It combines permission revocation, component deactivation, and declarative metadata opt-out injection. On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
 
 > [!NOTE]
 > ### The Multi-Layer Telemetry Defense
-> Rather than relying exclusively on network blocking or domain filtering, `Universal Telemetry Neutralizer` operates across three structural tiers in Android:
+> Rather than relying exclusively on network blocking or domain filtering, `Block Trackers` operates across three structural tiers in Android:
 > 1. **OS Capability Revocation**: Strips the Android Advertising ID (`AD_ID`) and Privacy Sandbox permissions so the Google Play Services subsystem cannot return a hardware-bound advertising identifier or assign ad attribution topics.
 > 2. **Component Execution Halting**: Explicitly sets `android:enabled="false"` on known third-party analytics ContentProviders and background upload services. Since Android initializes `ContentProvider.onCreate()` before `Application.onCreate()`, disabling these providers halts SDK bootstrap before any user code or tracking loops run.
 > 3. **Declarative Opt-Out Injection**: Injects vendor-standard `<meta-data>` opt-out flags directly into `<application>`. Modern SDKs (such as Firebase Analytics, Google Analytics, Firebase Crashlytics, Firebase Performance, AppsFlyer, and Sentry) check these manifest flags during early initialization and automatically deactivate internal collectors and schedulers.
@@ -218,8 +230,8 @@ The **`Universal Telemetry Neutralizer`** patch neutralizes pervasive third-part
 
 - **Google & Firebase Measurement**: `AppMeasurementContentProvider`, `AppMeasurementService`, `AppMeasurementJobService`, `AppMeasurementReceiver`.
 - **Google Analytics (legacy)**: `AnalyticsService`, `AnalyticsJobService`, `AnalyticsReceiver`.
-- **Google DataTransport & Firebase Sessions**: `JobInfoSchedulerService`, `TransportBackendDiscovery`, `AlarmManagerSchedulerBroadcastReceiver`, `SessionLifecycleService`.
-- **Firebase ComponentDiscovery Registrars**: Prunes registrar `<meta-data>` tags within `ComponentDiscoveryService` for Analytics, Crashlytics, Performance Monitoring, Sessions, IID, DynamicLoading, Transport, Installations, RemoteConfig, and AB testing (Abt), preventing dependency injection from instantiating tracking classes in memory. ML Kit registrars (vision/barcode/face/text) are only pruned when the `disableMlKit` toggle is enabled.
+- **Google DataTransport & Firebase Sessions**: `JobInfoSchedulerService`, `TransportBackendDiscovery`, `AlarmManagerSchedulerBroadcastReceiver`, `SessionLifecycleService`, `MlKitComponentDiscoveryService`.
+- **Firebase ComponentDiscovery Registrars**: Prunes registrar `<meta-data>` tags within `ComponentDiscoveryService` for pure telemetry (Analytics, Performance Monitoring, Sessions, Measurement) by default, preventing dependency injection from instantiating tracking classes in memory. Functional and app-required registrars (Crashlytics, RemoteConfig, MLKit vision, Installations/FCM) are gated behind explicit opt-in toggles.
 - **Sentry Crash & Performance**: `SentryInitProvider`, `SentryPerformanceProvider`.
 - **Facebook AppEvents**: `FacebookInitProvider`.
 - **Meta Analytics2 / OneFabric**: `FFAlarmUploadJobService`, `GooglePlayUploadService`, `AlarmBasedUploadService`, `Analytics2UploadService`, `LollipopUploadService`, `LollipopUploadSafeService`, `DelayedWorkerService`, `OneFabricUploadAlarmReceiver`, `HighPriUploadRetryReceiver`, `AnalyticsUploadAlarmReceiver`, `DelayedWorkerServiceReceiver`.
@@ -234,29 +246,32 @@ The **`Universal Telemetry Neutralizer`** patch neutralizes pervasive third-part
 
 ### Configuration in Morphe Manager
 
-- **Revoke Advertising & Tracking Permissions (`revokePermissions`)**: Strips `com.google.android.gms.permission.AD_ID`, Android Privacy Sandbox permissions (`ACCESS_ADSERVICES_ATTRIBUTION`, `ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_CUSTOM_AUDIENCE`, `ACCESS_ADSERVICES_TOPICS`), and install referrer permissions (Toggle, default: `true`).
-- **Disable Telemetry ContentProviders (`disableProviders`)**: Sets `android:enabled="false"` on analytics and tracker ContentProviders (Toggle, default: `true`).
-- **Disable Telemetry Background Services (`disableServices`)**: Sets `android:enabled="false"` on telemetry upload, JobScheduler, DataTransport, and Firebase session background services (Toggle, default: `true`).
-- **Disable Telemetry Receivers (`disableReceivers`)**: Sets `android:enabled="false"` on campaign, install referrer, and measurement broadcast receivers (Adjust, AppsFlyer, AppMeasurement, DataTransport Alarm) (Toggle, default: `true`).
-- **Inject Telemetry Opt-Out Flags & Prune Registrars (`injectOptOutFlags`)**: Injects declarative opt-out `<meta-data>` tags into `<application>` for Firebase Analytics, Crashlytics, Performance, Google Analytics, Sentry, AppsFlyer, and the Facebook SDK (`AutoLogAppEventsEnabled`, `AdvertiserIDCollectionEnabled`), and prunes Firebase discovery registrars (Toggle, default: `true`).
-- **Disable Firebase Init Provider (`disableFirebaseInit`)**: Sets `android:enabled="false"` on `FirebaseInitProvider` (Toggle, default: `false`). *Keep disabled if the target app relies on Firebase Core, Auth, or Cloud Messaging (FCM).*
-- **Disable Push Notification Services (`disablePushServices`)**: Sets `android:enabled="false"` on Meta Fbns, PushLite, and Firebase Cloud Messaging services plus push receivers (`FirebaseInstanceIdReceiver`, Braze push receivers) (Toggle, default: `false`). *WARNING: this breaks push notifications; enable only to fully silence background push delivery.*
-- **Disable Google Analytics Services (`disableGoogleAnalytics`)**: Sets `android:enabled="false"` on legacy Google Analytics background services (`AnalyticsService`, `AnalyticsJobService`) and receivers (`AnalyticsReceiver`) (Toggle, default: `true`).
-- **Disable Meta Analytics Upload Pipeline (`disableMetaAnalytics`)**: Sets `android:enabled="false"` on Meta Analytics2/OneFabric upload services, Instagram upload scheduler receiver, and deferred analytics worker components (Toggle, default: `true`).
-- **Disable Crash Detectors & Dump Upload (`disableCrashDetectors`)**: Sets `android:enabled="false"` on Lacrima lock-screen/shutdown crash detectors, crash-loop state trackers, and background crash-dump upload services (Toggle, default: `true`).
-- **Disable Device-ID & Cross-App Identity Providers (`disableDeviceIdProviders`)**: Sets `android:enabled="false"` on attribution, FDID/PhoneId/USDiD, and FamilyApps cross-app identity providers plus referrer and cross-signing components (Toggle, default: `false`). *WARNING: may break login, account switching, and deferred deep links; enable only to fully silence device-identity collection.*
-- **Disable Ad SDK Startup Initializers (`disableAdStartupInitializers`)**: Removes ad SDK auto-init entries (`AdsSdkInitializer` / Unity Ads) from `androidx.startup.InitializationProvider` (Toggle, default: `false`). *WARNING: may break rewarded ads and ad-gated features; enable only to block SDK auto-initialization.*
-- **Disable ML Kit On-Device Vision (`disableMlKit`)**: Sets `android:enabled="false"` on `MlKitInitProvider` and `MlKitComponentDiscoveryService`, and prunes ML Kit vision registrars (barcode, face, text) (Toggle, default: `false`). *WARNING: breaks on-device barcode scanning, face detection, and text recognition.*
+- **Ad permissions (`revokePermissions`)**: Strips `com.google.android.gms.permission.AD_ID`, Android Privacy Sandbox permissions (`ACCESS_ADSERVICES_ATTRIBUTION`, `ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_CUSTOM_AUDIENCE`, `ACCESS_ADSERVICES_TOPICS`), install referrer permissions, plus residual `android.adservices.*` `<property>` / `<meta-data>` config entries inside `<application>` (Toggle, default: `true`). Removing the config is defense-in-depth and manifest hygiene, not a new block: once the permissions are gone the OS already rejects AdServices API calls. `<uses-library android:name="android.ext.adservices">` is deliberately never removed (missing shared library = `NoClassDefFoundError`).
+- **Tracking providers (`disableProviders`)**: Sets `android:enabled="false"` on analytics and tracker ContentProviders (Toggle, default: `true`).
+- **Tracking services (`disableServices`)**: Sets `android:enabled="false"` on telemetry upload, JobScheduler, DataTransport, and Firebase session background services (Toggle, default: `true`).
+- **Tracking receivers (`disableReceivers`)**: Sets `android:enabled="false"` on campaign, install referrer, and measurement broadcast receivers (Adjust, AppsFlyer, AppMeasurement, DataTransport Alarm) (Toggle, default: `true`).
+- **Opt-out flags (`injectOptOutFlags`)**: Injects declarative opt-out `<meta-data>` tags into `<application>` for Firebase Analytics, Crashlytics, Performance, Google Analytics, Sentry, AppsFlyer, and the Facebook SDK (`AutoLogAppEventsEnabled`, `AdvertiserIDCollectionEnabled`), and prunes pure telemetry Firebase discovery registrars (`Analytics`, `Perf`, `Sessions`, `Measurement`) (Toggle, default: `true`).
+- **Firebase init (may break apps) (`disableFirebaseInit`)**: Sets `android:enabled="false"` on `FirebaseInitProvider` (Toggle, default: `false`). *Keep disabled if the target app relies on Firebase Core, Auth, or Cloud Messaging (FCM).*
+- **Push services (breaks push!) (`disablePushServices`)**: Sets `android:enabled="false"` on Meta Fbns, PushLite, and Firebase Cloud Messaging services plus push receivers (`FirebaseInstanceIdReceiver`, Braze push receivers) and prunes push discovery registrars (`Installations`, `Transport`, `Iid`) (Toggle, default: `false`). *WARNING: this breaks push notifications; enable only to fully silence background push delivery.*
+- **Google Analytics (`disableGoogleAnalytics`)**: Sets `android:enabled="false"` on legacy Google Analytics background services (`AnalyticsService`, `AnalyticsJobService`) and receivers (`AnalyticsReceiver`) (Toggle, default: `true`).
+- **Meta analytics (`disableMetaAnalytics`)**: Sets `android:enabled="false"` on Meta Analytics2/OneFabric upload services, Instagram upload scheduler receiver, and deferred analytics worker components (Toggle, default: `true`).
+- **Crash uploaders (`disableCrashDetectors`)**: Sets `android:enabled="false"` on Lacrima lock-screen/shutdown crash detectors, crash-loop state trackers, and background crash-dump upload services (Toggle, default: `true`).
+- **Device ID (may break login!) (`disableDeviceIdProviders`)**: Sets `android:enabled="false"` on attribution, FDID/PhoneId/USDiD, and FamilyApps cross-app identity providers plus referrer and cross-signing components (Toggle, default: `false`). *WARNING: may break login, account switching, and deferred deep links; enable only to fully silence device-identity collection.*
+- **Remote config (may break app!) (`disableRemoteConfig`)**: Prunes Firebase RemoteConfig, DynamicLoading, and AB testing (`Abt`) discovery registrars (Toggle, default: `false`). *WARNING: May break dynamic backend configuration and remote feature flags.*
+- **Crashlytics (may break app!) (`disableCrashlyticsRegistrars`)**: Prunes Firebase Crashlytics discovery registrars (Toggle, default: `false`). *WARNING: Pruning breaks apps hard-requiring the Crashlytics component at startup.*
+- **Ad auto-start (`disableAdStartupInitializers`)**: Removes ad SDK auto-init entries (`AdsSdkInitializer` / Unity Ads) from `androidx.startup.InitializationProvider` (Toggle, default: `false`). *WARNING: may break rewarded ads and ad-gated features; enable only to block SDK auto-initialization.*
+- **ML Kit vision (breaks scanner!) (`disableMlKit`)**: Sets `android:enabled="false"` on `MlKitInitProvider` and `MlKitComponentDiscoveryService`, and prunes ML Kit vision registrars (barcode, face, text) (Toggle, default: `false`). *WARNING: breaks on-device barcode scanning, face detection, and text recognition.*
 
 ---
 
-## 7. Universal Native Binary Trimmer (`universalNativeBinaryTrimmerPatch`)
+## 7. Remove Tracking Libraries (`universalNativeBinaryTrimmerPatch`)
 
-The **`Universal Native Binary Trimmer`** patch inspects native architecture directories in `lib/**` (`lib/arm64-v8a/`, `lib/armeabi-v7a/`, `lib/x86_64/`, etc.) and performs byte-level in-situ zeroing (`writeBytes(byteArrayOf())`) on non-essential crash reporters, telemetry engines, and debugging/profiling companion shared libraries (`.so`).
+The **`Remove Tracking Libraries`** patch inspects native architecture directories in `lib/**` (`lib/arm64-v8a/`, `lib/armeabi-v7a/`, `lib/x86_64/`, etc.) and performs byte-level in-situ zeroing (`writeBytes(byteArrayOf())`) on non-essential crash reporters, telemetry engines, and debugging/profiling companion shared libraries (`.so`).
 
 ### 🛡️ In-Situ Zeroing vs. File Deletion
 - **ZIP Central Directory Invariant**: In Morphe's patching pipeline, deleting native `.so` files from the resource tree can break APK alignment and trigger `UnsatisfiedLinkError` if the application's Java/Kotlin code contains strict class-level `System.loadLibrary(...)` calls without exception handlers.
 - **Empty Stub Execution**: By replacing the payload of tracking `.so` files with a 0-byte stub directly in the APK, APK storage is fully reclaimed while eliminating native crash reporting background threads, memory dump scanners, and watchdog sidecars.
+- **Eager Loading Warning**: Trimmed libraries are only safe if not loaded eagerly by bytecode. Pair with Block Tracking SDKs (`blockCrashReporters`) or verify no `System.loadLibrary` calls to avoid `UnsatisfiedLinkError` boot crashes.
 
 ### Targeted Native Libraries
 
@@ -265,40 +280,44 @@ The **`Universal Native Binary Trimmer`** patch inspects native architecture dir
 
 ### Configuration in Morphe Manager
 
-- **Trim Crash Reporting Libraries (`trimCrashReporters`)**: Replaces native crash reporting and telemetry `.so` binaries with 0-byte stubs (Toggle, default: `true`).
-- **Trim Debug & Profiling Libraries (`trimDebugProfilers`)**: Replaces runtime profilers, memory leak detectors, and ASan instrumentation `.so` binaries with 0-byte stubs (Toggle, default: `true`).
+- **Crash reporters (`trimCrashReporters`)**: Replaces native crash reporting and telemetry `.so` binaries with 0-byte stubs (Toggle, default: `true`).
+- **Debuggers (`trimDebugProfilers`)**: Replaces runtime profilers, memory leak detectors, and ASan instrumentation `.so` binaries with 0-byte stubs (Toggle, default: `true`).
 
 ---
 
-## 8. Universal WebP Asset Optimizer (`universalWebpOptimizerPatch`)
+## 8. Shrink WebP Images (`universalWebpOptimizerPatch`)
 
-The **`Universal WebP Asset Optimizer`** losslessly strips non-rendering metadata chunks (`EXIF`, `XMP `, `ICCP`) from WebP images located in `res/**` and `assets/**` across any Android application.
+The **`Shrink WebP Images`** losslessly strips non-rendering metadata chunks (`EXIF`, `XMP `, `ICCP`) from WebP images located in `res/**` and `assets/**` across any Android application.
+
+> [!NOTE]
+> **Pipeline Scope**: In full pipeline mode (with resource decoding), optimization covers both `res/` and `assets/`.
+> In raw-only pipeline mode (where resources are not decoded), `res/` is safely skipped and optimization applies exclusively to `assets/`.
 
 ### 🛡️ RFC 9649 / libwebp Bitstream Safety
-- **Extended Header Recalculation**: WebP files using the extended `VP8X` chunk format store feature flags in byte 0 of their payload. When `EXIF`, `XMP `, or `ICCP` chunks are stripped, `Universal WebP Asset Optimizer` updates the bitmask to clear the corresponding flag bits (`0x08` for EXIF, `0x04` for XMP, `0x20` for ICCP) while strictly preserving image dimensions, the alpha channel bit (`0x10`), and the animation flag (`0x02`).
+- **Extended Header Recalculation**: WebP files using the extended `VP8X` chunk format store feature flags in byte 0 of their payload. When `EXIF`, `XMP `, or `ICCP` chunks are stripped, `Shrink WebP Images` updates the bitmask to clear the corresponding flag bits (`0x08` for EXIF, `0x04` for XMP, `0x20` for ICCP) while strictly preserving image dimensions, the alpha channel bit (`0x10`), and the animation flag (`0x02`).
 - **Container Simplification**: If an extended WebP contains only a single visual frame (`VP8 ` lossy or `VP8L` lossless) and no alpha or animation data after metadata stripping, the patch downgrades the file to a standard simple WebP container (`RIFF....WEBPVP8 ...`), eliminating the unnecessary 18-byte `VP8X` header entirely.
 - **Strict Bitstream Bounds**: Any malformed, truncated, or non-conforming WebP file where chunk offsets do not cleanly match the total file size is skipped untouched to prevent visual corruption.
 
 ### Configuration in Morphe Manager
 
-- **Strip EXIF Metadata (`stripExif`)**: Removes `EXIF` chunks containing camera metadata, GPS tags, timestamps, and device serials (Toggle, default: `true`).
-- **Strip XMP Metadata (`stripXmp`)**: Removes `XMP ` chunks containing XML-based authoring and editing history (Toggle, default: `true`).
-- **Strip ICC Color Profiles (`stripIcc`)**: Removes embedded `ICCP` color profiles (Toggle, default: `true`).
+- **Camera data (`stripExif`)**: Removes `EXIF` chunks containing camera metadata, GPS tags, timestamps, and device serials (Toggle, default: `true`).
+- **Editing history (`stripXmp`)**: Removes `XMP ` chunks containing XML-based authoring and editing history (Toggle, default: `true`).
+- **Color profiles (`stripIcc`)**: Removes embedded `ICCP` color profiles (Toggle, default: `false`).
 
 ---
 
-## 9. Background Sync & JobScheduler Purge (`backgroundSyncPurgePatch`)
+## 9. Stop Background Sync (`backgroundSyncPurgePatch`)
 
-The **`Background Sync & JobScheduler Purge`** patch stops unneeded background wakeups, radio modem alarms, and persistent standby battery drain by removing startup permissions and disabling boot-triggered broadcast receivers and periodic WorkManager scheduler components in `AndroidManifest.xml`.
+The **`Stop Background Sync`** patch stops unneeded background wakeups, radio modem alarms, and persistent standby battery drain by removing startup permissions and disabling boot-triggered broadcast receivers and periodic WorkManager scheduler components in `AndroidManifest.xml`.
 
 > [!NOTE]
 > ### Eliminating Standby Battery Drain
-> Many modern Android applications register broadcast receivers with `android.intent.action.BOOT_COMPLETED` and `android.intent.action.MY_PACKAGE_REPLACED`. Whenever the device boots or an app is updated, Android awakens the app process to reschedule background sync tasks, initialize databases, and ping remote servers. `Background Sync & JobScheduler Purge` eliminates this behavior entirely.
+> Many modern Android applications register broadcast receivers with `android.intent.action.BOOT_COMPLETED` and `android.intent.action.MY_PACKAGE_REPLACED`. Whenever the device boots or an app is updated, Android awakens the app process to reschedule background sync tasks, initialize databases, and ping remote servers. `Stop Background Sync` eliminates this behavior entirely.
 
 ### Neutralized Components
 
 - **Boot & Restart Receivers**: Receivers listening for `BOOT_COMPLETED`, `LOCKED_BOOT_COMPLETED`, `QUICKBOOT_POWERON`, `REBOOT`, `MY_PACKAGE_REPLACED`, `PACKAGE_REPLACED`, and `PACKAGE_RESTARTED`.
-- **WorkManager & JobScheduler Components**: `SystemJobService`, `SystemAlarmService`, `SystemForegroundService`, `RescheduleReceiver`, `ForceStopRunnable$BroadcastReceiver`, `ConstraintProxy`, and `DiagnosticsReceiver`.
+- **WorkManager & JobScheduler Components**: `SystemJobService`, `SystemAlarmService`, `RescheduleReceiver`, `ForceStopRunnable$BroadcastReceiver`, `ConstraintProxy`, and `DiagnosticsReceiver`.
 - **DataTransport Scheduling**: `JobInfoSchedulerService`, `TransportBackendDiscovery`, `AlarmManagerSchedulerBroadcastReceiver`.
 
 ### Configuration in Morphe Manager
@@ -310,9 +329,9 @@ The **`Background Sync & JobScheduler Purge`** patch stops unneeded background w
 
 ---
 
-## 10. Universal Privacy Permissions Stripper (`universalPrivacyPermissionsPatch`)
+## 10. Strip Sensitive Permissions (`universalPrivacyPermissionsPatch`)
 
-The **`Universal Privacy Permissions Stripper`** patch selectively strips sensitive privacy, sensor, and hardware permissions from `AndroidManifest.xml` via modular boolean toggles. It enables strict isolation of host applications by removing permissions at the Android packaging level.
+The **`Strip Sensitive Permissions`** patch selectively strips sensitive privacy, sensor, and hardware permissions from `AndroidManifest.xml` via modular boolean toggles. It enables strict isolation of host applications by removing permissions at the Android packaging level.
 
 > [!NOTE]
 > ### Packaging-Tier vs. Runtime Revocation
@@ -322,39 +341,41 @@ The **`Universal Privacy Permissions Stripper`** patch selectively strips sensit
 
 > [!IMPORTANT]
 > ### Safety & Runtime Assumptions
-> To prevent runtime `SecurityException` crashes in applications that invoke hardware APIs without error-handling wrappers, all toggles in `Universal Privacy Permissions Stripper` are **disabled (`false`) by default**. Enable only the specific permission groups you wish to isolate for your target application.
+> To prevent runtime `SecurityException` crashes in applications that invoke hardware APIs without error-handling wrappers, all toggles in `Strip Sensitive Permissions` are **disabled (`false`) by default**. Enable only the specific permission groups you wish to isolate for your target application.
 
 ### Targeted Permission Groups
 
 | Toggle (`booleanOption`) | Revoked Manifest Permissions |
 | :--- | :--- |
-| **Strip Notification Permission** | `android.permission.POST_NOTIFICATIONS` |
-| **Strip Camera Permission** | `android.permission.CAMERA` |
-| **Strip Microphone Permissions** | `android.permission.RECORD_AUDIO`, `android.permission.CAPTURE_AUDIO_OUTPUT` |
-| **Strip Storage & Media Permissions** | `android.permission.READ_EXTERNAL_STORAGE`, `android.permission.WRITE_EXTERNAL_STORAGE`, `android.permission.MANAGE_EXTERNAL_STORAGE`, `android.permission.READ_MEDIA_IMAGES`, `android.permission.READ_MEDIA_VIDEO`, `android.permission.READ_MEDIA_AUDIO`, `android.permission.READ_MEDIA_VISUAL_USER_SELECTED`, `android.permission.ACCESS_MEDIA_LOCATION` |
-| **Strip Location Permissions** | `android.permission.ACCESS_FINE_LOCATION`, `android.permission.ACCESS_COARSE_LOCATION`, `android.permission.ACCESS_BACKGROUND_LOCATION` |
-| **Strip Contacts & Accounts Permissions** | `android.permission.READ_CONTACTS`, `android.permission.WRITE_CONTACTS`, `android.permission.GET_ACCOUNTS` |
-| **Strip Calendar Permissions** | `android.permission.READ_CALENDAR`, `android.permission.WRITE_CALENDAR` |
-| **Strip Nearby Devices Permissions** | `android.permission.BLUETOOTH_SCAN`, `android.permission.BLUETOOTH_CONNECT`, `android.permission.BLUETOOTH_ADVERTISE`, `android.permission.NEARBY_WIFI_DEVICES`, `android.permission.UWB_RANGING` |
-| **Strip Body Sensors Permissions** | `android.permission.BODY_SENSORS`, `android.permission.BODY_SENSORS_BACKGROUND`, `android.permission.ACTIVITY_RECOGNITION` |
+| **Notifications** | `android.permission.POST_NOTIFICATIONS` |
+| **Camera** | `android.permission.CAMERA` |
+| **Microphone** | `android.permission.RECORD_AUDIO`, `android.permission.CAPTURE_AUDIO_OUTPUT` |
+| **Photos & files** | `android.permission.READ_EXTERNAL_STORAGE`, `android.permission.WRITE_EXTERNAL_STORAGE`, `android.permission.MANAGE_EXTERNAL_STORAGE`, `android.permission.READ_MEDIA_IMAGES`, `android.permission.READ_MEDIA_VIDEO`, `android.permission.READ_MEDIA_AUDIO`, `android.permission.READ_MEDIA_VISUAL_USER_SELECTED`, `android.permission.ACCESS_MEDIA_LOCATION` |
+| **Location** | `android.permission.ACCESS_FINE_LOCATION`, `android.permission.ACCESS_COARSE_LOCATION`, `android.permission.ACCESS_BACKGROUND_LOCATION` |
+| **Contacts** | `android.permission.READ_CONTACTS`, `android.permission.WRITE_CONTACTS`, `android.permission.GET_ACCOUNTS` |
+| **Calendar** | `android.permission.READ_CALENDAR`, `android.permission.WRITE_CALENDAR` |
+| **Nearby devices** | `android.permission.BLUETOOTH_SCAN`, `android.permission.BLUETOOTH_CONNECT`, `android.permission.BLUETOOTH_ADVERTISE`, `android.permission.NEARBY_WIFI_DEVICES`, `android.permission.UWB_RANGING` |
+| **Body sensors** | `android.permission.BODY_SENSORS`, `android.permission.BODY_SENSORS_BACKGROUND`, `android.permission.ACTIVITY_RECOGNITION` |
+| **Installed apps** | `android.permission.QUERY_ALL_PACKAGES` |
 
 ### Configuration in Morphe Manager
 
-- **Strip Notification Permission (`stripNotifications`)**: Removes `POST_NOTIFICATIONS` (Android 13+) from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Camera Permission (`stripCamera`)**: Removes `CAMERA` from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Microphone Permissions (`stripMicrophone`)**: Removes `RECORD_AUDIO` and audio capture permissions from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Storage & Media Permissions (`stripMediaAndStorage`)**: Removes legacy external storage and Android 13+ granular media permissions from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Location Permissions (`stripLocation`)**: Removes `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, and `ACCESS_BACKGROUND_LOCATION` from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Contacts & Accounts Permissions (`stripContacts`)**: Removes `READ_CONTACTS`, `WRITE_CONTACTS`, and `GET_ACCOUNTS` from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Calendar Permissions (`stripCalendar`)**: Removes `READ_CALENDAR` and `WRITE_CALENDAR` from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Nearby Devices Permissions (`stripNearbyDevices`)**: Removes Bluetooth scan/connect/advertise and nearby Wi-Fi device permissions from `AndroidManifest.xml` (Toggle, default: `false`).
-- **Strip Body Sensors Permissions (`stripSensors`)**: Removes `BODY_SENSORS`, `BODY_SENSORS_BACKGROUND`, and `ACTIVITY_RECOGNITION` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Notifications (`stripNotifications`)**: Removes `POST_NOTIFICATIONS` (Android 13+) from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Camera (`stripCamera`)**: Removes `CAMERA` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Microphone (`stripMicrophone`)**: Removes `RECORD_AUDIO` and audio capture permissions from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Photos & files (`stripMediaAndStorage`)**: Removes legacy external storage and Android 13+ granular media permissions from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Location (`stripLocation`)**: Removes `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, and `ACCESS_BACKGROUND_LOCATION` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Contacts (`stripContacts`)**: Removes `READ_CONTACTS`, `WRITE_CONTACTS`, and `GET_ACCOUNTS` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Calendar (`stripCalendar`)**: Removes `READ_CALENDAR` and `WRITE_CALENDAR` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Nearby devices (`stripNearbyDevices`)**: Removes Bluetooth scan/connect/advertise and nearby Wi-Fi device permissions from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Body sensors (`stripSensors`)**: Removes `BODY_SENSORS`, `BODY_SENSORS_BACKGROUND`, and `ACTIVITY_RECOGNITION` from `AndroidManifest.xml` (Toggle, default: `false`).
+- **Installed apps (`stripInstalledApps`)**: Removes `QUERY_ALL_PACKAGES` from `AndroidManifest.xml`. On Android 11+ with targetSdk 30 or higher, the app then only sees packages declared in its `<queries>` element (left untouched); apps targeting older SDKs are unaffected. May break launchers, app managers and share menus (Toggle, default: `false`).
 
 ---
 
-## 11. Universal Screenshot Protection Bypass (`universalScreenshotProtectionBypassPatch`)
+## 11. Allow Screenshots (`universalScreenshotProtectionBypassPatch`)
 
-The **`Universal Screenshot Protection Bypass`** patch neutralizes `WindowManager.LayoutParams.FLAG_SECURE` (`0x2000`) across all windows, layout parameters, and `SurfaceView` instances, unlocks internal audio playback capture for screen recording on Android 10+, and suppresses native Android 14+ screenshot and screen recording detection callbacks.
+The **`Allow Screenshots`** patch neutralizes `WindowManager.LayoutParams.FLAG_SECURE` (`0x2000`) across all windows, layout parameters, and `SurfaceView` instances, unlocks internal audio playback capture for screen recording on Android 10+, and suppresses native Android 14+ screenshot and screen recording detection callbacks.
 
 ### 🛡️ Low-Level Bytecode & Manifest Enforcement
 
@@ -377,9 +398,9 @@ The patch operates without any manual configuration or boolean options. When ena
 
 ---
 
-## 12. Universal Screen Timeout Enforcer (`universalScreenTimeoutEnforcerPatch`)
+## 12. Force Screen Timeout (`universalScreenTimeoutEnforcerPatch`)
 
-The **`Universal Screen Timeout Enforcer`** patch forces the host application to respect the operating system's configured screen timeout (`SCREEN_OFF_TIMEOUT`) and sleep timers by neutralizing keepScreenOn view calls and stripping `FLAG_KEEP_SCREEN_ON` from windows and layout parameters.
+The **`Force Screen Timeout`** patch forces the host application to respect the operating system's configured screen timeout (`SCREEN_OFF_TIMEOUT`) and sleep timers by neutralizing keepScreenOn view calls and stripping `FLAG_KEEP_SCREEN_ON` from windows and layout parameters.
 
 ### 🛡️ Low-Level Bytecode & Window Enforcement
 
@@ -394,9 +415,9 @@ The patch operates without any manual configuration or boolean options (`default
 
 ---
 
-## 13. Universal Screen Brightness Governor (`universalScreenBrightnessGovernorPatch`)
+## 13. Lock Screen Brightness (`universalScreenBrightnessGovernorPatch`)
 
-The **`Universal Screen Brightness Governor`** patch prevents applications from overriding device screen brightness (such as in-app brightness sliders, barcode/QR full-screen brightness, or window-level overrides) by neutralizing all direct writes to `WindowManager.LayoutParams.screenBrightness`.
+The **`Lock Screen Brightness`** patch prevents applications from overriding device screen brightness (such as in-app brightness sliders, barcode/QR full-screen brightness, or window-level overrides) by neutralizing all direct writes to `WindowManager.LayoutParams.screenBrightness`.
 
 > [!NOTE]
 > **Hardware HDR Video Playback Scope**: Direct field writes to `WindowManager.LayoutParams.screenBrightness` only control window-level UI brightness overrides. Hardware HDR video brightness boosts (HDR10 / PQ / HLG) are driven at the display subsystem level by graphic buffer dataspaces (`BT2020_ITU_PQ`) passed to `SurfaceFlinger`. Disabling HDR video playback requires app-specific stream or codec governor patches (such as `Disable HDR Video Playback` in TikTok) rather than window layout parameters.
@@ -413,15 +434,15 @@ The patch operates without any manual configuration or boolean options (`default
 
 ---
 
-## 14. Universal Hosts Blocker (`universalHostsBlockerPatch`)
+## 14. Block Tracking Servers (`universalHostsBlockerPatch`)
 
-The **`Universal Hosts Blocker`** patch rewrites Dalvik `const-string` / `const-string/jumbo` URL and host literals whose host matches a user-supplied blocklist, replacing the blocked host in place with a sink IP (default `0.0.0.0`). The blocklist file is read at patch time from the patching machine, so daily DNS-list updates (e.g. Hagezi `native.tiktok`) apply on re-patch without a patch release and without embedding third-party lists in this repository.
+The **`Block Tracking Servers`** patch rewrites Dalvik `const-string` / `const-string/jumbo` URL and host literals whose host matches a user-supplied blocklist, replacing the blocked host in place with a sink IP (default `0.0.0.0`). The blocklist file is read at patch time from the patching machine, so daily DNS-list updates (e.g. Hagezi `native.tiktok`) apply on re-patch without a patch release and without embedding third-party lists in this repository.
 
 ### Configuration in Morphe Manager
 
-- **Hosts blocklist file (`hostsFile`)**: File-picker path to a hosts or plain-domain blocklist on the patching machine (e.g. Hagezi `native.tiktok-onlydomains.txt`). Empty by default: the patch logs `Skipped` and changes nothing until a file is selected.
-- **Sink IP address (`sinkIp`)**: IPv4 replacing blocked hosts inside literals (`https://log.example.com/v1` becomes `https://0.0.0.0/v1`). Default: `0.0.0.0`.
-- **Match subdomains (`matchSubdomains`)**: When enabled (default `true`), entry `example.com` also matches `a.example.com`.
+- **Blocklist file (`hostsFile`)**: File-picker path to a hosts or plain-domain blocklist on the patching machine (e.g. Hagezi `native.tiktok-onlydomains.txt`). Empty by default: the patch logs `Skipped` and changes nothing until a file is selected.
+- **Replace with (`sinkIp`)**: IPv4 replacing blocked hosts inside literals (`https://log.example.com/v1` becomes `https://0.0.0.0/v1`). Default: `0.0.0.0`.
+- **Include subdomains (`matchSubdomains`)**: When enabled (default `true`), entry `example.com` also matches `a.example.com`.
 
 ### Supported blocklist line formats
 
@@ -433,28 +454,28 @@ Plain domains (`log.example.com`), classic hosts lines (`0.0.0.0 log.example.com
 - A curated telemetry/ads-only list is required: blocking functional hosts breaks the app. For TikTok, prefer the `log/mon/mcs/mssdk/analytics` subset and leave `frontier/api/stream/open` untouched.
 
 > [!WARNING]
-> Do not apply Universal Hosts Blocker on a fresh TikTok install where no login has happened yet: blocking telemetry/ads hosts before the first login trips server-side rate limiting ('too many attempts' errors) during login/registration. Log in first and patch afterwards, or use a minimal curated list.
+> Do not apply Block Tracking Servers on a fresh TikTok install where no login has happened yet: blocking telemetry/ads hosts before the first login trips server-side rate limiting ('too many attempts' errors) during login/registration. Log in first and patch afterwards, or use a minimal curated list.
 
 ---
 
-## 15. Universal SDK Blocker (`universalSdkBlockerPatch`)
+## 15. Block Tracking SDKs (`universalSdkBlockerPatch`)
 
-The **`Universal SDK Blocker`** patch neutralizes pervasive third-party APM, crash reporting, analytics, attribution, session replay, location tracking, and push engagement SDKs directly at the Dalvik bytecode level (`classes*.dex`). It serves as the runtime execution counterpart to **`Universal Telemetry Neutralizer`** (manifest layer). On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
+The **`Block Tracking SDKs`** patch neutralizes pervasive third-party APM, crash reporting, analytics, attribution, session replay, location tracking, and push engagement SDKs directly at the Dalvik bytecode level (`classes*.dex`). It serves as the runtime execution counterpart to **`Block Trackers`** (manifest layer). On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
 
 Tracker catalog derived from the Exodus Privacy tracker database (https://exodus-privacy.eu.org), database contents under ODbL 1.0 / DbCL 1.0. Only Analytics, Crash reporting and Profiling category SDKs are covered; advertisement and functional SDKs are excluded or kept behind disabled-by-default toggles.
 
 > [!NOTE]
 > ### Runtime Early Return-Void Neutralization
-> While `Universal Telemetry Neutralizer` operates at packaging time by revoking manifest permissions, disabling `ContentProvider` / background `Service` components, and injecting opt-out `<meta-data>`, applications often initialize SDKs programmatically inside `Application.onCreate()` or activity lifecycles.
+> While `Block Trackers` operates at packaging time by revoking manifest permissions, disabling `ContentProvider` / background `Service` components, and injecting opt-out `<meta-data>`, applications often initialize SDKs programmatically inside `Application.onCreate()` or activity lifecycles.
 >
-> `Universal SDK Blocker` neutralizes programmatic initialization and telemetry dispatch by scanning for known SDK package prefixes and conservative method signatures (such as `init`, `initialize`, `start`, `recordMetric`, `trackEvent`, `reportException`), prepending a zero-register Dalvik `return-void` instruction (`0x0e`) at instruction index 0 of matched void methods. The method returns immediately upon invocation before executing background threads, socket connections, or device profiling loops.
+> `Block Tracking SDKs` neutralizes programmatic initialization and telemetry dispatch by scanning for known SDK package prefixes and conservative method signatures (such as `init`, `initialize`, `start`, `recordMetric`, `trackEvent`, `reportException`), prepending a zero-register Dalvik `return-void` instruction (`0x0e`) at instruction index 0 of matched void methods. The method returns immediately upon invocation before executing background threads, socket connections, or device profiling loops.
 
 ### Neutralized SDKs by Category
 
 - **Application Performance Monitoring (APM)**: New Relic (`Lcom/newrelic`), Datadog (`Lcom/datadog`), Dynatrace (`Lcom/dynatrace`).
 - **Crash Reporting**: Raygun (`Lcom/mindscapehq`), Shake (`Lcom/shakebugs`), Embrace (`Lio/embrace`), Splunk Mint (`Lcom/splunk`), Microsoft App Center (`Lcom/microsoft/appcenter`), OpenTelemetry (`Lio/opentelemetry`), ACRA (`Lorg/acra`), Sentry (`Lio/sentry`), Bugsnag (`Lcom/bugsnag`), Crashlytics (legacy `Lcom/crashlytics/android` and modern `Lcom/google/firebase/crashlytics`), Fabric (`Lio/fabric/sdk`), Instabug (`Lcom/instabug`), Countly (`Lly/count/android`), HockeyApp (`Lnet/hockeyapp`).
 - **Analytics**: Firebase Analytics (`Lcom/google/firebase/analytics`; consent and data-clear setters preserved to prevent freezing granted permissions), Matomo (`Lorg/matomo`), Leanplum (`Lcom/leanplum`), Localytics (`Lcom/localytics`), WebEngage (`Lcom/webengage`), PostHog (`Lcom/posthog`), MoEngage (`Lcom/moengage`), Snowplow (`Lcom/snowplowanalytics`), mParticle (`Lcom/mparticle`), Treasure Data (`Lcom/treasuredata`), Huawei Analytics (`Lcom/huawei/hms/analytics`; consent and data-clear setters preserved), Yandex Metrica (`Lcom/yandex/metrica`), Facebook AppEvents (`Lcom/facebook/appevents`), Sensors Analytics (`Lcom/sensorsdata`).
-- **Attribution & Engagement**: AppsFlyer (`Lcom/appsflyer`), Adjust (`Lcom/adjust`), Amplitude (`Lcom/amplitude`), Mixpanel (`Lcom/mixpanel`), CleverTap (`Lcom/clevertap`), Segment (`Lcom/segment`), Branch (`Lio/branch`, `Lcom/branch`), Singular (`Lcom/singular`; partial coverage of void setup and referrer methods; boolean public API out of scope), Kochava (`Lcom/kochava`), Tenjin (`Lcom/tenjin`), Unity Analytics (`Lcom/unity3d/services/analytics`), Flurry (`Lcom/flurry`), GameAnalytics (`Lcom/gameanalytics`).
+- **Attribution & Engagement**: AppsFlyer (`Lcom/appsflyer`), Adjust (`Lcom/adjust`; incl. `onCreate` (v4) / `initSdk` (v5), scoped to Adjust only), Amplitude (`Lcom/amplitude`; incl. `identify` / `groupIdentify` / `setGroup`), Mixpanel (`Lcom/mixpanel`; incl. `identify` / `alias`), CleverTap (`Lcom/clevertap`; incl. `pushEvent` / `onUserLogin` / `pushProfile`), Segment (`Lcom/segment`), Branch (`Lio/branch`, `Lcom/branch`; non-void `init` intentionally skipped — void-only design prevents NPEs), Singular (`Lcom/singular`; partial coverage of void setup and referrer methods; boolean public API out of scope), Kochava (`Lcom/kochava`), Tenjin (`Lcom/tenjin`), Unity Analytics (`Lcom/unity3d/services/analytics` + `Lcom/unity3d/analytics`; incl. static `Transaction`), Flurry (`Lcom/flurry`), GameAnalytics (`Lcom/gameanalytics`; incl. `initializeWithGameKey` / `addDesignEvent`). Non-void initializers (`Branch.init`, `FirebaseApp.initializeApp`) are intentionally skipped: stubbing object-returning methods with null risks NPEs at call sites. Chainable instance `track` / `identify` / `groupIdentify` / `setGroup` methods whose return type is their own defining class are hooked with `return-object p0` (type-correct, never null); SDK classes renamed by app obfuscation fall outside the package prefix and are not covered. Any other non-void return stays out of scope unless hand-reviewed per method. Kotlin interface default-method bridges (`$DefaultImpls` classes) are never hooked: they carry plugin wiring such as Segment's `Plugin.setup`, and stubbing them crashes the app at launch.
 - **Session Replay**: UXCam (`Lcom/uxcam`), Smartlook (`Lcom/smartlook`), FullStory (`Lcom/fullstory`), Contentsquare (`Lcom/contentsquare`), Bugsee (`Lcom/bugsee`).
 - **Location & Beacon Tracking**: Radar (`Lio/radar`), Gimbal (`Lcom/gimbal`), Estimote (`Lcom/estimote`).
 - **Legacy Google Analytics**: Pre-Firebase Google Analytics v4 / GMS Analytics (`Lcom/google/analytics`, `Lcom/google/android/gms/analytics`).
@@ -462,12 +483,87 @@ Tracker catalog derived from the Exodus Privacy tracker database (https://exodus
 
 ### Configuration in Morphe Manager
 
-- **Block APM & Performance Monitoring SDKs (`blockApm`)**: Neutralize New Relic, Datadog, and Dynatrace initialization, metric recording, and HTTP transaction tracing methods (Toggle, default: `true`).
-- **Block Crash Reporting SDKs (`blockCrashReporters`)**: Neutralize Sentry, Bugsnag, Crashlytics (legacy and Firebase), Fabric, Raygun, Shake, Embrace, Splunk Mint, App Center, OpenTelemetry, ACRA, Instabug, Countly, and HockeyApp initialization and exception reporting methods (Toggle, default: `true`).
-- **Block Analytics SDKs (`blockAnalytics`)**: Neutralize Firebase Analytics, Matomo, Leanplum, Localytics, WebEngage, PostHog, MoEngage, Snowplow, mParticle, Treasure Data, Huawei Analytics, Yandex Metrica, Facebook AppEvents, and Sensors Analytics event tracking, capture, identification, and session upload methods (Toggle, default: `true`).
-- **Block Attribution & Engagement SDKs (`blockAttribution`)**: Neutralize AppsFlyer, Adjust, Amplitude, Mixpanel, CleverTap, Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics, Flurry, and GameAnalytics conversion, attribution, and event dispatch methods (Toggle, default: `true`).
-- **Block Session Replay SDKs (`blockSessionReplay`)**: Neutralize UXCam, Smartlook, FullStory, Contentsquare, and Bugsee screen and session recording methods (Toggle, default: `true`).
-- **Block Location & Beacon Tracking SDKs (`blockLocationTrackers`)**: Neutralize Radar, Gimbal, and Estimote beacon and location tracking methods; note OS location permission controls remain the primary gate (Toggle, default: `true`).
-- **Block Legacy Google Analytics (`blockLegacyAnalytics`)**: Neutralize pre-Firebase Google Analytics tracking, hit dispatching, and activity reporting methods across `com.google.analytics` and `com.google.android.gms.analytics` (Toggle, default: `true`).
-- **Block Push Engagement SDKs (`blockPushEngagement`)**: Neutralize OneSignal, Airship, and Braze push engagement and tagging SDKs (Toggle, default: `false`). *WARNING: this breaks push notifications; enable only to fully silence background push engagement SDK runtimes.*
+- **Performance monitors (`blockApm`)**: Neutralize New Relic, Datadog, and Dynatrace initialization, metric recording, and HTTP transaction tracing methods (Toggle, default: `true`).
+- **Crash reporters (`blockCrashReporters`)**: Neutralize Sentry, Bugsnag, Crashlytics (legacy and Firebase), Fabric, Raygun, Shake, Embrace, Splunk Mint, App Center, OpenTelemetry, ACRA, Instabug, Countly, and HockeyApp initialization and exception reporting methods (Toggle, default: `true`).
+- **Analytics (`blockAnalytics`)**: Neutralize Firebase Analytics, Matomo, Leanplum, Localytics, WebEngage, PostHog, MoEngage, Snowplow, mParticle, Treasure Data, Huawei Analytics, Yandex Metrica, Facebook AppEvents, and Sensors Analytics event tracking, capture, identification, and session upload methods (Toggle, default: `true`).
+- **Ad attribution (`blockAttribution`)**: Neutralize AppsFlyer (incl. instance `start`; install/session dispatch stops, but a deferred-conversion listener never fires — an app splash screen waiting for conversion without timeout may hang), Adjust (incl. `onCreate(AdjustConfig)` v4 and `initSdk(AdjustConfig)` v5), Amplitude (incl. `identify` / `groupIdentify` / `setGroup`), Mixpanel (incl. `identify` / `alias`), CleverTap (incl. `pushEvent` / `onUserLogin` / `pushProfile`), Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics (incl. `Transaction` under `com.unity3d/analytics`; `com.unity3d/services/analytics` uses `on*` gameplay events, coverage unverified), Flurry (mostly manifest-level: `FlurryAgent.logEvent` returns a status object and `Builder.build` is pending verification), and GameAnalytics (incl. `initializeWithGameKey` / `addDesignEvent`) conversion, attribution, and event dispatch methods (Toggle, default: `true`).
+- **SDKs to keep (`excludedSdks`)**: Comma-separated SDK labels to leave untouched (e.g. `Adjust, Branch`). Empty by default. Unknown labels are reported in the patch log. Covers per-SDK control without one toggle per SDK; no generic heuristic matching.
+- **Screen recorders (`blockSessionReplay`)**: Neutralize UXCam, Smartlook, FullStory, Contentsquare, and Bugsee screen and session recording methods (Toggle, default: `true`).
+- **Location trackers (`blockLocationTrackers`)**: Neutralize Radar, Gimbal, and Estimote beacon and location tracking methods; note OS location permission controls remain the primary gate (Toggle, default: `true`).
+- **Old Google Analytics (`blockLegacyAnalytics`)**: Neutralize pre-Firebase Google Analytics tracking, hit dispatching, and activity reporting methods across `com.google.analytics` and `com.google.android.gms.analytics` (Toggle, default: `true`).
+- **Push SDKs (breaks push!) (`blockPushEngagement`)**: Neutralize OneSignal, Airship, and Braze push engagement and tagging SDKs (Toggle, default: `false`). *WARNING: this breaks push notifications; enable only to fully silence background push engagement SDK runtimes.*
+
+---
+
+## 16. Disable Play Store updates (`universalDisablePlayStoreUpdatesPatch`)
+
+The **`Disable Play Store updates`** patch sets the manifest `versionCode` to the maximum allowed value (`2147483647` / `Int.MAX_VALUE`), detaching the application from Google Play Store update checks so the store never offers automatic or manual updates. At the bytecode layer, it intercepts `PackageInfo.versionCode` field reads and `PackageInfo.getLongVersionCode()` calls across application classes, redirecting them to runtime extension helpers that return the app's original version code recorded from `AndroidManifest.xml` before patching.
+
+> [!NOTE]
+> ### In-App Version Spoofing & Compatibility
+> Setting `versionCode` to `2147483647` in `AndroidManifest.xml` prevents the Play Store from finding higher version updates. However, many applications inspect their own version code at runtime and transmit it in API request headers or use it in local migration checks.
+>
+> If an app reads the maximum version code directly, backend APIs may reject client requests or crash. To prevent breakage, this patch scans application bytecode in a single pass for `PackageInfo.versionCode` reads and `PackageInfo.getLongVersionCode()` calls, replacing them with calls to `DisablePlayStoreUpdatesPatch` in `extension.mpe`. These helpers return the original version code (preserving `versionCodeMajor` in the upper 32 bits for long version checks) whenever the version code equals `Int.MAX_VALUE`.
+
+### Scope & Compatibility Notes
+
+- **Opt-in by default**: Disabled by default (`default = false`) because it changes package update behavior.
+- **Root mounting incompatibility**: Does not work if the application is installed via root mount.
+- **Universal applicability**: Operates across any Android application without hardcoded class fingerprints or app-specific targets.
+
+---
+
+## 17. Spoof Reinstall IDs (`universalSpoofReinstallIdsPatch`)
+
+The **`Spoof Reinstall IDs`** patch neutralizes persistent installation and app-set tracking identifiers by replacing identifier getters directly at the Dalvik bytecode level (`classes*.dex`) with neutral constants. This prevents applications and integrated analytics libraries from correlating reinstalls or linking activity across applications from the same developer family.
+
+> [!NOTE]
+> ### Identifier Constant Folding
+> Applications use identifier frameworks (such as Google Play Services AppSet and Firebase Instance ID) to correlate user accounts and track repeat installations even after application data and cache have been wiped.
+>
+> `Spoof Reinstall IDs` intercepts identifier getters (`getId` and `getScope`) and folds their entire method bodies into constant returns via whole-body bytecode replacement. By default, app-set identifiers return a zeroed UUID (`00000000-0000-0000-0000-000000000000`), install identifiers return a neutral zero sequence (`0000000000000000000000`), and scope queries report app-scoped isolation (`1`) rather than developer-scoped cross-app tracking (`2`).
+
+### Configuration in Morphe Manager
+
+- **App set ID (`appSetId`)**: Fixed identifier reported when querying the app-set ID (Text, default: `00000000-0000-0000-0000-000000000000`).
+- **Install ID (`installId`)**: Fixed identifier reported for installation and instance ID lookups (Text, default: `0000000000000000000000`).
+- **Scope to single app (`spoofScope`)**: Report app-set ID scope as single-application (`1`) instead of developer-wide (`2`) (Toggle, default: `true`).
+
+---
+
+## 18. Silence System Logs (`universalSilenceSystemLogsPatch`)
+
+The **`Silence System Logs`** patch neutralizes diagnostic logging invocations targeting `android.util.Log` directly at Dalvik bytecode call sites (`classes*.dex`). This stops applications from spamming system log buffers and prevents sensitive identifiers, request URLs, and device telemetry from leaking into Android logcat buffers accessible to other applications with system log permissions.
+
+> [!NOTE]
+> ### Log Call Site Neutralization
+> Production Android applications often retain verbose debug and diagnostic logging statements (`Log.d`, `Log.v`, `Log.i`, `Log.w`, `Log.e`, `Log.wtf`, and `Log.println`) across their codebase and embedded third-party libraries.
+>
+> `Silence System Logs` executes a single union pass across application bytecode, identifying logging invocations matching the configured verbosity threshold. The patch safely replaces the invoke instruction with `nop` (or neutral zero constants when the caller captures the returned integer value via `move-result`), eliminating log message construction overhead and logcat buffer emission without triggering bytecode verification errors.
+
+### Configuration in Morphe Manager
+
+- **Log level (`logLevel`)**: Select which log severity levels to silence: `all` (silences all debug, verbose, info, warning, error, wtf, and println calls; default), `debug_verbose` (silences only debug and verbose messages), or `no_errors` (silences debug, verbose, info, and warning logs while preserving error entries) (Dropdown, default: `all`).
+
+---
+
+## 19. Disable Browser File Associations (`universalBrowserAssociationPatch`)
+
+The **`Disable Browser File Associations`** patch stops an application from appearing in the Android browser app chooser for online files by pruning web-link intent filters in `AndroidManifest.xml`. It pairs with `Universal Offline Mode` for apps that should neither reach the network nor be reachable from it.
+
+### 🛡️ Surgical Filter Pruning
+
+For every `activity`, `activity-alias`, `service` and `receiver`, each `intent-filter` combining `android.intent.action.VIEW` + `android.intent.category.BROWSABLE` with `http`/`https` `<data>` entries is rewritten:
+
+1. **Web Scheme Stripping**: `http`/`https` `<data>` nodes are removed (scheme match is case-insensitive). Entries with local schemes (`file`, `content`) or other matchers are strictly preserved.
+2. **Emptied Filter Removal**: A filter left with no `<data>` nodes whose only action is `VIEW` existed purely for web links and is dropped entirely. Leaving a dataless `VIEW` + `BROWSABLE` filter would match every `VIEW` intent, so removal is the safe default.
+3. **Untouched by Design**: Launcher entries (`MAIN`), non-`BROWSABLE` filters, and filters without web schemes are never modified.
+
+### Configuration in Morphe Manager
+
+- **Strip HTTP/HTTPS Web Schemes (`stripWebSchemes`)**: Remove `http`/`https` data entries from `VIEW` + `BROWSABLE` intent filters (Toggle, default: `true`). Disable to run a no-op pass.
+- **Remove Emptied Filters (`removeEmptiedFilters`)**: Drop filters left dataless with only `VIEW` actions (Toggle, default: `true`). Disable to keep the emptied filter skeleton.
+
+> [!WARNING]
+> Do not apply to applications that must open web links themselves (web browsers such as Brave, readers, link aggregators): stripping their `BROWSABLE` filters breaks opening links from other apps.
 

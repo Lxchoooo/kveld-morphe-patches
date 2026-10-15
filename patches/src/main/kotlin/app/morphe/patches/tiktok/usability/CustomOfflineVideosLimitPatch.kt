@@ -17,8 +17,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstructio
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val customOfflineVideosLimitPatch = bytecodePatch(
-    name = "Custom Offline Videos Limit",
-    description = "Customizes the maximum number of videos available for offline download caching.",
+    name = "Offline Video Limit",
+    description = "Customizes the maximum number of videos saved for offline viewing.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -54,10 +54,10 @@ val customOfflineVideosLimitPatch = bytecodePatch(
                     sput v0, ${Constants.TIKTOK_EXTENSION_OFFLINE_VIDEOS_HOOK}->targetLimit:I
                 """.trimIndent(),
             )
-            println("[Custom Offline Videos Limit] Initialized targetLimit = $chosenLimit.")
+            println("[Offline Video Limit] Initialized targetLimit = $chosenLimit.")
             patched++
         } catch (e: Exception) {
-            println("[Custom Offline Videos Limit] TikTokOfflineVideosHook.<clinit> note: ${e.message}")
+            println("[Offline Video Limit] TikTokOfflineVideosHook.<clinit> note: ${e.message}")
         }
 
         // 2. Dynamic discovery through OfflineModeSheetPageAssem.onAssemPostCreate -> Limits list provider
@@ -102,14 +102,14 @@ val customOfflineVideosLimitPatch = bytecodePatch(
                 }
 
                 if (returnIndices.isNotEmpty()) {
-                    println("[Custom Offline Videos Limit] Hooked limits list provider (${listProviderMethodRef.definingClass}->${listProviderMethodRef.name}) at ${returnIndices.size} return point(s).")
+                    println("[Offline Video Limit] Hooked limits list provider (${listProviderMethodRef.definingClass}->${listProviderMethodRef.name}) at ${returnIndices.size} return point(s).")
                     patched++
                 }
             } else {
-                println("[Custom Offline Videos Limit] Limits list provider method not found in onAssemPostCreate.")
+                println("[Offline Video Limit] Limits list provider method not found in onAssemPostCreate.")
             }
         } catch (e: Exception) {
-            println("[Custom Offline Videos Limit] onAssemPostCreate note: ${e.message}")
+            println("[Offline Video Limit] onAssemPostCreate note: ${e.message}")
         }
 
         // 3. Dynamic discovery through OfflineModeSheetPageAssem -> Title formatter
@@ -160,14 +160,14 @@ val customOfflineVideosLimitPatch = bytecodePatch(
                 }
 
                 if (returnIndices.isNotEmpty()) {
-                    println("[Custom Offline Videos Limit] Hooked title formatter (${titleFormatterMethodRef.definingClass}->${titleFormatterMethodRef.name}) at ${returnIndices.size} return point(s).")
+                    println("[Offline Video Limit] Hooked title formatter (${titleFormatterMethodRef.definingClass}->${titleFormatterMethodRef.name}) at ${returnIndices.size} return point(s).")
                     patched++
                 }
             } else {
-                println("[Custom Offline Videos Limit] Title formatter method not found in OfflineModeSheetPageAssem.")
+                println("[Offline Video Limit] Title formatter method not found in OfflineModeSheetPageAssem.")
             }
         } catch (e: Exception) {
-            println("[Custom Offline Videos Limit] Title formatter note: ${e.message}")
+            println("[Offline Video Limit] Title formatter note: ${e.message}")
         }
 
         // 4. Dynamic discovery through OfflineModeSheetPageAssem -> Progress subtitle
@@ -223,14 +223,14 @@ val customOfflineVideosLimitPatch = bytecodePatch(
                 }
 
                 if (returnIndices.isNotEmpty()) {
-                    println("[Custom Offline Videos Limit] Hooked progress subtitle (${progressSubtitleMethodRef.definingClass}->${progressSubtitleMethodRef.name}) at ${returnIndices.size} return point(s).")
+                    println("[Offline Video Limit] Hooked progress subtitle (${progressSubtitleMethodRef.definingClass}->${progressSubtitleMethodRef.name}) at ${returnIndices.size} return point(s).")
                     patched++
                 }
             } else {
-                println("[Custom Offline Videos Limit] Progress subtitle method not found in OfflineModeSheetPageAssem.")
+                println("[Offline Video Limit] Progress subtitle method not found in OfflineModeSheetPageAssem.")
             }
         } catch (e: Exception) {
-            println("[Custom Offline Videos Limit] Progress subtitle note: ${e.message}")
+            println("[Offline Video Limit] Progress subtitle note: ${e.message}")
         }
 
         // 5. Radio item cell class discovery and title/subtitle hooks
@@ -298,16 +298,16 @@ val customOfflineVideosLimitPatch = bytecodePatch(
                             move-result-object v$subtitleReg
                         """.trimIndent(),
                     )
-                    println("[Custom Offline Videos Limit] Hooked radio item title and subtitle in ${radioCellFingerprint.classDef.type}->${method.name} at instruction $hookIndex.")
+                    println("[Offline Video Limit] Hooked radio item title and subtitle in ${radioCellFingerprint.classDef.type}->${method.name} at instruction $hookIndex.")
                     patched++
                 } else {
-                    println("[Custom Offline Videos Limit] Constructor for radio item not found in ${radioCellFingerprint.classDef.type}->${method.name}.")
+                    println("[Offline Video Limit] Constructor for radio item not found in ${radioCellFingerprint.classDef.type}->${method.name}.")
                 }
             }
         } catch (e: Exception) {
-            println("[Custom Offline Videos Limit] Radio item cell note: ${e.message}")
+            println("[Offline Video Limit] Radio item cell note: ${e.message}")
         }
 
-        println("[Custom Offline Videos Limit] Applied $patched offline videos limit hook(s).")
+        println("[Offline Video Limit] Applied $patched offline videos limit hook(s).")
     }
 }

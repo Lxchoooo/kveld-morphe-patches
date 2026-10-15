@@ -2,12 +2,13 @@ package app.morphe.patches.gboard
 
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
+import app.morphe.patches.shared.ANDROID_XML_NAMESPACE
 import app.morphe.patches.shared.Constants
 import org.w3c.dom.Element
 
 val gboardClonePatch = resourcePatch(
-    name = "Clone Gboard",
-    description = "Changes the package name by appending a dot and custom suffix (defaults to 'clone') to allow installing Gboard alongside the original application.",
+    name = "Install a Copy",
+    description = "Installs this Gboard next to the original one.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -17,8 +18,16 @@ val gboardClonePatch = resourcePatch(
     val packageSuffix by stringOption(
         key = "packageSuffix",
         title = "Package name suffix",
-        description = "Suffix appended after the original package name and a dot (e.g. 'clone' -> 'com.google.android.inputmethod.latin.clone').",
+        description = "Suffix appended to the package name (e.g. clone).",
         default = "clone",
+        required = false,
+    )
+
+    val appLabel by stringOption(
+        key = "appLabel",
+        title = "App display name",
+        description = "Custom display name for the cloned app. Leave empty for default.",
+        default = "",
         required = false,
     )
 
@@ -29,7 +38,7 @@ val gboardClonePatch = resourcePatch(
 
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[GboardClone] Skipped: AndroidManifest.xml not found.")
+            println("[Install a Copy] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -37,6 +46,9 @@ val gboardClonePatch = resourcePatch(
         var modifiedPermissions = 0
         var modifiedComponents = 0
         var modifiedXmlFiles = 0
+        var modifiedAppLabels = 0
+        val trimmedLabel = appLabel?.trim()?.takeIf { it.isNotEmpty() }
+        var labelSkipReason: String? = null
 
         document(manifestFile.absolutePath).use { doc ->
             // 1. Rewrite root package attribute
@@ -100,9 +112,26 @@ val gboardClonePatch = resourcePatch(
                     }
                 }
             }
+
+            // 5. Update application label if custom appLabel is provided
+            if (trimmedLabel != null) {
+                val application = doc.getElementsByTagName("application").item(0) as? Element
+                if (application != null) {
+                    val node = application.getAttributeNodeNS(ANDROID_XML_NAMESPACE, "label")
+                        ?: application.getAttributeNode("android:label")
+                    if (node != null) {
+                        node.value = trimmedLabel
+                    } else {
+                        application.setAttribute("android:label", trimmedLabel)
+                    }
+                    modifiedAppLabels++
+                } else {
+                    labelSkipReason = "<application> absent"
+                }
+            }
         }
 
-        // 5. Update authority references strictly in res/xml configuration files (e.g. sync adapters, searchables)
+        // 6. Update authority references strictly in res/xml configuration files (e.g. sync adapters, searchables)
         val resXmlDir = get("res/xml")
         if (resXmlDir.exists() && resXmlDir.isDirectory) {
             val authorityAttributes = setOf("android:authorities", "authorities", "android:contentAuthority", "contentAuthority")
@@ -130,6 +159,11 @@ val gboardClonePatch = resourcePatch(
             }
         }
 
-        println("[Clone Gboard] Renamed package to '$newPackage' ($modifiedProviders providers, $modifiedPermissions permissions, $modifiedComponents components, $modifiedXmlFiles XML files)")
+        val labelSummary = when {
+            trimmedLabel == null -> ""
+            modifiedAppLabels > 0 -> ", 1 app label ('$trimmedLabel')"
+            else -> ", 0 app labels (skipped: ${labelSkipReason ?: "unknown"})"
+        }
+        println("[Install a Copy] Renamed package to '$newPackage' ($modifiedProviders providers, $modifiedPermissions permissions, $modifiedComponents components, $modifiedXmlFiles XML files$labelSummary)")
     }
 }

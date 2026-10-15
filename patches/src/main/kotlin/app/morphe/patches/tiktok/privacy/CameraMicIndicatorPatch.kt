@@ -225,6 +225,6 @@ val cameraMicIndicatorPatch = bytecodePatch(
         }
         var patched = totalSites
 
-        println("[Camera Mic Indicator] Instrumented $cameraOpens camera opens, $cameraReleases camera releases, $micStarts mic starts, $micStops mic stops across $totalSites call site(s) -> $patched indicator hook(s) active.")
+        println("[Camera & Microphone Indicator] Instrumented $cameraOpens camera opens, $cameraReleases camera releases, $micStarts mic starts, $micStops mic stops across $totalSites call site(s) -> $patched indicator hook(s) active.")
     }
 }

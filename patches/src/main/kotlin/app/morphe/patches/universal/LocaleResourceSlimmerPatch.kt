@@ -6,14 +6,14 @@ import app.morphe.patches.shared.LocaleUtils
 
 @Suppress("unused")
 val localeResourceSlimmerPatch = resourcePatch(
-    name = "Locale Resource Slimmer",
-    description = "Strips unselected language translation directories from res/ (e.g. values-*, raw-*, xml-*). Base fallback resources with no language qualifiers are always preserved.",
+    name = "Remove Extra Languages",
+    description = "Deletes unselected translation folders.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI
     val targetLocales by stringOption(
         key = "locales",
-        title = "Locales to keep",
+        title = "Languages to keep",
         description = "Comma-separated language codes to preserve (e.g. 'en, es, pt, fr, de'). English fallback is always retained.",
         default = "en",
         required = false,
@@ -23,7 +23,7 @@ val localeResourceSlimmerPatch = resourcePatch(
         val mainRes = get("res")
         val resDirs = LocaleUtils.resolveResourceDirectories(mainRes)
         if (resDirs.isEmpty()) {
-            println("[Locale Resource Slimmer] res/ directory not found - skipping safely.")
+            println("[Remove Extra Languages] res/ directory not found - skipping safely.")
             return@execute
         }
 
@@ -58,12 +58,12 @@ val localeResourceSlimmerPatch = resourcePatch(
 
         if (removedDirs == 0) {
             val packageSuffix = if (resDirs.size > 1) " across ${resDirs.size} resource packages" else ""
-            println("[Locale Resource Slimmer] No non-target localization directories found to strip$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}).")
+            println("[Remove Extra Languages] No non-target localization directories found to strip$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}).")
             return@execute
         }
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
         val packageSuffix = if (resDirs.size > 1) " across ${resDirs.size} resource packages" else ""
-        println("[Locale Resource Slimmer] Stripped $removedDirs localization dirs$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
+        println("[Remove Extra Languages] Stripped $removedDirs localization dirs$packageSuffix (kept: ${keepSet.sorted().joinToString(", ")}) -> Saved $savedFormatted")
     }
 }

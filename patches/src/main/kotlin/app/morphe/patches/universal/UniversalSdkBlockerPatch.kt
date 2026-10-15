@@ -2,20 +2,26 @@ package app.morphe.patches.universal
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.booleanOption
+import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
-import app.morphe.patches.shared.findMutableMethodOf
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method
+import com.android.tools.smali.dexlib2.util.MethodUtil
 
-private const val TAG = "[Universal SDK Blocker]"
+private const val TAG = "[Block Tracking SDKs]"
 
 private data class SdkPrefixRule(
     val prefix: String,
     val label: String,
     val staticMethods: Set<String>,
     val instanceMethods: Set<String>,
+    // Item 5: lifecycle-sensitive names require a parameter check, not just a name match.
+    // staticParamGuards maps method name -> exact parameter type list (empty = any params).
+    val staticParamGuards: Map<String, List<String>> = emptyMap(),
+    // Instance method names that only match when the method takes at least one parameter.
+    val guardedInstanceMethods: Set<String> = emptySet(),
 )
 
 private val APM_STATIC_METHODS = setOf(
@@ -111,6 +117,58 @@ private val ATTRIBUTION_INSTANCE_METHODS = setOf(
     "trackEvent",
     "sendEvent",
 )
+
+// External audit (issue #162): scoped additions, verified void in reference fingerprints.
+// - onCreate is lifecycle-sensitive: scoped to Adjust rule ONLY, never added globally.
+//   Adjust v5 renamed it to initSdk(AdjustConfig) (Atlas Earth, Vinted): same scope and guard.
+// - pushEvent is CleverTap-specific: scoped to CleverTap rule ONLY.
+// - initializeWithGameKey/addDesignEvent verified void: scoped to GameAnalytics ONLY,
+//   added to both static+instance sets to cover SDK variants.
+// - Transaction under Lcom/unity3d/analytics (distinct package from services/analytics):
+//   void per external reference, UNVERIFIED in local APKs. Scoped to new Unity rule ONLY.
+// NON-VOID POLICY: object-returning initializers (Branch.init, FirebaseApp.initializeApp)
+// are skipped (null would NPE call sites). Exception: chainable instance methods in
+// SELF_RETURN_ALLOWLIST whose returnType == defining class get `return-object p0`.
+// Item 1: AppsFlyer real entry is AFb1vSDK.start (instance, obfuscated impl class),
+// measured in FIFA/CapCut dex. Blocking start also silences install/session dispatch,
+// but a deferred-conversion listener never fires: document splash-wait risk in docs.
+private val APPSFLYER_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "start"
+
+private val ADJUST_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "onCreate" + "initSdk"
+
+// Identity entry points emit profile data even when event tracking is blocked.
+// Only public entry points are listed; generic names such as setUserId, set, increment
+// are deliberately excluded because the same names exist on internal SDK state classes
+// (measured in Amplitude Kotlin: State, EventOptions, IdentityCoordinator, AnalyticsEvent
+// use setUserId) and stubbing them would corrupt SDK state.
+// Amplitude identify/groupIdentify/setGroup verified as self-returning on
+// Lcom/amplitude/core/Amplitude in a real APK; Mixpanel identify/alias and CleverTap
+// onUserLogin/pushProfile are void in the public API but UNVERIFIED in local APKs.
+private val AMPLITUDE_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "identify" + "groupIdentify" + "setGroup"
+
+private val MIXPANEL_INSTANCE_SCOPED = ATTRIBUTION_INSTANCE_METHODS + "identify" + "alias"
+
+private val CLEVERTAP_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "pushEvent" + "onUserLogin" + "pushProfile"
+
+private val GAMEANALYTICS_STATIC_SCOPED =
+    ATTRIBUTION_STATIC_METHODS + "initializeWithGameKey" + "addDesignEvent"
+
+private val GAMEANALYTICS_INSTANCE_SCOPED =
+    ATTRIBUTION_INSTANCE_METHODS + "initializeWithGameKey" + "addDesignEvent"
+
+private val UNITY_ANALYTICS_STATIC_SCOPED = ATTRIBUTION_STATIC_METHODS + "Transaction"
+
+// Item 6: instance methods in this allowlist that return their own defining class
+// (chainable APIs, e.g. Amplitude Kotlin track) are hooked with `return-object p0`
+// instead of being skipped. Amplitude Kotlin identify/groupIdentify/setGroup return the
+// Amplitude instance and get `return-object p0`. Type-correct by construction
+// (returnType == class type), never null. "init" is not listed: it only appears in static
+// method sets, and this path requires an instance method. Classes renamed by R8 fall
+// outside the package prefix and are not covered. Boolean/int returns stay out of scope:
+// each needs a hand-reviewed per-method value.
+private val SELF_RETURN_ALLOWLIST = setOf("track", "identify", "groupIdentify", "setGroup")
 
 // MANDATORY exclusion: NEVER block consent or clear setters (setConsent, setAdStorage,
 // setAnalyticsStorage, setAdPersonalization, setAdUserData, clearConditionalUserProperty,
@@ -399,11 +457,26 @@ private val ANALYTICS_RULES = listOf(
 )
 
 private val ATTRIBUTION_RULES = listOf(
-    SdkPrefixRule("Lcom/appsflyer", "AppsFlyer", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/adjust", "Adjust", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/clevertap", "CleverTap", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule(
+        "Lcom/appsflyer",
+        "AppsFlyer",
+        ATTRIBUTION_STATIC_METHODS,
+        APPSFLYER_INSTANCE_SCOPED,
+        guardedInstanceMethods = setOf("start"),
+    ),
+    SdkPrefixRule(
+        "Lcom/adjust",
+        "Adjust",
+        ADJUST_STATIC_SCOPED,
+        ATTRIBUTION_INSTANCE_METHODS,
+        staticParamGuards = mapOf(
+            "onCreate" to listOf("Lcom/adjust/sdk/AdjustConfig;"),
+            "initSdk" to listOf("Lcom/adjust/sdk/AdjustConfig;"),
+        ),
+    ),
+    SdkPrefixRule("Lcom/amplitude", "Amplitude", ATTRIBUTION_STATIC_METHODS, AMPLITUDE_INSTANCE_SCOPED),
+    SdkPrefixRule("Lcom/mixpanel", "Mixpanel", ATTRIBUTION_STATIC_METHODS, MIXPANEL_INSTANCE_SCOPED),
+    SdkPrefixRule("Lcom/clevertap", "CleverTap", ATTRIBUTION_STATIC_METHODS, CLEVERTAP_INSTANCE_SCOPED),
     SdkPrefixRule("Lcom/segment", "Segment", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lio/branch", "Branch", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lcom/branch", "Branch", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
@@ -411,8 +484,9 @@ private val ATTRIBUTION_RULES = listOf(
     SdkPrefixRule("Lcom/kochava", "Kochava", ATTRIBUTION_EXTRA_STATIC, ATTRIBUTION_EXTRA_INSTANCE),
     SdkPrefixRule("Lcom/tenjin", "Tenjin", ATTRIBUTION_EXTRA_STATIC, ATTRIBUTION_EXTRA_INSTANCE),
     SdkPrefixRule("Lcom/unity3d/services/analytics", "Unity Analytics", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/unity3d/analytics", "Unity Analytics", UNITY_ANALYTICS_STATIC_SCOPED, ATTRIBUTION_INSTANCE_METHODS),
     SdkPrefixRule("Lcom/flurry", "Flurry", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
-    SdkPrefixRule("Lcom/gameanalytics", "GameAnalytics", ATTRIBUTION_STATIC_METHODS, ATTRIBUTION_INSTANCE_METHODS),
+    SdkPrefixRule("Lcom/gameanalytics", "GameAnalytics", GAMEANALYTICS_STATIC_SCOPED, GAMEANALYTICS_INSTANCE_SCOPED),
 )
 
 private val SESSION_REPLAY_RULES = listOf(
@@ -443,77 +517,90 @@ private val PUSH_RULES = listOf(
 
 @Suppress("unused")
 val universalSdkBlockerPatch = bytecodePatch(
-    name = "Universal SDK Blocker",
-    description = "Neutralizes third-party APM, crash reporting, analytics, attribution, session replay, location tracking, and push engagement SDK init and event methods at DEX level via early return-void; companion runtime layer to Universal Telemetry Neutralizer (manifest layer).",
+    name = "Block Tracking SDKs",
+    description = "Disables analytics, crash and ad SDKs inside the app.",
     default = false,
 ) {
     // Universal patch: applies to any target APK in Morphe Manager / CLI (no compatibleWith)
     val blockApm by booleanOption(
         key = "blockApm",
         default = true,
-        title = "Block APM & Performance Monitoring SDKs",
-        description = "Neutralize New Relic, Datadog, and Dynatrace monitoring, metric reporting, and HTTP transaction tracing methods.",
+        title = "Performance monitors",
+        description = "Neutralizes New Relic, Datadog, and Dynatrace monitoring methods.",
         required = false,
     )
 
     val blockCrashReporters by booleanOption(
         key = "blockCrashReporters",
         default = true,
-        title = "Block Crash Reporting SDKs",
-        description = "Neutralize Raygun, Shake, Embrace, Splunk Mint, App Center, OpenTelemetry, ACRA, Sentry, Bugsnag, Crashlytics (legacy and Firebase), Fabric, Instabug, Countly, and HockeyApp crash reporters.",
+        title = "Crash reporters",
+        description = "Neutralizes Sentry, Crashlytics, Bugsnag, and common crash reporters.",
         required = false,
     )
 
     val blockAnalytics by booleanOption(
         key = "blockAnalytics",
         default = true,
-        title = "Block Analytics SDKs",
-        description = "Neutralize Firebase Analytics, Matomo, Leanplum, Localytics, WebEngage, PostHog, MoEngage, Snowplow, mParticle, Treasure Data, Huawei Analytics, Yandex Metrica, Facebook AppEvents, and Sensors Analytics event tracking, capture, and session logging methods.",
+        title = "Analytics",
+        description = "Neutralizes Firebase, Matomo, PostHog, and common analytics SDKs.",
         required = false,
     )
 
     val blockAttribution by booleanOption(
         key = "blockAttribution",
         default = true,
-        title = "Block Attribution & Engagement SDKs",
-        description = "Neutralize AppsFlyer, Adjust, Amplitude, Mixpanel, CleverTap, Segment, Branch, Singular, Kochava, Tenjin, Unity Analytics, Flurry, and GameAnalytics conversion, tracking, and attribution SDKs.",
+        title = "Ad attribution",
+        description = "Neutralizes AppsFlyer, Adjust, Amplitude, Branch, and attribution SDKs.",
         required = false,
     )
 
     val blockLegacyAnalytics by booleanOption(
         key = "blockLegacyAnalytics",
         default = true,
-        title = "Block Legacy Google Analytics",
-        description = "Neutralize pre-Firebase Google Analytics tracking, hit dispatching, and activity reporting methods (com.google.analytics and com.google.android.gms.analytics).",
+        title = "Old Google Analytics",
+        description = "Neutralizes pre-Firebase Google Analytics tracking methods.",
         required = false,
     )
 
     val blockPushEngagement by booleanOption(
         key = "blockPushEngagement",
         default = false,
-        title = "Block Push Engagement SDKs (WARNING: Breaks Push)",
-        description = "Neutralize OneSignal, Airship, and Braze push engagement and tagging SDKs. WARNING: this breaks push notification delivery; enable only to fully silence push engagement SDK runtimes.",
+        title = "Push SDKs (breaks push!)",
+        description = "Neutralizes OneSignal, Airship, and Braze push engagement SDKs.",
         required = false,
     )
 
     val blockSessionReplay by booleanOption(
         key = "blockSessionReplay",
         default = true,
-        title = "Block Session Replay SDKs",
-        description = "Neutralize UXCam, Smartlook, FullStory, Contentsquare, and Bugsee screen and session recording SDK methods.",
+        title = "Screen recorders",
+        description = "Neutralizes UXCam, Smartlook, FullStory, and session recording SDKs.",
         required = false,
     )
 
     val blockLocationTrackers by booleanOption(
         key = "blockLocationTrackers",
         default = true,
-        title = "Block Location & Beacon Tracking SDKs",
-        description = "Neutralize Radar, Gimbal, and Estimote beacon and location tracking SDKs; note OS location permission controls remain the primary gate.",
+        title = "Location trackers",
+        description = "Neutralizes Radar, Gimbal, and Estimote location tracking SDKs.",
+        required = false,
+    )
+
+    val excludedSdks by stringOption(
+        key = "excludedSdks",
+        default = "",
+        title = "SDKs to keep",
+        description = "Comma-separated SDK names to leave untouched (e.g. 'Adjust, Branch').",
         required = false,
     )
 
     execute {
-        val activeRules = buildActiveRules(
+        val excludedLabels = (excludedSdks ?: "")
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+        var activeRules = buildActiveRules(
             blockApm = blockApm ?: true,
             blockCrash = blockCrashReporters ?: true,
             blockAnalytics = blockAnalytics ?: true,
@@ -524,14 +611,25 @@ val universalSdkBlockerPatch = bytecodePatch(
             blockLocationTrackers = blockLocationTrackers ?: true,
         )
 
+        if (excludedLabels.isNotEmpty()) {
+            val knownLabels = activeRules.map { it.label }.toSet()
+            val unknown = excludedLabels - knownLabels
+            if (unknown.isNotEmpty()) {
+                println("$TAG Unknown SDK label(s): ${unknown.sorted().joinToString(", ")}.")
+            }
+            activeRules = activeRules.filter { it.label !in excludedLabels }
+        }
+
         if (activeRules.isEmpty()) {
             println("$TAG Skipped: all SDK blocking options are disabled.")
             return@execute
         }
 
         var totalHooked = 0
+        var totalSkipped = 0
         var touchedClasses = 0
         val sdkHookCounts = mutableMapOf<String, Int>()
+        val sdkHookedMethods = mutableMapOf<String, MutableSet<String>>()
 
         classDefForEach { classDef ->
             val rule = matchSdkPrefix(classDef.type, activeRules) ?: return@classDefForEach
@@ -539,7 +637,9 @@ val universalSdkBlockerPatch = bytecodePatch(
             if (targetMethods.isEmpty()) return@classDefForEach
 
             val mutableClass = mutableClassDefBy(classDef)
-            totalHooked += applyBlockHooks(mutableClass, targetMethods, rule, sdkHookCounts)
+            val (hooked, skipped) = applyBlockHooks(mutableClass, targetMethods, rule, sdkHookCounts, sdkHookedMethods)
+            totalHooked += hooked
+            totalSkipped += skipped
             touchedClasses++
         }
 
@@ -549,7 +649,9 @@ val universalSdkBlockerPatch = bytecodePatch(
         }
 
         val summary = formatSummary(sdkHookCounts)
-        println("$TAG Applied $totalHooked hook(s) across $touchedClasses class(es) ($summary).")
+        val skippedSuffix = if (totalSkipped > 0) " ($totalSkipped skipped)" else ""
+        println("$TAG Applied $totalHooked hook(s) across $touchedClasses class(es) ($summary)$skippedSuffix.")
+        formatMethodLines(sdkHookedMethods).forEach { println("$TAG Hooked methods -> $it.") }
     }
 }
 
@@ -594,22 +696,54 @@ private fun isPrefixMatch(type: String, prefix: String): Boolean {
 private fun isSpecialMethodName(name: String): Boolean =
     name == "<init>" || name == "<clinit>"
 
-private fun isBlockableMethod(method: Method, rule: SdkPrefixRule): Boolean {
-    if (method.implementation == null) return false
+// Kotlin compiles interface default methods into static bridges in $DefaultImpls classes;
+// they are shared plugin/lifecycle plumbing, not SDK entry points (Segment Plugin$DefaultImpls.setup
+// only calls setAnalytics; stubbing it crashed Ground News at launch with an uninitialized lateinit).
+// Public SDK entry points live on the SDK classes themselves and stay covered.
+private fun isKotlinDefaultImplsClass(type: String): Boolean =
+    type.endsWith("\$DefaultImpls;")
+
+private fun isVoidBlockable(method: Method, rule: SdkPrefixRule): Boolean {
     val name = method.name
-    if (isSpecialMethodName(name)) return false
-    if (method.returnType != "V") return false
     return if (AccessFlags.STATIC.isSet(method.accessFlags)) {
-        name in rule.staticMethods
+        val guard = rule.staticParamGuards[name]
+        if (guard != null) {
+            method.parameters.map { it.type } == guard
+        } else {
+            name in rule.staticMethods
+        }
     } else {
-        name in rule.instanceMethods
+        if (name in rule.guardedInstanceMethods) {
+            name in rule.instanceMethods && method.parameters.isNotEmpty()
+        } else {
+            name in rule.instanceMethods
+        }
     }
 }
 
+private fun isSelfReturnBlockable(method: Method, classType: String, rule: SdkPrefixRule): Boolean {
+    if (AccessFlags.STATIC.isSet(method.accessFlags)) return false
+    val name = method.name
+    if (isSpecialMethodName(name)) return false
+    if (name !in SELF_RETURN_ALLOWLIST) return false
+    if (name !in rule.instanceMethods && name !in rule.guardedInstanceMethods) return false
+    if (method.returnType != classType) return false
+    return (method.implementation?.registerCount ?: 0) >= 1
+}
+
+private fun isBlockableMethod(method: Method, classType: String, rule: SdkPrefixRule): Boolean {
+    if (method.implementation == null) return false
+    val name = method.name
+    if (isSpecialMethodName(name)) return false
+    if (method.returnType == "V") return isVoidBlockable(method, rule)
+    return isSelfReturnBlockable(method, classType, rule)
+}
+
 private fun findBlockableMethods(classDef: ClassDef, rule: SdkPrefixRule): List<Method> {
+    if (isKotlinDefaultImplsClass(classDef.type)) return emptyList()
     val matches = mutableListOf<Method>()
     for (method in classDef.methods) {
-        if (isBlockableMethod(method, rule)) {
+        if (isBlockableMethod(method, classDef.type, rule)) {
             matches.add(method)
         }
     }
@@ -621,15 +755,26 @@ private fun applyBlockHooks(
     targetMethods: List<Method>,
     rule: SdkPrefixRule,
     counts: MutableMap<String, Int>,
-): Int {
+    methodNames: MutableMap<String, MutableSet<String>>,
+): Pair<Int, Int> {
     var hooked = 0
+    var skipped = 0
     for (targetMethod in targetMethods) {
-        val mutableMethod = mutableClass.findMutableMethodOf(targetMethod)
-        mutableMethod.addInstruction(0, "return-void")
+        val mutableMethod = mutableClass.methods.firstOrNull { MethodUtil.methodSignaturesMatch(it, targetMethod) }
+        if (mutableMethod == null) {
+            skipped++
+            continue
+        }
+        if (targetMethod.returnType == "V") {
+            mutableMethod.addInstruction(0, "return-void")
+        } else {
+            mutableMethod.addInstruction(0, "return-object p0")
+        }
         counts[rule.label] = (counts[rule.label] ?: 0) + 1
+        methodNames.getOrPut(rule.label) { mutableSetOf() }.add(targetMethod.name)
         hooked++
     }
-    return hooked
+    return Pair(hooked, skipped)
 }
 
 private fun formatSummary(counts: Map<String, Int>): String {
@@ -637,3 +782,8 @@ private fun formatSummary(counts: Map<String, Int>): String {
         .sortedByDescending { it.value }
         .joinToString(", ") { "${it.key}: ${it.value}" }
 }
+
+private fun formatMethodLines(methodNames: Map<String, Set<String>>): List<String> =
+    methodNames.entries
+        .sortedBy { it.key }
+        .map { (label, names) -> "$label: ${names.sorted().joinToString(", ")}" }

@@ -28,8 +28,8 @@ private val DUMMY_LICENSE_TEXT by lazy {
 private val LICENSE_METADATA_REGEX = Regex("""\d+:\d+\s+[A-Za-z]""")
 
 val gboardResourceSlimmerPatch = resourcePatch(
-    name = "Resource Slimmer",
-    description = "Strips embedded third-party license text, onboarding tutorial Lottie animations, promotional GIFs, and APK root metadata/junk files.",
+    name = "Remove Extra Files",
+    description = "Deletes licenses, tutorial animations and junk.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_GBOARD)
@@ -82,6 +82,7 @@ val gboardResourceSlimmerPatch = resourcePatch(
         var gifCount = 0
         var lottieCount = 0
         var licenseCount = 0
+        var skippedCount = 0
 
         for (dir in targetDirs) {
             dir.walkTopDown().filter { it.isFile }.forEach { file ->
@@ -128,6 +129,7 @@ val gboardResourceSlimmerPatch = resourcePatch(
                         }
                     } catch (_: Exception) {
                         // Skip unreadable files
+                        skippedCount++
                     }
                     return@forEach
                 }
@@ -151,6 +153,7 @@ val gboardResourceSlimmerPatch = resourcePatch(
                         }
                     } catch (_: Exception) {
                         // Ignore read errors
+                        skippedCount++
                     }
                     return@forEach
                 }
@@ -174,12 +177,13 @@ val gboardResourceSlimmerPatch = resourcePatch(
                         }
                     } catch (_: Exception) {
                         // Ignore read errors
+                        skippedCount++
                     }
                 }
             }
         }
 
         val totalMb = String.format(java.util.Locale.US, "%.2f", totalSavedBytes.toDouble() / (1024 * 1024))
-        println("[Gboard Resource Slimmer] Cleaned $junkFilesCount junk files, $lottieCount animations, $gifCount GIFs, $licenseCount licenses -> Saved $totalMb MB")
+        println("[Remove Extra Files] Cleaned $junkFilesCount junk files, $lottieCount animations, $gifCount GIFs, $licenseCount licenses ($skippedCount skipped) -> Saved $totalMb MB")
     }
 }

@@ -284,24 +284,26 @@ public class GboardExtension {
         if (context == null || !(listObj instanceof java.util.List)) return;
         try {
             ClassLoader cl = context.getClassLoader();
-            Class<?> clsXss = Class.forName("xss", false, cl);
-            Constructor<?> ctorXss = clsXss.getDeclaredConstructor(String.class);
-            ctorXss.setAccessible(true);
-            Object xss = ctorXss.newInstance("assets:theme_package_metadata_color_black.binarypb");
+            // 18.5.1 theme stack: yam spec for color_black asset, nhz factory builds theme, ngy row.
+            Class<?> clsYam = Class.forName("yam", false, cl);
+            Constructor<?> ctorYam = clsYam.getDeclaredConstructor(String.class);
+            ctorYam.setAccessible(true);
+            Object yam = ctorYam.newInstance("assets:theme_package_metadata_color_black.binarypb");
 
-            Class<?> clsNck = Class.forName("nck", false, cl);
-            Method mE = clsNck.getDeclaredMethod("e", Context.class, clsXss);
+            Class<?> clsNhz = Class.forName("nhz", false, cl);
+            Method mE = clsNhz.getDeclaredMethod("e", Context.class, clsYam);
             mE.setAccessible(true);
-            Object nck = mE.invoke(null, context, xss);
+            Object theme = mE.invoke(null, context, yam);
+            if (theme == null) return;
 
-            Class<?> clsNbg = Class.forName("nbg", false, cl);
-            Constructor<?> ctorNbg = clsNbg.getDeclaredConstructor(String.class, clsNck);
-            ctorNbg.setAccessible(true);
-            Object nbg = ctorNbg.newInstance("AMOLED", nck);
+            Class<?> clsNgy = Class.forName("ngy", false, cl);
+            Constructor<?> ctorNgy = clsNgy.getDeclaredConstructor(String.class, clsNhz, String.class);
+            ctorNgy.setAccessible(true);
+            Object row = ctorNgy.newInstance("AMOLED", theme, "AMOLED");
 
             @SuppressWarnings("unchecked")
             java.util.List<Object> list = (java.util.List<Object>) listObj;
-            list.add(nbg);
+            list.add(row);
         } catch (Throwable ignored) {}
     }
 

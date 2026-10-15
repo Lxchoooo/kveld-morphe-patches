@@ -8,8 +8,8 @@ import app.morphe.patches.shared.Constants
 
 @Suppress("unused")
 val braveSuppressInAppPromosPatch = bytecodePatch(
-    name = "Suppress In-App Promos & Surveys",
-    description = "Suppresses intrusive in-app rating surveys, Play Store review prompts, and marketing promo popups (YouTube promo, ad-free callouts, and Brave Ads onboarding).",
+    name = "Block Popups & Rating Requests",
+    description = "Blocks rating popups, review requests and promo dialogs.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -109,6 +109,6 @@ val braveSuppressInAppPromosPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Suppress In-App Promos] Applied ${hookedMethods.size} hooks across ${targetClasses.size} classes -> in-app surveys & promo dialogs disabled.")
+        println("[Block Popups & Rating Requests] Applied ${hookedMethods.size} hooks across ${targetClasses.size} classes -> in-app surveys & promo dialogs disabled.")
     }
 }

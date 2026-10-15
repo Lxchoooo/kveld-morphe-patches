@@ -26,8 +26,8 @@ import java.io.RandomAccessFile
 
 // ── Resource Patch: Sets defaultValue="false" on telemetry switches in XML ─────
 private val braveTelemetryResourcePatch = resourcePatch(
-    name = "Brave Telemetry Resource Defaults",
-    description = "Sets default values of P3A, Stats, and WDP switches to false in XML preferences.",
+    name = "Block Trackers (Setup)",
+    description = "Turns off analytics switches by default.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -71,38 +71,111 @@ private val braveTelemetryResourcePatch = resourcePatch(
             if (fileTouched) modifiedFiles++
         }
 
-        println("[Block Telemetry] Set $modifiedAttrs preference defaults to false across $modifiedFiles XML layout files")
+        println("[Block Trackers] Set $modifiedAttrs preference defaults to false across $modifiedFiles XML layout files")
     }
 }
 
 // ── Hosts Blocker Patch: Redirects all 12 telemetry domain endpoints to 0.0.0.0 in libchrome.so ─────
+private data class HostEntry(
+    val arm64Offset: Long,
+    val arm32Offset: Long,
+    val hostName: String,
+)
+
+private fun assertNoDuplicateOffsets(
+    relPath: String,
+    hostEntries: List<HostEntry>,
+    offsetSelector: (HostEntry) -> Long,
+) {
+    val seenOffsets = mutableSetOf<Long>()
+    for (entry in hostEntries) {
+        val offset = offsetSelector(entry)
+        if (!seenOffsets.add(offset)) {
+            throw PatchException("Duplicate host offset 0x${offset.toString(16)} in $relPath")
+        }
+    }
+}
+
+private fun validateHostEntries(
+    raf: RandomAccessFile,
+    relPath: String,
+    hostEntries: List<HostEntry>,
+    offsetSelector: (HostEntry) -> Long,
+) {
+    for (entry in hostEntries) {
+        val offset = offsetSelector(entry)
+        val expectedBytes = entry.hostName.toByteArray(Charsets.US_ASCII)
+        val len = expectedBytes.size
+        if (offset + len > raf.length()) {
+            throw PatchException("Host offset 0x${offset.toString(16)} out of bounds in $relPath")
+        }
+        val buf = ByteArray(len)
+        raf.seek(offset)
+        raf.readFully(buf)
+        if (!buf.contentEquals(expectedBytes)) {
+            throw PatchException(
+                "Host fingerprint mismatch at 0x${offset.toString(16)} in $relPath. " +
+                    "Expected: ${entry.hostName}, Found: ${String(buf, Charsets.US_ASCII)}",
+            )
+        }
+    }
+}
+
+private fun buildHostReplacement(redirectionIp: ByteArray, len: Int): ByteArray {
+    val replacement = ByteArray(len)
+    System.arraycopy(redirectionIp, 0, replacement, 0, redirectionIp.size)
+    return replacement
+}
+
+private fun writeHostEntries(
+    raf: RandomAccessFile,
+    relPath: String,
+    hostEntries: List<HostEntry>,
+    offsetSelector: (HostEntry) -> Long,
+    redirectionIp: ByteArray,
+): Int {
+    var writtenHosts = 0
+    for (entry in hostEntries) {
+        val offset = offsetSelector(entry)
+        val len = entry.hostName.toByteArray(Charsets.US_ASCII).size
+        val replacement = buildHostReplacement(redirectionIp, len)
+
+        raf.seek(offset)
+        raf.write(replacement)
+
+        raf.seek(offset)
+        val verifyBuf = ByteArray(len)
+        raf.readFully(verifyBuf)
+        if (!verifyBuf.contentEquals(replacement)) {
+            throw PatchException("Write verification failed at 0x${offset.toString(16)} in $relPath")
+        }
+
+        writtenHosts++
+    }
+    return writtenHosts
+}
+
 private val braveHostsBlockerPatch = rawResourcePatch(
-    name = "Brave Hosts Blocker Layer",
-    description = "Redirects telemetry and diagnostic domain strings to 0.0.0.0 in libchrome.so as a second layer of defense.",
+    name = "Block Tracking Servers",
+    description = "Redirects tracking servers to 0.0.0.0.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
 
     execute {
-        data class HostEntry(
-            val arm64Offset: Long,
-            val arm32Offset: Long,
-            val hostName: String,
-        )
-
         val hostEntries = listOf(
-            HostEntry(0x0020d657L, 0x005a14b4L, "star-randsrv.bsg.brave.com"),
-            HostEntry(0x0020d688L, 0x005a14e5L, "collector.bsg.brave.com"),
-            HostEntry(0x0020d6bfL, 0x005a151cL, "usage-ping.brave.com"),
-            HostEntry(0x0020d4e2L, 0x005a133fL, "patterns.wdp.brave.com"),
-            HostEntry(0x0020d4f9L, 0x005a1356L, "collector.wdp.brave.com"),
-            HostEntry(0x0020d511L, 0x005a136eL, "star.wdp.brave.com"),
-            HostEntry(0x0020d524L, 0x005a1381L, "quorum.wdp.brave.com"),
-            HostEntry(0x0020d4d5L, 0x005a1332L, "cr.brave.com"),
-            HostEntry(0x0008ca50L, 0x00426dfbL, "crashpad.chromium.org"),
-            HostEntry(0x004d92bcL, 0x00861123L, "crashpad.chromium.org"),
-            HostEntry(0x0020d369L, 0x005a11c6L, "variations.brave.com"),
-            HostEntry(0x003532a6L, 0x006ddcb2L, "variations.brave.com"),
+            HostEntry(0x0020d7edL, 0x005a163aL, "star-randsrv.bsg.brave.com"),
+            HostEntry(0x0020d81eL, 0x005a166bL, "collector.bsg.brave.com"),
+            HostEntry(0x0020d855L, 0x005a16a2L, "usage-ping.brave.com"),
+            HostEntry(0x0020d678L, 0x005a14c5L, "patterns.wdp.brave.com"),
+            HostEntry(0x0020d68fL, 0x005a14dcL, "collector.wdp.brave.com"),
+            HostEntry(0x0020d6a7L, 0x005a14f4L, "star.wdp.brave.com"),
+            HostEntry(0x0020d6baL, 0x005a1507L, "quorum.wdp.brave.com"),
+            HostEntry(0x0020d66bL, 0x005a14b8L, "cr.brave.com"),
+            HostEntry(0x0008cab0L, 0x00426e4bL, "crashpad.chromium.org"),
+            HostEntry(0x004d94bcL, 0x00861313L, "crashpad.chromium.org"),
+            HostEntry(0x0020d4ffL, 0x005a134cL, "variations.brave.com"),
+            HostEntry(0x003534adL, 0x006ddea9L, "variations.brave.com"),
         )
 
         val targets = listOf(
@@ -115,54 +188,40 @@ private val braveHostsBlockerPatch = rawResourcePatch(
             .filter { (_, file, _) -> file.exists() && file.isFile }
 
         if (existingTargets.isEmpty()) {
-            println("[Block Telemetry] Skipped: no arm64-v8a or armeabi-v7a libchrome.so found.")
+            println("[Block Trackers] Skipped: no arm64-v8a or armeabi-v7a libchrome.so found.")
             return@execute
         }
 
-        val redirectionIp = "0.0.0.0".toByteArray(Charsets.US_ASCII)
-
+        // Phase 1: Validate all targets and entries before opening any file for writing
         for ((relPath, soFile, offsetSelector) in existingTargets) {
-            var writtenHosts = 0
+            assertNoDuplicateOffsets(relPath, hostEntries, offsetSelector)
+            RandomAccessFile(soFile, "r").use { raf ->
+                validateHostEntries(raf, relPath, hostEntries, offsetSelector)
+            }
+        }
 
-            RandomAccessFile(soFile, "rw").use { raf ->
-                for (entry in hostEntries) {
-                    val offset = offsetSelector(entry)
-                    val expectedBytes = entry.hostName.toByteArray(Charsets.US_ASCII)
-                    val len = expectedBytes.size
-                    if (offset + len > raf.length()) {
-                        throw PatchException("Host offset 0x${offset.toString(16)} out of bounds in $relPath")
-                    }
-                    val buf = ByteArray(len)
-                    raf.seek(offset)
-                    raf.readFully(buf)
-                    if (!buf.contentEquals(expectedBytes)) {
-                        throw PatchException(
-                            "Host fingerprint mismatch at 0x${offset.toString(16)} in $relPath. " +
-                                "Expected: ${entry.hostName}, Found: ${String(buf, Charsets.US_ASCII)}",
-                        )
-                    }
-
-                    // Construct replacement: "0.0.0.0" + null byte + zero padding to original length
-                    val replacement = ByteArray(len)
-                    System.arraycopy(redirectionIp, 0, replacement, 0, redirectionIp.size)
-                    // remaining bytes are 0x00 (null padded)
-
-                    raf.seek(offset)
-                    raf.write(replacement)
-                    writtenHosts++
-                }
+        // Phase 2: Write replacement bytes and verify each entry in-situ
+        val redirectionIp = "0.0.0.0".toByteArray(Charsets.US_ASCII)
+        for ((relPath, soFile, offsetSelector) in existingTargets) {
+            val writtenHosts = RandomAccessFile(soFile, "rw").use { raf ->
+                writeHostEntries(raf, relPath, hostEntries, offsetSelector, redirectionIp)
             }
 
-            println("[Block Telemetry] $relPath: Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
+            println("[Block Trackers] $relPath: Redirected $writtenHosts / ${hostEntries.size} endpoints to 0.0.0.0 in libchrome.so")
         }
     }
 }
 
 // ── Bytecode Patch: Blocks Crash uploads, Variations seed, and forces telemetry gates to false
+internal const val BRAVE_UNSUPPORTED_VARIANT_MESSAGE =
+    "Unsupported Brave APK variant or drifted target: required hook not found in this build. " +
+        "Only Bravemonoarm64.apk / BraveMonoarm.apk v${Constants.BRAVE_TARGET_VERSION} from github.com/brave/brave-browser/releases " +
+        "are supported; Bravearm64Universal.apk is rejected. See the repository README for details."
+
 @Suppress("unused")
 val braveBlockTelemetryPatch = bytecodePatch(
-    name = "Block Brave Telemetry",
-    description = "Blocks P3A product analytics, Brave Stats usage pings, crash dump uploads, WDP, Chromium UMA metrics, and Variations seed fetching.",
+    name = "Block Trackers",
+    description = "Blocks usage analytics, crash uploads and experiment downloads.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
@@ -178,8 +237,8 @@ val braveBlockTelemetryPatch = bytecodePatch(
     val blockOffersHost by booleanOption(
         key = "blockOffersHost",
         default = true,
-        title = "Block Offers host",
-        description = "Rewrites DEX const-string literals containing offers.brave.com to 0.0.0.0. Enabled by default; disable to keep commercial offers endpoint.",
+        title = "Block offers server",
+        description = "Also blocks the shopping offers server. Turn off to keep it.",
         required = false,
     )
 
@@ -213,22 +272,26 @@ val braveBlockTelemetryPatch = bytecodePatch(
         }
 
         // 3. Variations: Abort HTTP connection before socket opens
-        val variationsFp = Fingerprint(
-            returnType = "Ljava/net/HttpURLConnection;",
-            strings = listOf("https://variations.brave.com/seed"),
-        )
-        variationsFp.method.apply {
-            addInstructions(
-                0,
-                """
-                    new-instance v0, Ljava/io/IOException;
-                    const-string v1, "Blocked by Morphe"
-                    invoke-direct {v0, v1}, Ljava/io/IOException;-><init>(Ljava/lang/String;)V
-                    throw v0
-                """,
+        try {
+            val variationsFp = Fingerprint(
+                returnType = "Ljava/net/HttpURLConnection;",
+                strings = listOf("https://variations.brave.com/seed"),
             )
-            val className = variationsFp.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
-            hookedMethods.add("$className.$name")
+            variationsFp.method.apply {
+                addInstructions(
+                    0,
+                    """
+                        new-instance v0, Ljava/io/IOException;
+                        const-string v1, "Blocked by Morphe"
+                        invoke-direct {v0, v1}, Ljava/io/IOException;-><init>(Ljava/lang/String;)V
+                        throw v0
+                    """,
+                )
+                val className = variationsFp.originalClassDef.type.substringAfterLast('/').removeSuffix(";")
+                hookedMethods.add("$className.$name")
+            }
+        } catch (_: PatchException) {
+            throw PatchException(BRAVE_UNSUPPORTED_VARIANT_MESSAGE)
         }
 
         // 4. PrefService.e(String): Filter telemetry preferences (P3A, Stats, WDP) at return
@@ -258,13 +321,13 @@ val braveBlockTelemetryPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Block Telemetry] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
+        println("[Block Trackers] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
 
         // 5. Offers host: Rewrite const-string literals containing offers.brave.com to 0.0.0.0
         if (blockOffersHost == true) {
             blockOffersHostInDex()
         } else {
-            println("[Block Telemetry] Offers host blocking disabled by option.")
+            println("[Block Trackers] Offers host blocking disabled by option.")
         }
     }
 }
@@ -304,9 +367,9 @@ private fun BytecodePatchContext.blockOffersHostInDex() {
 
 private fun logOffersResult(rewrittenStrings: Int, touchedClasses: Int) {
     if (rewrittenStrings == 0) {
-        println("[Block Telemetry] No offers.brave.com literals found.")
+        println("[Block Trackers] No offers.brave.com literals found.")
     } else {
-        println("[Block Telemetry] Rewrote $rewrittenStrings offers.brave.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
+        println("[Block Trackers] Rewrote $rewrittenStrings offers.brave.com literal(s) across $touchedClasses class(es) -> 0.0.0.0.")
     }
 }
 

@@ -22,16 +22,16 @@ private val EMPTY_DATAPACK_V5 by lazy {
 
 @Suppress("unused")
 val localePakSlimmerPatch = rawResourcePatch(
-    name = "Locale PAK Slimmer",
-    description = "Strips unselected language resource PAKs from assets/locales/.",
+    name = "Remove Extra Languages",
+    description = "Deletes unselected language packs.",
     default = false,
 ) {
     compatibleWith(Constants.COMPATIBILITY_BRAVE)
 
     val targetLocales by stringOption(
         key = "locales",
-        title = "Locales to keep",
-        description = "Comma-separated locale codes to keep (e.g. 'es, es-419, en-US, pt-BR, fr, de'). English (en-US) is always kept as a safe fallback.",
+        title = "Languages to keep",
+        description = "Comma-separated language codes to keep (e.g. es, fr, de). English is always kept.",
         default = "en-US",
         required = false,
     )
@@ -68,6 +68,6 @@ val localePakSlimmerPatch = rawResourcePatch(
         }
 
         val totalSavedMb = String.format(java.util.Locale.US, "%.2f", totalSavedBytes.toDouble() / (1024 * 1024))
-        println("[Locale PAK Slimmer] Stripped ${removedLocales.size} PAKs (kept: ${baseLocales.sorted().joinToString(", ")}) -> Saved $totalSavedMb MB")
+        println("[Remove Extra Languages] Stripped ${removedLocales.size} PAKs (kept: ${baseLocales.sorted().joinToString(", ")}) -> Saved $totalSavedMb MB")
     }
 }

@@ -10,8 +10,8 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 
 val bypassScreenCapturePatch = bytecodePatch(
-    name = "Bypass Screen Capture Detection",
-    description = "Clears FLAG_SECURE on protected windows, restores Circle to Search / screen translate and recent apps snapshots, and neutralizes screenshot detection listeners and feedback prompts.",
+    name = "Allow Screenshots",
+    description = "Removes screenshot and screen recording blocking.",
     default = true,
 ) {
     compatibleWith(Constants.COMPATIBILITY_TIKTOK)
@@ -46,10 +46,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Bypass Screen Capture Detection] Neutralized $taskClass.run(Context).")
+                println("[Allow Screenshots] Neutralized $taskClass.run(Context).")
                 patched++
             } catch (e: Exception) {
-                println("[Bypass Screen Capture Detection] Task $taskClass note: ${e.message}")
+                println("[Allow Screenshots] Task $taskClass note: ${e.message}")
             }
         }
 
@@ -66,10 +66,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ScreenShotFeedbackService.onShot() -> false.")
+            println("[Allow Screenshots] Neutralized ScreenShotFeedbackService.onShot() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ScreenShotFeedbackService.onShot note: ${e.message}")
+            println("[Allow Screenshots] ScreenShotFeedbackService.onShot note: ${e.message}")
         }
 
         try {
@@ -83,10 +83,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ScreenShotFeedbackService.safelyShowDialog().")
+            println("[Allow Screenshots] Neutralized ScreenShotFeedbackService.safelyShowDialog().")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ScreenShotFeedbackService.safelyShowDialog note: ${e.message}")
+            println("[Allow Screenshots] ScreenShotFeedbackService.safelyShowDialog note: ${e.message}")
         }
 
         try {
@@ -100,10 +100,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ScreenShotFeedbackService.sendShareFeedbackEvent().")
+            println("[Allow Screenshots] Neutralized ScreenShotFeedbackService.sendShareFeedbackEvent().")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ScreenShotFeedbackService.sendShareFeedbackEvent note: ${e.message}")
+            println("[Allow Screenshots] ScreenShotFeedbackService.sendShareFeedbackEvent note: ${e.message}")
         }
 
         try {
@@ -118,10 +118,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ScreenShotFeedbackService.isFeedbackEnable() -> false.")
+            println("[Allow Screenshots] Neutralized ScreenShotFeedbackService.isFeedbackEnable() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ScreenShotFeedbackService.isFeedbackEnable note: ${e.message}")
+            println("[Allow Screenshots] ScreenShotFeedbackService.isFeedbackEnable note: ${e.message}")
         }
 
         try {
@@ -136,10 +136,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ScreenShotFeedbackService.tryShowScreenShotFloatingView() -> false.")
+            println("[Allow Screenshots] Neutralized ScreenShotFeedbackService.tryShowScreenShotFloatingView() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ScreenShotFeedbackService.tryShowScreenShotFloatingView note: ${e.message}")
+            println("[Allow Screenshots] ScreenShotFeedbackService.tryShowScreenShotFloatingView note: ${e.message}")
         }
 
         // ==========================================
@@ -159,10 +159,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized LivePcsCourseVideoAntiScreenshotSetting.getValue() -> false.")
+            println("[Allow Screenshots] Neutralized LivePcsCourseVideoAntiScreenshotSetting.getValue() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] LivePcsCourseVideoAntiScreenshotSetting note: ${e.message}")
+            println("[Allow Screenshots] LivePcsCourseVideoAntiScreenshotSetting note: ${e.message}")
         }
 
         // 2.2 Neutralize AntiScreenRecordController.applyFlag(boolean enabled)
@@ -178,10 +178,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     const/4 p1, 0x0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized AntiScreenRecordController.applyFlag() -> forced enabled=false.")
+            println("[Allow Screenshots] Neutralized AntiScreenRecordController.applyFlag() -> forced enabled=false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] AntiScreenRecordController note: ${e.message}")
+            println("[Allow Screenshots] AntiScreenRecordController note: ${e.message}")
         }
 
         // 2.3 Neutralize makeScreenProtection(Window window, boolean enableScreenProtection)
@@ -197,10 +197,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     const/4 p2, 0x0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized makeScreenProtection() -> forced enable=false.")
+            println("[Allow Screenshots] Neutralized makeScreenProtection() -> forced enable=false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] makeScreenProtection note: ${e.message}")
+            println("[Allow Screenshots] makeScreenProtection note: ${e.message}")
         }
 
         // 2.4 Neutralize Circle to Search Block Setting (circle_search_block -> 0)
@@ -218,10 +218,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return-object v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized circle_search_block setting -> 0.")
+            println("[Allow Screenshots] Neutralized circle_search_block setting -> 0.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] circle_search_block note: ${e.message}")
+            println("[Allow Screenshots] circle_search_block note: ${e.message}")
         }
 
         // 2.5 Neutralize MainContentSecurityAssem (Circle to Search & Recent Apps dynamic FLAG_SECURE injection)
@@ -239,7 +239,7 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return-void
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized MainContentSecurityAssem.dispatchTouchEvent().")
+            println("[Allow Screenshots] Neutralized MainContentSecurityAssem.dispatchTouchEvent().")
             patched++
 
             val rqMethod = assemFp.classDef.methods.firstOrNull { method ->
@@ -262,11 +262,11 @@ val bypassScreenCapturePatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Bypass Screen Capture Detection] Neutralized MainContentSecurityAssem.${rqMethod.name}().")
+                println("[Allow Screenshots] Neutralized MainContentSecurityAssem.${rqMethod.name}().")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] MainContentSecurityAssem note: ${e.message}")
+            println("[Allow Screenshots] MainContentSecurityAssem note: ${e.message}")
         }
 
         // 2.6 Neutralize ContentSecurityHelper (Circle to Search & Recent Apps gesture bar FLAG_SECURE trigger)
@@ -293,7 +293,7 @@ val bypassScreenCapturePatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Bypass Screen Capture Detection] Neutralized ${helperClass.type}->${touchMethod.name}(MotionEvent) -> return-void.")
+                println("[Allow Screenshots] Neutralized ${helperClass.type}->${touchMethod.name}(MotionEvent) -> return-void.")
                 patched++
             }
 
@@ -304,10 +304,10 @@ val bypassScreenCapturePatch = bytecodePatch(
                     return v0
                 """.trimIndent(),
             )
-            println("[Bypass Screen Capture Detection] Neutralized ${helperClass.type}->${contentSecurityFp.method.name}() -> false.")
+            println("[Allow Screenshots] Neutralized ${helperClass.type}->${contentSecurityFp.method.name}() -> false.")
             patched++
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] ContentSecurityHelper note: ${e.message}")
+            println("[Allow Screenshots] ContentSecurityHelper note: ${e.message}")
         }
 
         // 2.7 Neutralize Window FLAG_SECURE Activity Setter (setFlags(8192, 8192))
@@ -343,14 +343,14 @@ val bypassScreenCapturePatch = bytecodePatch(
                         return-void
                     """.trimIndent(),
                 )
-                println("[Bypass Screen Capture Detection] Neutralized ${setFlagsMethodRef.definingClass}->${setFlagsMethodRef.name}(Activity) -> return-void.")
+                println("[Allow Screenshots] Neutralized ${setFlagsMethodRef.definingClass}->${setFlagsMethodRef.name}(Activity) -> return-void.")
                 patched++
             }
         } catch (e: Exception) {
-            println("[Bypass Screen Capture Detection] setFlagsSecure(Activity) note: ${e.message}")
+            println("[Allow Screenshots] setFlagsSecure(Activity) note: ${e.message}")
         }
 
-        println("[Bypass Screen Capture Detection] Applied $patched screen capture unrestrict and screenshot detection suppression hook(s).")
+        println("[Allow Screenshots] Applied $patched screen capture unrestrict and screenshot detection suppression hook(s).")
     }
 }
 
