@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-14T19:26:02",
-  "description": "## [2.7.0-experimental.22](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.21...v2.7.0-experimental.22) (2026-10-14)\n\n### Bug Fixes\n\n* **universal:** support Android 8.1 and below in Play Store update guard ([a6d7fec](https://github.com/kveld9/kveld-morphe-patches/commit/a6d7fec84680d53ac99ed691b4716aa159c4b571))",
-  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.22/patches-2.7.0-experimental.22.mpp",
+  "created_at": "2026-10-15T02:35:21",
+  "description": "## [2.7.0-experimental.23](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.22...v2.7.0-experimental.23) (2026-10-15)\n\n### Bug Fixes\n\n* **brave:** restore tracker blocking and startup fixes on 1.97.57 ([f680169](https://github.com/kveld9/kveld-morphe-patches/commit/f68016955251b604c01e87bab9889f22b83d6496))\n* **brave:** support Brave 1.97.57 ([fe2bff7](https://github.com/kveld9/kveld-morphe-patches/commit/fe2bff723277289255992244b75743e647b359cf))",
+  "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.23/patches-2.7.0-experimental.23.mpp",
   "signature_download_url": "",
-  "version": "2.7.0-experimental.22"
+  "version": "2.7.0-experimental.23"
 }

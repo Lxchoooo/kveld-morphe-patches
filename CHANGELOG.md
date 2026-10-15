@@ -1,3 +1,10 @@
+## [2.7.0-experimental.23](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.22...v2.7.0-experimental.23) (2026-10-15)
+
+### Bug Fixes
+
+* **brave:** restore tracker blocking and startup fixes on 1.97.57 ([f680169](https://github.com/kveld9/kveld-morphe-patches/commit/f68016955251b604c01e87bab9889f22b83d6496))
+* **brave:** support Brave 1.97.57 ([fe2bff7](https://github.com/kveld9/kveld-morphe-patches/commit/fe2bff723277289255992244b75743e647b359cf))
+
 ## [2.7.0-experimental.22](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.21...v2.7.0-experimental.22) (2026-10-14)
 
 ### Bug Fixes

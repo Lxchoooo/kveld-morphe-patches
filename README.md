@@ -225,7 +225,7 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 **Supported versions:**
 
-| 1.97.56 |
+| 1.97.57 |
 | :---: |
 
 | Patch | Description | Options |
