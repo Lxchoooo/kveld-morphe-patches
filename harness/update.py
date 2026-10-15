@@ -71,6 +71,8 @@ def main():
     group.add_argument("--doctor", action="store_true", help="Run toolchain readiness checks only")
     group.add_argument("--audit-walks", action="store_true",
                        help="Report fingerprints that force a full APK scan (no APK required)")
+    group.add_argument("--lint-fingerprints", action="store_true",
+                       help="Report patches that can silently apply zero hooks (no APK required)")
     parser.add_argument("--output", help="Save markdown report to file")
     parser.add_argument("--json", action="store_true",
                         help="Also write a machine-readable JSON sidecar next to the report")
@@ -88,6 +90,15 @@ def main():
 
         print(render_cost_report(REPO_ROOT))
         sys.exit(0)
+
+    if args.lint_fingerprints:
+        # Static source audit: no APK, no Gradle, no toolchain required.
+        from harness.migration.validator import AdversarialValidator
+        from harness.core.dex import DexIndex
+
+        ok, message = AdversarialValidator(REPO_ROOT, DexIndex()).assert_no_swallowed_fingerprints()
+        print(message)
+        sys.exit(0 if ok else 1)
 
     if not args.apk:
         parser.error("the following arguments are required: apk (or use --doctor)")
