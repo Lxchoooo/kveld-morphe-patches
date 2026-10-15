@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.View;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Pure runtime extension helper for the Video Fit patch.
@@ -15,6 +16,9 @@ public final class TikTokVideoFitHook {
     private static final String TAG = "MorpheTikTok";
 
     public static volatile String fitMode = "off";
+
+    // Bounded diagnostics: which video views reach fitted() per process (avoids log spam).
+    private static final AtomicInteger diagCount = new AtomicInteger(0);
 
     private TikTokVideoFitHook() {}
 
@@ -56,6 +60,9 @@ public final class TikTokVideoFitHook {
     public static Object fitted(Object originalResult, View view) {
         if (originalResult == null || view == null || fitMode == null || "off".equals(fitMode)) {
             return originalResult;
+        }
+        if (diagCount.getAndIncrement() < 5) {
+            Log.d(TAG, "[Video Fit] call mode=" + fitMode + " view=" + view.getClass().getName());
         }
 
         try {
@@ -190,6 +197,7 @@ public final class TikTokVideoFitHook {
         }
     }
 
+
     private static final Object INVALID_ARG = new Object();
 
     private static boolean isFloatLike(Class<?> c) {
@@ -255,61 +263,6 @@ public final class TikTokVideoFitHook {
             return false;
         }
     }
-
-    /**
-     * Computes fitted width for story/feed cell layout.
-     * Returns negative value if inputs are unmeasurable or mode is off.
-     */
-    public static int fitWidthFor(int width, int height, View view) {
-        if (width <= 0 || height <= 0 || view == null || "off".equals(fitMode)) {
-            return -1;
-        }
-        int viewW = view.getWidth();
-        int viewH = view.getHeight();
-        if (viewW <= 0 || viewH <= 0) return -1;
-
-        if ("fit".equals(fitMode)) {
-            float scale = Math.min((float) viewW / width, (float) viewH / height);
-            return Math.round(width * scale);
-        } else if ("fill".equals(fitMode)) {
-            float scale = Math.max((float) viewW / width, (float) viewH / height);
-            return Math.round(width * scale);
-        }
-        return -1;
-    }
-
-    /**
-     * Computes fitted height for story/feed cell layout.
-     * Returns negative value if inputs are unmeasurable or mode is off.
-     */
-    public static int fittedHeightFor(int width, int height, View view) {
-        if (width <= 0 || height <= 0 || view == null || "off".equals(fitMode)) {
-            return -1;
-        }
-        int viewW = view.getWidth();
-        int viewH = view.getHeight();
-        if (viewW <= 0 || viewH <= 0) return -1;
-
-        if ("fit".equals(fitMode)) {
-            float scale = Math.min((float) viewW / width, (float) viewH / height);
-            return Math.round(height * scale);
-        } else if ("fill".equals(fitMode)) {
-            float scale = Math.max((float) viewW / width, (float) viewH / height);
-            return Math.round(height * scale);
-        }
-        return -1;
-    }
-
-    /**
-     * Computes fitted translation offset.
-     */
-    public static float fittedTranslation(float translation, View view) {
-        if (view == null || "off".equals(fitMode)) {
-            return translation;
-        }
-        return translation;
-    }
-
     private static int[] resolveContainerSize(View view) {
         int[] maxParent = getLargestParentSize(view);
         if (maxParent[0] > 0 && maxParent[1] > 0) {
