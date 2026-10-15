@@ -31,5 +31,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew check --no-daemon
-      - name: Harness unit tests
-        run: python -m unittest discover harness/tests

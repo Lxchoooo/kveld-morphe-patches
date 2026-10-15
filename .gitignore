@@ -197,6 +197,8 @@ validation/combined/
 *.logcat
 *.tombstone
 
+# Local RE harness: untracked by user decision, kept on disk
+harness/
 
 # --- Private agent skills: nunca publicar (viven en kveld-morphe-skills-private) ---
 .agents/

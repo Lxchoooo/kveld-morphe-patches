@@ -1,1 +1,0 @@
-"""Harness test suite package."""
