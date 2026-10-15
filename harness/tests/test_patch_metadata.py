@@ -111,7 +111,10 @@ class TestContractNamesMatchRealPatches(unittest.TestCase):
         for path, name in _visible_patches():
             by_file.setdefault(path, set()).add(name)
             known.add(name)
-        self.assertGreater(len(known), 100)
+        # Floor, not a census: the consolidation waves keep changing the
+        # corpus size (95 at the time of writing). This only guards the
+        # scanner against returning nothing at all.
+        self.assertGreater(len(known), 50)
 
         stale = []
         checked = 0
