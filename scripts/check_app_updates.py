@@ -14,7 +14,7 @@ import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -46,6 +46,7 @@ APP_SPECS: List[Dict[str, Any]] = [
         "source_url": "https://www.apkmirror.com/apk/google-inc/gboard/",
         "path_prefix": "/apk/google-inc/gboard/gboard-the-google-keyboard-",
         "allow_beta": True,
+        "require_variant_marker": "lite_beta",
     },
     {
         "id": "hevy",
@@ -192,14 +193,49 @@ def fetch_html(url: str) -> Optional[str]:
         return None
 
 
+def _release_has_marker(
+    release_url: str,
+    marker: str,
+    fetcher: Callable[[str], Optional[str]],
+) -> bool:
+    """Check whether a candidate release page contains the variant marker."""
+    page_html = fetcher(release_url)
+    if not page_html:
+        return False
+    return marker.lower() in page_html.lower()
+
+
+def _find_marked_release(
+    candidates: List[Tuple[Tuple[int, ...], str, str, str]],
+    source_url: str,
+    marker: str,
+    fetcher: Callable[[str], Optional[str]],
+) -> Optional[str]:
+    """Walk candidate releases newest-first and return the first matching release."""
+    base_url = source_url if source_url.endswith("/") else f"{source_url}/"
+    for _, _, raw_v, href in candidates:
+        slug = href.strip("/").split("/")[-1]
+        if not slug:
+            continue
+        release_url = f"{base_url}{slug}/"
+        if _release_has_marker(release_url, marker, fetcher):
+            return raw_v
+    return None
+
+
 def extract_apkmirror_version(
-    html: str, path_prefix: str, allow_beta: bool = False
+    html: str,
+    path_prefix: str,
+    allow_beta: bool = False,
+    source_url: Optional[str] = None,
+    require_variant_marker: Optional[str] = None,
+    fetch_fn: Optional[Callable[[str], Optional[str]]] = None,
 ) -> Optional[str]:
     """Extract latest remote version from APKMirror listing HTML."""
-    candidates: List[Tuple[Tuple[int, ...], str, str]] = []
+    candidates: List[Tuple[Tuple[int, ...], str, str, str]] = []
 
     link_pattern = r'<a[^>]*class="[^"]*fontBlack[^"]*"[^>]*href="([^"]+)"[^>]*>(.*?)</a>'
-    for m in re.finditer(link_pattern, html):
+    for m in re.finditer(link_pattern, html, re.DOTALL):
         href = m.group(1)
         title = m.group(2).strip()
 
@@ -222,14 +258,24 @@ def extract_apkmirror_version(
             raw_v = v_match.group(1).strip()
             core, sfx = parse_version(raw_v)
             if core:
-                candidates.append((core, sfx, raw_v))
+                candidates.append((core, sfx, raw_v, href))
 
     if not candidates:
         return None
 
     # Sort descending by numeric core then suffix
     candidates.sort(key=lambda c: (c[0], c[1]), reverse=True)
-    return candidates[0][2]
+
+    if not require_variant_marker:
+        return candidates[0][2]
+
+    if not source_url:
+        return None
+
+    fetcher = fetch_fn if fetch_fn is not None else fetch_html
+    return _find_marked_release(
+        candidates, source_url, require_variant_marker, fetcher
+    )
 
 
 def extract_apkpure_version(html: str, package_name: str) -> Optional[str]:
@@ -325,10 +371,12 @@ def extract_apkpure_version(html: str, package_name: str) -> Optional[str]:
 
 def run_update_checks(
     constants_path: Path,
+    fetch_fn: Optional[Callable[[str], Optional[str]]] = None,
 ) -> List[Dict[str, Any]]:
     """Run update checks for all configured apps."""
     constants = parse_constants(constants_path)
     results: List[Dict[str, Any]] = []
+    fetcher = fetch_fn if fetch_fn is not None else fetch_html
 
     for spec in APP_SPECS:
         app_id = spec["id"]
@@ -339,6 +387,7 @@ def run_update_checks(
         source_name = spec["source_name"]
         source_url = spec["source_url"]
         allow_beta = spec["allow_beta"]
+        require_variant_marker = spec.get("require_variant_marker")
 
         local_version = constants.get(constant_key)
         if not local_version:
@@ -349,11 +398,16 @@ def run_update_checks(
             local_version = "unknown"
 
         remote_version: Optional[str] = None
-        html = fetch_html(source_url)
+        html = fetcher(source_url)
         if html:
             if source_type == "apkmirror":
                 remote_version = extract_apkmirror_version(
-                    html, spec["path_prefix"], allow_beta
+                    html,
+                    spec["path_prefix"],
+                    allow_beta,
+                    source_url=source_url,
+                    require_variant_marker=require_variant_marker,
+                    fetch_fn=fetcher,
                 )
             elif source_type == "apkpure":
                 remote_version = extract_apkpure_version(html, package_name)
