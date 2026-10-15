@@ -844,6 +844,10 @@ fun main(args: Array<String>) {
                             .toList()
                         splitApkEntries.parallelStream().forEach { splitEntry ->
                             val rawSplitFile = File(tempDir, splitEntry.name)
+                            if (!rawSplitFile.canonicalFile.toPath().startsWith(tempDir.canonicalFile.toPath())) {
+                                println("[WARN] Skipping split entry '${splitEntry.name}' resolving outside workspace: ${rawSplitFile.canonicalPath}")
+                                return@forEach
+                            }
                             apkmZip.getInputStream(splitEntry).use { input ->
                                 rawSplitFile.outputStream().buffered().use { output -> input.copyTo(output) }
                             }
