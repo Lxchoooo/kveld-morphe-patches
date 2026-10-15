@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "2.7.0-experimental.23",
+  "version": "2.7.0-experimental.24",
   "patches": [
     {
       "name": "Allow Screenshots",
@@ -2002,6 +2002,33 @@
         }
       ],
       "options": []
+    },
+    {
+      "name": "Disable Browser File Associations",
+      "description": "Removes HTTP/HTTPS web-link intent filters (VIEW + BROWSABLE) so the app no longer appears in the browser app chooser for online files, while preserving local file handling.",
+      "default": false,
+      "dependencies": [],
+      "compatiblePackages": null,
+      "options": [
+        {
+          "key": "stripWebSchemes",
+          "title": "Strip HTTP/HTTPS Web Schemes",
+          "description": "Remove http/https data entries from VIEW + BROWSABLE intent filters.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        },
+        {
+          "key": "removeEmptiedFilters",
+          "title": "Remove Emptied Filters",
+          "description": "Drop intent filters left with no data entries whose only action is VIEW. Disable to keep the (now dataless) filter skeleton.",
+          "required": false,
+          "type": "kotlin.Boolean",
+          "default": true,
+          "values": null
+        }
+      ]
     },
     {
       "name": "Disable Cloud Backup",

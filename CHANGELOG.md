@@ -1,3 +1,14 @@
+## [2.7.0-experimental.24](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.23...v2.7.0-experimental.24) (2026-10-15)
+
+### Bug Fixes
+
+* **tiktok:** apply video fill and fit to all feed layout paths ([9a899b2](https://github.com/kveld9/kveld-morphe-patches/commit/9a899b20bb138e726075a942f2b046631f4a1084))
+* **tiktok:** preserve system font on relaunch with cached assets ([ca5c45c](https://github.com/kveld9/kveld-morphe-patches/commit/ca5c45c809045a22d97f1454365b219ce7243b26))
+
+### New Features
+
+* **universal:** keep patched apps out of the browser file chooser ([c6b2d67](https://github.com/kveld9/kveld-morphe-patches/commit/c6b2d679e9e4474c29ecb0317bfb80160ebc3518))
+
 ## [2.7.0-experimental.23](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.22...v2.7.0-experimental.23) (2026-10-15)
 
 ### Bug Fixes
