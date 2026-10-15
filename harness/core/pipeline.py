@@ -207,6 +207,7 @@ class BaseTargetPipeline(abc.ABC):
         applied_changes: List[str],
         rejected_changes: List[str],
         build_passed: bool,
+        build_executed: bool,
         build_output: str,
         final_status: str,
     ) -> HarnessReportData:
@@ -261,6 +262,8 @@ class BaseTargetPipeline(abc.ABC):
         applied_changes: List[str] = []
         rejected_changes: List[str] = []
         build_passed = True
+        # Only a real Gradle invocation may certify the build gate.
+        build_executed = False
         build_output = "Build skipped in audit/dry-run mode."
 
         if self.mode == "dry-run":
@@ -282,6 +285,7 @@ class BaseTargetPipeline(abc.ABC):
                     # Verify build inside transaction
                     validator = AdversarialValidator(self.repo_root, self.dex_index, self.elf_analyzer)
                     build_passed, build_output = self.run_gradle_verification(validator)
+                    build_executed = True
 
                     if build_passed:
                         tx.commit()
@@ -302,6 +306,7 @@ class BaseTargetPipeline(abc.ABC):
             applied_changes=applied_changes,
             rejected_changes=rejected_changes,
             build_passed=build_passed,
+            build_executed=build_executed,
             build_output=build_output,
             final_status=final_status,
         )
@@ -334,6 +339,7 @@ class BaseTargetPipeline(abc.ABC):
             applied_changes=[],
             rejected_changes=[f"Pipeline failed before completion: {e}"],
             build_passed=False,
+            build_executed=False,
             build_output="",
             final_status="FAILED",
         )

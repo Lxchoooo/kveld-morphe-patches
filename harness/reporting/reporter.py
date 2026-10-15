@@ -91,6 +91,7 @@ class HarnessReportData:
     rejected_changes: List[str] = field(default_factory=list)
     residual_risks: List[str] = field(default_factory=list)
     build_passed: bool = True
+    build_executed: bool = False
     build_output: str = ""
     final_status: str = "SUCCESS"  # "SUCCESS", "BLOCKED", "FAILED"
     dex_entries: List[DexEntryEvidence] = field(default_factory=list)
@@ -343,9 +344,17 @@ class HarnessReporter:
                 lines.append(f"- [WARN] {risk}")
 
         lines.append("")
-        build_icon = "[PASS]" if data.build_passed else "[FAIL]"
+        # A build that never ran is not a passing build: audit and dry-run modes
+        # leave build_passed at its default, so scoring them PASSED would fake the
+        # very gate the report exists to certify.
+        if data.build_executed:
+            build_icon = "[PASS]" if data.build_passed else "[FAIL]"
+            build_state = "PASSED" if data.build_passed else "FAILED"
+        else:
+            build_icon = "[SKIP]"
+            build_state = "NOT RUN"
         lines.extend([
-            f"### Gradle & Metadata Toolchain Status: {build_icon} `{'PASSED' if data.build_passed else 'FAILED'}`",
+            f"### Gradle & Metadata Toolchain Status: {build_icon} `{build_state}`",
             f"- {data.build_output.strip()}",
             "",
             "---",
