@@ -32,12 +32,12 @@ object Constants {
         appIconColor = 0x4285F4,
         targets = listOf(
             AppTarget(
-                version = GBOARD_TARGET_VERSION,
-                description = "Download com.google.android.inputmethod.latin v$GBOARD_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 176049546 (APK) from APKMirror"
-            ),
-            AppTarget(
                 version = GBOARD_TARGET_VERSION_V7A,
                 description = "Download $GBOARD_TARGET_VERSION_V7A (APK nodpi) from APKMirror"
+            ),
+            AppTarget(
+                version = GBOARD_TARGET_VERSION,
+                description = "Download com.google.android.inputmethod.latin v$GBOARD_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 176049546 (APK) from APKMirror"
             )
         )
     )
