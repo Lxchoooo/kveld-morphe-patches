@@ -17,6 +17,64 @@ class TestMigratorAndValidator(unittest.TestCase):
     def setUp(self):
         self.repo_root = Path(__file__).resolve().parent.parent.parent
         self.migrator = PatchMigrator(self.repo_root)
+    def test_swallowed_fingerprint_linter_flags_an_unguarded_patch(self):
+        kt = (
+            'val p = bytecodePatch(name = "X") {\n'
+            '    execute {\n'
+            '        var patched = 0\n'
+            '        try {\n'
+            '            Fingerprint(strings = listOf("k")).method\n'
+            '            patched++\n'
+            '        } catch (e: Exception) {\n'
+            '            println("[X] note: ${e.message}")\n'
+            '        }\n'
+            '        println("[X] Applied $patched hook(s).")\n'
+            '    }\n'
+            '}\n'
+        )
+        ok, msg = self._lint_single_patch(kt)
+        self.assertFalse(ok)
+        self.assertRegex(msg, r"UnguardedPatch\.kt:\d+")
+
+    def test_swallowed_fingerprint_linter_accepts_a_guarded_patch(self):
+        kt = (
+            'val p = bytecodePatch(name = "X") {\n'
+            '    execute {\n'
+            '        var patched = 0\n'
+            '        try {\n'
+            '            Fingerprint(strings = listOf("k")).method\n'
+            '            patched++\n'
+            '        } catch (e: Exception) {\n'
+            '            println("[X] note: ${e.message}")\n'
+            '        }\n'
+            '        if (patched == 0) throw PatchException("no target resolved")\n'
+            '        println("[X] Applied $patched hook(s).")\n'
+            '    }\n'
+            '}\n'
+        )
+        ok, msg = self._lint_single_patch(kt)
+        self.assertTrue(ok, msg)
+
+    def test_swallowed_fingerprint_linter_output_is_wellformed(self):
+        # Stays valid once the corpus is cleaned: only the shape of the output is pinned.
+        ok, msg = AdversarialValidator(self.repo_root, MagicMock()).assert_no_swallowed_fingerprints()
+        self.assertIsInstance(ok, bool)
+        self.assertTrue(msg.strip())
+        if not ok:
+            for line in msg.splitlines()[1:]:
+                self.assertRegex(line.strip(), r"\.kt:\d+")
+
+    @staticmethod
+    def _lint_single_patch(kt: str):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "patches" / "src" / "main" / "kotlin" / "app" / "morphe" / "patches"
+            target.mkdir(parents=True)
+            (target / "UnguardedPatch.kt").write_text(kt, encoding="utf-8")
+            return AdversarialValidator(root, MagicMock()).assert_no_swallowed_fingerprints()
+
 
     # 10. new version -> metadata updated
     def test_version_new_metadata_updated(self):

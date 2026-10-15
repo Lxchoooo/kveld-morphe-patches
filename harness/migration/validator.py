@@ -5,6 +5,7 @@ Executes structural uniqueness assertions, native byte verification, and Gradle 
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -476,3 +477,38 @@ class AdversarialValidator:
             return False, "The following patch files are missing diagnostic logging:\n" + "\n".join(missing_logs)
 
         return True, f"All {len(kt_files)} patch definitions have verified diagnostic logging."
+
+    def assert_no_swallowed_fingerprints(self) -> Tuple[bool, str]:
+        """Reports patches that can silently apply zero hooks while still claiming success.
+
+        A failing fingerprint caught by a try/catch whose only effect is a
+        diagnostic line hides upstream target drift: the hook disappears, the
+        patch still prints "Applied N ...", and the patcher reports success.
+        A patch that resolves no target at all must fail loudly instead.
+
+        Purely advisory: it reports file:line for every offending catch and never fails
+        a build on its own, because the existing corpus still contains these patterns.
+        """
+        patches_dir = self.repo_root / "patches" / "src" / "main" / "kotlin" / "app" / "morphe" / "patches"
+        if not patches_dir.exists():
+            return False, f"Patches directory not found: {patches_dir}"
+
+        offenders: List[str] = []
+        for kt in sorted(patches_dir.rglob("*.kt")):
+            content = kt.read_text(encoding="utf-8")
+            silent_noop = 'Applied $patched' in content and not (
+                "patched == 0" in content or "patched < 1" in content
+            )
+            if not silent_noop:
+                continue
+            for match in re.finditer(r"catch\s*\([^)]*\)\s*\{\s*(println\([^)]*\)\s*\n)", content):
+                line = content[:match.start()].count("\n") + 1
+                offenders.append(f"{kt.relative_to(self.repo_root)}:{line}")
+
+        if not offenders:
+            return True, "No patch can silently apply zero hooks while reporting success."
+
+        return False, (
+            f"{len(offenders)} swallowed fingerprint(s) in patches that report success on a "
+            "zero-hook run:\n" + "\n".join(offenders)
+        )
