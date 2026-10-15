@@ -23,7 +23,7 @@ class TestMigratorAndValidator(unittest.TestCase):
         plan = self.migrator.plan_constants_update("1.95.100")
         self.assertTrue(plan.has_changes)
         self.assertIn('const val BRAVE_TARGET_VERSION = "1.95.100"', plan.modified_content)
-        self.assertIn('Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705604 (APK) from APKMirror', plan.modified_content)
+        self.assertIn('Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705704 (APK) from APKMirror', plan.modified_content)
 
     def test_version_description_no_match_warns_and_leaves_untouched(self):
         import io
