@@ -515,7 +515,7 @@ private val PUSH_RULES = listOf(
     SdkPrefixRule("Lcom/appboy", "Braze", PUSH_STATIC_METHODS, emptySet()),
 )
 
-// MANDATORY DIRECTION-SAFETY EXCLUSIONS (Honeygain & Appsalt bandwidth monetization):
+// MANDATORY DIRECTION-SAFETY EXCLUSIONS (Honeygain, Appsalt & EarnFM bandwidth monetization):
 // Manifest component deactivation is the primary kill; bytecode hooks provide defense-in-depth
 // on cold-start entry points only.
 // NEVER hook:
@@ -530,6 +530,11 @@ private val PUSH_RULES = listOf(
 //   setBackground/setLaunchOnBoot/setEnableLogging/setNotification/setNotificationId/setOnError (config setters),
 //   isOptedIn/isRunning/isBackground/getId/getLastError/getNotification (non-void getters).
 //   Instance methods are internal/companion delegates; only safe void static entry points are hooked.
+// - EarnFM: FleetSdk(...) constructor (never hook constructors),
+//   initialize/startSdk/stopSdk/destroyServer/storeConsent/isInitialized (non-void booleans -> excluded by void-only policy),
+//   getActivePort (non-void int getter), setStoreLogs (config setter),
+//   _performVersionCheck (internal scheduler callback; stubbing halts update checker only, not running server -> no defense value).
+//   With zero safe void methods surviving, EarnFM carries empty method sets to prevent unsafe stubbing.
 private val APPSALT_STATIC_METHODS = setOf(
     "initialize",
     "start",
@@ -540,6 +545,7 @@ private val APPSALT_STATIC_METHODS = setOf(
 private val BANDWIDTH_SHARING_RULES = listOf(
     SdkPrefixRule("Lio/hopmonsdk", "Honeygain", emptySet(), emptySet()),
     SdkPrefixRule("Lcom/appsalt", "Appsalt", APPSALT_STATIC_METHODS, emptySet()),
+    SdkPrefixRule("Lcom/fleet", "EarnFM", emptySet(), emptySet()),
 )
 
 @Suppress("unused")
