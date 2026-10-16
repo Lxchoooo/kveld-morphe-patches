@@ -231,25 +231,25 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 | Patch | Description | Options |
 |----------|----------------|-----------|
-| **Allow Screenshots (Universal)** | Removes screenshot blocking and capture detection. |  |
-| **Block Trackers (Universal)** | Removes ad IDs, disables tracking components, and adds opt-out flags. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
+| **Allow Screenshots** | Removes screenshot blocking and capture detection. |  |
+| **Block Trackers** | Removes ad IDs, disables tracking components, and adds opt-out flags. | • Ad permissions<br>• Tracking providers<br>• Tracking services<br>• Tracking receivers<br>• Opt-out flags<br>• Firebase init (may break apps)<br>• Push services (breaks push!)<br>• Google Analytics<br>• Meta analytics<br>• Crash uploaders<br>• Device ID (may break login!)<br>• ML Kit vision (breaks scanner!)<br>• Remote config (may break app!)<br>• Crashlytics (may break app!)<br>• Ad auto-start |
 | **Block Tracking SDKs** | Disables analytics, crash and ad SDKs inside the app. | • Performance monitors<br>• Crash reporters<br>• Analytics<br>• Ad attribution<br>• Old Google Analytics<br>• Push SDKs (breaks push!)<br>• Screen recorders<br>• Location trackers<br>• Bandwidth-sharing SDKs<br>• SDKs to keep |
-| **Block Tracking Servers (Universal)** | Rewrites tracking addresses to nowhere using your blocklist. | • Blocklist file<br>• Replace with<br>• Include subdomains |
+| **Block Tracking Servers** | Rewrites tracking addresses to nowhere using your blocklist. | • Blocklist file<br>• Replace with<br>• Include subdomains |
 | **Clean App Packaging** | Removes build leftovers and duplicate files. |  |
 | **Disable Browser File Associations** | Removes HTTP/HTTPS web-link intent filters (VIEW + BROWSABLE) so the app no longer appears in the browser app chooser for online files, while preserving local file handling. | • Strip HTTP/HTTPS Web Schemes<br>• Remove Emptied Filters |
 | **Disable Play Store updates** | Disables Play Store updates by setting the version code to the maximum allowed. |  |
 | **Force Screen Timeout** | Makes apps respect your screen-off timer. |  |
 | **Go Fully Offline** | Removes internet access completely. | • Network state<br>• Wi-Fi controls<br>• Push permissions<br>• Google sync<br>• Block unencrypted traffic |
 | **Lock Screen Brightness** | Stops apps from changing brightness by themselves. |  |
-| **Remove Extra Languages (Universal)** | Deletes unselected translation folders. | • Languages to keep |
+| **Remove Extra Languages** | Deletes unselected translation folders. | • Languages to keep |
 | **Remove Tracking Libraries** | Deletes tracking and crash-reporting native libraries. | • Crash reporters<br>• Debuggers<br>• Bandwidth-sharing SDKs |
 | **Remove Unused Screen Sizes** | Deletes image folders for screen sizes you do not use. | • Screen sizes to keep<br>• Watch resources<br>• TV resources<br>• Car, dock and VR resources |
 | **Shrink PNG Images** | Recompresses PNGs without losing quality. |  |
 | **Shrink WebP Images** | Strips hidden metadata from WebP images. | • Camera data<br>• Editing history<br>• Color profiles |
 | **Silence System Logs** | Stops apps from writing debug and diagnostic messages to the system log. | • Log level |
 | **Spoof Reinstall IDs** | Prevents apps from linking reinstalls to your device by resetting app and install IDs. | • App set ID<br>• Install ID<br>• Scope to single app |
-| **Stop Background Sync (Universal)** | Stops background sync schedulers and boot wakeups. | • Strip Boot Permission<br>• Disable Boot Receivers<br>• Disable Background Schedulers<br>• Strip Wake Lock Permission |
-| **Strip Sensitive Permissions (Universal)** | Removes sensitive privacy and hardware permissions you select. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors<br>• Installed apps |
+| **Stop Background Sync** | Stops background sync schedulers and boot wakeups. | • Strip Boot Permission<br>• Disable Boot Receivers<br>• Disable Background Schedulers<br>• Strip Wake Lock Permission |
+| **Strip Sensitive Permissions** | Removes sensitive privacy and hardware permissions you select. | • Notifications<br>• Camera<br>• Microphone<br>• Photos & files<br>• Location<br>• Contacts<br>• Calendar<br>• Nearby devices<br>• Body sensors<br>• Installed apps |
 
 </details>
 

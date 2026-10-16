@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "2.7.0-experimental.27",
+  "version": "2.7.0-experimental.28",
   "patches": [
     {
       "name": "Allow Screenshots",
@@ -29,7 +29,7 @@
       "options": []
     },
     {
-      "name": "Allow Screenshots (Universal)",
+      "name": "Allow Screenshots",
       "description": "Removes screenshot blocking and capture detection.",
       "default": false,
       "dependencies": [
@@ -455,33 +455,7 @@
       "options": []
     },
     {
-      "name": "Block Trackers (Setup)",
-      "description": "Removes tracking permissions and disables telemetry components.",
-      "default": true,
-      "dependencies": [],
-      "compatiblePackages": [
-        {
-          "packageName": "com.zhiliaoapp.musically",
-          "name": "TikTok",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#FE2C55",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "47.1.4",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Block Trackers (Universal)",
+      "name": "Block Trackers",
       "description": "Removes ad IDs, disables tracking components, and adds opt-out flags.",
       "default": false,
       "dependencies": [],
@@ -625,6 +599,32 @@
       ]
     },
     {
+      "name": "Block Trackers (Setup)",
+      "description": "Removes tracking permissions and disables telemetry components.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.zhiliaoapp.musically",
+          "name": "TikTok",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#FE2C55",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "47.1.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "Block Tracking SDKs",
       "description": "Disables analytics, crash and ad SDKs inside the app.",
       "default": false,
@@ -724,7 +724,7 @@
       ]
     },
     {
-      "name": "Block Tracking Servers (Universal)",
+      "name": "Block Tracking Servers",
       "description": "Rewrites tracking addresses to nowhere using your blocklist.",
       "default": false,
       "dependencies": [],
@@ -3250,7 +3250,7 @@
       ]
     },
     {
-      "name": "Remove Extra Languages (Universal)",
+      "name": "Remove Extra Languages",
       "description": "Deletes unselected translation folders.",
       "default": false,
       "dependencies": [],
@@ -3867,7 +3867,7 @@
       "options": []
     },
     {
-      "name": "Stop Background Sync (Universal)",
+      "name": "Stop Background Sync",
       "description": "Stops background sync schedulers and boot wakeups.",
       "default": false,
       "dependencies": [],
@@ -4159,7 +4159,7 @@
       ]
     },
     {
-      "name": "Strip Sensitive Permissions (Universal)",
+      "name": "Strip Sensitive Permissions",
       "description": "Removes sensitive privacy and hardware permissions you select.",
       "default": false,
       "dependencies": [],
