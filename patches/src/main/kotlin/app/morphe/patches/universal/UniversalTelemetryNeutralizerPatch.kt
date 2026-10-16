@@ -54,6 +54,8 @@ private val TELEMETRY_SERVICES = setOf(
     "com.fairtiq.sdk.internal.services.tracking.TrackingServiceImpl",
     "com.google.android.gms.ads.AdService",
     "com.applovin.impl.adview.activity.FullscreenAdService",
+    "io.hopmonsdk.service.MoneytiserService",
+    "com.appsalt.lib.longevity.RewardService",
 )
 
 private val TELEMETRY_RECEIVERS = setOf(
@@ -63,6 +65,8 @@ private val TELEMETRY_RECEIVERS = setOf(
     "com.adjust.sdk.AdjustReferrerReceiver",
     "com.appsflyer.SingleInstallBroadcastReceiver",
     "com.appsflyer.MultipleInstallBroadcastReceiver",
+    "io.hopmonsdk.support.NetworkStateReceiver",
+    "com.appsalt.lib.BootReceiver",
 )
 
 private val PUSH_SERVICES = setOf(
