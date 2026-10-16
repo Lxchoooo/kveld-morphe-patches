@@ -8,7 +8,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 
 | Patch | Type | Target Scope | Primary Mechanism | Space / Performance Impact |
 | :--- | :--- | :--- | :--- | :--- |
-| **[Remove Extra Languages](#1-remove-extra-languages-localeresourceslimmerpatch)** | `resourcePatch` | Android Resources (`res/values-*`) | Prunes unselected language directory trees bottom-up | **~5–25 MB** saved depending on target |
+| **[Remove Extra Languages (Universal)](#1-remove-extra-languages-universal-localeresourceslimmerpatch)** | `resourcePatch` | Android Resources (`res/values-*`) | Prunes unselected language directory trees bottom-up | **~5–25 MB** saved depending on target |
 | **[Remove Unused Screen Sizes](#2-remove-unused-screen-sizes-dpiresourceslimmerpatch)** | `resourcePatch` | Android Drawables (`res/drawable-*`) | Retains target device screen density, safe orphan forward-copy | **~5–30 MB** saved, reduced bitmap memory footprint |
 | **[Shrink PNG Images](#3-shrink-png-images-pngoptimizerpatch)** | `rawResourcePatch` | PNG Assets (`res/**`, `assets/**`) | In-memory RGBA-verified level 9 zlib recompression + metadata strip | **~1–8 MB** saved, 0% visual degradation |
 | **[Clean App Packaging](#4-clean-app-packaging-apkjunkcleanerpatch)** | `rawResourcePatch` | Root & Metadata (`META-INF/**`, root) | Prunes compiler metadata, Kotlin debug tables, duplicate licenses | **~0.5–2 MB** saved, cleaner packaging |
@@ -60,7 +60,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Shrink PNG Images** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
 | **Clean App Packaging** | ✅ Yes | Prunes compiler properties, Kotlin debug tables, and duplicate license files from the APK root. |
 | **Remove Unused Screen Sizes** | ✅ Yes | Safely retains target device screen density and preserves orphan resources. |
-| **Remove Extra Languages** | ✅ Yes | Prunes unselected translation folders from `res/values-*`. |
+| **Remove Extra Languages (Universal)** | ✅ Yes | Prunes unselected translation folders from `res/values-*`. |
 | **Stop Background Sync (Universal)** | ⚠️ Safe by Default | Keep `stripWakeLock = false` (default) on web browsers (Brave) to prevent suspending background file downloads when the screen turns off. |
 | **Strip Sensitive Permissions** | ⚠️ Safe by Default | All toggles are opt-in (default: `false`). Revoke only permissions you wish to strip for your target application to prevent runtime `SecurityException` crashes in apps that lack error handling. |
 | **Allow Screenshots** | ✅ Yes | Safely neutralizes `FLAG_SECURE` bitwise and silences screenshot/screen recording callbacks across any application. |
@@ -76,12 +76,12 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 
 ---
 
-## 1. Remove Extra Languages (`localeResourceSlimmerPatch`)
+## 1. Remove Extra Languages (Universal) (`localeResourceSlimmerPatch`)
 
-The **`Remove Extra Languages`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Brave, Gboard Lite, TikTok) to reduce APK size.
+The **`Remove Extra Languages (Universal)`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Brave, Gboard Lite, TikTok) to reduce APK size.
 
 > [!TIP]
-> **Chromium Browsers (Brave)**: While `Remove Extra Languages` trims standard Android wrapper resources in `res/values-*`, Chromium browsers store over 95% of their strings (~9.71 MB in Brave 1.97.57) in native binary `.pak` files inside `assets/locales/`. For complete multilingual slimming in Brave, combine this patch with the Brave-specific [**`Locale PAK Slimmer`**](apps/brave.md#11-locale-pak-slimmer-localepakslimmerpatch).
+> **Chromium Browsers (Brave)**: While `Remove Extra Languages (Universal)` trims standard Android wrapper resources in `res/values-*`, Chromium browsers store over 95% of their strings (~9.71 MB in Brave 1.97.57) in native binary `.pak` files inside `assets/locales/`. For complete multilingual slimming in Brave, combine this patch with the Brave-specific [**`Locale PAK Slimmer`**](apps/brave.md#11-locale-pak-slimmer-localepakslimmerpatch).
 
 ### Configuration in Morphe Manager
 
