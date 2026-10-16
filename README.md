@@ -171,27 +171,6 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 </details>
 
 <details>
-<summary>NokoPrint - WiFi, Bluetooth, USB&nbsp;&nbsp;•&nbsp;&nbsp;<b>7 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 5.28.6 |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Block Ads** | Blocks ad loaders and unlocks ad-free status. |  |
-| **Block Trackers** | Blocks analytics and ad tracking. |  |
-| **Remove Extra Files** | Deletes hidden ad files and trackers to shrink the app. |  |
-| **Remove Extra Stores** | Disables payment components for other app stores you do not use. |  |
-| **Safer Connections** | Uses trusted certificates while keeping printer downloads working. |  |
-| **Skip Welcome Screen** | Skips the first-launch popup (the About menu still works). |  |
-| **Stop Background Sync** | Stops background tasks that drain the battery. |  |
-
-</details>
-
-<details>
 <summary>Gboard Lite&nbsp;&nbsp;•&nbsp;&nbsp;<b>11 patches</b></summary>
 <br>
 
@@ -222,7 +201,7 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 
 **Supported versions:**
 
-| 1.97.57 |
+| 1.97.59 |
 | :---: |
 
 | Patch | Description | Options |
@@ -243,49 +222,6 @@ Labels: `single file` = one APK; `multi-file` = a package Morphe joins together;
 | **Skip Welcome Screens** | Skips welcome, search choice and onboarding on fresh installs. |  |
 | **Stop Background Sync** | Stops background wakeups and battery drain. |  |
 | **Stop Text Sharing with System** | Stops sending page text to the Android capture service. |  |
-
-</details>
-
-<details>
-<summary>Hevy - Gym Log Workout Tracker&nbsp;&nbsp;•&nbsp;&nbsp;<b>4 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 3.1.14 |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Block Trackers** | Blocks crash reporting, ad attribution and referral tracking. |  |
-| **Remove Extra Files** | Deletes tutorial videos, editor stickers and junk to shrink the app. |  |
-| **Stop Background Sync** | Stops background sync tasks and alarms that drain the battery. |  |
-| **Unlock Pro** | Unlocks Pro features stored on the device (routines, folders, charts). Server-limited items may still need a subscription. |  |
-
-</details>
-
-<details>
-<summary>Xiaomi Earbuds&nbsp;&nbsp;•&nbsp;&nbsp;<b>11 patches</b></summary>
-<br>
-
-**Supported versions:**
-
-| 1.38.0i |
-| :---: |
-
-| Patch | Description | Options |
-|----------|----------------|-----------|
-| **Block Trackers** | Stops analytics and usage reporting. |  |
-| **Device Privacy Guard** | Hides hardware IDs and lets Bluetooth work without location. |  |
-| **Offline Only** | Fully disconnects the app from the internet. Pair your earbuds first. |  |
-| **Run on Rooted Devices** | Lets the app run on rooted phones and network tools without crashing. |  |
-| **Safer Connections** | Blocks unencrypted traffic and disables certificate pinning. |  |
-| **Show All Models** | Shows every earbud model for pairing. |  |
-| **Skip Popups & Tutorials** | Skips startup agreements, tutorials, and promo banners. |  |
-| **Stop Background Activity** | Stops persistent notifications and background battery drain. |  |
-| **Unlock Sound Features** | Enables spatial audio and hearing features on all devices. |  |
-| **Unlock for Other Phones** | Enables full features on Samsung, Pixel, and other non-Xiaomi phones. |  |
-| **Update Without Account** | Lets guests check and install earbud firmware updates. |  |
 
 </details>
 

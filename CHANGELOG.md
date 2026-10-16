@@ -1,3 +1,14 @@
+## [2.7.0-experimental.28](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.27...v2.7.0-experimental.28) (2026-10-16)
+
+### ⚠ BREAKING CHANGES
+
+* move Hevy, NokoPrint and Xiaomi Earbuds to extra patches repo
+
+### New Features
+
+* **brave:** update target to 1.97.59 ([b61a1e3](https://github.com/kveld9/kveld-morphe-patches/commit/b61a1e3fdf6f83327d6406ef2cf87c26879234bb))
+* move Hevy, NokoPrint and Xiaomi Earbuds to extra patches repo ([6d470cc](https://github.com/kveld9/kveld-morphe-patches/commit/6d470cc82012eb77df82734255bf36ada9d86e1d))
+
 ## [2.7.0-experimental.27](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.26...v2.7.0-experimental.27) (2026-10-16)
 
 ### Bug Fixes
