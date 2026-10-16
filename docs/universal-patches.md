@@ -21,7 +21,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Allow Screenshots (Universal)](#11-allow-screenshots-universal-universalscreenshotprotectionbypasspatch)** | `bytecodePatch` | Dalvik Bytecode & Manifest | Neutralizes `FLAG_SECURE`, unlocks audio playback capture, and suppresses Android 14+ screenshot detection | Allows screenshots, screen recordings, and internal audio capture across protected views |
 | **[Force Screen Timeout](#12-force-screen-timeout-universalscreentimeoutenforcerpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes `keepScreenOn(Z)V` view calls and strips `FLAG_KEEP_SCREEN_ON` (`0x80`) | Enforces OS screen timeout and sleep timer during video playback |
 | **[Lock Screen Brightness](#13-lock-screen-brightness-universalscreenbrightnessgovernorpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes direct writes to `WindowManager.LayoutParams.screenBrightness` (`iput`) | Prevents apps from overriding display brightness via window layout params |
-| **[Block Tracking Servers](#14-block-tracking-servers-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
+| **[Block Tracking Servers (Universal)](#14-block-tracking-servers-universal-universalhostsblockerpatch)** | `bytecodePatch` | Dalvik `const-string` literals | Rewrites user-blocklisted URL/host literals to a sink IP (`0.0.0.0`) | Silences analytics/ads dispatch without touching native binaries |
 | **[Block Tracking SDKs](#15-block-tracking-sdks-universalsdkblockerpatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Neutralizes third-party APM, crash, analytics, attribution, session replay, location, bandwidth-sharing monetization, and push SDK init/event methods via early `return-void` | Neutralizes runtime SDK execution; companion layer to Block Trackers |
 | **[Disable Play Store updates](#16-disable-play-store-updates-universaldisableplaystoreupdatespatch)** | `bytecodePatch` | Manifest & Dalvik Bytecode | Sets manifest `versionCode` to `2147483647` and rewrites `PackageInfo` version checks to preserve in-app compatibility | Prevents Play Store updates without breaking in-app version checks |
 | **[Spoof Reinstall IDs](#17-spoof-reinstall-ids-universalspoofreinstallidspatch)** | `bytecodePatch` | Dalvik Bytecode Methods | Folds app-set and install/instance ID getters to neutral fixed values | Prevents tracking reinstalls and cross-install correlation |
@@ -48,7 +48,7 @@ Dedicated app patches (Brave, Gboard Lite, TikTok) are a strict precision supers
 
 If patcher logs report components already clean or 0 methods hooked, that is the expected outcome, not a failure. Stacking these universals on maintained apps only adds patch execution time (such as expensive full-DEX scans on large targets like TikTok) and risks breaking features like login, account sync, or push notifications if optional toggles (e.g., device-ID providers, Firebase init, or push engagement) are enabled. To cover a newly discovered generic SDK in a maintained app, port the rule into that app's dedicated patch instead of enabling the universal patch.
 
-Exception: Block Tracking Servers remains a valid opt-in patch on maintained apps when using a curated host blocklist.
+Exception: Block Tracking Servers (Universal) remains a valid opt-in patch on maintained apps when using a curated host blocklist.
 
 ### Patch Selection Matrix: Universal Suitability
 
@@ -67,7 +67,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Force Screen Timeout** | ✅ Yes | Safely neutralizes `FLAG_KEEP_SCREEN_ON` bitwise and silences view `setKeepScreenOn` calls to enforce system sleep timeout. |
 | **Lock Screen Brightness** | ✅ Yes | Safely neutralizes writes to `WindowManager.LayoutParams.screenBrightness` so display brightness remains strictly under system and user control. |
 | **Go Fully Offline** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite, pair with its companion app-specific offline patch for graceful timeout handling. |
-| **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
+| **Block Tracking Servers (Universal)** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
 | **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, TikTok): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
@@ -436,9 +436,9 @@ The patch operates without any manual configuration or boolean options (`default
 
 ---
 
-## 14. Block Tracking Servers (`universalHostsBlockerPatch`)
+## 14. Block Tracking Servers (Universal) (`universalHostsBlockerPatch`)
 
-The **`Block Tracking Servers`** patch rewrites Dalvik `const-string` / `const-string/jumbo` URL and host literals whose host matches a user-supplied blocklist, replacing the blocked host in place with a sink IP (default `0.0.0.0`). The blocklist file is read at patch time from the patching machine, so daily DNS-list updates (e.g. Hagezi `native.tiktok`) apply on re-patch without a patch release and without embedding third-party lists in this repository.
+The **`Block Tracking Servers (Universal)`** patch rewrites Dalvik `const-string` / `const-string/jumbo` URL and host literals whose host matches a user-supplied blocklist, replacing the blocked host in place with a sink IP (default `0.0.0.0`). The blocklist file is read at patch time from the patching machine, so daily DNS-list updates (e.g. Hagezi `native.tiktok`) apply on re-patch without a patch release and without embedding third-party lists in this repository.
 
 ### Configuration in Morphe Manager
 
@@ -456,7 +456,7 @@ Plain domains (`log.example.com`), classic hosts lines (`0.0.0.0 log.example.com
 - A curated telemetry/ads-only list is required: blocking functional hosts breaks the app. For TikTok, prefer the `log/mon/mcs/mssdk/analytics` subset and leave `frontier/api/stream/open` untouched.
 
 > [!WARNING]
-> Do not apply Block Tracking Servers on a fresh TikTok install where no login has happened yet: blocking telemetry/ads hosts before the first login trips server-side rate limiting ('too many attempts' errors) during login/registration. Log in first and patch afterwards, or use a minimal curated list.
+> Do not apply Block Tracking Servers (Universal) on a fresh TikTok install where no login has happened yet: blocking telemetry/ads hosts before the first login trips server-side rate limiting ('too many attempts' errors) during login/registration. Log in first and patch afterwards, or use a minimal curated list.
 
 ---
 
