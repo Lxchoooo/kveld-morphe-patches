@@ -1,3 +1,15 @@
+## [2.7.0-experimental.26](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.25...v2.7.0-experimental.26) (2026-10-16)
+
+### Bug Fixes
+
+* **patches:** block companion split entries that resolve outside the workspace ([cd15755](https://github.com/kveld9/kveld-morphe-patches/commit/cd157559b1b470046e895cfff137ee2573afe360))
+
+### New Features
+
+* **universal:** block bandwidth-sharing monetization SDKs (Honeygain, Appsalt) ([48f76a5](https://github.com/kveld9/kveld-morphe-patches/commit/48f76a5cbb7424cb8184a1c7924be68f9214ea0c)), closes [#164](https://github.com/kveld9/kveld-morphe-patches/issues/164)
+* **universal:** cover EarnFM bandwidth SDK via empty rule and host cascade ([1e5c005](https://github.com/kveld9/kveld-morphe-patches/commit/1e5c0054d0ef7d91b5531834ba2b9020dfa10f62)), closes [#164](https://github.com/kveld9/kveld-morphe-patches/issues/164)
+* **universal:** trim Honeygain native library (libhopmn.so) ([3f85a08](https://github.com/kveld9/kveld-morphe-patches/commit/3f85a08a01fe01a80c81895f07ad3d078a993418)), closes [#164](https://github.com/kveld9/kveld-morphe-patches/issues/164)
+
 ## [2.7.0-experimental.25](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.24...v2.7.0-experimental.25) (2026-10-15)
 
 ### Bug Fixes
