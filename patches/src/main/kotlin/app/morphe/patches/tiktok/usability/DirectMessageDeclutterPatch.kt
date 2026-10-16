@@ -2,9 +2,13 @@ package app.morphe.patches.tiktok.usability
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
+import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.removeInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.booleanOption
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.smali.ExternalLabel
 import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.clearTryBlocks
 import app.morphe.patches.shared.ensureRegisterCount
@@ -12,6 +16,7 @@ import app.morphe.patches.shared.replaceWithReturnBoolean
 import app.morphe.patches.shared.replaceWithReturnNull
 import app.morphe.patches.shared.replaceWithReturnVoid
 import com.android.tools.smali.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
 import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
@@ -19,6 +24,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.WideLiteralInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 val directMessageDeclutterPatch = bytecodePatch(
     name = "Declutter Direct Messages",
@@ -662,6 +668,27 @@ val directMessageDeclutterPatch = bytecodePatch(
                 println("[Declutter Direct Messages] Hooked PreshownStickerBannerProtocol.intercept -> passthrough message list.")
                 patched++
             }
+
+            val typingBannerInterceptMethod = Fingerprint(
+                definingClass = "Lcom/ss/android/ugc/aweme/im/sdk/chat/ui/base/assems/input/typingrecommendation/TypingRecommendationBannerProtocol;",
+                name = "intercept",
+                returnType = "Ljava/util/List;",
+                parameters = listOf("Ljava/util/List;"),
+            ).method
+
+            val filterIndex = typingBannerInterceptMethod.implementation?.instructions?.indexOfFirst { instruction ->
+                instruction.opcode == Opcode.NEW_INSTANCE &&
+                    ((instruction as? ReferenceInstruction)?.reference as? TypeReference)?.type == "Ljava/util/ArrayList;"
+            }?.takeIf { it >= 0 }
+                ?: throw PatchException("[Declutter Direct Messages] TypingRecommendationBannerProtocol.intercept: filter branch not found")
+
+            typingBannerInterceptMethod.addInstructionsWithLabels(
+                0,
+                "goto :hide_typing_banner",
+                ExternalLabel("hide_typing_banner", typingBannerInterceptMethod.getInstruction(filterIndex)),
+            )
+            println("[Declutter Direct Messages] Hooked TypingRecommendationBannerProtocol.intercept -> typing sticker banner removed from message list.")
+            patched++
 
             val typingAssemClass = Fingerprint(
                 definingClass = "Lcom/ss/android/ugc/aweme/im/sdk/chat/ui/base/assems/input/typingrecommendation/TypingRecommendationPanelAssem;"
