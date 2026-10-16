@@ -47,7 +47,7 @@ Technical documentation and patch catalog for Brave Private Web Browser on Andro
   - *How*: Modifies the background sync check to return true, preventing scheduled sync tasks from running.
 - **Block Trackers & Hosts**:
   - *Objective*: Prevent transmission of telemetry, crash reports, and remote experiment metrics.
-  - *How*: Disables analytics preference toggles in settings resources, neutralizes crash dump uploads and experiment synchronization, and redirects telemetry server endpoints to 0.0.0.0. Provides the option to also block shopping offer servers.
+  - *How*: Disables analytics preference toggles in settings resources, strips Google Play referrer and ad attribution declarations from the manifest, neutralizes crash dump uploads, experiment synchronization, and Google Play install referrer attribution queries, and redirects telemetry server endpoints to 0.0.0.0. Provides the option to also block shopping offer servers.
 
 ### B. Interface & Promo Suppression
 - **Clean Start Page**:

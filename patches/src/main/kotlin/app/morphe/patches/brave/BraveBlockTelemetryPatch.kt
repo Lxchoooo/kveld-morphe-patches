@@ -72,6 +72,40 @@ private val braveTelemetryResourcePatch = resourcePatch(
         }
 
         println("[Block Trackers] Set $modifiedAttrs preference defaults to false across $modifiedFiles XML layout files")
+
+        val manifestFile = get("AndroidManifest.xml")
+        if (manifestFile.exists()) {
+            var strippedNodes = 0
+            document(manifestFile.absolutePath).use { doc ->
+                val tagNames = listOf("uses-permission", "uses-permission-sdk-23", "property", "uses-library")
+                val targetNames = setOf(
+                    "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+                    "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
+                    "android.adservices.AD_SERVICES_CONFIG",
+                    "android.ext.adservices",
+                )
+
+                for (tagName in tagNames) {
+                    val elements = doc.getElementsByTagName(tagName)
+                    val toRemove = mutableListOf<Element>()
+                    for (i in 0 until elements.length) {
+                        val el = elements.item(i) as? Element ?: continue
+                        val nameAttr = el.getAttribute("android:name").takeIf { it.isNotEmpty() }
+                            ?: el.getAttribute("name")
+                        if (nameAttr in targetNames) {
+                            toRemove.add(el)
+                        }
+                    }
+                    for (el in toRemove) {
+                        el.parentNode?.removeChild(el)
+                        strippedNodes++
+                    }
+                }
+            }
+            if (strippedNodes > 0) {
+                println("[Block Trackers] Stripped $strippedNodes Google Play referrer & AdServices entries from AndroidManifest.xml")
+            }
+        }
     }
 }
 
@@ -320,15 +354,32 @@ val braveBlockTelemetryPatch = bytecodePatch(
             hookedMethods.add("PrefService.e")
         }
 
-        val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Block Trackers] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
-
         // 5. Offers host: Rewrite const-string literals containing offers.brave.com to 0.0.0.0
         if (blockOffersHost == true) {
             blockOffersHostInDex()
         } else {
             println("[Block Trackers] Offers host blocking disabled by option.")
         }
+
+        // 6. Play Install Referrer: Neutralize initReferrer() to prevent Play Store attribution binding
+        Fingerprint(
+            definingClass = "Lorg/chromium/chrome/browser/referrer/BraveReferrer;",
+            name = "initReferrer",
+            returnType = "V",
+            parameters = emptyList(),
+        ).method.apply {
+            addInstructions(
+                0,
+                """
+                    invoke-virtual {p0}, Lorg/chromium/chrome/browser/referrer/BraveReferrer;->d()V
+                    return-void
+                """.trimIndent(),
+            )
+            hookedMethods.add("BraveReferrer.initReferrer")
+        }
+
+        val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
+        println("[Block Trackers] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
     }
 }
 
