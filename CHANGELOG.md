@@ -22,6 +22,30 @@
 * **brave:** update target to 1.97.59 ([99597be](https://github.com/kveld9/kveld-morphe-patches/commit/99597be717b5d46ee94f9aead3537c5a032a8cf2))
 * move Hevy, NokoPrint and Xiaomi Earbuds to extra patches repo ([3b6ef9e](https://github.com/kveld9/kveld-morphe-patches/commit/3b6ef9e6c00b5e28b2404a58dda5630c2f4cb0b2))
 
+## [2.7.0-experimental.27](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.26...v2.7.0-experimental.27) (2026-10-16)
+
+### ⚠ BREAKING CHANGES
+
+* move Hevy, NokoPrint and Xiaomi Earbuds to extra patches repo
+
+### Bug Fixes
+
+* **patches:** add (Universal) to the Allow Screenshots name ([a123f26](https://github.com/kveld9/kveld-morphe-patches/commit/a123f26b58494e49f55844ab577f413e20adc611))
+* **patches:** add (Universal) to the Block Trackers name ([057e0f9](https://github.com/kveld9/kveld-morphe-patches/commit/057e0f969286f9658148542fa31feccf3f1122bc))
+* **patches:** add (Universal) to the Block Tracking Servers name ([72ca85e](https://github.com/kveld9/kveld-morphe-patches/commit/72ca85ea3a24c18b8e57ef473e2a4660f21acb65))
+* **patches:** add (Universal) to the Remove Extra Languages name ([21ae372](https://github.com/kveld9/kveld-morphe-patches/commit/21ae3723453215270bb70896ed535ac5dbc70283))
+* **patches:** add (Universal) to the Stop Background Sync name ([78fd5e8](https://github.com/kveld9/kveld-morphe-patches/commit/78fd5e8f2ee2ed5f3fbef8ee5e604e5bb8d43d03))
+* **patches:** add (Universal) to the Strip Sensitive Permissions name ([a3d15c3](https://github.com/kveld9/kveld-morphe-patches/commit/a3d15c35fe8a8cc7df3bcb74c5776102b51e11f3))
+* **tiktok:** hide the sticker suggestions strip above the chat input ([5cfa045](https://github.com/kveld9/kveld-morphe-patches/commit/5cfa045ad89c386247302801ee8641fa617bf976))
+* **tiktok:** suppress typing sticker strip render and data methods ([d41f0bb](https://github.com/kveld9/kveld-morphe-patches/commit/d41f0bb81ceabb61ff2b2d0beeada9c493fda1fb))
+* **universal:** stop WorkManager foreground and multiprocess services ([8881680](https://github.com/kveld9/kveld-morphe-patches/commit/88816807ef3c49836e6ef0b736e4bde15d35b07f))
+
+### New Features
+
+* **brave:** neutralize play install referrer and purge ad attribution manifest entries ([18472e6](https://github.com/kveld9/kveld-morphe-patches/commit/18472e6e680c5245072789bdca40fd146d8714da))
+* **brave:** update target to 1.97.59 ([99597be](https://github.com/kveld9/kveld-morphe-patches/commit/99597be717b5d46ee94f9aead3537c5a032a8cf2))
+* move Hevy, NokoPrint and Xiaomi Earbuds to extra patches repo ([3b6ef9e](https://github.com/kveld9/kveld-morphe-patches/commit/3b6ef9e6c00b5e28b2404a58dda5630c2f4cb0b2))
+
 ## [2.7.0-experimental.28](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.27...v2.7.0-experimental.28) (2026-10-16)
 
 ### ⚠ BREAKING CHANGES
