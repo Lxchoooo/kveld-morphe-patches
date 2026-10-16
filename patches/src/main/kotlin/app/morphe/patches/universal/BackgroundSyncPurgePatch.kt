@@ -125,7 +125,7 @@ private fun disableServices(doc: Document): Int {
 
 @Suppress("unused")
 val backgroundSyncPurgePatch = resourcePatch(
-    name = "Stop Background Sync",
+    name = "Stop Background Sync (Universal)",
     description = "Stops background sync schedulers and boot wakeups.",
     default = false,
 ) {
@@ -165,7 +165,7 @@ val backgroundSyncPurgePatch = resourcePatch(
     execute {
         val manifestFile = get("AndroidManifest.xml")
         if (!manifestFile.exists()) {
-            println("[Stop Background Sync] Skipped: AndroidManifest.xml not found.")
+            println("[Stop Background Sync (Universal)] Skipped: AndroidManifest.xml not found.")
             return@execute
         }
 
@@ -197,12 +197,12 @@ val backgroundSyncPurgePatch = resourcePatch(
         }
 
         if (removedPerms.isEmpty() && disabledReceiversCount == 0 && disabledServicesCount == 0) {
-            println("[Stop Background Sync] AndroidManifest.xml has no background wakeups or boot receivers.")
+            println("[Stop Background Sync (Universal)] AndroidManifest.xml has no background wakeups or boot receivers.")
             return@execute
         }
 
         val permNames = removedPerms.map { it.substringAfterLast('.') }.distinct()
         val permNote = if (removedPerms.isNotEmpty()) "revoked ${removedPerms.size} permission(s) (${permNames.joinToString(", ")})" else "0 permissions revoked"
-        println("[Stop Background Sync] $permNote, disabled $disabledReceiversCount receiver(s) and $disabledServicesCount service(s).")
+        println("[Stop Background Sync (Universal)] $permNote, disabled $disabledReceiversCount receiver(s) and $disabledServicesCount service(s).")
     }
 }

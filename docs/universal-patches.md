@@ -16,7 +16,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Block Trackers](#6-block-trackers-universaltelemetryneutralizerpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips ad permissions + `android.adservices.*` config, disables analytics providers/services, prunes discovery registrars, injects opt-out flags | Neutralizes third-party analytics & telemetry dispatch |
 | **[Remove Tracking Libraries](#7-remove-tracking-libraries-universalnativebinarytrimmerpatch)** | `rawResourcePatch` | Native Libraries (`lib/**`) | In-situ byte-level zeroing of non-essential tracking & debug `.so` files | **~1–15 MB** saved, removes resident native crash sidecars |
 | **[Shrink WebP Images](#8-shrink-webp-images-universalwebpoptimizerpatch)** | `rawResourcePatch` | WebP Assets (`res/**`, `assets/**`) | Lossless chunk stripping (`EXIF`, `XMP`, `ICCP`) + VP8X header recalculation | **~0.5–5 MB** saved, 0% visual degradation |
-| **[Stop Background Sync](#9-stop-background-sync-backgroundsyncpurgepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips boot permissions and disables boot receivers & WorkManager schedulers | Eliminates background wakeups, radio alarms, and standby battery drain |
+| **[Stop Background Sync (Universal)](#9-stop-background-sync-universal-backgroundsyncpurgepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips boot permissions and disables boot receivers & WorkManager schedulers | Eliminates background wakeups, radio alarms, and standby battery drain |
 | **[Strip Sensitive Permissions](#10-strip-sensitive-permissions-universalprivacypermissionspatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Selectively revokes sensitive hardware, privacy, and sensor permissions | Eliminates OS permission grants and runtime capability access |
 | **[Allow Screenshots](#11-allow-screenshots-universalscreenshotprotectionbypasspatch)** | `bytecodePatch` | Dalvik Bytecode & Manifest | Neutralizes `FLAG_SECURE`, unlocks audio playback capture, and suppresses Android 14+ screenshot detection | Allows screenshots, screen recordings, and internal audio capture across protected views |
 | **[Force Screen Timeout](#12-force-screen-timeout-universalscreentimeoutenforcerpatch)** | `bytecodePatch` | Dalvik Bytecode & Windows | Neutralizes `keepScreenOn(Z)V` view calls and strips `FLAG_KEEP_SCREEN_ON` (`0x80`) | Enforces OS screen timeout and sleep timer during video playback |
@@ -61,7 +61,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Clean App Packaging** | ✅ Yes | Prunes compiler properties, Kotlin debug tables, and duplicate license files from the APK root. |
 | **Remove Unused Screen Sizes** | ✅ Yes | Safely retains target device screen density and preserves orphan resources. |
 | **Remove Extra Languages** | ✅ Yes | Prunes unselected translation folders from `res/values-*`. |
-| **Stop Background Sync** | ⚠️ Safe by Default | Keep `stripWakeLock = false` (default) on web browsers (Brave) to prevent suspending background file downloads when the screen turns off. |
+| **Stop Background Sync (Universal)** | ⚠️ Safe by Default | Keep `stripWakeLock = false` (default) on web browsers (Brave) to prevent suspending background file downloads when the screen turns off. |
 | **Strip Sensitive Permissions** | ⚠️ Safe by Default | All toggles are opt-in (default: `false`). Revoke only permissions you wish to strip for your target application to prevent runtime `SecurityException` crashes in apps that lack error handling. |
 | **Allow Screenshots** | ✅ Yes | Safely neutralizes `FLAG_SECURE` bitwise and silences screenshot/screen recording callbacks across any application. |
 | **Force Screen Timeout** | ✅ Yes | Safely neutralizes `FLAG_KEEP_SCREEN_ON` bitwise and silences view `setKeepScreenOn` calls to enforce system sleep timeout. |
@@ -308,13 +308,13 @@ The **`Shrink WebP Images`** losslessly strips non-rendering metadata chunks (`E
 
 ---
 
-## 9. Stop Background Sync (`backgroundSyncPurgePatch`)
+## 9. Stop Background Sync (Universal) (`backgroundSyncPurgePatch`)
 
-The **`Stop Background Sync`** patch stops unneeded background wakeups, radio modem alarms, and persistent standby battery drain by removing startup permissions and disabling boot-triggered broadcast receivers and periodic WorkManager scheduler components in `AndroidManifest.xml`.
+The **`Stop Background Sync (Universal)`** patch stops unneeded background wakeups, radio modem alarms, and persistent standby battery drain by removing startup permissions and disabling boot-triggered broadcast receivers and periodic WorkManager scheduler components in `AndroidManifest.xml`.
 
 > [!NOTE]
 > ### Eliminating Standby Battery Drain
-> Many modern Android applications register broadcast receivers with `android.intent.action.BOOT_COMPLETED` and `android.intent.action.MY_PACKAGE_REPLACED`. Whenever the device boots or an app is updated, Android awakens the app process to reschedule background sync tasks, initialize databases, and ping remote servers. `Stop Background Sync` eliminates this behavior entirely.
+> Many modern Android applications register broadcast receivers with `android.intent.action.BOOT_COMPLETED` and `android.intent.action.MY_PACKAGE_REPLACED`. Whenever the device boots or an app is updated, Android awakens the app process to reschedule background sync tasks, initialize databases, and ping remote servers. `Stop Background Sync (Universal)` eliminates this behavior entirely.
 
 ### Neutralized Components
 
