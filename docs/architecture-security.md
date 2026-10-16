@@ -95,7 +95,7 @@ Chromium browsers (such as Brave), however, bypass Android's resource pipeline f
 3. **Morphe's Safe Substitution Strategy**:
    - `Locale PAK Slimmer` (`localePakSlimmerPatch`): Copies `en-US.pak` byte payloads into all stripped locale paths, satisfying the C++ bundle loader with zero native crashes while freeing ~9.64 MB.
 4. **Separation of Concerns**:
-   - `Remove Extra Languages` operates universally across all Android apps on `res/values-*`.
+   - `Remove Extra Languages (Universal)` operates universally across all Android apps on `res/values-*`.
    - `Locale PAK Slimmer` operates specifically on Chromium's native `assets/locales/*.pak`.
    - In Brave, both patches can be combined to achieve complete language stripping at both the C++ native engine and Android wrapper layers.
 
