@@ -10,7 +10,7 @@
 <h1 align="center">Morphe Patches</h1>
 
 <p align="center">
-  Simple tweaks for <b>Brave Browser</b>, <b>Gboard Lite</b>, <b>Hevy</b>, <b>TikTok</b>, <b>NokoPrint</b>, and <b>Xiaomi Earbuds</b> on Android: fewer ads, less tracking, less battery drain. Applied with the <b><a href="https://morphe.software">Morphe</a></b> patcher.
+  Simple tweaks for <b>Brave Browser</b>, <b>Gboard Lite</b>, and <b>TikTok</b> on Android: fewer ads, less tracking, less battery drain. Applied with the <b><a href="https://morphe.software">Morphe</a></b> patcher.
 </p>
 
 <p align="center">
@@ -86,10 +86,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Brave Browser** | `com.brave.browser` | `1.97.59` | `arm64-v8a`<br>`armeabi-v7a` (single file) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.59/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.59/BraveMonoarm.apk) | Brave Guide |
 | **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.5.1.993608717-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-5-1-993608717-beta/) | Gboard Lite Guide |
-| **Hevy** | `com.hevy` | `3.1.14` | `arm64-v8a` (multi-file) | [APKMirror](https://www.apkmirror.com/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/hevy-gym-log-workout-tracker-3-1-14-release/) | Hevy Guide |
-| **NokoPrint** | `com.nokoprint` | `5.28.6` | Universal (any screen) | [APKPure](https://d.apkpure.com/b/XAPK/com.nokoprint?versionCode=52806) | NokoPrint Guide |
 | **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | TikTok Guide |
-| **Xiaomi Earbuds** | `com.mi.earphone` | `1.38.0i` | Universal (multi-file) | [APKPure](https://d.apkpure.com/b/XAPK/com.mi.earphone?versionCode=138000) | Xiaomi Earbuds Guide |
 
 Labels: `single file` = one APK; `multi-file` = a package Morphe joins together; `any screen` = works on any screen size.
 
@@ -339,10 +336,7 @@ Technical references, setup manuals, and architecture notes are organized by foc
 | :--- | :--- | :--- |
 | **Brave Browser** | **Brave Guide** | Faster start, no ads or tracking, clean start page. |
 | **Gboard Lite** | **Gboard Lite Guide** | Offline dictionaries, keyboard settings, no tracking. |
-| **Hevy** | **Hevy Guide** | Email login help, Pro unlock, less battery use. |
-| **NokoPrint** | **NokoPrint Guide** | No ads, drivers keep working, safer connections. |
 | **TikTok** | **TikTok Guide** | Change country, block ads, save clean videos, save battery. |
-| **Xiaomi Earbuds** | **Xiaomi Earbuds Guide** | Pairing help, all models, sound unlocks, offline mode. |
 
 ### Universal & Architecture Reference
 | Guide | Description |
@@ -378,7 +372,7 @@ Before proposing new features or submitting modifications, please review our **[
 Every patch modification or contribution must pass the official Morphe Patcher in-situ verification gate with 100% success (0 failed patches, 0 fingerprint mismatches):
 ```bash
 # Execute in-situ patching test for target application
-./gradlew runPatchTest -Papp=<targetApp>   # e.g., brave, gboard, hevy, tiktok, nokoprint, xiaomi_earbuds
+./gradlew runPatchTest -Papp=<targetApp>   # e.g., brave, gboard, tiktok
 ```
 Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ```bash
@@ -431,7 +425,7 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ## Legal Disclaimer
 ![](images/divider-purple.svg)
 
-**Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, Hevy App, ByteDance Ltd., NokoPrint LLC, Xiaomi Inc., or any of their subsidiaries or affiliates.
+**Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, ByteDance Ltd., or any of their subsidiaries or affiliates.
 
 All product names, logos, brands, and registered trademarks mentioned in this repository are the property of their respective holders. Their inclusion does not imply affiliation with or endorsement by them.
 

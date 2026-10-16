@@ -49,17 +49,6 @@ APP_SPECS: List[Dict[str, Any]] = [
         "require_variant_marker": "lite_beta",
     },
     {
-        "id": "hevy",
-        "name": "Hevy",
-        "package_name": "com.hevy",
-        "constant_key": "HEVY_TARGET_VERSION",
-        "source_type": "apkmirror",
-        "source_name": "APKMirror",
-        "source_url": "https://www.apkmirror.com/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/",
-        "path_prefix": "/apk/hevy-gym-workout-tracker/hevy-gym-log-workout-tracker/hevy-gym-log-workout-tracker-",
-        "allow_beta": False,
-    },
-    {
         "id": "tiktok",
         "name": "TikTok",
         "package_name": "com.zhiliaoapp.musically",
@@ -68,26 +57,6 @@ APP_SPECS: List[Dict[str, Any]] = [
         "source_name": "APKMirror",
         "source_url": "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/",
         "path_prefix": "/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-",
-        "allow_beta": False,
-    },
-    {
-        "id": "nokoprint",
-        "name": "NokoPrint",
-        "package_name": "com.nokoprint",
-        "constant_key": "NOKOPRINT_TARGET_VERSION",
-        "source_type": "apkpure",
-        "source_name": "APKPure",
-        "source_url": "https://apkpure.com/nokoprint-wifi-bluetooth-usb/com.nokoprint",
-        "allow_beta": False,
-    },
-    {
-        "id": "xiaomi-earbuds",
-        "name": "Xiaomi Earbuds",
-        "package_name": "com.mi.earphone",
-        "constant_key": "XIAOMI_EARBUDS_TARGET_VERSION",
-        "source_type": "apkpure",
-        "source_name": "APKPure",
-        "source_url": "https://apkpure.com/xiaomi-earbuds/com.mi.earphone",
         "allow_beta": False,
     },
 ]
@@ -330,14 +299,10 @@ def extract_apkpure_version(html: str, package_name: str) -> Optional[str]:
 
     # Resolution:
     # If download-URL version is present, it takes precedence over JSON-LD.
-    # For Xiaomi Earbuds, download URL pins the true fetchable artifact (1.38.0i)
-    # whereas JSON-LD and top-level data-dt-version declare a stale/bogus 9.0.278.
-    # For NokoPrint, the primary download button has data-dt-version (5.28.6)
-    # while archive download links pin older versions (5.28.4).
+    # When data-dt-version reports a higher numeric version than dl_version,
+    # the higher version from the primary download button is preferred.
     if dl_version:
         core_dl, _ = parse_version(dl_version)
-        if package_name == "com.mi.earphone":
-            return dl_version
         if dt_version:
             core_dt, _ = parse_version(dt_version)
             if core_dt and core_dl and core_dt > core_dl:

@@ -85,7 +85,7 @@ In contrast to the browser implementation, the TikTok companion filter ([`TikTok
 ## Chromium DataPack v5 vs. Android Resource Architecture
 
 ### Why Chromium Requires Specialized PAK Slimming
-Standard Android applications (such as Gboard Lite or Hevy) store localized strings, layouts, and XML assets inside the compiled Android resource table (`resources.arsc`) and directory hierarchy (`res/values-<locale>/`). When a locale qualifier directory is removed, Android's runtime `AssetManager` automatically resolves missing strings using the unquantified `res/values/` fallback directory.
+Standard Android applications (such as Gboard Lite) store localized strings, layouts, and XML assets inside the compiled Android resource table (`resources.arsc`) and directory hierarchy (`res/values-<locale>/`). When a locale qualifier directory is removed, Android's runtime `AssetManager` automatically resolves missing strings using the unquantified `res/values/` fallback directory.
 
 Chromium browsers (such as Brave), however, bypass Android's resource pipeline for the browser UI, Omnibox, navigation, Shields, settings, and native rendering engine. Instead, they utilize Chromium's native **DataPack v5** binary format:
 1. **Binary DataPack v5 Structure**: Locales are stored as discrete binary files in `assets/locales/<locale>.pak`, consisting of a 12-byte header (`uint32 version`, `uint8 encoding`, `uint24 resource_count`, `uint16 alias_count`), followed by an index of resource IDs and offsets, and raw string payloads.
@@ -98,31 +98,4 @@ Chromium browsers (such as Brave), however, bypass Android's resource pipeline f
    - `Remove Extra Languages` operates universally across all Android apps on `res/values-*`.
    - `Locale PAK Slimmer` operates specifically on Chromium's native `assets/locales/*.pak`.
    - In Brave, both patches can be combined to achieve complete language stripping at both the C++ native engine and Android wrapper layers.
-
----
-
-## Hevy: React Native & Hermes Bytecode Architecture
-
-### Why Dynamic Hermes (HBC96) Parsing is Required:
-Unlike traditional Android apps whose logic lives exclusively in Dalvik `.dex` files, Hevy compiles its core React Native UI and business state into **Hermes Bytecode** (`assets/index.android.bundle`).
-- **The Pitfall of Hardcoded Signatures**: Brittle 32-byte pattern scanners fail across minor Hevy updates because the global string table shifts, changing 16-bit property IDs (e.g. `'subscription'`, `'active_subscription'`).
-- **Morphe's AST Resolution**: Morphe's `HevyUnlockProPatch` parses the 128-byte HBC96 file header, dynamically locates `isWithinProOfflineGracePeriod` within the string storage table, resolves its dynamic String ID, and pinpoints the exact function bytecode offset and size in the function headers table.
-- **Safe Offline-Pro State**: The injected prologue (`78 00 5C 00` -> `LoadConstTrue r0; Ret r0`) places the app into Hevy's native, supported offline grace period, preserving local database routines and offline analytics without server-side fraud risks.
-
-### Telemetry Neutralization in Hevy:
-- **Advertising Permissions**: `AD_ID`, `ACCESS_ADSERVICES_*`, and `BIND_GET_INSTALL_REFERRER_SERVICE` are stripped from `AndroidManifest.xml`, forcing attribution frameworks to receive all-zero identifiers (`00000000-0000-0000-0000-000000000000`).
-- **Sentry Crash Reporting**: Content providers disabled in manifest and native bridge methods in `classes6.dex` (`initNativeSdk`) stubbed to resolve boolean true and return immediately.
-- **Adjust, Facebook & Amplitude**: Native package dispatch and event queues (`AppEventQueue.flush`, `PackageHandler.addPackage`, `AndroidContextProvider.prefetch`) are neutralized at bytecode level without crashing React Native modules.
-
----
-
-## Xiaomi Earbuds: Hardware OEM Gating & Catalog Architecture
-
-### 1. Model Catalog Filtering Bypass (`DeviceInfoListCache.isShowProduct`)
-- **Upstream Gating Mechanism**: Xiaomi Earbuds evaluates each earphone model against the installed application version using `DeviceInfoListCache.isShowProduct(String model)`. In upstream code, channel checks and strict version regexes can cause supported hardware models to be silently excluded from discovery caches, rejecting device models during Bluetooth LE scanning.
-- **Surgical Bytecode Override**: The `Xiaomi Earbuds Show All Models` patch hooks `DeviceInfoListCache.isShowProduct(Ljava/lang/String;)Z` to return `true` unconditionally (`const/4 v0, 1; return v0`). This guarantees all device models defined in the internal catalog are recognized, retained in `DeviceInfoListCache`, and discoverable during manual pairing and BLE scanning.
-
-### 2. OEM Feature Gating & Audio Codec Unlock
-- **SuperAivs OEM Gating (`SurgicalOEMUnlockPatch`)**: Xiaomi restricts specific integrations (such as SuperAivs, function `5009`) to MIUI/HyperOS devices. The patch intercepts the hardware brand check to unlock full feature parity on non-Xiaomi Android devices (Samsung, Google Pixel, Motorola, OnePlus).
-- **Spatial Audio & aptX Adaptive 96kHz (`SoundFeaturesUnlockPatch`)**: Xiaomi restricts Spatial Audio when using 96kHz aptX Adaptive connections. The patch removes this restriction and server-side capability locks, enabling Spatial Audio and hearing enhancements across high-resolution Bluetooth connections.
 

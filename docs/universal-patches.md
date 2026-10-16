@@ -1,6 +1,6 @@
 # 🌐 Universal Patch Reference & Configuration Guide
 
-Comprehensive reference for universal optimization and resource slimming patches provided by Morphe Patches. These patches operate without app-specific hardcoding and can be applied across any supported target APK (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds) or custom Android applications.
+Comprehensive reference for universal optimization and resource slimming patches provided by Morphe Patches. These patches operate without app-specific hardcoding and can be applied across any supported target APK (Brave, Gboard Lite, TikTok) or custom Android applications.
 
 ---
 
@@ -39,12 +39,12 @@ Morphe Patches uses a multi-tiered **defense-in-depth** model separating generic
 
 ### Coexistence & Pipeline Idempotency
 Applying both universal and app-specific patches simultaneously to the same target APK is **completely safe and idempotent**:
-1. **Manifest Operations**: If a universal patch (such as `Block Trackers`) and an app-specific patch (such as `NokoPrint Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
+1. **Manifest Operations**: If a universal patch (such as `Block Trackers`) and an app-specific patch (such as `Brave Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
 2. **Permission Revocation**: If a permission node is pruned by an earlier patch pass, subsequent passes skip the missing node without throwing exceptions.
 3. **Binary Trimming**: Universal native trimmers zero only standard crash/telemetry libraries without colliding with app-specific bloat trimmers (such as Brave's `Remove Extra Files` or TikTok's `Remove Extra Files`).
 
 ### Do Not Stack Universals on Maintained Apps
-Dedicated app patches (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds) are a strict precision superset for their respective targets. Enabling Block Trackers or Block Tracking SDKs on top of dedicated patches adds no extra protection.
+Dedicated app patches (Brave, Gboard Lite, TikTok) are a strict precision superset for their respective targets. Enabling Block Trackers or Block Tracking SDKs on top of dedicated patches adds no extra protection.
 
 If patcher logs report components already clean or 0 methods hooked, that is the expected outcome, not a failure. Stacking these universals on maintained apps only adds patch execution time (such as expensive full-DEX scans on large targets like TikTok) and risks breaking features like login, account sync, or push notifications if optional toggles (e.g., device-ID providers, Firebase init, or push engagement) are enabled. To cover a newly discovered generic SDK in a maintained app, port the rule into that app's dedicated patch instead of enabling the universal patch.
 
@@ -54,7 +54,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 
 | Universal Patch | Safe Across Any APK? | Notes & Usage Guidelines |
 | :--- | :---: | :--- |
-| **Block Trackers** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Block Trackers** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, TikTok): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Remove Tracking Libraries** | ✅ Yes | Zeroes standard crash reporting, profiler, and bandwidth-sharing `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`, `libhopmn`). |
 | **Shrink WebP Images** | ✅ Yes | Lossless metadata stripping adhering strictly to RFC 9649 / libwebp bitstream specification. |
 | **Shrink PNG Images** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
@@ -66,9 +66,9 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | **Allow Screenshots** | ✅ Yes | Safely neutralizes `FLAG_SECURE` bitwise and silences screenshot/screen recording callbacks across any application. |
 | **Force Screen Timeout** | ✅ Yes | Safely neutralizes `FLAG_KEEP_SCREEN_ON` bitwise and silences view `setKeepScreenOn` calls to enforce system sleep timeout. |
 | **Lock Screen Brightness** | ✅ Yes | Safely neutralizes writes to `WindowManager.LayoutParams.screenBrightness` so display brightness remains strictly under system and user control. |
-| **Go Fully Offline** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite and Xiaomi Earbuds, pair with their companion app-specific offline patches for graceful timeout handling. |
+| **Go Fully Offline** | ⚠️ Contextual | **Never apply to web browsers (Brave) or streaming media apps (TikTok)**, as it halts socket creation at the OS kernel level (`AID_INET`). For Gboard Lite, pair with its companion app-specific offline patch for graceful timeout handling. |
 | **Block Tracking Servers** | ⚠️ Curated list required | Ships disabled with no bundled blocklist (user supplies the hosts file at patch time). Block only telemetry/ads hosts (e.g. Hagezi `native.tiktok-onlydomains.txt` filtered to `log/mon/mcs/mssdk/analytics`); blocking functional hosts (`frontier/api/stream/open`) breaks feed, login, or CDN playback. |
-| **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Block Tracking SDKs** | ✅ Yes | Safely neutralizes APM, crash, analytics, and attribution SDK entrypoints via Dalvik early `return-void`. The optional Push Engagement toggle (`blockPushEngagement`) is disabled by default because silencing push SDKs breaks push notifications. Not recommended on maintained apps (Brave, Gboard Lite, TikTok): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Disable Play Store updates** | ⚠️ Safe by Default | Disabled by default (`false`). Sets `versionCode` to `Int.MAX_VALUE` to detach Google Play Store updates; intercepts in-app `PackageInfo` checks to return the original version code. Incompatible with root mounting. |
 | **Spoof Reinstall IDs** | ✅ Yes | Neutralizes app-set ID and instance/install ID getters to prevent cross-session device linking on reinstall. |
 | **Silence System Logs** | ✅ Yes | Neutralizes diagnostic log calls (`Log.d/v/i/w/e/wtf` and `println`) with configurable level filtering. |
@@ -78,7 +78,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 
 ## 1. Remove Extra Languages (`localeResourceSlimmerPatch`)
 
-The **`Remove Extra Languages`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Gboard Lite, Hevy, Brave, TikTok, NokoPrint, Xiaomi Earbuds) to reduce APK size.
+The **`Remove Extra Languages`** patch strips unselected language translation directories from `res/` (such as `values-*`, `raw-*`, `xml-*`) across any supported target APK (Brave, Gboard Lite, TikTok) to reduce APK size.
 
 > [!TIP]
 > **Chromium Browsers (Brave)**: While `Remove Extra Languages` trims standard Android wrapper resources in `res/values-*`, Chromium browsers store over 95% of their strings (~9.71 MB in Brave 1.97.57) in native binary `.pak` files inside `assets/locales/`. For complete multilingual slimming in Brave, combine this patch with the Brave-specific [**`Locale PAK Slimmer`**](apps/brave.md#11-locale-pak-slimmer-localepakslimmerpatch).
@@ -194,9 +194,8 @@ The **`Go Fully Offline`** patch isolates any application from the network by st
 
 > [!TIP]
 > ### Universal vs. App-Specific Offline Patches
-> - **`Go Fully Offline`**: Operates at the Android manifest level (`AndroidManifest.xml`) by revoking `INTERNET` and enforcing `usesCleartextTraffic="false"`. It provides kernel-level socket blocking across any standard application (such as NokoPrint, Hevy, or custom tools).
-> - **App-Specific Companion Patches**: Applications managing local hardware or maintaining internal network state machines provide companion Dalvik bytecode patches that should be applied alongside `Go Fully Offline`:
->   - **`Xiaomi Earbuds Offline Only`**: Hooks `NetworkExtKt.isNetworkAvailable() -> false` and network predicates so local Bluetooth controls respond instantly without waiting for cloud timeout loops or hanging on infinite loading spinners.
+> - **`Go Fully Offline`**: Operates at the Android manifest level (`AndroidManifest.xml`) by revoking `INTERNET` and enforcing `usesCleartextTraffic="false"`. It provides kernel-level socket blocking across any standard application (such as Brave, Gboard Lite, or custom tools).
+> - **App-Specific Companion Patches**: Applications maintaining internal network state machines provide companion Dalvik bytecode patches that should be applied alongside `Go Fully Offline`:
 >   - **`Gboard Offline Only`**: Spoofs `DeviceStatusMonitor` to `NO_CONNECTION` and forces HTTP clients (`Cronet`, `OkHttp3`, `Superpacks`) to immediately fail with graceful `IOException("Offline mode")` rather than raw socket permission errors, eliminating download queue retry storms and UI latency.
 
 > [!WARNING]

@@ -53,7 +53,7 @@ Execute AGP linting, Kotlin compiler checks, and unit tests:
 Every patch change must be validated by running the Morphe Patcher against the target APK with all of that app's patches active. The run must finish with 0 failed patches, 0 fingerprint mismatches, and 0 smali compile errors. The runner rejects any input whose version is not a target version declared by the selected patches:
 
 ```bash
-# Patch the target app (brave, gboard, hevy, tiktok, nokoprint, xiaomi_earbuds)
+# Patch the target app (brave, gboard, tiktok)
 ./gradlew runPatchTest -Papp=<targetApp>
 
 # Use an explicit APK file instead

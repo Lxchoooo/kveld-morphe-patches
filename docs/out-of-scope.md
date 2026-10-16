@@ -26,7 +26,7 @@ The design of Morphe Patches is guided by four non-negotiable principles:
 Feature requests that fall into any of the following categories will be closed as **not planned**:
 
 ### ❌ In-App Settings Screens & Dynamic UI Panels
-* **What is requested**: Injecting custom preference menus, floating overlay panels, or settings screens into target applications (e.g., TikTok, Brave, Hevy) to toggle patches dynamically on the fly.
+* **What is requested**: Injecting custom preference menus, floating overlay panels, or settings screens into target applications (e.g., TikTok, Brave) to toggle patches dynamically on the fly.
 * **Why it is out of scope**:
   1. **Extreme Fragility**: Applications like TikTok deploy aggressive ProGuard/DexGuard re-obfuscation and publish updates weekly. Hooking into obfuscated Activity, Fragment, or Navigation controller hierarchies breaks continuously across version bumps, making rapid upstream synchronization impossible.
   2. **Contradicts Zero-Overhead Debloating**: Dynamic in-app toggles require keeping unwanted features, telemetry, and background daemons intact inside the APK and wrapping every hook in runtime conditional guards (`if (isFeatureEnabled())`). This adds unnecessary disk I/O to performance-critical paths (video decoding, rendering, networking).

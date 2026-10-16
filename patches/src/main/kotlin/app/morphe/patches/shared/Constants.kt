@@ -43,22 +43,6 @@ object Constants {
     )
 
 
-    const val HEVY_PACKAGE_NAME = "com.hevy"
-    const val HEVY_TARGET_VERSION = "3.1.14"
-
-    val COMPATIBILITY_HEVY = Compatibility(
-        name = "Hevy - Gym Log Workout Tracker",
-        packageName = HEVY_PACKAGE_NAME,
-        apkFileType = ApkFileType.APKM,
-        appIconColor = 0xFF4500,
-        targets = listOf(
-            AppTarget(
-                version = HEVY_TARGET_VERSION,
-                description = "Download com.hevy v$HEVY_TARGET_VERSION (APKM) arm64-v8a 120-640dpi versionCode 3308730 (BUNDLE) from APKMirror"
-            )
-        )
-    )
-
     const val TIKTOK_PACKAGE_NAME = "com.zhiliaoapp.musically"
     const val TIKTOK_TARGET_VERSION = "47.1.4"
 
@@ -71,38 +55,6 @@ object Constants {
             AppTarget(
                 version = TIKTOK_TARGET_VERSION,
                 description = "Download com.zhiliaoapp.musically v$TIKTOK_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 2024701040 (APK) from APKMirror"
-            )
-        )
-    )
-
-    const val NOKOPRINT_PACKAGE_NAME = "com.nokoprint"
-    const val NOKOPRINT_TARGET_VERSION = "5.28.6"
-
-    val COMPATIBILITY_NOKOPRINT = Compatibility(
-        name = "NokoPrint - WiFi, Bluetooth, USB",
-        packageName = NOKOPRINT_PACKAGE_NAME,
-        apkFileType = ApkFileType.XAPK,
-        appIconColor = 0x0288D1,
-        targets = listOf(
-            AppTarget(
-                version = NOKOPRINT_TARGET_VERSION,
-                description = "Download com.nokoprint v$NOKOPRINT_TARGET_VERSION (XAPK bundle) from APKPure",
-            )
-        )
-    )
-
-    const val XIAOMI_EARBUDS_PACKAGE_NAME = "com.mi.earphone"
-    const val XIAOMI_EARBUDS_TARGET_VERSION = "1.38.0i"
-
-    val COMPATIBILITY_XIAOMI_EARBUDS = Compatibility(
-        name = "Xiaomi Earbuds",
-        packageName = XIAOMI_EARBUDS_PACKAGE_NAME,
-        apkFileType = ApkFileType.XAPK,
-        appIconColor = 0xFF6700,
-        targets = listOf(
-            AppTarget(
-                version = XIAOMI_EARBUDS_TARGET_VERSION,
-                description = "Download com.mi.earphone v1.38.0i (XAPK bundle) from APKPure",
             )
         )
     )
