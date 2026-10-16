@@ -94,9 +94,7 @@ jobs:
               body = (
                   f"Current supported version: {local_ver}\n"
                   f"Latest upstream version: {remote_ver}\n"
-                  f"Source link: {source_url}\n\n"
-                  "Note: To update patches for this target, follow the update-patches skill flow "
-                  "(harness audit plus runPatchTest gate).\n"
+                  f"Source link: {source_url}\n"
               )
 
               print(f"[INFO] Creating issue for {app_name}: {title}")
