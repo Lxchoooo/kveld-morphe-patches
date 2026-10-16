@@ -16,7 +16,7 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import java.io.File
 import java.util.Locale
 
-private const val TAG = "[Block Tracking Servers]"
+private const val TAG = "[Block Tracking Servers (Universal)]"
 private const val DEFAULT_SINK_IP = "0.0.0.0"
 
 private val RESERVED_HOSTS = setOf(
@@ -34,7 +34,7 @@ private data class PendingRewrite(val index: Int, val register: Int, val replace
 
 @Suppress("unused")
 val universalHostsBlockerPatch = bytecodePatch(
-    name = "Block Tracking Servers",
+    name = "Block Tracking Servers (Universal)",
     description = "Rewrites tracking addresses to nowhere using your blocklist.",
     default = false,
 ) {
