@@ -84,9 +84,9 @@ flowchart TD
 
 | Application | Package ID | Target Version | Architecture / Variant | Download Source | Complete Guide |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Brave Browser** | `com.brave.browser` | `1.97.59` | `arm64-v8a`<br>`armeabi-v7a` (single file) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.59/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.59/BraveMonoarm.apk) | Brave Guide |
-| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.5.1.993608717-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-5-1-993608717-beta/) | Gboard Lite Guide |
-| **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | TikTok Guide |
+| **Brave Browser** | `com.brave.browser` | `1.97.59` | `arm64-v8a`<br>`armeabi-v7a` (single file) | [ARM64](https://github.com/brave/brave-browser/releases/download/v1.97.59/Bravemonoarm64.apk) · [ARM32](https://github.com/brave/brave-browser/releases/download/v1.97.59/BraveMonoarm.apk) | [Brave Guide](docs/apps/brave.md) |
+| **Gboard Lite** | `com.google.android.inputmethod.latin` | `18.5.1.993608717-lite_beta` | `arm64-v8a`<br>`armeabi-v7a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-5-1-993608717-beta/) | [Gboard Lite Guide](docs/apps/gboard.md) |
+| **TikTok** | `com.zhiliaoapp.musically` | `47.1.4` | `arm64-v8a` (any screen) | [APKMirror](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tiktok-47-1-4-release/) | [TikTok Guide](docs/apps/tiktok.md) |
 
 Labels: `single file` = one APK; `multi-file` = a package Morphe joins together; `any screen` = works on any screen size.
 
@@ -308,7 +308,7 @@ Before proposing new features or submitting modifications, please review our **[
 Every patch modification or contribution must pass the official Morphe Patcher in-situ verification gate with 100% success (0 failed patches, 0 fingerprint mismatches):
 ```bash
 # Execute in-situ patching test for target application
-./gradlew runPatchTest -Papp=<targetApp>   # e.g., brave, gboard, tiktok
+./gradlew runPatchTest -Papp=<targetApp>   # targetApp is the app id (see docs/apps/)
 ```
 Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ```bash
@@ -331,7 +331,7 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 > - **Security vulnerabilities**: see [SECURITY.md](SECURITY.md) (do not open public issues)
 > - **Release notes**: [CHANGELOG.md](CHANGELOG.md)
 
-**Related project**: [kveld-extra-morphe-patches](https://github.com/kveld9/kveld-extra-morphe-patches) is my personal patch collection. It shares this repo's goals but has no per-app completion target — its patches are for personal use, and suggestions for apps to maintain are welcome there.
+**Related project**: [kveld-extra-morphe-patches](https://github.com/kveld9/kveld-extra-morphe-patches) is the companion collection holding app-specific patches for additional standalone targets.
 
 ---
 
@@ -361,7 +361,7 @@ Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
 ## Legal Disclaimer
 ![](images/divider-purple.svg)
 
-**Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Brave Software, Inc., Google LLC, ByteDance Ltd., or any of their subsidiaries or affiliates.
+**Morphe Patches** is an independent, community-driven open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with any of the respective app publishers or their subsidiaries or affiliates.
 
 All product names, logos, brands, and registered trademarks mentioned in this repository are the property of their respective holders. Their inclusion does not imply affiliation with or endorsement by them.
 
