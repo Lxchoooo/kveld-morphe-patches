@@ -309,6 +309,73 @@ private fun BytecodePatchContext.applyStickerRecommendationHooks(): Int {
         count++
     }
 
+    val assemClass = "Lcom/ss/android/ugc/aweme/im/sdk/chat/ui/base/assems/input/typingrecommendation/TypingRecommendationPanelAssem;"
+    var renderDataHooks = 0
+
+    fun hookVoid(name: String, parameters: List<String> = emptyList()) {
+        try {
+            Fingerprint(
+                definingClass = assemClass,
+                name = name,
+                parameters = parameters,
+                returnType = "V",
+            ).method.replaceWithReturnVoid()
+            renderDataHooks++
+        } catch (e: Exception) {
+            throw PatchException("Failed to resolve TypingRecommendationPanelAssem.$name", e)
+        }
+    }
+
+    fun hookNull(name: String, returnType: String) {
+        try {
+            Fingerprint(
+                definingClass = assemClass,
+                name = name,
+                parameters = emptyList(),
+                returnType = returnType,
+            ).method.replaceWithReturnNull()
+            renderDataHooks++
+        } catch (e: Exception) {
+            throw PatchException("Failed to resolve TypingRecommendationPanelAssem.$name", e)
+        }
+    }
+
+    hookVoid(
+        name = "L8",
+        parameters = listOf(
+            "Lcom/ss/android/ugc/aweme/im/common/model/StickerItem;",
+            "Landroid/view/View;",
+            "I",
+            "LX/0pPw;",
+        ),
+    )
+    hookVoid(
+        name = "Lq",
+        parameters = listOf(
+            "Landroid/view/View;",
+            "Lcom/ss/android/ugc/aweme/im/common/model/StickerItem;",
+        ),
+    )
+    hookNull(
+        name = "Fq",
+        returnType = "Lcom/ss/android/ugc/aweme/im/sdk/chat/ui/base/assems/input/typingrecommendation/TypingRecommendationPanelViewModel;",
+    )
+    hookNull(
+        name = "Iq",
+        returnType = "Lcom/ss/android/ugc/aweme/viewmodel/ITypingRecommendationVM;",
+    )
+    hookNull(
+        name = "Cq",
+        returnType = "Lcom/ss/android/ugc/aweme/im/prompts/api/chatnotice/flow/base/viewmodel/ICommonChatNoticeViewModel;",
+    )
+    hookVoid(name = "Nq")
+    hookVoid(name = "xq")
+    hookVoid(name = "yq")
+    hookVoid(name = "checkParentScope")
+
+    println("[Block Popups & Prompts] Hooked TypingRecommendationPanelAssem render/data methods ($renderDataHooks methods) -> sticker strip suppressed.")
+    count++
+
     return count
 }
 
