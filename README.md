@@ -286,7 +286,6 @@ Technical references, setup manuals, and architecture notes are organized by foc
 | Guide | Description |
 | :--- | :--- |
 | **[Building & Development](docs/building.md)** | Toolchain prerequisites, Gradle build tasks, test execution, and catalog synchronization. |
-| **[Reverse Engineering & Update Harness](harness/README.md)** | Automatic tools that check patches against new app versions. |
 | **[Physical & Runtime ADB Test Suite](validation/physical_harness/README.md)** | Automated on-device validation for battery consumption, ServiceWorker sync, and runtime telemetry. |
 
 <p align="center">
