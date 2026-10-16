@@ -13,7 +13,7 @@ Technical documentation and patch catalog for Brave Private Web Browser on Andro
 | **Target Version** | `1.97.57` |
 | **Target Package Format** | standalone APK (`Bravemonoarm64.apk` or `BraveMonoarm.apk`) |
 | **Primary Architecture** | `arm64-v8a` / `armeabi-v7a` |
-| **Download Target** | [APKMirror](https://www.apkmirror.com/apk/brave-software/brave-browser/brave-browser-1-97-57-release/brave-private-web-browser-vpn-1-97-57-arm64-v8a-android-12l-apk/) |
+| **Download Target** | [APKMirror](https://www.apkmirror.com/apk/brave-software/brave-browser/brave-browser-1-97-59-release/brave-private-web-browser-vpn-1-97-59-arm64-v8a-android-12l-apk/) |
 | **Authoritative Source** | github.com/brave/brave-browser/releases |
 
 ---
