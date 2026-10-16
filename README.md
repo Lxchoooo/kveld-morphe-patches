@@ -270,9 +270,9 @@ Technical references, setup manuals, and architecture notes are organized by foc
 ### Dedicated Application Guides
 | Application | Guide | Description |
 | :--- | :--- | :--- |
-| **Brave Browser** | **Brave Guide** | Faster start, no ads or tracking, clean start page. |
-| **Gboard Lite** | **Gboard Lite Guide** | Offline dictionaries, keyboard settings, no tracking. |
-| **TikTok** | **TikTok Guide** | Change country, block ads, save clean videos, save battery. |
+| **Brave Browser** | **[Brave Guide](docs/apps/brave.md)** | Faster start, no ads or tracking, clean start page. |
+| **Gboard Lite** | **[Gboard Lite Guide](docs/apps/gboard.md)** | Offline dictionaries, keyboard settings, no tracking. |
+| **TikTok** | **[TikTok Guide](docs/apps/tiktok.md)** | Change country, block ads, save clean videos, save battery. |
 
 ### Universal & Architecture Reference
 | Guide | Description |
