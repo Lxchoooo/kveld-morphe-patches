@@ -13,7 +13,7 @@ Comprehensive reference for universal optimization and resource slimming patches
 | **[Shrink PNG Images](#3-shrink-png-images-pngoptimizerpatch)** | `rawResourcePatch` | PNG Assets (`res/**`, `assets/**`) | In-memory RGBA-verified level 9 zlib recompression + metadata strip | **~1–8 MB** saved, 0% visual degradation |
 | **[Clean App Packaging](#4-clean-app-packaging-apkjunkcleanerpatch)** | `rawResourcePatch` | Root & Metadata (`META-INF/**`, root) | Prunes compiler metadata, Kotlin debug tables, duplicate licenses | **~0.5–2 MB** saved, cleaner packaging |
 | **[Go Fully Offline](#5-go-fully-offline-universalofflinepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Revokes `INTERNET` & network permissions + blocks cleartext HTTP | Complete network isolation at OS kernel level |
-| **[Block Trackers](#6-block-trackers-universaltelemetryneutralizerpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips ad permissions + `android.adservices.*` config, disables analytics providers/services, prunes discovery registrars, injects opt-out flags | Neutralizes third-party analytics & telemetry dispatch |
+| **[Block Trackers (Universal)](#6-block-trackers-universal-universaltelemetryneutralizerpatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips ad permissions + `android.adservices.*` config, disables analytics providers/services, prunes discovery registrars, injects opt-out flags | Neutralizes third-party analytics & telemetry dispatch |
 | **[Remove Tracking Libraries](#7-remove-tracking-libraries-universalnativebinarytrimmerpatch)** | `rawResourcePatch` | Native Libraries (`lib/**`) | In-situ byte-level zeroing of non-essential tracking & debug `.so` files | **~1–15 MB** saved, removes resident native crash sidecars |
 | **[Shrink WebP Images](#8-shrink-webp-images-universalwebpoptimizerpatch)** | `rawResourcePatch` | WebP Assets (`res/**`, `assets/**`) | Lossless chunk stripping (`EXIF`, `XMP`, `ICCP`) + VP8X header recalculation | **~0.5–5 MB** saved, 0% visual degradation |
 | **[Stop Background Sync (Universal)](#9-stop-background-sync-universal-backgroundsyncpurgepatch)** | `resourcePatch` | Manifest (`AndroidManifest.xml`) | Strips boot permissions and disables boot receivers & WorkManager schedulers | Eliminates background wakeups, radio alarms, and standby battery drain |
@@ -39,12 +39,12 @@ Morphe Patches uses a multi-tiered **defense-in-depth** model separating generic
 
 ### Coexistence & Pipeline Idempotency
 Applying both universal and app-specific patches simultaneously to the same target APK is **completely safe and idempotent**:
-1. **Manifest Operations**: If a universal patch (such as `Block Trackers`) and an app-specific patch (such as `Brave Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
+1. **Manifest Operations**: If a universal patch (such as `Block Trackers (Universal)`) and an app-specific patch (such as `Brave Block Telemetry`) both target the same component (e.g., `AppMeasurementService`), assigning `android:enabled="false"` multiple times is idempotent.
 2. **Permission Revocation**: If a permission node is pruned by an earlier patch pass, subsequent passes skip the missing node without throwing exceptions.
 3. **Binary Trimming**: Universal native trimmers zero only standard crash/telemetry libraries without colliding with app-specific bloat trimmers (such as Brave's `Remove Extra Files` or TikTok's `Remove Extra Files`).
 
 ### Do Not Stack Universals on Maintained Apps
-Dedicated app patches (Brave, Gboard Lite, TikTok) are a strict precision superset for their respective targets. Enabling Block Trackers or Block Tracking SDKs on top of dedicated patches adds no extra protection.
+Dedicated app patches (Brave, Gboard Lite, TikTok) are a strict precision superset for their respective targets. Enabling Block Trackers (Universal) or Block Tracking SDKs on top of dedicated patches adds no extra protection.
 
 If patcher logs report components already clean or 0 methods hooked, that is the expected outcome, not a failure. Stacking these universals on maintained apps only adds patch execution time (such as expensive full-DEX scans on large targets like TikTok) and risks breaking features like login, account sync, or push notifications if optional toggles (e.g., device-ID providers, Firebase init, or push engagement) are enabled. To cover a newly discovered generic SDK in a maintained app, port the rule into that app's dedicated patch instead of enabling the universal patch.
 
@@ -54,7 +54,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 
 | Universal Patch | Safe Across Any APK? | Notes & Usage Guidelines |
 | :--- | :---: | :--- |
-| **Block Trackers** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, TikTok): dedicated telemetry patch already covers them; stacking adds no protection. |
+| **Block Trackers (Universal)** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, TikTok): dedicated telemetry patch already covers them; stacking adds no protection. |
 | **Remove Tracking Libraries** | ✅ Yes | Zeroes standard crash reporting, profiler, and bandwidth-sharing `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`, `libhopmn`). |
 | **Shrink WebP Images** | ✅ Yes | Lossless metadata stripping adhering strictly to RFC 9649 / libwebp bitstream specification. |
 | **Shrink PNG Images** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
@@ -214,13 +214,13 @@ All options in **`Go Fully Offline`** are declared as native boolean switches (t
 
 ---
 
-## 6. Block Trackers (`universalTelemetryNeutralizerPatch`)
+## 6. Block Trackers (Universal) (`universalTelemetryNeutralizerPatch`)
 
-The **`Block Trackers`** patch neutralizes pervasive third-party tracking, ad-attribution SDKs, and crash analytics frameworks at the Android application manifest level (`AndroidManifest.xml`). It combines permission revocation, component deactivation, and declarative metadata opt-out injection. On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
+The **`Block Trackers (Universal)`** patch neutralizes pervasive third-party tracking, ad-attribution SDKs, and crash analytics frameworks at the Android application manifest level (`AndroidManifest.xml`). It combines permission revocation, component deactivation, and declarative metadata opt-out injection. On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
 
 > [!NOTE]
 > ### The Multi-Layer Telemetry Defense
-> Rather than relying exclusively on network blocking or domain filtering, `Block Trackers` operates across three structural tiers in Android:
+> Rather than relying exclusively on network blocking or domain filtering, `Block Trackers (Universal)` operates across three structural tiers in Android:
 > 1. **OS Capability Revocation**: Strips the Android Advertising ID (`AD_ID`) and Privacy Sandbox permissions so the Google Play Services subsystem cannot return a hardware-bound advertising identifier or assign ad attribution topics.
 > 2. **Component Execution Halting**: Explicitly sets `android:enabled="false"` on known third-party analytics ContentProviders and background upload services. Since Android initializes `ContentProvider.onCreate()` before `Application.onCreate()`, disabling these providers halts SDK bootstrap before any user code or tracking loops run.
 > 3. **Declarative Opt-Out Injection**: Injects vendor-standard `<meta-data>` opt-out flags directly into `<application>`. Modern SDKs (such as Firebase Analytics, Google Analytics, Firebase Crashlytics, Firebase Performance, AppsFlyer, and Sentry) check these manifest flags during early initialization and automatically deactivate internal collectors and schedulers.
@@ -271,7 +271,7 @@ The **`Remove Tracking Libraries`** patch inspects native architecture directori
 ### 🛡️ In-Situ Zeroing vs. File Deletion
 - **ZIP Central Directory Invariant**: In Morphe's patching pipeline, deleting native `.so` files from the resource tree can break APK alignment and trigger `UnsatisfiedLinkError` if the application's Java/Kotlin code contains strict class-level `System.loadLibrary(...)` calls without exception handlers.
 - **Empty Stub Execution**: By replacing the payload of tracking `.so` files with a 0-byte stub directly in the APK, APK storage is fully reclaimed while eliminating native crash reporting background threads, memory dump scanners, and watchdog sidecars.
-- **Eager Loading Warning**: Trimmed libraries are only safe if not loaded eagerly by bytecode. Pair with Block Tracking SDKs (`blockCrashReporters`) or verify no `System.loadLibrary` calls to avoid `UnsatisfiedLinkError` boot crashes. For Honeygain (`libhopmn.so`), zeroing is safe at boot because loader errors are caught, but `HopmnSrv.reload()` requires pairing with Block Trackers service deactivation and Block Tracking SDKs (`blockBandwidthSharing`) to prevent runtime `UnsatisfiedLinkError` if the SDK runs.
+- **Eager Loading Warning**: Trimmed libraries are only safe if not loaded eagerly by bytecode. Pair with Block Tracking SDKs (`blockCrashReporters`) or verify no `System.loadLibrary` calls to avoid `UnsatisfiedLinkError` boot crashes. For Honeygain (`libhopmn.so`), zeroing is safe at boot because loader errors are caught, but `HopmnSrv.reload()` requires pairing with Block Trackers (Universal) service deactivation and Block Tracking SDKs (`blockBandwidthSharing`) to prevent runtime `UnsatisfiedLinkError` if the SDK runs.
 
 ### Targeted Native Libraries
 
@@ -462,13 +462,13 @@ Plain domains (`log.example.com`), classic hosts lines (`0.0.0.0 log.example.com
 
 ## 15. Block Tracking SDKs (`universalSdkBlockerPatch`)
 
-The **`Block Tracking SDKs`** patch neutralizes pervasive third-party APM, crash reporting, analytics, attribution, session replay, location tracking, bandwidth-sharing monetization, and push engagement SDKs directly at the Dalvik bytecode level (`classes*.dex`). It serves as the runtime execution counterpart to **`Block Trackers`** (manifest layer). On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
+The **`Block Tracking SDKs`** patch neutralizes pervasive third-party APM, crash reporting, analytics, attribution, session replay, location tracking, bandwidth-sharing monetization, and push engagement SDKs directly at the Dalvik bytecode level (`classes*.dex`). It serves as the runtime execution counterpart to **`Block Trackers (Universal)`** (manifest layer). On repo-maintained apps, do not stack this patch on top of dedicated telemetry patches; see [Do Not Stack Universals on Maintained Apps](#do-not-stack-universals-on-maintained-apps).
 
 Tracker catalog derived from the Exodus Privacy tracker database (https://exodus-privacy.eu.org), database contents under ODbL 1.0 / DbCL 1.0. Only Analytics, Crash reporting and Profiling category SDKs are covered; advertisement and functional SDKs are excluded or kept behind disabled-by-default toggles.
 
 > [!NOTE]
 > ### Runtime Early Return-Void Neutralization
-> While `Block Trackers` operates at packaging time by revoking manifest permissions, disabling `ContentProvider` / background `Service` components, and injecting opt-out `<meta-data>`, applications often initialize SDKs programmatically inside `Application.onCreate()` or activity lifecycles.
+> While `Block Trackers (Universal)` operates at packaging time by revoking manifest permissions, disabling `ContentProvider` / background `Service` components, and injecting opt-out `<meta-data>`, applications often initialize SDKs programmatically inside `Application.onCreate()` or activity lifecycles.
 >
 > `Block Tracking SDKs` neutralizes programmatic initialization and telemetry dispatch by scanning for known SDK package prefixes and conservative method signatures (such as `init`, `initialize`, `start`, `recordMetric`, `trackEvent`, `reportException`), prepending a zero-register Dalvik `return-void` instruction (`0x0e`) at instruction index 0 of matched void methods. The method returns immediately upon invocation before executing background threads, socket connections, or device profiling loops.
 
@@ -482,7 +482,7 @@ Tracker catalog derived from the Exodus Privacy tracker database (https://exodus
 - **Location & Beacon Tracking**: Radar (`Lio/radar`), Gimbal (`Lcom/gimbal`), Estimote (`Lcom/estimote`).
 - **Legacy Google Analytics**: Pre-Firebase Google Analytics v4 / GMS Analytics (`Lcom/google/analytics`, `Lcom/google/android/gms/analytics`).
 - **Push Engagement**: OneSignal (`Lcom/onesignal`), Airship (`Lcom/urbanairship`), Braze (`Lcom/braze`, `Lcom/appboy`).
-- **Bandwidth-Sharing Monetization**: Honeygain (`Lio/hopmonsdk`), Appsalt (`Lcom/appsalt`), EarnFM (`Lcom/fleet`). Manifest component deactivation (`Block Trackers`) is the primary kill; bytecode hooks provide defense-in-depth on cold-start entry points. Honeygain entry points return non-void objects or booleans (`create`, `getInstance`, `builder`, `start()Z`), while `startWithConsent`/`showConsent` trigger consent dialog UI and `stop`/`resetConsent` invert direction; with zero safe void start methods, Honeygain carries empty method sets to prevent unsafe stubbing. Appsalt hooks safe void static entry points (`initialize`, `start`, `optIn`, `requestConsent`); non-void getters and direction-inverting methods (`stop`, `optOut`) are excluded. EarnFM (`com.fleet.FleetSdk`) carries no direct bytecode hooks (entries are constructors, non-void booleans `initialize`/`startSdk`/`stopSdk`/`destroyServer`/`storeConsent`/`isInitialized`, non-void int `getActivePort`, config setter `setStoreLogs`, or internal update callback `_performVersionCheck`) and declares no manifest components; it carries empty method sets for label registration without hook risk. It is neutralized by (a) the Appsalt opt-in cascade on fresh installs (FleetSdk is instantiated and started only when Appsalt reports opted-in; a pre-existing opt-in persisted in `appsalt_prefs` requires a one-time in-app opt-out or app data clear), and (b) blocking CDN download endpoints (`https://cdn.earn.fm/native_libs_v2` and fallback `https://cdn.earnfm.fo/native_libs_v2`) via user host blocklists.
+- **Bandwidth-Sharing Monetization**: Honeygain (`Lio/hopmonsdk`), Appsalt (`Lcom/appsalt`), EarnFM (`Lcom/fleet`). Manifest component deactivation (`Block Trackers (Universal)`) is the primary kill; bytecode hooks provide defense-in-depth on cold-start entry points. Honeygain entry points return non-void objects or booleans (`create`, `getInstance`, `builder`, `start()Z`), while `startWithConsent`/`showConsent` trigger consent dialog UI and `stop`/`resetConsent` invert direction; with zero safe void start methods, Honeygain carries empty method sets to prevent unsafe stubbing. Appsalt hooks safe void static entry points (`initialize`, `start`, `optIn`, `requestConsent`); non-void getters and direction-inverting methods (`stop`, `optOut`) are excluded. EarnFM (`com.fleet.FleetSdk`) carries no direct bytecode hooks (entries are constructors, non-void booleans `initialize`/`startSdk`/`stopSdk`/`destroyServer`/`storeConsent`/`isInitialized`, non-void int `getActivePort`, config setter `setStoreLogs`, or internal update callback `_performVersionCheck`) and declares no manifest components; it carries empty method sets for label registration without hook risk. It is neutralized by (a) the Appsalt opt-in cascade on fresh installs (FleetSdk is instantiated and started only when Appsalt reports opted-in; a pre-existing opt-in persisted in `appsalt_prefs` requires a one-time in-app opt-out or app data clear), and (b) blocking CDN download endpoints (`https://cdn.earn.fm/native_libs_v2` and fallback `https://cdn.earnfm.fo/native_libs_v2`) via user host blocklists.
 
 ### Configuration in Morphe Manager
 
