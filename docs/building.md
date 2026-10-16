@@ -8,7 +8,7 @@ Instructions and toolchain requirements for compiling, testing, and developing *
 
 - **JDK 17+** (JDK 21 Temurin recommended)
 - **Gradle 9.6.1** (included via `./gradlew` wrapper)
-- **Python 3.x** with the project virtualenv in `./venv/` (`pip install -r requirements.txt`), used by the reverse engineering harness
+- **Python 3.x** with the project virtualenv in `./venv/` (`pip install -r requirements.txt`)
 - **Android SDK** (API Level 34+ build-tools if compiling the companion extension)
 
 ---
@@ -42,9 +42,6 @@ Execute AGP linting, Kotlin compiler checks, and unit tests:
 
 # Run Kotlin unit tests
 ./gradlew test
-
-# Run Python reverse engineering harness tests
-./venv/bin/python -m unittest discover harness/tests
 ```
 
 ---

@@ -63,4 +63,4 @@ Feature requests that fall into any of the following categories will be closed a
 ### ❌ Arbitrary New Target Applications
 * **What is requested**: Adding new target applications without architectural alignment or maintainability rationale.
 * **Why it is out of scope**:
-  Every supported application requires ongoing maintenance, reverse-engineering harnesses, and automated testing pipelines. New targets are added only when they offer clear utility, clean patch boundaries, and sustainable long-term maintenance.
+  Every supported application requires ongoing maintenance, reverse-engineering tooling, and automated testing pipelines. New targets are added only when they offer clear utility, clean patch boundaries, and sustainable long-term maintenance.
