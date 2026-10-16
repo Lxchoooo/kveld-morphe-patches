@@ -55,7 +55,7 @@ Exception: Block Tracking Servers remains a valid opt-in patch on maintained app
 | Universal Patch | Safe Across Any APK? | Notes & Usage Guidelines |
 | :--- | :---: | :--- |
 | **Block Trackers** | ✅ Yes | Strips advertising IDs and disables third-party analytics providers/receivers without impacting app functionality. Not recommended on maintained apps (Brave, Gboard Lite, Hevy, TikTok, NokoPrint, Xiaomi Earbuds): dedicated telemetry patch already covers them; stacking adds no protection. |
-| **Remove Tracking Libraries** | ✅ Yes | Zeroes standard crash reporting and profiler `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`). |
+| **Remove Tracking Libraries** | ✅ Yes | Zeroes standard crash reporting, profiler, and bandwidth-sharing `.so` files (`libcrashlytics`, `libsentry`, `libgwp-asan`, `libhopmn`). |
 | **Shrink WebP Images** | ✅ Yes | Lossless metadata stripping adhering strictly to RFC 9649 / libwebp bitstream specification. |
 | **Shrink PNG Images** | ✅ Yes | Lossless RGBA-verified zlib recompression and chunk stripping. |
 | **Clean App Packaging** | ✅ Yes | Prunes compiler properties, Kotlin debug tables, and duplicate license files from the APK root. |
@@ -267,22 +267,24 @@ The **`Block Trackers`** patch neutralizes pervasive third-party tracking, ad-at
 
 ## 7. Remove Tracking Libraries (`universalNativeBinaryTrimmerPatch`)
 
-The **`Remove Tracking Libraries`** patch inspects native architecture directories in `lib/**` (`lib/arm64-v8a/`, `lib/armeabi-v7a/`, `lib/x86_64/`, etc.) and performs byte-level in-situ zeroing (`writeBytes(byteArrayOf())`) on non-essential crash reporters, telemetry engines, and debugging/profiling companion shared libraries (`.so`).
+The **`Remove Tracking Libraries`** patch inspects native architecture directories in `lib/**` (`lib/arm64-v8a/`, `lib/armeabi-v7a/`, `lib/x86_64/`, etc.) and performs byte-level in-situ zeroing (`writeBytes(byteArrayOf())`) on non-essential crash reporters, telemetry engines, debugging/profiling companions, and bandwidth-sharing monetization shared libraries (`.so`).
 
 ### 🛡️ In-Situ Zeroing vs. File Deletion
 - **ZIP Central Directory Invariant**: In Morphe's patching pipeline, deleting native `.so` files from the resource tree can break APK alignment and trigger `UnsatisfiedLinkError` if the application's Java/Kotlin code contains strict class-level `System.loadLibrary(...)` calls without exception handlers.
 - **Empty Stub Execution**: By replacing the payload of tracking `.so` files with a 0-byte stub directly in the APK, APK storage is fully reclaimed while eliminating native crash reporting background threads, memory dump scanners, and watchdog sidecars.
-- **Eager Loading Warning**: Trimmed libraries are only safe if not loaded eagerly by bytecode. Pair with Block Tracking SDKs (`blockCrashReporters`) or verify no `System.loadLibrary` calls to avoid `UnsatisfiedLinkError` boot crashes.
+- **Eager Loading Warning**: Trimmed libraries are only safe if not loaded eagerly by bytecode. Pair with Block Tracking SDKs (`blockCrashReporters`) or verify no `System.loadLibrary` calls to avoid `UnsatisfiedLinkError` boot crashes. For Honeygain (`libhopmn.so`), zeroing is safe at boot because loader errors are caught, but `HopmnSrv.reload()` requires pairing with Block Trackers service deactivation and Block Tracking SDKs (`blockBandwidthSharing`) to prevent runtime `UnsatisfiedLinkError` if the SDK runs.
 
 ### Targeted Native Libraries
 
 - **Crash Reporting & Telemetry**: `libcrashlytics.so`, `libcrashlytics-trampoline.so`, `libsentry.so`, `libsentry-android.so`, `libbugly.so`, `libfirebase-crashlytics.so`, `libapp-measurement.so`, `libplcrashreporter.so`.
 - **Debuggers & Profilers**: `libgwp-asan.so`, `libprofiler-service.so`, `libperfa.so`, `libperfa_arm.so`, `libperfa_arm64.so`, `libsimpleperf.so`, `libleaktracer.so`.
+- **Bandwidth-Sharing Monetization**: `libhopmn.so`.
 
 ### Configuration in Morphe Manager
 
 - **Crash reporters (`trimCrashReporters`)**: Replaces native crash reporting and telemetry `.so` binaries with 0-byte stubs (Toggle, default: `true`).
 - **Debuggers (`trimDebugProfilers`)**: Replaces runtime profilers, memory leak detectors, and ASan instrumentation `.so` binaries with 0-byte stubs (Toggle, default: `true`).
+- **Bandwidth-sharing SDKs (`trimBandwidthSharing`)**: Replaces Honeygain bandwidth monetization native library (`libhopmn.so`) with a 0-byte stub (Toggle, default: `true`).
 
 ---
 

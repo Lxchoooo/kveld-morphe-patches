@@ -32,6 +32,8 @@ private val DEBUG_AND_PROFILER_LIBS = setOf(
     "libleaktracer.so",
 )
 
+private val BANDWIDTH_SHARING_LIBS = setOf("libhopmn.so")
+
 private val EMPTY_STUB_BYTES = byteArrayOf()
 
 private fun collectCandidateFiles(libDir: File, targetLibs: Set<String>): List<File> {
@@ -71,6 +73,14 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
         required = false,
     )
 
+    val trimBandwidthSharing by booleanOption(
+        key = "trimBandwidthSharing",
+        default = true,
+        title = "Bandwidth-sharing SDKs",
+        description = "Removes Honeygain bandwidth monetization native library.",
+        required = false,
+    )
+
     execute {
         val libDir = try {
             get("lib")
@@ -86,6 +96,7 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
         val targetLibs = mutableSetOf<String>()
         if (trimCrashReporters ?: true) targetLibs.addAll(CRASH_AND_TRACKING_LIBS)
         if (trimDebugProfilers ?: true) targetLibs.addAll(DEBUG_AND_PROFILER_LIBS)
+        if (trimBandwidthSharing ?: true) targetLibs.addAll(BANDWIDTH_SHARING_LIBS)
 
         if (targetLibs.isEmpty()) {
             println("[Remove Tracking Libraries] All trimming options disabled - skipping.")
@@ -117,6 +128,6 @@ val universalNativeBinaryTrimmerPatch = rawResourcePatch(
 
         val savedFormatted = LocaleUtils.formatBytes(savedBytes)
         println("[Remove Tracking Libraries] Trimmed ${strippedLibs.size} companion native libraries (${strippedLibs.joinToString(", ")}) -> Saved $savedFormatted")
-        println("[Remove Tracking Libraries] Warning: trimmed libs are only safe if nothing loads them eagerly; pair with Universal SDK Blocker (blockCrashReporters) or verify no System.loadLibrary references, otherwise UnsatisfiedLinkError boot crashes follow.")
+        println("[Remove Tracking Libraries] Warning: trimmed libs are only safe if nothing loads them eagerly; pair with Universal SDK Blocker (blockCrashReporters) and bandwidth protections (Block Trackers service kill + blockBandwidthSharing cascade) or verify no System.loadLibrary references, otherwise UnsatisfiedLinkError boot crashes follow.")
     }
 }
