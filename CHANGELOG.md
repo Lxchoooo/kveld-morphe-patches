@@ -1,3 +1,10 @@
+## [2.7.0-experimental.27](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.26...v2.7.0-experimental.27) (2026-10-16)
+
+### Bug Fixes
+
+* **tiktok:** suppress typing sticker strip render and data methods ([56eca7a](https://github.com/kveld9/kveld-morphe-patches/commit/56eca7a038e2c169bf3d5ae503579109807658d3))
+* **universal:** stop WorkManager foreground and multiprocess services ([f5d2609](https://github.com/kveld9/kveld-morphe-patches/commit/f5d2609e82c356dadf2805b4f20b50564f6eab10))
+
 ## [2.7.0-experimental.26](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.25...v2.7.0-experimental.26) (2026-10-16)
 
 ### Bug Fixes
