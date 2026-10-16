@@ -309,10 +309,9 @@ Every patch modification or contribution must pass the official Morphe Patcher i
 # Execute in-situ patching test for target application
 ./gradlew runPatchTest -Papp=<targetApp>   # targetApp is the app id (see docs/apps/)
 ```
-Additionally, ensure all Gradle checks and automated harness tests pass cleanly:
+Additionally, ensure all Gradle checks pass cleanly:
 ```bash
 ./gradlew check
-./venv/bin/python -m unittest discover harness/tests
 ```
 
 ---
