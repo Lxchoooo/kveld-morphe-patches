@@ -16,7 +16,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = BRAVE_TARGET_VERSION,
-                description = "Download com.brave.browser v$BRAVE_TARGET_VERSION (APK) arm64-v8a nodpi versionCode 429705704 (APK) from APKMirror"
+                description = "Download Bravemonoarm64.apk (arm64) or BraveMonoarm.apk (arm32) v$BRAVE_TARGET_VERSION from github.com/brave/brave-browser/releases; Universal builds unsupported"
             )
         )
     )
