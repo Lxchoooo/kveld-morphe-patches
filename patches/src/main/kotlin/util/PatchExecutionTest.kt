@@ -350,6 +350,18 @@ private fun verifyInputVersion(
     error("Input APK ${inputFile.name} version '$versionName' does not match expected target version(s) $expectedVersions. Pass -Papk=<path to the target version> or -PallowVersionMismatch=true for differential runs on other versions.")
 }
 
+private fun sanitizedSplitEntryName(entryName: String): String? {
+    if (entryName.isBlank()) return null
+    if (entryName.contains("..")) return null
+    if (entryName.contains('/') || entryName.contains('\\')) return null
+    if (entryName.startsWith("/") || entryName.contains(":")) return null
+    val base = File(entryName).name
+    if (base.isBlank() || base == "." || base == "..") return null
+    if (base != entryName) return null
+    if (!base.endsWith(".apk", ignoreCase = true)) return null
+    return base
+}
+
 fun main(args: Array<String>) {
     val userHome = System.getProperty("user.home") ?: "."
     val searchDirs = getSearchDirectories(userHome)
@@ -788,11 +800,17 @@ fun main(args: Array<String>) {
                             ?: apkmZip.entries().asSequence().firstOrNull { it.name.endsWith(".apk") && (it.name.contains("base") || it.name.startsWith(targetApp.packageName)) }
                             ?: apkmZip.entries().asSequence().filter { it.name.endsWith(".apk") }.maxByOrNull { it.size }
                         val splitApkEntries = apkmZip.entries().asSequence()
-                            .filter { it.name.endsWith(".apk", ignoreCase = true) && it.name != baseEntry?.name }
+                            .filter { !it.isDirectory && it.name.endsWith(".apk", ignoreCase = true) && it.name != baseEntry?.name }
                             .toList()
                         splitApkEntries.parallelStream().forEach { splitEntry ->
-                            val rawSplitFile = File(tempDir, splitEntry.name)
-                            if (!rawSplitFile.canonicalFile.toPath().startsWith(tempDir.canonicalFile.toPath())) {
+                            val safeName = sanitizedSplitEntryName(splitEntry.name)
+                            if (safeName == null) {
+                                println("[WARN] Skipping split entry '${splitEntry.name}': unsafe entry name.")
+                                return@forEach
+                            }
+                            val canonicalDir = tempDir.canonicalPath + File.separator
+                            val rawSplitFile = File(tempDir, safeName)
+                            if (!rawSplitFile.canonicalPath.startsWith(canonicalDir)) {
                                 println("[WARN] Skipping split entry '${splitEntry.name}' resolving outside workspace: ${rawSplitFile.canonicalPath}")
                                 return@forEach
                             }
@@ -819,7 +837,7 @@ fun main(args: Array<String>) {
 
                             // Prefix splits with the output name so bundles of different apps never overwrite
                             // each other and `adb install-multiple -r <out-stem>*.apk` installs the whole set.
-                            val signedSplitFile = File(outFile.parentFile, "${outFile.nameWithoutExtension}.${File(splitEntry.name).name}")
+                            val signedSplitFile = File(outFile.parentFile, "${outFile.nameWithoutExtension}.$safeName")
                             println("[SIGN] Signing companion split -> ${signedSplitFile.name}...")
                             if (zipalignBin != null && apksignerBin != null && keystoreFile.exists() && keystoreFile.length() > 0L) {
                                 val splitAlignArgs = if (supports16k) {
