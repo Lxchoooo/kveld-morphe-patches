@@ -42,7 +42,7 @@ def run_battery_test(device: AdbDevice, mode: str, output_dir: Path) -> dict:
     # Only the target package's own processes are evidence: ACTION_BATTERY_CHANGED is
     # broadcast system-wide, so unscoped keyword matching counts every other app too.
     scoped_logcat = device.filter_logcat_by_pids(logcat)
-    battery_manager_logs = [line for line in scoped_logcat.splitlines() if any(k in line.lower() for k in ["batterystatusmanager", "cr_batterystatusmanager", "cr_batterymonitorimpl", "action_battery_changed"])]
+    battery_manager_logs = [line for line in scoped_logcat if any(k in line.lower() for k in ["batterystatusmanager", "cr_batterystatusmanager", "cr_batterymonitorimpl", "action_battery_changed"])]
     
     # Audit Rule: In release builds of Chromium, BatteryStatusManager does not output verbose logcat on every broadcast by default.
     # We must explicitly separate direct log observability from broadcast delivery.

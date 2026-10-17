@@ -166,9 +166,11 @@ class AdbDevice:
         self.cmd(["logcat", "-c"], check=False)
 
     def dump_logcat(self, filter_tag: Optional[str] = None) -> str:
+        # threadtime is enforced: filter_logcat_by_pids() reads the PID from the
+        # third column, which only holds in threadtime format.
         if filter_tag:
-            return self.cmd(["logcat", "-d", "-s", filter_tag], check=False).stdout
-        return self.cmd(["logcat", "-d"], check=False).stdout
+            return self.cmd(["logcat", "-d", "-v", "threadtime", "-s", filter_tag], check=False).stdout
+        return self.cmd(["logcat", "-d", "-v", "threadtime"], check=False).stdout
 
 
 class LocalTestServer:
