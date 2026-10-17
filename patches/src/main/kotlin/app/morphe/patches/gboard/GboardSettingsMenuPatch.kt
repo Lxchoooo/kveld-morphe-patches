@@ -287,7 +287,8 @@ private fun stripUnwantedSettingsHeaders(doc: Document): Int {
         val isAbout = frag.endsWith("AboutSettingsFragment") || key.contains("0x7f140994") || key.contains("setting_about")
         val isRateUs = tagName.endsWith("RateUsPreference") || tagName.contains("RateUs", ignoreCase = true) ||
             key.contains("0x7f1409a5") || key.contains("rate_us")
-        val isFooter = tagName.endsWith("FooterPreference") || key.contains("0x7f1409ac") || key.contains("work_profile_footer")
+        // 0x7f1409ac was work_profile_footer in older versions, in 18.5.1+ it is AutoTranslate (functional); real footer is covered by tag.
+        val isFooter = tagName.endsWith("FooterPreference") || key.contains("work_profile_footer")
         val isHelpOrShare = key.contains("0x7f14099d") || key.contains("0x7f1409a6") ||
             key.contains("help_and_feedback") || key.contains("sharing") ||
             key.contains("help", ignoreCase = true) || key.contains("feedback", ignoreCase = true) ||
