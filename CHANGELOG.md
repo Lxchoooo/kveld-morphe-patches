@@ -4,6 +4,12 @@
 
 * **brave:** point download hint at supported Monochrome builds ([282264d](https://github.com/kveld9/kveld-morphe-patches/commit/282264db795c7c9a0e04cc1dac3d169a99843a35))
 
+## [2.7.0-experimental.28](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.27...v2.7.0-experimental.28) (2026-10-17)
+
+### Bug Fixes
+
+* **brave:** point download hint at supported Monochrome builds ([282264d](https://github.com/kveld9/kveld-morphe-patches/commit/282264db795c7c9a0e04cc1dac3d169a99843a35))
+
 ## [2.7.0-experimental.27](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.26...v2.7.0-experimental.27) (2026-10-16)
 
 ### ⚠ BREAKING CHANGES
