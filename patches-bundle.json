@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-17T02:17:38",
+  "created_at": "2026-10-17T02:26:38",
   "description": "## [2.7.0-experimental.28](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0-experimental.27...v2.7.0-experimental.28) (2026-10-17)\n\n### Bug Fixes\n\n* **brave:** point download hint at supported Monochrome builds ([282264d](https://github.com/kveld9/kveld-morphe-patches/commit/282264db795c7c9a0e04cc1dac3d169a99843a35))",
   "download_url": "https://github.com/kveld9/kveld-morphe-patches/releases/download/v2.7.0-experimental.28/patches-2.7.0-experimental.28.mpp",
   "signature_download_url": "",
