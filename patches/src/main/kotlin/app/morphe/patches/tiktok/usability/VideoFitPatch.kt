@@ -209,6 +209,10 @@ val videoFitPatch = bytecodePatch(
         println("[Video Fit Mode] Hooked FeedCellAdaptionComponentV2.Kr(Result)V -> prepended fitted() swap.")
         patched++
 
-        println("[Video Fit Mode] Applied $patched video fit hook(s) -> fitMode=$mode.")
+        if (patched == 0) {
+            println("[Video Fit Mode] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println("[Video Fit Mode] Applied $patched video fit hook(s) -> fitMode=$mode.")
+        }
     }
 }

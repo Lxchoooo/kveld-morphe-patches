@@ -139,7 +139,11 @@ val gboardFeatureFlagsPatch = bytecodePatch(
         println("[Feature Flags] Emoji Scale Setting: Injected isolated flag override into $targetClassEmoji.<clinit>()")
         patched++
 
-        println("[Feature Flags] Applied $patched feature flag override(s) cleanly (native settings unpolluted).")
+        if (patched == 0) {
+            println("[Feature Flags] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println("[Feature Flags] Applied $patched feature flag override(s) cleanly (native settings unpolluted).")
+        }
     }
 }
 
