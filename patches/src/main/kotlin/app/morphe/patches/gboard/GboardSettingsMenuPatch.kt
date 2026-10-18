@@ -119,14 +119,43 @@ val gboardSettingsMenuPatch = resourcePatch(
 
         var populatedScreen = false
         val devScreen = findDeveloperSettingsScreen(resDir)
+        val emojiSeq = "EmojiScaleSliderPreference".toByteArray()
+
         if (devScreen != null) {
             document(devScreen.absolutePath).use { doc ->
-                populatedScreen = populateMorpheSettingsScreen(doc)
+                var nativeSliderNode: Element? = null
+                var nativeSliderAppNs: String? = null
+
+                resDir.walkTopDown()
+                    .filter { it.isFile && it.extension == "xml" && it != devScreen }
+                    .forEach { file ->
+                        if (nativeSliderNode != null) return@forEach
+                        if (file.readBytes().containsSequence(emojiSeq)) {
+                            document(file.absolutePath).use { sourceDoc ->
+                                val sourceRoot = sourceDoc.documentElement ?: return@use
+                                val nodes = sourceRoot.getElementsByTagName("com.google.android.libraries.inputmethod.preferencewidgets.EmojiScaleSliderPreference")
+                                if (nodes.length > 0) {
+                                    val sourceNode = nodes.item(0) as Element
+                                    nativeSliderNode = doc.importNode(sourceNode, true) as Element
+                                    nativeSliderAppNs = sourceRoot.getAttribute("xmlns:app").ifEmpty {
+                                        sourceRoot.getAttributeNS("http://www.w3.org/2000/xmlns/", "app")
+                                    }.ifEmpty {
+                                        "http://schemas.android.com/apk/res-auto"
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                if (nativeSliderNode == null) {
+                    println("[Keyboard Settings] Skipped: native EmojiScaleSliderPreference not found, emoji scaling left stock.")
+                }
+
+                populatedScreen = populateMorpheSettingsScreen(doc, nativeSliderNode, nativeSliderAppNs)
             }
         }
 
         var strippedEmojiSliders = 0
-        val emojiSeq = "EmojiScaleSliderPreference".toByteArray()
         resDir.walkTopDown().filter { it.isFile && it.extension == "xml" && it != devScreen }.forEach { file ->
             val content = file.readBytes()
             if (content.containsSequence(emojiSeq)) {
@@ -144,7 +173,7 @@ val gboardSettingsMenuPatch = resourcePatch(
             }
         }
         if (strippedEmojiSliders > 0) {
-            println("[Keyboard Settings] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
+            println("[Keyboard Settings] Moved $strippedEmojiSliders native EmojiScaleSliderPreference element(s) into Morphe screen.")
         }
 
         println("[Keyboard Settings] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
@@ -219,7 +248,11 @@ private fun hasExistingHeader(root: Element): Boolean {
     return false
 }
 
-private fun populateMorpheSettingsScreen(doc: Document): Boolean {
+private fun populateMorpheSettingsScreen(
+    doc: Document,
+    nativeSliderNode: Element? = null,
+    nativeSliderAppNs: String? = null,
+): Boolean {
     val root = doc.documentElement ?: return false
     if (root.tagName != "PreferenceScreen") return false
 
@@ -229,6 +262,9 @@ private fun populateMorpheSettingsScreen(doc: Document): Boolean {
 
     root.setAttributeNS(ANDROID_XML_NAMESPACE, "android:title", "Morphe Patches")
     root.setAttributeNS(ANDROID_XML_NAMESPACE, "android:key", Constants.GboardPrefs.KEY_SCREEN)
+    if (nativeSliderNode != null && root.getAttribute("xmlns:app").isEmpty()) {
+        root.setAttribute("xmlns:app", nativeSliderAppNs ?: "http://schemas.android.com/apk/res-auto")
+    }
 
     // 0. Quick Actions & Status
     val actionsCategory = doc.createElement("androidx.preference.PreferenceCategory")
@@ -316,16 +352,9 @@ private fun populateMorpheSettingsScreen(doc: Document): Boolean {
             defaultValue = "true",
         )
     )
-    appearanceCategory.appendChild(
-        createSeekBar(
-            doc = doc,
-            key = Constants.GboardPrefs.KEY_EMOJI_SCALE,
-            title = "Emoji Size Scaling",
-            summary = "Adjust emoji visual size on the keyboard (50% - 150%)",
-            defaultValue = Constants.GboardPrefs.DEFAULT_EMOJI_SCALE,
-            max = Constants.GboardPrefs.MAX_EMOJI_SCALE,
-        )
-    )
+    if (nativeSliderNode != null) {
+        appearanceCategory.appendChild(nativeSliderNode)
+    }
     root.appendChild(appearanceCategory)
 
     // 2. Toolbar & Navigation

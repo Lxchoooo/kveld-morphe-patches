@@ -11,8 +11,6 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.string
 import app.morphe.patches.shared.Constants
 import app.morphe.patches.shared.cleanClassName
-import app.morphe.patches.shared.clearTryBlocks
-import app.morphe.patches.shared.ensureRegisterCount
 import app.morphe.patches.shared.sharedExtensionPatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
@@ -139,27 +137,6 @@ val gboardFeatureFlagsPatch = bytecodePatch(
         }
         val targetClassEmoji = cleanClassName(fpEmoji.originalClassDef.type)
         println("[Feature Flags] Emoji Scale Setting: Injected isolated flag override into $targetClassEmoji.<clinit>()")
-        patched++
-
-        // 8. Hook EmojiKeyboardUtils.getPrefKeyboardEmojiScale to return dynamic Morphe scale
-        val fpEmojiScale = Fingerprint(
-            strings = listOf("EmojiKeyboardUtils.java", "Failed to parse emoji scale setting!"),
-            returnType = "F",
-        )
-        fpEmojiScale.method.apply {
-            clearTryBlocks()
-            ensureRegisterCount(2)
-            removeInstructions(0, implementation!!.instructions.count())
-            addInstructions(
-                0,
-                """
-                    invoke-static {p0}, ${Constants.GBOARD_EXTENSION_CLASS}->getEmojiScale(Landroid/content/Context;)F
-                    move-result v0
-                    return v0
-                """.trimIndent(),
-            )
-        }
-        println("[Feature Flags] EmojiKeyboardUtils: Hooked getPrefKeyboardEmojiScale to dynamic Morphe scale.")
         patched++
 
         println("[Feature Flags] Applied $patched feature flag override(s) cleanly (native settings unpolluted).")

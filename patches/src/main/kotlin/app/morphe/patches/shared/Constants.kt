@@ -109,7 +109,6 @@ object Constants {
         const val KEY_BOTTOM_PADDING = "morphe_bottom_padding"
         const val KEY_HIDE_IME_NAV_BAR = "morphe_hide_ime_nav_bar"
         const val KEY_TOOLBAR_ITEM_COUNT = "morphe_toolbar_item_count"
-        const val KEY_EMOJI_SCALE = "morphe_emoji_scale"
         const val KEY_KEY_SHAPE_SELECTION = "morphe_key_shape_selection"
         const val KEY_ACCESS_POINTS_REDESIGN = "morphe_access_points_redesign"
         const val KEY_DISMISS_SUGGESTIONS = "morphe_dismiss_suggestions"
@@ -154,10 +153,6 @@ object Constants {
         const val MIN_CLIPBOARD_CHAR_LIMIT_K = 5
         const val MAX_CLIPBOARD_CHAR_LIMIT_K = 200
         const val DEFAULT_CLIPBOARD_CHAR_LIMIT_K = 20
-
-        const val MIN_EMOJI_SCALE = 50
-        const val MAX_EMOJI_SCALE = 150
-        const val DEFAULT_EMOJI_SCALE = 100
     }
 }
 

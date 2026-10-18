@@ -30,7 +30,6 @@ public class GboardExtension {
     public static final String PREF_KEY_BOTTOM_PADDING = "morphe_bottom_padding";
     public static final String PREF_KEY_HIDE_IME_NAV_BAR = "morphe_hide_ime_nav_bar";
     public static final String PREF_KEY_TOOLBAR_ITEM_COUNT = "morphe_toolbar_item_count";
-    public static final String PREF_KEY_EMOJI_SCALE = "morphe_emoji_scale";
     public static final String PREF_KEY_KEY_SHAPE_SELECTION = "morphe_key_shape_selection";
     public static final String PREF_KEY_ACCESS_POINTS_REDESIGN = "morphe_access_points_redesign";
     public static final String PREF_KEY_DISMISS_SUGGESTIONS = "morphe_dismiss_suggestions";
@@ -74,10 +73,6 @@ public class GboardExtension {
     public static final int MIN_CLIPBOARD_CHAR_LIMIT_K = 5;
     public static final int MAX_CLIPBOARD_CHAR_LIMIT_K = 200;
     public static final int DEFAULT_CLIPBOARD_CHAR_LIMIT_K = 20;
-
-    public static final int MIN_EMOJI_SCALE = 50;
-    public static final int MAX_EMOJI_SCALE = 150;
-    public static final int DEFAULT_EMOJI_SCALE = 100;
 
 
 
@@ -145,7 +140,6 @@ public class GboardExtension {
     private static volatile int cachedBottomPadding = 0;
     private static volatile boolean cachedHideImeNavBar = false;
     private static volatile int cachedToolbarItemCount = 5;
-    private static volatile int cachedEmojiScale = 100;
     private static volatile boolean cachedDecoupleHaptics = true;
     private static volatile boolean listenersInitialized = false;
 
@@ -157,8 +151,6 @@ public class GboardExtension {
         cachedBottomPadding = Math.max(MIN_BOTTOM_PADDING, Math.min(MAX_BOTTOM_PADDING, pad));
         int tbCount = getIntPref(PREF_KEY_TOOLBAR_ITEM_COUNT, DEFAULT_TOOLBAR_ITEM_COUNT);
         cachedToolbarItemCount = Math.max(MIN_TOOLBAR_ITEM_COUNT, Math.min(MAX_TOOLBAR_ITEM_COUNT, tbCount));
-        int scale = getIntPref(PREF_KEY_EMOJI_SCALE, DEFAULT_EMOJI_SCALE);
-        cachedEmojiScale = Math.max(MIN_EMOJI_SCALE, Math.min(MAX_EMOJI_SCALE, scale));
     }
 
     private static void showRestartToast(Context ctx) {
@@ -690,15 +682,6 @@ public class GboardExtension {
         return getBooleanPref(PREF_KEY_BLUETOOTH_MIC, true);
     }
 
-    public static float getEmojiScale(Context context) {
-        ensureListeners();
-        return ((float) cachedEmojiScale) / 100.0f;
-    }
-
-    public static float getEmojiScale() {
-        return getEmojiScale(null);
-    }
-
     private static Field findField(Class<?> clazz, String fieldName) {
         Class<?> curr = clazz;
         while (curr != null && curr != Object.class) {
@@ -748,8 +731,6 @@ public class GboardExtension {
                 min = MIN_CLIPBOARD_GRID_COLUMNS;
             } else if (PREF_KEY_CLIPBOARD_CHAR_LIMIT.equals(key)) {
                 min = MIN_CLIPBOARD_CHAR_LIMIT_K;
-            } else if (PREF_KEY_EMOJI_SCALE.equals(key)) {
-                min = MIN_EMOJI_SCALE;
             }
 
             if (min > 0) {
