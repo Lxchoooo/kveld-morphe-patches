@@ -308,6 +308,10 @@ val customOfflineVideosLimitPatch = bytecodePatch(
             println("[Offline Video Limit] Radio item cell note: ${e.message}")
         }
 
-        println("[Offline Video Limit] Applied $patched offline videos limit hook(s).")
+        if (patched == 0) {
+            println("[Offline Video Limit] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println("[Offline Video Limit] Applied $patched offline videos limit hook(s).")
+        }
     }
 }
