@@ -548,7 +548,7 @@ val feedInterfaceDeclutterPatch = bytecodePatch(
                 onViewCreatedMethod.addInstructions(
                     iputIndex + 1,
                     """
-                        invoke-static {v$regA}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFollowButton(Landroid/view/View;)V
+                        invoke-static/range {v$regA .. v$regA}, ${Constants.TIKTOK_EXTENSION_MEDIA_HOOK}->hideFollowButton(Landroid/view/View;)V
                     """.trimIndent(),
                 )
                 println("[Declutter Video Interface] Hooked FeedAvatarDefaultAssem.onViewCreated() -> Immediate GONE initialization on v$regA.")

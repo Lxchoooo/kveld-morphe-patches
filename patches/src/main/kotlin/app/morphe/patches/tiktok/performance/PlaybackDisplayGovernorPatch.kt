@@ -232,7 +232,7 @@ val playbackDisplayGovernorPatch = bytecodePatch(
                 simMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_QUALITY_HOOK}->filterBitrates(Ljava/util/List;)Ljava/util/List;
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_QUALITY_HOOK}->filterBitrates(Ljava/util/List;)Ljava/util/List;
                         move-result-object v$reg
                     """.trimIndent(),
                 )
@@ -258,7 +258,7 @@ val playbackDisplayGovernorPatch = bytecodePatch(
                 simRawMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_QUALITY_HOOK}->filterBitrates(Ljava/util/List;)Ljava/util/List;
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_QUALITY_HOOK}->filterBitrates(Ljava/util/List;)Ljava/util/List;
                         move-result-object v$reg
                     """.trimIndent(),
                 )
