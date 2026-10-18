@@ -109,6 +109,10 @@ val braveSuppressInAppPromosPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Block Popups & Rating Requests] Applied ${hookedMethods.size} hooks across ${targetClasses.size} classes -> in-app surveys & promo dialogs disabled.")
+        if (hookedMethods.isEmpty()) {
+            println("[Block Popups & Rating Requests] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println("[Block Popups & Rating Requests] Applied ${hookedMethods.size} hooks across ${targetClasses.size} classes -> in-app surveys & promo dialogs disabled.")
+        }
     }
 }
