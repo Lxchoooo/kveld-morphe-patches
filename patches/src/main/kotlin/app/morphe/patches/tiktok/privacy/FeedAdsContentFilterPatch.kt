@@ -152,7 +152,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInList(Ljava/lang/Object;)V
                         """,
                     )
                 }
@@ -178,7 +178,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 feedApiMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInFeedItemList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInFeedItemList(Ljava/lang/Object;)V
                     """,
                 )
             }
@@ -211,7 +211,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 followMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInFollowFeedList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAdsInFollowFeedList(Ljava/lang/Object;)V
                     """,
                 )
             }
@@ -272,7 +272,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInFeedItemList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInFeedItemList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -301,7 +301,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -330,7 +330,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInFollowFeedList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterFeedBloatInFollowFeedList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -855,7 +855,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 feedApiMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInFeedItemList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInFeedItemList(Ljava/lang/Object;)V
                     """,
                 )
             }
@@ -880,7 +880,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 feedItemListMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInList(Ljava/lang/Object;)V
                     """,
                 )
             }
@@ -905,7 +905,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 followFeedListMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInFollowFeedList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->stripShopAnchorsInFollowFeedList(Ljava/lang/Object;)V
                     """,
                 )
             }
@@ -935,7 +935,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInFeedItemList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInFeedItemList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -964,7 +964,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -993,7 +993,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
                         """
-                            invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInFollowFeedList(Ljava/lang/Object;)V
+                            invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterLiveStreamsInFollowFeedList(Ljava/lang/Object;)V
                         """.trimIndent(),
                     )
                 }
@@ -1024,7 +1024,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 feedApiMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInFeedItemList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInFeedItemList(Ljava/lang/Object;)V
                     """.trimIndent(),
                 )
             }
@@ -1049,7 +1049,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 feedItemListMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInList(Ljava/lang/Object;)V
                     """.trimIndent(),
                 )
             }
@@ -1074,7 +1074,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 followFeedListMethod.addInstructionsAtControlFlowLabel(
                     returnIndex,
                     """
-                        invoke-static {v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInFollowFeedList(Ljava/lang/Object;)V
+                        invoke-static/range {v$reg .. v$reg}, ${Constants.TIKTOK_EXTENSION_FILTER_CLASS}->filterAiContentInFollowFeedList(Ljava/lang/Object;)V
                     """.trimIndent(),
                 )
             }
@@ -1260,7 +1260,7 @@ val feedAdsContentFilterPatch = bytecodePatch(
                 returnIndices.asReversed().forEach { (returnIndex, reg) ->
                     method.addInstructionsAtControlFlowLabel(
                         returnIndex,
-                        "invoke-static {v$reg}, $hook->filterContentInFeedItemList(Ljava/lang/Object;)V",
+                        "invoke-static/range {v$reg .. v$reg}, $hook->filterContentInFeedItemList(Ljava/lang/Object;)V",
                     )
                 }
                 if (returnIndices.isNotEmpty()) {
