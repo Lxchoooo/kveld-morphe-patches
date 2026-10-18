@@ -108,14 +108,12 @@ val gboardSettingsMenuPatch = resourcePatch(
 
         val targetScreens = findTargetPreferenceScreens(resDir)
         var injectedHeaders = 0
-        var strippedHeaders = 0
 
         for (file in targetScreens) {
             document(file.absolutePath).use { doc ->
                 if (injectMorpheHeader(doc)) {
                     injectedHeaders++
                 }
-                strippedHeaders += stripUnwantedSettingsHeaders(doc)
             }
         }
 
@@ -147,9 +145,6 @@ val gboardSettingsMenuPatch = resourcePatch(
         }
         if (strippedEmojiSliders > 0) {
             println("[Keyboard Settings] Stripped $strippedEmojiSliders native EmojiScaleSliderPreference element(s) from other preference screens.")
-        }
-        if (strippedHeaders > 0) {
-            println("[Keyboard Settings] Pruned $strippedHeaders obsolete telemetry/support header(s) from root settings.")
         }
 
         println("[Keyboard Settings] Injected top-level Morphe Patches header into $injectedHeaders root screen(s), populated dedicated settings screen: $populatedScreen.")
@@ -222,115 +217,6 @@ private fun hasExistingHeader(root: Element): Boolean {
         if (key == Constants.GboardPrefs.KEY_HEADER) return true
     }
     return false
-}
-
-private fun hasIntentChild(elem: Element): Boolean {
-    val children = elem.childNodes ?: return false
-    for (i in 0 until children.length) {
-        val child = children.item(i) as? Element ?: continue
-        if (child.tagName == "intent") return true
-    }
-    return false
-}
-
-private fun hasHelpIntent(elem: Element): Boolean {
-    val children = elem.childNodes ?: return false
-    for (i in 0 until children.length) {
-        val child = children.item(i) as? Element ?: continue
-        if (child.tagName != "intent") continue
-        val action = child.getAttributeNS(ANDROID_XML_NAMESPACE, "action").ifEmpty {
-            child.getAttribute("android:action")
-        }
-        val targetClass = child.getAttributeNS(ANDROID_XML_NAMESPACE, "targetClass").ifEmpty {
-            child.getAttribute("android:targetClass")
-        }
-        val data = child.getAttributeNS(ANDROID_XML_NAMESPACE, "data").ifEmpty {
-            child.getAttribute("android:data")
-        }
-        if (action.contains("help", ignoreCase = true) || action.contains("feedback", ignoreCase = true) ||
-            targetClass.contains("Help", ignoreCase = true) || targetClass.contains("Feedback", ignoreCase = true) ||
-            data.contains("support.google.com", ignoreCase = true)
-        ) {
-            return true
-        }
-    }
-    return false
-}
-
-private fun stripUnwantedSettingsHeaders(doc: Document): Int {
-    val root = doc.documentElement ?: return 0
-    if (root.tagName != "PreferenceScreen") return 0
-    var stripped = 0
-
-    val nodesToRemove = mutableListOf<Element>()
-    val allElements = root.getElementsByTagName("*")
-
-    for (i in 0 until allElements.length) {
-        val elem = allElements.item(i) as? Element ?: continue
-        val key = elem.getAttributeNS(ANDROID_XML_NAMESPACE, "key").ifEmpty {
-            elem.getAttribute("android:key")
-        }
-        if (key == Constants.GboardPrefs.KEY_HEADER) continue
-
-        val tagName = elem.tagName
-        val frag = elem.getAttributeNS(ANDROID_XML_NAMESPACE, "fragment").ifEmpty {
-            elem.getAttribute("android:fragment")
-        }
-        val title = elem.getAttributeNS(ANDROID_XML_NAMESPACE, "title").ifEmpty {
-            elem.getAttribute("android:title")
-        }
-        val icon = elem.getAttributeNS(ANDROID_XML_NAMESPACE, "icon").ifEmpty {
-            elem.getAttribute("android:icon")
-        }
-
-        val isPrivacy = frag.endsWith("PrivacySettingsFragment") || key.contains("0x7f1409a4") || key.contains("setting_privacy")
-        val isAbout = frag.endsWith("AboutSettingsFragment") || key.contains("0x7f140994") || key.contains("setting_about")
-        val isRateUs = tagName.endsWith("RateUsPreference") || tagName.contains("RateUs", ignoreCase = true) ||
-            key.contains("0x7f1409a5") || key.contains("rate_us")
-        // 0x7f1409ac was work_profile_footer in older versions, in 18.5.1+ it is AutoTranslate (functional); real footer is covered by tag.
-        val isFooter = tagName.endsWith("FooterPreference") || key.contains("work_profile_footer")
-        val isHelpOrShare = key.contains("0x7f14099d") || key.contains("0x7f1409a6") ||
-            key.contains("help_and_feedback") || key.contains("sharing") ||
-            key.contains("help", ignoreCase = true) || key.contains("feedback", ignoreCase = true) ||
-            frag.contains("Help", ignoreCase = true) || frag.contains("Feedback", ignoreCase = true) ||
-            tagName.contains("Help", ignoreCase = true) || tagName.contains("Feedback", ignoreCase = true) ||
-            title.contains("help", ignoreCase = true) || title.contains("feedback", ignoreCase = true) ||
-            title.contains("ayuda", ignoreCase = true) || icon.contains("help", ignoreCase = true) ||
-            hasHelpIntent(elem)
-
-        // In Gboard 18.5.1+, keys, titles, and icons are obfuscated references (@string/APKTOOL_DUMMYVAL_0x... or ?0x...),
-        // so text-based matchers fail. In root settings screens (settings.xml and settings_legacy.xml),
-        // the only HeaderPreference entries without a fragment and without an <intent> child are precisely
-        // "Share Gboard" and "Help and feedback". All functional preference headers declare a fragment;
-        // the Morphe header has a fragment and is guarded by KEY_HEADER above.
-        val isStructuralHeader = (tagName == "com.google.android.libraries.inputmethod.settings.widget.HeaderPreference" ||
-            tagName.endsWith("HeaderPreference")) &&
-            frag.isEmpty() &&
-            !hasIntentChild(elem) &&
-            key != Constants.GboardPrefs.KEY_HEADER
-
-        if (isPrivacy || isAbout || isRateUs || isFooter || isHelpOrShare || isStructuralHeader) {
-            nodesToRemove.add(elem)
-        }
-    }
-
-    for (elem in nodesToRemove) {
-        elem.parentNode?.removeChild(elem)
-        stripped++
-    }
-
-    val categories = root.getElementsByTagName("androidx.preference.PreferenceCategory")
-    for (i in (categories.length - 1) downTo 0) {
-        val cat = categories.item(i) as? Element ?: continue
-        val hasElements = (0 until cat.childNodes.length).any { idx ->
-            cat.childNodes.item(idx) is Element
-        }
-        if (!hasElements) {
-            cat.parentNode?.removeChild(cat)
-        }
-    }
-
-    return stripped
 }
 
 private fun populateMorpheSettingsScreen(doc: Document): Boolean {
