@@ -11,6 +11,7 @@ import argparse
 import json
 import re
 import sys
+import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -25,6 +26,24 @@ USER_AGENT = (
 HTTP_TIMEOUT_SECONDS = 15
 
 APP_SPECS: List[Dict[str, Any]] = [
+    # ==============================================================================
+    # ADD NEW APP HERE - TEMPLATE
+    # ==============================================================================
+    # To monitor a new app, copy-paste-fill this template into APP_SPECS below.
+    # A maintainer adding an app touches ONLY this block and adds one fixture test
+    # in TestUpdateChecker (see test_apkmirror_extraction_and_beta_filter).
+    #
+    # {
+    #     "id": "my-app",                           # 1. Unique runner/issue identifier (matches PatchExecutionTest id)
+    #     "name": "My App",                         # 2. Display name shown in logs, issue titles, and alerts
+    #     "package_name": "com.example.app",        # 3. Android application package name
+    #     "constant_key": "MY_APP_TARGET_VERSION",  # 4. Target version constant defined in Constants.kt
+    #     "source_type": "apkmirror",               # 5. Upstream host type: "apkmirror" or "apkpure"
+    #     "source_url": "https://www.apkmirror.com/apk/slug/app/",  # 6. Canonical listing URL (HTTP 200 verified live)
+    #     "path_prefix": "/apk/slug/app/app-",      # URL path prefix for release links (apkmirror)
+    #     "allow_beta": False,                      # Pre-release filter (typically False for stable patch releases)
+    # },
+    # ==============================================================================
     {
         "id": "brave",
         "name": "Brave",
@@ -200,7 +219,15 @@ def extract_apkmirror_version(
     require_variant_marker: Optional[str] = None,
     fetch_fn: Optional[Callable[[str], Optional[str]]] = None,
 ) -> Optional[str]:
-    """Extract latest remote version from APKMirror listing HTML."""
+    """Extract latest remote version from APKMirror listing HTML.
+
+    Host: APKMirror (https://www.apkmirror.com/apk/...)
+    Precedence: Release links matching path_prefix sorted descending by numeric
+    core and suffix, filtering out beta/alpha/preview/rc when allow_beta=False.
+    When require_variant_marker is specified, release candidate pages are inspected
+    newest-first for the required marker token.
+    Fixture test: test_apkmirror_extraction_and_beta_filter
+    """
     candidates: List[Tuple[Tuple[int, ...], str, str, str]] = []
 
     link_pattern = r'<a[^>]*class="[^"]*fontBlack[^"]*"[^>]*href="([^"]+)"[^>]*>(.*?)</a>'
@@ -403,6 +430,75 @@ def run_update_checks(
     return results
 
 
+# Built-in fixture test suite
+class TestUpdateChecker(unittest.TestCase):
+    """Fixture tests covering version comparison, variant markers, and extraction."""
+
+    def test_version_schemes(self) -> None:
+        """Verify non-plain version schemes and channel matching."""
+        # Standard semver
+        self.assertEqual(compare_versions("1.97.57", "1.97.57"), "current")
+        self.assertEqual(compare_versions("1.97.57", "1.97.58"), "update-available")
+        self.assertEqual(compare_versions("1.97.58", "1.97.57"), "current")
+
+        # Non-plain schemes from reference (twitter prod suffix, microsoft 4-part, instagram 5-part, lightroom)
+        self.assertEqual(compare_versions("12.34.0-prod.01", "12.34.0-prod.01"), "current")
+        self.assertEqual(compare_versions("12.34.0-prod.01", "12.35.0-prod.01"), "update-available")
+        self.assertEqual(compare_versions("12.34.0-prod.01", "12.34.0-prod.02"), "update-available")
+        self.assertEqual(compare_versions("12.34.0-prod.02", "12.34.0-prod.01"), "current")
+
+        # Microsoft 4-part builds
+        self.assertEqual(compare_versions("16.0.20527.20034", "16.0.20527.20034"), "current")
+        self.assertEqual(compare_versions("16.0.20527.20034", "16.0.20527.20035"), "update-available")
+        self.assertEqual(compare_versions("16.0.20527.20035", "16.0.20527.20034"), "current")
+
+        # Instagram 5-part builds
+        self.assertEqual(compare_versions("447.0.0.55.81", "447.0.0.55.81"), "current")
+        self.assertEqual(compare_versions("447.0.0.55.81", "448.0.0.1.1"), "update-available")
+
+        # Trailing point groups (Lightroom)
+        self.assertEqual(compare_versions("11.6.01", "11.6.01"), "current")
+        self.assertEqual(compare_versions("11.6.01", "11.6.10"), "update-available")
+
+        # Beta channel matching
+        self.assertEqual(
+            compare_versions(
+                "18.5.1.993608717-lite_beta-arm64-v8a",
+                "18.5.1.993608717 beta",
+            ),
+            "current",
+        )
+        self.assertEqual(
+            compare_versions(
+                "18.5.1.993608717-lite_beta-arm64-v8a",
+                "18.5.2.100000000 beta",
+            ),
+            "update-available",
+        )
+
+    def test_apkmirror_extraction_and_beta_filter(self) -> None:
+        """Verify APKMirror listing extraction filters out betas when allow_beta=False."""
+        fixture_html = """
+        <div>
+          <a class="fontBlack" href="/apk/moovit/moovit-bus-train-live-info/moovit-5-201-6-1811-release/">
+            Moovit: Your Transit Tracker 5.201.6.1811 beta
+          </a>
+          <a class="fontBlack" href="/apk/moovit/moovit-bus-train-live-info/moovit-5-201-1-1809-release/">
+            Moovit: Your Transit Tracker 5.201.1.1809
+          </a>
+          <a class="fontBlack" href="/apk/other-dev/other-app/other-release/">
+            Other App 1.0.0
+          </a>
+        </div>
+        """
+        ver = extract_apkmirror_version(
+            fixture_html,
+            path_prefix="/apk/moovit/moovit-bus-train-live-info/moovit-",
+            allow_beta=False,
+        )
+        self.assertEqual(ver, "5.201.1.1809")
+
+
 def main() -> int:
     """CLI entrypoint."""
     parser = argparse.ArgumentParser(
@@ -428,8 +524,20 @@ def main() -> int:
         default=None,
         help="Path to Constants.kt (default: auto-detected)",
     )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        default=False,
+        help="Run built-in unit and fixture tests",
+    )
 
     args = parser.parse_args()
+
+    if args.test:
+        suite = unittest.TestLoader().loadTestsFromTestCase(TestUpdateChecker)
+        runner = unittest.TextTestRunner(verbosity=2)
+        result = runner.run(suite)
+        return 0 if result.wasSuccessful() else 1
 
     constants_path = (
         Path(args.constants_path)
