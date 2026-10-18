@@ -1,3 +1,12 @@
+## [2.8.0-experimental.2](https://github.com/kveld9/kveld-morphe-patches/compare/v2.8.0-experimental.1...v2.8.0-experimental.2) (2026-10-18)
+
+### Bug Fixes
+
+* **gboard:** hide Help and feedback entry in Keyboard Settings ([2c5aa54](https://github.com/kveld9/kveld-morphe-patches/commit/2c5aa540094f587475fd04fb99feb5ae335761c2))
+* **gboard:** remove stale 0x7f1409ac footer matcher to preserve AutoTranslate ([740a2a5](https://github.com/kveld9/kveld-morphe-patches/commit/740a2a5a7357134082fffda94f33f0a7d5e34d4a))
+* **gboard:** restore Preferences and other native settings sections ([96d1528](https://github.com/kveld9/kveld-morphe-patches/commit/96d152814c90cdba1519c88f2e935a7cbe989438))
+* **gboard:** use the native emoji size slider in Morphe settings ([47ac506](https://github.com/kveld9/kveld-morphe-patches/commit/47ac506db3ebed31b30af6c9c417226983839091))
+
 ## [2.8.0-experimental.1](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0...v2.8.0-experimental.1) (2026-10-17)
 
 ### ⚠ BREAKING CHANGES
