@@ -39,9 +39,11 @@ APP_SPECS: List[Dict[str, Any]] = [
     #     "package_name": "com.example.app",        # 3. Android application package name
     #     "constant_key": "MY_APP_TARGET_VERSION",  # 4. Target version constant defined in Constants.kt
     #     "source_type": "apkmirror",               # 5. Upstream host type: "apkmirror" or "apkpure"
-    #     "source_url": "https://www.apkmirror.com/apk/slug/app/",  # 6. Canonical listing URL (HTTP 200 verified live)
-    #     "path_prefix": "/apk/slug/app/app-",      # URL path prefix for release links (apkmirror)
+    #     "source_name": "APKMirror",               # 6. Display name of upstream host, must match the entry's source
+    #     "source_url": "https://www.apkmirror.com/apk/slug/app/",  # 7. Canonical listing URL (HTTP 200 verified live)
+    #     "path_prefix": "/apk/slug/app/app-",      # URL path prefix for release links (apkmirror). Release-level vs directory-level prefix both work with startswith (Brave uses directory-level).
     #     "allow_beta": False,                      # Pre-release filter (typically False for stable patch releases)
+    #     # "require_variant_marker": "...",        # Optional: set for variant-pinned listings (e.g. Gboard); omitted otherwise (consumer reads via .get)
     # },
     # ==============================================================================
     {
