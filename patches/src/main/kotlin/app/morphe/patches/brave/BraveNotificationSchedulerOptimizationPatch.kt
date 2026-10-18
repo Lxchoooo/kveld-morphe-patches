@@ -109,6 +109,10 @@ val braveNotificationSchedulerOptimizationPatch = bytecodePatch(
         }
 
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Silence Promo Notifications] Injected Smali hooks into ${hookedMethods.size} methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
+        if (hookedMethods.isEmpty()) {
+            println("[Silence Promo Notifications] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println("[Silence Promo Notifications] Injected Smali hooks into ${hookedMethods.size} methods across ${targetClasses.size} classes (${targetClasses.joinToString(", ")})")
+        }
     }
 }

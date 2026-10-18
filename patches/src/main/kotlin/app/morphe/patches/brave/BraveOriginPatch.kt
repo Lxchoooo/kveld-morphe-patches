@@ -411,8 +411,12 @@ val braveOriginPatch = bytecodePatch(
 
         val configuredGatekeepers = GATEKEEPER_POLICIES.map { it.name } + "Leo Flag"
         val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println(
-            "[Brave Origin] Hooked ${hookedMethods.size} core methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")}) & configured ${configuredGatekeepers.size} policy gatekeepers (${configuredGatekeepers.joinToString(", ")})"
-        )
+        if (hookedMethods.isEmpty()) {
+            println("[Brave Origin] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            println(
+                "[Brave Origin] Hooked ${hookedMethods.size} core methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")}) & configured ${configuredGatekeepers.size} policy gatekeepers (${configuredGatekeepers.joinToString(", ")})"
+            )
+        }
     }
 }
