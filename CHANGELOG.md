@@ -1,3 +1,25 @@
+## [2.8.0-experimental.2](https://github.com/kveld9/kveld-morphe-patches/compare/v2.8.0-experimental.1...v2.8.0-experimental.2) (2026-10-18)
+
+### Bug Fixes
+
+* **brave,gboard:** warn when zero hooks resolve (split from [#126](https://github.com/kveld9/kveld-morphe-patches/issues/126)) ([d3ebf81](https://github.com/kveld9/kveld-morphe-patches/commit/d3ebf815d5b5ca67ee9a48abcedf2fae05e9950f)), closes [#152](https://github.com/kveld9/kveld-morphe-patches/issues/152)
+* **brave:** point download hint at supported Monochrome builds ([282264d](https://github.com/kveld9/kveld-morphe-patches/commit/282264db795c7c9a0e04cc1dac3d169a99843a35))
+* **chromium:** harden clipboard fingerprint with setPrimaryClip ([f9295ae](https://github.com/kveld9/kveld-morphe-patches/commit/f9295ae1f7051e64568ce6243d64da074243e41b))
+* **gboard,chromium:** warn on zero hooks, never throw; align policy ([b161c2b](https://github.com/kveld9/kveld-morphe-patches/commit/b161c2b3b29f00c188cb44c3df845c909c3a396b)), closes [#152](https://github.com/kveld9/kveld-morphe-patches/issues/152) [#152](https://github.com/kveld9/kveld-morphe-patches/issues/152)
+* **gboard:** hide Help and feedback entry in Keyboard Settings ([f6beaa1](https://github.com/kveld9/kveld-morphe-patches/commit/f6beaa116113a8501ce20ce73727c9ea5291de6c))
+* **gboard:** remove stale 0x7f1409ac footer matcher to preserve AutoTranslate ([b41b3d5](https://github.com/kveld9/kveld-morphe-patches/commit/b41b3d5f719a78a2fee54ea3c3d8fc7beb3dfa7b))
+* **gboard:** restore Preferences and other native settings sections ([673f78f](https://github.com/kveld9/kveld-morphe-patches/commit/673f78f80308003c0362d6a0becb9bbffdf8602d))
+* **gboard:** use the native emoji size slider in Morphe settings ([f3b1cf7](https://github.com/kveld9/kveld-morphe-patches/commit/f3b1cf79b4d471e93948bc2562bbd9befc7ad3e2))
+* **patches:** add (Universal) to the Allow Screenshots name ([a123f26](https://github.com/kveld9/kveld-morphe-patches/commit/a123f26b58494e49f55844ab577f413e20adc611))
+* **patches:** add (Universal) to the Block Trackers name ([057e0f9](https://github.com/kveld9/kveld-morphe-patches/commit/057e0f969286f9658148542fa31feccf3f1122bc))
+* **patches:** add (Universal) to the Block Tracking Servers name ([72ca85e](https://github.com/kveld9/kveld-morphe-patches/commit/72ca85ea3a24c18b8e57ef473e2a4660f21acb65))
+* **patches:** add (Universal) to the Remove Extra Languages name ([21ae372](https://github.com/kveld9/kveld-morphe-patches/commit/21ae3723453215270bb70896ed535ac5dbc70283))
+* **patches:** add (Universal) to the Stop Background Sync name ([78fd5e8](https://github.com/kveld9/kveld-morphe-patches/commit/78fd5e8f2ee2ed5f3fbef8ee5e604e5bb8d43d03))
+* **patches:** add (Universal) to the Strip Sensitive Permissions name ([a3d15c3](https://github.com/kveld9/kveld-morphe-patches/commit/a3d15c35fe8a8cc7df3bcb74c5776102b51e11f3))
+* **patches:** warn when a patch resolves zero hooks ([3715c8a](https://github.com/kveld9/kveld-morphe-patches/commit/3715c8a3e69a23f0f68c062747323a2858b86891))
+* range invokes for dynamic registers on consolidated patch files ([1433582](https://github.com/kveld9/kveld-morphe-patches/commit/1433582aef2217ba684af5e7a252f8d0b891aeed))
+* **tiktok:** jumbo string guard in region bypass ([4a586cb](https://github.com/kveld9/kveld-morphe-patches/commit/4a586cba8bde720d054bbf561018e097256f9503))
+
 ## [2.8.0-experimental.1](https://github.com/kveld9/kveld-morphe-patches/compare/v2.7.0...v2.8.0-experimental.1) (2026-10-18)
 
 ### ⚠ BREAKING CHANGES
