@@ -185,7 +185,11 @@ val braveCleanNewTabPagePatch = bytecodePatch(
             println("[Clean New Tab] Stats listener hook note: ${e.message}")
         }
 
-        val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Clean New Tab] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
+        if (hookedMethods.isEmpty()) {
+            println("[Clean New Tab] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
+            println("[Clean New Tab] Neutralized ${hookedMethods.size} NTP marketing & layout components across ${targetClasses.size} classes")
+        }
     }
 }

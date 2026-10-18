@@ -378,8 +378,12 @@ val braveBlockTelemetryPatch = bytecodePatch(
             hookedMethods.add("BraveReferrer.initReferrer")
         }
 
-        val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
-        println("[Block Telemetry] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
+        if (hookedMethods.isEmpty()) {
+            println("[Block Telemetry] WARNING: applied 0 hook(s) -> this feature is NOT active on this APK; its targets moved upstream.")
+        } else {
+            val targetClasses = hookedMethods.map { it.substringBefore('.') }.distinct()
+            println("[Block Telemetry] Hooked ${hookedMethods.size} bytecode telemetry methods across ${targetClasses.size} classes (${hookedMethods.joinToString(", ")})")
+        }
     }
 }
 
