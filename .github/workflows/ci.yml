@@ -31,6 +31,8 @@ jobs:
         run: python3 .github/scripts/check_docs_anchors.py
       - name: Check documentation patch catalogs
         run: python3 .github/scripts/check_docs_patch_names.py
+      - name: Check documentation target versions
+        run: python3 .github/scripts/check_compatibility_versions.py
       - name: Gradle check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
